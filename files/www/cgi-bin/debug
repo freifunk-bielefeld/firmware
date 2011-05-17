@@ -1,0 +1,26 @@
+#!/bin/sh
+echo -en "Status: 200 OK\r\n"
+echo -en "Content-Type: text/html\r\n"
+echo -en "\r\n"
+
+echo "<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head></head><body>"
+echo "<h1>Router Status</h1>"
+echo "<h2>Batman-ADV</h2>"
+echo "<pre>"
+batctl tg | cat
+batctl tl |cat
+echo "</pre>"
+echo "<h2>Netzwerk</h2>"
+echo "<pre>"
+ifconfig | cat
+echo "</pre>"
+echo "<h2>Prozesse</h2>"
+echo "<pre>"         
+ps aux | cat       
+echo "</pre>" 
+echo "<h2>UCI</h2>"
+echo "<pre>"         
+uci show | cat       
+echo "</pre>" 
+echo "</body></html>"
+
