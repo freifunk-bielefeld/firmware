@@ -1,0 +1,3 @@
+#/bin/bash!
+hostname=`hostname`
+eval "echo \"$(cat template.status.xml)\"" 
