@@ -5,7 +5,7 @@ config 'interface' 'loopback'
 	option 'ipaddr' '127.0.0.1'
 	option 'netmask' '255.0.0.0'
 
-# networks
+# bridged configuration
 
 config 'interface'  'mesh'
 	option 'type' 'bridge'

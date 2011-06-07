@@ -18,8 +18,8 @@ config zone
         option forward  REJECT             
                    
 #config forwarding                  
-#        option src      mesh       
-#        option dest     wan                
+        option src      mesh       
+        option dest     wan                
 
 
 # We need to accept udp packets on port 68,

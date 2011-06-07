@@ -12,5 +12,6 @@ config wifi-iface
 config wifi-iface
         option device   wifi0
         option mode     ap
+        option network  lan
         option ssid     www.freifunk-bielefeld.de
 
