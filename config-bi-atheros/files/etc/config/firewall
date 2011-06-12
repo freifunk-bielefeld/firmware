@@ -17,7 +17,7 @@ config zone
         option output   ACCEPT             
         option forward  REJECT             
                    
-#config forwarding                  
+config forwarding                  
         option src      mesh       
         option dest     wan                
 
