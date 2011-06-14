@@ -1,0 +1,10 @@
+#!/bin/sh
+case "${ACTION:-ifup}" in
+        ifup)
+		gpioctl dirout 1
+                gpioctl set 1
+        ;;
+        ifdown)
+                gpioctl clear 1
+        ;;
+esac

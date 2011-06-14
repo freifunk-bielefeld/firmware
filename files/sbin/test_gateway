@@ -1,0 +1,15 @@
+#!/bin/sh
+TESTHOST=4.2.2.4
+ping -c 1 -w 5 $TESTHOST &>/dev/null
+
+if [ $? -ne 0 ] ; then
+        // IP not reachable -> try if-down-up
+        ifdown wan
+        ifup wan
+        sleep 10
+        // Test Again
+        ping -c 1 -w 5 4.2.2.4 &>/dev/null
+        if [ $? -ne 0 ] ; then
+                ifdown wan
+        fi
+fi

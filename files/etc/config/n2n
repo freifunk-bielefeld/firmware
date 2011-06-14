@@ -1,0 +1,17 @@
+config edge
+	option ipaddr		'0.0.0.0'
+	option supernode	'fritz-der-server.de'
+	option port		'2009'
+	option community	'ffb1'
+	option key		'ffb1'
+	option devname		'edge0'
+	option route		''
+
+#config edge
+#        option ipaddr           '1.2.3.4'
+#        option supernode        '89.238.83.22'
+#        option port             '9876'
+#        option community        'ffb2'
+#        option key              'ffb2'
+#        option devname          'n2n2'
+#        option route            ''

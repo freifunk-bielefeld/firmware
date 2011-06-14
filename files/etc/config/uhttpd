@@ -1,0 +1,39 @@
+# Server configuration
+config uhttpd main
+
+	# HTTP listen addresses, multiple allowed
+	list listen_http	0.0.0.0:80
+	# Server document root
+	option home		/www
+	option error_page 	/cgi-bin/redirect
+	option index_page	cgi-bin/redirect
+	# Reject requests from RFC1918 IP addresses
+	# directed to the servers public IP(s).
+	# This is a DNS rebinding countermeasure.
+	option rfc1918_filter 1
+
+	# CGI url prefix, will be searched in docroot.
+	# Default is /cgi-bin
+	option cgi_prefix	/cgi-bin
+
+	# CGI/Lua timeout, if the called script does not
+	# write data within the given amount of seconds,
+	# the server will terminate the request with
+	# 504 Gateway Timeout response.
+	option script_timeout	60
+
+	# Network timeout, if the current connection is
+	# blocked for the specified amount of seconds,
+	# the server will terminate the associated
+	# request process.
+	option network_timeout	30
+
+	# TCP Keep-Alive, send periodic keep-alive probes
+	# over established connections to detect dead peers.
+	# The value is given in seconds to specify the
+	# interval between subsequent probes.
+	# Setting this to 0 will disable TCP keep-alive.
+	option tcp_keepalive	1
+
+
+
