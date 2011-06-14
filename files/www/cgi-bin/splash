@@ -2,5 +2,6 @@
 echo -en "Status: 200 OK\r\n"
 echo -en "Content-Type: text/html\r\n"
 echo -en "\r\n"
-targeturl=$(echo $QUERY_STRING | sed -f /etc/urlencode.sed)
-sed "s/targeturl/"$targeturl"/g" /www/splash.html 
+targeturl=`echo $QUERY_STRING | sed 's/+/ /g; s/%/\\x/g'`
+#targeturl=$(echo $QUERY_STRING | sed -f /etc/urlencode.sed)
+sed "s^targeturl^"$targeturl"^g" /www/splash.html 

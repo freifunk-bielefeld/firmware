@@ -1,8 +1,10 @@
 #!/bin/sh
-echo -en "Status: 200 OK\r\n"
-echo -en "Content-Type: text/html\r\n"
-echo -en "\r\n"
-                                    
+
+echo -en "Cache-Control: no-cache, max-age=0, no-store, must-revalidate\r\n"
+echo -en "Pragma: no-cache\r\n"
+echo -en "Expires: -1\r\n"
+echo -en "Status: 302 Temporary Redirect\r\n"
+  
 . $IPKG_INSTROOT/etc/functions.sh
 ISSPLASHED=0
 config_load splash_users
@@ -14,21 +16,21 @@ is_ip() {
 }
 #check if user is alredy splashed
 config_foreach is_ip user
+
 targeturl=$(echo $QUERY_STRING | sed 's/+/ /g; s/%/\\x/g')
-sed "s/targeturl/"$targeturl"/g" /www/iframe.html
+echo -en "Location: "$targeturl"\r\n"
+echo -en "\r\n"
+
 
 if [ $ISSPLASHED -eq 1 ]; then
 	exit
 fi
 #User is now free to go
-iptables  -t nat -I ffj_splash 1 -s $REMOTE_HOST -j ACCEPT
+iptables  -t nat -I ff_splash 1 -s $REMOTE_HOST -j ACCEPT
 
 uci add splash_users user
 uci set splash_users.@user[-1].ip=$REMOTE_HOST
 uci set splash_users.@user[-1].time=`date +%s`
 uci -q commit > /dev/null
 exit 0
-
-
-                                               
 
