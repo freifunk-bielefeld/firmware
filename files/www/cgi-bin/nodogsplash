@@ -1,0 +1,92 @@
+#!/usr/bin/haserl 
+<%
+
+
+case $GET_func in
+  status)
+	ndsctl status
+	;;
+  clients)
+  	ntsctl clients
+  	;;
+  auth)
+	ndsctl auth $ip
+	;;
+  deauth)
+	ndsctl deauth $mac_ip
+	;;
+  block)
+  	ndsctl block $mac
+  	;;
+  unblock)
+  	ndsctl unblock $mac 
+  	;;
+  allow)
+	ndsctl allow $mac
+	;;
+  unallow)
+	ndsctl unallow $mac                                                                      
+	;;
+  trust)
+  
+                    trust mac         Trust the given MAC address
+                      untrust mac       Untrust the given MAC address
+                        loglevel n        Set logging level to n
+                          password pass     Set gateway password
+                            username name     Set gateway username
+
+  login)
+    echo "login"
+    ;;
+  reboot)
+    reboot
+    ;;
+  get_settings_setup)
+    echo `uci -q get freifunk.settings.setup`
+    ;;
+  get_settings_ah_ssid)
+    echo `uci -q get freifunk.settings.ah_ssid`
+    ;;
+  get_settings_ap_ssid)
+    echo `uci -q get freifunk.settings.ap_ssid`
+    ;;
+  get_settings_mesh_ip)
+    echo `uci -q get freifunk.settings.mesh_ip`
+    ;;
+  get_settings_wifi_devide)
+    echo `uci -q get freifunk.settings.wifi_devide`
+    ;;
+  get_settings_wifi_interface)
+    echo `uci -q get freifunk.settings.wifi_interface`
+    ;;
+  get_settings_lan_interface)
+    echo `uci -q get freifunk.settings.lan_interface`
+    ;;
+  get_settings_wan_interface)
+    echo `uci -q get freifunk.settings.wan_interface`
+    ;;
+  set_settings_freifunk)
+    echo `uci -q set freifunk.settings.${GET_name}=${GET_value}`
+    ;;
+  get_batman_mode)
+    echo `uci get batman-adv.bat0.gw_mode`
+    ;;
+  get_nodogsplash_macs)
+    ;;
+  get_batman)
+    batctl o
+    ;;
+  get_nodogsplash)
+    ndsctl status
+    ;;
+  apply_firmware)
+    if [ -n $HASERL_firmware_path ]; then
+        sysupgrade -n $HASERL_firmware_path
+    fi
+    #cat $HASERL_uploadfile_path | wc -c
+    ;;
+  *)
+    echo "Unknown function '$GET_func'."
+    ;;
+esac
+%>

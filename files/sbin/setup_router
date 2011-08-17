@@ -1,0 +1,64 @@
+#!/bin/sh
+echo "Soll dieser Router als Gateway arbeiten? (j/n) "
+read router
+echo
+if [[ $router = "j" ]]
+        then
+		#Act a a Router
+		#set ipv4 Adress
+    echo "Bitte warten, es wird automatisch eine freie IP ermittelt (Kann bis zu 10 Minuten dauern)"
+    /etc/init.d/n2n enable
+    /etc/init.d/n2n start
+    sleep 20
+    for i in `seq 1 254 `; do
+      LOSS=`ping -c3 10.17.$i.1 | grep loss | awk '{print $7}' | sed 's/%//g'; sleep 1`
+      sleep 1;
+      if [[ 99 -lt $LOSS ]]; then
+        NODE_IP=10.17.$i.1
+        oct3=$i
+        break
+      fi
+    done
+
+		uci set network.mesh.ipaddr=$NODE_IP
+		uci set network.mesh.proto=static
+		uci set network.mesh.netmask=255.255.0.0
+		uci set dhcp.mesh=dhcp
+		uci set dhcp.mesh.start=2
+		uci set dhcp.mesh.limit=254
+		uci set dhcp.mesh.leasetime=12h
+		uci set dhcp.mesh.interface=mesh
+		uci set dhcp.mesh.start_ip=10.17.$oct3.2
+		uci set dhcp.mesh.end_ip=10.17.$oct3.254
+		uci commit dhcp
+		# Batman Server Mode
+		uci set batman-adv.bat0.gw_mode=server
+		uci commit batman-adv
+    # Add Cron Jobs
+    echo "* * * * * /sbin/test_gateway > /dev/null" >> /etc/crontabs/root
+    echo "* * * * * /sbin/splash_sync > /dev/null" >> /etc/crontabs/root
+    echo "*/15 * * * * /sbin/n2n_watchdog > /dev/null" >> /etc/crontabs/root
+    /etc/init.d/cron restart
+    echo $'\n\n\n\n'
+    echo "Einrichtung des Routers abgeschossen!
+Dieser Router hat folgende IP: $NODE_IP"
+    echo $'\n\n\n\n'
+	else
+	# Act as a node only
+		uci del dhcp.mesh
+		uci commit dhcp
+		uci del network.mesh.ipaddr
+		uci del network.mesh.proto
+		uci del network.mesh.netmask
+		uci commit network
+		echo "Der Router wird als normaler Node konfiguriert"
+		echo
+		# Batman Client Mode
+		uci set batman-adv.bat0.gw_mode=client
+		uci commit batman-adv
+fi
+uci commit
+/etc/init.d/batman-adv restart
+#TODO: Generate Subnet
+#TODO: DHCP Configuration
+#HINT: Port freifunk-wizzard-leipzig in from lua (http://luci.subsignal.org/trac/browser/luci/branches/luci-0.10/applications/luci-ffwizard-leipzig/luasrc/model/cbi/ffwizard.lua)

@@ -1,0 +1,13 @@
+#!/usr/bin/haserl
+<%
+
+ipaddr=`uci get n2n.ipaddr`
+supernode=`uci get n2n.supernode`
+port=`uci get n2n.port`
+community=`uci get n2n.community`
+key=`uci get n2n.key`
+route=`uci get n2n.route`
+
+echo "{ 'ipaddr':'$ipaddr', 'supernode':'$supernode', 'port':'$port', 'community':'$community', 'key':'$key', 'route':'$route'}"
+
+%>

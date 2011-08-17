@@ -1,0 +1,8 @@
+
+config ff_settings 'settings'
+    option 'wan_interface' ''
+    option 'lan_interface' ''
+    option 'ap_ssid' 'www.freifunk-bielefeld.de'
+    option 'ah_ssid' 'batman.freifunk-bielefeld.de'
+    option 'wifi_interface' ''
+    option 'wifi_device' ''

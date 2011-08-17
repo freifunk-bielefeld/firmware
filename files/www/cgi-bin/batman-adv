@@ -1,0 +1,16 @@
+#!/usr/bin/haserl 
+<%
+
+
+case $GET_func in
+  batctl_o)
+	batctl o
+	;;
+  batctl_gw)
+  	batctl gw
+  	;;
+  *)
+    echo "Unknown function '$GET_func'."
+    ;;
+esac
+%>

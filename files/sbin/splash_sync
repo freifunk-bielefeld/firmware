@@ -7,46 +7,45 @@ myip=`uci get network.mesh.ipaddr`
 splash_check() {
    timeout=6000
    current_time=`date +%s`
-   config_get ip "$1" ip
+   config_get mac "$1" mac
    config_get time "$1" time
    local config="$1" 
    let time_check=$time+$timeout
    if [ $time_check -gt  $current_time ]; then
-   	# User is still splashed
-   	iptables  -t nat -D ff_splash -s $ip -j ACCEPT
-   	iptables  -t nat -I ff_splash 1 -s $ip -j ACCEPT
+   	# User ist noch gesplashed
+   	iptables  -t nat -D ffj_splash -m mac --mac-source $mac -j ACCEPT
+   	iptables  -t nat -I ffj_splash 1 -m mac --mac-source $mac -j ACCEPT
    else
    	# User is not longer splashed / the user must click again
-   	iptables -t nat -D ff_splash -s $ip -j ACCPET
-   	uci delete splash_users.@user[$x].ip
+   	iptables -t nat -D ffj_splash -m mac --mac-source $mac -j ACCEPT
+   	uci delete splash_users.@user[$x].mac
    	uci delete splash_users.@user[$x].time
-   	uci delete splash_users.@user[$x]
-   	uci commit
+   	uci delete splash_users.@user[$x]     
+   	
    fi
    let x=$x+1
 }
-
 #chain refresh
-iptables -t nat -D zone_mesh_prerouting -p tcp -j ff_splash
-iptables -t nat -F ff_splash
-iptables -t nat -X ff_splash
-
+iptables -t nat -D zone_mesh_prerouting -p tcp -j ffj_splash 
+iptables -t nat -F ffj_splash
+iptables -t nat -X ffj_splash 
 #recreation
-iptables -t nat -N ff_splash
-iptables -t nat -I zone_mesh_prerouting 1 -p tcp -j ff_splash
-
+iptables -t nat -N ffj_splash
+iptables -t nat -I zone_mesh_prerouting 1 -p tcp -j ffj_splash
 config_foreach splash_check user
-
 #DNS Whitelisting
-iptables -t nat -p udp -A ff_splash --dport 53 -j ACCEPT
+iptables -t nat -p udp -A ffj_splash --dport 53 -j ACCEPT
 #Jabber Whitelisting
-#iptables -t nat -p tcp -A ff_splash --dport 5222 -j ACCEPT
-#iptables -t nat -p tcp -A ff_splash --dport 5223 -j ACCEPT
+iptables -t nat -p tcp -A ffj_splash --dport 5222 -j ACCEPT
+iptables -t nat -p tcp -A ffj_splash --dport 5223 -j ACCEPT
 #Free Wavez in Freifunk
-#iptables -t nat -A ff_splash -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT
-#Freifunk-Bielefeld Whitelisting
-#iptables -t nat -A ff_splash -d freifunk-bielefeld.de -j ACCEPT
-#iptables -t nat -A ff_splash -d www.freifunk-bielefeld.de -j ACCEPT
+iptables -t nat -A ffj_splash -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT
+#Freifunk-Jena Whitelisting
+iptables -t nat -A ffj_splash -d freifunk-jena.de -j ACCEPT
+iptables -t nat -A ffj_splash -d www.freifunk-jena.de -j ACCEPT
 #Jappix Whitelisting
-#iptables -t nat -A ff_splash -d  static.jappix.com -j ACCEPT
-iptables -t nat -A ff_splash -p tcp -j DNAT --to $myip:80
+iptables -t nat -A ffj_splash -d  static.jappix.com -j ACCEPT
+iptables -t nat -A ffj_splash -p tcp -j DNAT --to $myip:80
+
+                                               
+

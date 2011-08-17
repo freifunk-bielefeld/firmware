@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<!-- http://www.assemblesoft.com/examples/form/simpleform.html -->
+<html>
+<head>
+<title>Freifunk-N2N</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="nav.css">
+<link rel="stylesheet" type="text/css" href="forms.css">
+<script src="jquery.min.js"></script>
+<script src="base.js"></script>
+<script type="text/javascript">
+  $.get("/cgi-bin/n2n", { func: "none" }, function(data){
+    $('#text').text(data);
+  });
+    
+  $(document).ready(function() {
+    setupSite();
+  });
+</script>
+</head>
+
+<body>
+<div id="header"></div>
+<div id="tab"><pre id="text"></pre></div>
+<div id="footer"></div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+#!/bin/sh
+TESTHOST=4.2.2.4
+ping -c 1 -w 5 -I tun0 $TESTHOST &>/dev/null
+
+if [ $? -ne 0 ] ; then
+        // IP not reachable -> restart openvpn
+        /etc/init.d/openvpn restart
+        sleep 10
+        // Test Again
+        ping -c 1 -w 5 -I tun0 $TESTHOST &>/dev/null
+        if [ $? -ne 0 ] ; then
+                /etc/init.d/openvpn stop
+                ifdown wan
+        fi
+fi
