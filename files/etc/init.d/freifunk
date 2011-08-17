@@ -6,12 +6,13 @@ START=96
 
 start () {
 
-LOG=/tmp/freifunk.log
-date > $LOG
+#write everything from stdout and stderr to a log file
+exec >/tmp/freifunk.log 2>&1
+date
 
 #abort if /etc/config/freifunk doesn's exist
 if [ ! -f /etc/config/freifunk ]; then
-    echo "/etc/config/freifunk not found" >> $LOG
+    echo "/etc/config/freifunk not found"
     exit
 fi
 
@@ -26,12 +27,37 @@ wan_interface=`uci get freifunk.settings.wan_interface`
 lan_interface=`uci get freifunk.settings.lan_interface`
 
 
-echo "ah_ssid: '$ah_ssid'" >> $LOG
-echo "ap_ssid: '$ap_ssid'" >> $LOG
-echo "wifi_interface: '$wifi_interface'" >> $LOG
-echo "wifi_device: '$wifi_device'" >> $LOG
-echo "wan_interface: '$wan_interface'" >> $LOG
-echo "lan_interface: '$lan_interface'" >> $LOG
+echo "ah_ssid: '$ah_ssid'"
+echo "ap_ssid: '$ap_ssid'"
+echo "wifi_interface: '$wifi_interface'"
+echo "wifi_device: '$wifi_device'"
+echo "wan_interface: '$wan_interface'"
+echo "lan_interface: '$lan_interface'"
+
+
+echo "get lan interface"
+if [ -z "$lan_interface" ]; then
+    lan_interface=`uci get network.@switch_vlan[0].device`
+    if [ -z "$lan_interface" ]; then
+        echo "Cannot get lan_interface"
+        exit
+    else
+        uci set freifunk.settings.lan_interface=$lan_interface
+        uci commit freifunk
+    fi
+fi
+
+echo "get wan interface"
+if [ -z "$wan_interface" ]; then
+    wan_interface=`uci get network.wan.ifname`
+    if [ -z "$wan_interface" ]; then
+        echo "Cannot get wan_interface"
+        exit 1
+    else
+        uci set freifunk.settings.wan_interface=$wan_interface
+        uci commit freifunk
+    fi
+fi
 
 
 if  [ -f /etc/rc.d/S60dnsmasq ]; then
@@ -49,44 +75,21 @@ if  [ -f /etc/rc.d/S90batman-adv ]; then
     /etc/init.d/batman-adv disable
 fi
 
-
-if [ -z "$lan_interface" ]; then
-    lan_interface=`uci get network.@switch_vlan[0].device`
-    if [ -z "$lan_interface" ]; then
-        echo "Cannot get lan_interface" >> $LOG
-        exit
-    else
-        uci set freifunk.settings.lan_interface=$lan_interface
-        uci commit freifunk
-    fi
-fi
-
-if [ -z "$wan_interface" ]; then
-    wan_interface=`uci get network.wan.ifname`
-    if [ -z "$wan_interface" ]; then
-        echo "Cannot get wan_interface" >> $LOG
-        exit 1
-    else
-        uci set freifunk.settings.wan_interface=$wan_interface
-        uci commit freifunk
-    fi
-fi
-
 wan_mac=$(ifconfig $wan_interface | grep HWaddr | awk '{print $5}')
-echo "wan_mac '$wan_mac'" >> $LOG
+echo "wan_mac '$wan_mac'"
 
 let x=29
 let y=0x${wan_mac:12:2}                             
 let z=0x${wan_mac:15:2}                      
 mesh_ip="10.$x.$y.$z"
-echo "mesh_ip '$mesh_ip'" >> $LOG
+echo "mesh_ip '$mesh_ip'"
 
 
 # default configuration on first boot
 if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
-    echo "do setup" >> $LOG
-
+    
     ## /etc/config/network ##
+    echo "setup /etc/config/network"
     uci -q delete network.lan
     uci -q delete network.mesh
     uci set network.mesh="interface"
@@ -98,6 +101,7 @@ if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
     uci set network.mesh.netmask="255.0.0.0"
     uci commit network
 
+    echo "get wifi_device"
     if [ -z "$wifi_device" ]; then
         wifi_device=`uci get wireless.@wifi-iface[0].device` #`uci show wireless | awk '/=wifi-device/ {print}'`
         if [ -z "$wifi_device" ]; then
@@ -109,6 +113,7 @@ if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
         fi
     fi
     
+    echo "setup /etc/config/wireless"
     ## /etc/config/wireless ##
     uci set wireless.$wifi_device.channel=1
 
@@ -135,17 +140,21 @@ if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
 
     #uci commit wireless
     uci commit wireless
+    
+    echo "wireless down/up"
     wifi down
     wifi up
     
+    echo "setup /etc/config/dhcp"
     uci set dhcp.mesh.start=$((256*256*$x+1))
     uci set dhcp.mesh.limit=$((255*255+253))
     uci commit dhcp
     
+    echo "get wifi interface"
     if [ -z "$wifi_interface" ]; then
         wifi_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
         if [ -z "$wifi_interface" ]; then
-            echo "Cannot get wifi_interface" >> $LOG
+            echo "Cannot get wifi_interface"
             exit 1
         else
             uci set freifunk.settings.wifi_interface=$wifi_interface
@@ -154,66 +163,69 @@ if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
     fi
     
     if [ -z "$ah_ssid" -o -z "$ap_ssid" ]; then
-        echo "ah_ssid and ap_ssid required" >> $LOG
+        echo "ah_ssid and ap_ssid required"
         exit 1
     fi
 
     if [ "$ah_ssid" == "$ap_ssid" ]; then
-        echo "ah_ssid and ap_ssid need to be different" >> $LOG
+        echo "ah_ssid and ap_ssid need to be different"
         exit 1
     fi
 fi
 
 
+echo "restart /etc/init.d/network"
 /etc/init.d/network restart             
-echo "network $?" >> $LOG
 
+echo "restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
-echo "dnsmasq $?" >> $LOG
 
 
 wan_ip=$(route -n | grep 'UG' | awk '{ print $2}')
-echo "wan_ip: '$wan_ip'" >> $LOG
+echo "wan_ip: '$wan_ip'"
 
 #for batman
 ifconfig $wifi_interface mtu 1527
 
 IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 if [ $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
-    echo "Der Router wird als Gateway konfiguriert." >> $LOG
+    echo "Configure node as gateway."
     if [ -n `uci get n2n.@edge[0].key` ]; then
-        echo "Eintrag in /etc/config/n2n gefunden. Starte VPN Tunnel." >> $LOG
+        echo "Eintrag in /etc/config/n2n gefunden. Starte VPN Tunnel."
         /etc/init.d/n2n restart
         sleep 20
     fi
     
-    /etc/init.d/nodogsplash start                
-    echo "nodogsplash $?" >> $LOG
+    echo "restart /etc/init.d/nodogsplash"
+    /etc/init.d/nodogsplash restart
     
     # Batman Server Mode
     uci set batman-adv.bat0.interfaces="$wifi_interface"
     uci set batman-adv.bat0.gw_mode=server
+    uci commit batman-adv
+    
 else
-    echo "Der Router wird als Client konfiguriert." >> $LOG
+    echo "Configure node as client."
     
     # Batman Client Mode
     uci set batman-adv.bat0.interfaces="$wifi_interface"
     uci set batman-adv.bat0.gw_mode=client
+    
 fi
-
 uci commit batman-adv
+
+echo "restart /etc/init.d/batman-adv "
 /etc/init.d/batman-adv restart
-echo "batman-adv $?" >> $LOG
 
 
-echo "###################" >> $LOG
-echo "ah_ssid: '$ah_ssid'" >> $LOG
-echo "ap_ssid: '$ap_ssid'" >> $LOG
-echo "wifi_interface: '$wifi_interface'" >> $LOG
-echo "wifi_device: '$wifi_device'" >> $LOG
-echo "mesh_ip: '$mesh_ip'" >> $LOG
-echo "wan_interface: '$wan_interface'" >> $LOG
-echo "lan_interface: '$lan_interface'" >> $LOG
+echo "###################"
+echo "ah_ssid: '$ah_ssid'"
+echo "ap_ssid: '$ap_ssid'"
+echo "wifi_interface: '$wifi_interface'"
+echo "wifi_device: '$wifi_device'"
+echo "mesh_ip: '$mesh_ip'"
+echo "wan_interface: '$wan_interface'"
+echo "lan_interface: '$lan_interface'"
 }
 
 stop () {
