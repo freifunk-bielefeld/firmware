@@ -202,8 +202,6 @@ if [ $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     # Batman Server Mode
     uci set batman-adv.bat0.interfaces="$wifi_interface"
     uci set batman-adv.bat0.gw_mode=server
-    uci commit batman-adv
-    
 else
     echo "Configure node as client."
     
@@ -212,6 +210,7 @@ else
     uci set batman-adv.bat0.gw_mode=client
     
 fi
+uci commit batman-adv
 uci commit batman-adv
 
 echo "restart /etc/init.d/batman-adv "
