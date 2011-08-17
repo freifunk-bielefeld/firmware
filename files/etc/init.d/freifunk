@@ -91,7 +91,7 @@ if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
     uci -q delete network.mesh
     uci set network.mesh="interface"
     uci set network.mesh.type="bridge"
-    uci add_list network.mesh.ifname="bat0 $lan_interface"
+    uci set network.mesh.ifname="bat0 $lan_interface"
     uci set network.mesh.mtu="1527"
     uci set network.mesh.ipaddr="$mesh_ip"
     uci set network.mesh.proto=static
