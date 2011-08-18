@@ -26,6 +26,7 @@ wifi_device=`uci get freifunk.settings.wifi_device`
 wan_interface=`uci get freifunk.settings.wan_interface`
 lan_interface=`uci get freifunk.settings.lan_interface`
 
+ff_subnet=`uci get freifunk.settings.ff_subnet`
 
 echo "ah_ssid: '$ah_ssid'"
 echo "ap_ssid: '$ap_ssid'"
@@ -78,10 +79,9 @@ fi
 wan_mac=$(ifconfig $wan_interface | grep HWaddr | awk '{print $5}')
 echo "wan_mac '$wan_mac'"
 
-let x=29
-let y=0x${wan_mac:12:2}
-let z=0x${wan_mac:15:2}
-mesh_ip="10.$x.$y.$z"
+let x=0x${wan_mac:12:2}
+let y=0x${wan_mac:15:2}
+mesh_ip="10.$ff_subnet.$x.$y"
 echo "mesh_ip '$mesh_ip'"
 
 
