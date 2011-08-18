@@ -13,7 +13,7 @@ date
 #abort if /etc/config/freifunk doesn's exist
 if [ ! -f /etc/config/freifunk ]; then
     echo "/etc/config/freifunk not found"
-    exit
+    exit 1
 fi
 
 
@@ -40,7 +40,7 @@ if [ -z "$lan_interface" ]; then
     lan_interface=`uci get network.@switch_vlan[0].device`
     if [ -z "$lan_interface" ]; then
         echo "Cannot get lan_interface"
-        exit
+        exit 1
     else
         uci set freifunk.settings.lan_interface=$lan_interface
         uci commit freifunk
@@ -79,8 +79,8 @@ wan_mac=$(ifconfig $wan_interface | grep HWaddr | awk '{print $5}')
 echo "wan_mac '$wan_mac'"
 
 let x=29
-let y=0x${wan_mac:12:2}                             
-let z=0x${wan_mac:15:2}                      
+let y=0x${wan_mac:12:2}
+let z=0x${wan_mac:15:2}
 mesh_ip="10.$x.$y.$z"
 echo "mesh_ip '$mesh_ip'"
 
@@ -103,10 +103,10 @@ if [ "$mesh_ip" != `uci -q get network.mesh.ipaddr` ]; then
 
     echo "get wifi_device"
     if [ -z "$wifi_device" ]; then
-        wifi_device=`uci get wireless.@wifi-iface[0].device` #`uci show wireless | awk '/=wifi-device/ {print}'`
+        wifi_device=`uci get wireless.@wifi-iface[0].device`
         if [ -z "$wifi_device" ]; then
-            echo "Cannot get wifi_device"
-            exit
+            echo "Cannot get wifi device"
+            exit 1
         else
             uci set freifunk.settings.wifi_device=$wifi_device
             uci commit freifunk
@@ -200,17 +200,16 @@ if [ $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     /etc/init.d/nodogsplash restart
     
     # Batman Server Mode
-    uci set batman-adv.bat0.interfaces="$wifi_interface"
-    uci set batman-adv.bat0.gw_mode=server
+    bat_mode="server"
 else
     echo "Configure node as client."
     
     # Batman Client Mode
-    uci set batman-adv.bat0.interfaces="$wifi_interface"
-    uci set batman-adv.bat0.gw_mode=client
-    
+    bat_mode="client"
 fi
-uci commit batman-adv
+
+uci set batman-adv.bat0.interfaces="$wifi_interface"
+uci set batman-adv.bat0.gw_mode="$bat_mode"
 uci commit batman-adv
 
 echo "restart /etc/init.d/batman-adv "
