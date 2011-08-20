@@ -2,13 +2,8 @@
 
 START=96
 
-#boot () {
 
 start () {
-
-#write everything from stdout and stderr to a log file
-exec >/tmp/freifunk.log 2>&1
-date
 
 
 ap_ssid="www.freifunk-bielefeld.de"
@@ -16,11 +11,9 @@ ah_ssid="batman.freifunk-bielefeld.de"
 ff_subnet=29
 
 
-wifi_interface=""
-wifi_device=""
-
-wan_interface=""
-lan_interface=""
+#write everything from stdout and stderr to a log file
+exec >/tmp/freifunk.log 2>&1
+date
 
 echo "(I) Freifunk: stop /etc/init.d/nodogsplash"
 /etc/init.d/nodogsplash stop
@@ -148,18 +141,14 @@ if [ -z "$wifi_interface" ]; then
     exit 1
 fi
 
-
 echo "(I) Freifunk: restart /etc/init.d/network"
 /etc/init.d/network restart
 
-echo "(I) Freifunk: firewall /etc/init.d/firewall"
+echo "(I) Freifunk: restart /etc/init.d/firewall"
 /etc/init.d/firewall restart
 
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
-
-#wan_ip=$(route -n | grep 'UG' | awk '{ print $2}')
-#echo "wan_ip: '$wan_ip'"
 
 #for batman
 ifconfig $wifi_interface mtu 1527
@@ -191,10 +180,6 @@ uci set batman-adv.bat0.gw_mode="$bat_mode"
 echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
 
+date
 echo "(I) Freifunk: done"
 }
-
-#stop () {
-    #nothing to do
-#}
-
