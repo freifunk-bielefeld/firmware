@@ -2,31 +2,19 @@
 
 <html>
 <head>
-<title>Firmware Update</title>
-<link rel="stylesheet" type="text/css" href="style.css" />
-<link rel="stylesheet" type="text/css" href="nav.css" />
+<title>Firmware</title>
 <link rel="stylesheet" type="text/css" href="forms.css">
 <script src="jquery.min.js"></script>
-<script src="base.js"></script>
-
-<script type="text/javascript">
-$(document).ready(function() {
-  setupSite();
-});
-</script>
 </head>
-
 <body>
-<div id="header"></div>
-<div id="tab">
 
-<form action="/cgi-bin/dispatch" enctype="multipart/form-data" method="post">
-<input type="file" name="datafile" size="40">
-<br />
-<input type="submit" value="Send">
-</form>
-
+<div id="main">
+    <form action="/cgi-bin/dispatch" enctype="multipart/form-data" method="post">
+    <input type="file" name="datafile" size="40">
+    <br />
+    <input type="submit" value="Send">
+    </form>
 </div>
-<div id="footer"></div>
+
 </body>
 </html>

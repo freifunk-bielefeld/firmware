@@ -3,114 +3,105 @@
 <html>
 <head>
 <title>Freifunk-Info</title>
-<link rel="stylesheet" type="text/css" href="style.css" />
-<link rel="stylesheet" type="text/css" href="nav.css" />
 <link rel="stylesheet" type="text/css" href="forms.css">
 <script src="jquery.min.js"></script>
-<script src="base.js"></script>
-
-<script type="text/javascript">
-
-$.get("/cgi-bin/dispatch", { func: "get_batman" }, function(data){
-    $('#text').text(data);
-});
-
-$.get("/cgi-bin/dispatch", { func: "get_settings_ah_ssid" }, function(data){
-    $('#ah_ssid').text(data);
-});
-
-$.get("/cgi-bin/dispatch", { func: "get_settings_ap_ssid" }, function(data){
-    $('#ap_ssid').text(data);
-});
-    
-$.get("/cgi-bin/dispatch", { func: "get_batman_mode" }, function(data){
-     $('#batman_mode').text(data);                                                    
-});
-
-$(document).ready(function() {
-  setupSite("info");
-});
-</script>
 </head>
-
 <body>
-<div id="header"></div>
-<div id="tab">
-<table>
-<tr><td>ap_ssid</td><td id="ap_ssid"></td></tr>
-<tr><td>ah_ssid</td><td id="ah_ssid"></td></tr>
-<tr><td>mesh_ip</td><td id="mesh_ip"></td></tr>
-<tr><td>wan_interface</td><td id="wan_interface"></td></tr>
-<tr><td>lan_interface</td><td id="lan_interface"></td></tr>
-<tr><td>wifi_interface</td><td id="wifi_interface"></td></tr>
-<tr><td>wifi_device</td><td id="wifi_device"></td></tr>
-<tr><td>setup</td><td>1</td id="setup"></tr>
-</table>
 
-<form action="">
-    <p>Please complete the form below.</p>
-<!--    
-    <fieldset class="login">
-        <legend>Login Details</legend>
-        <div>
-            <label for="ap_ssid">AP SSID</label> <input id="ap_ssid" name="ap_ssid" type="text">
-        </div>
-        <div>
-            <label for="ah_ssid">AH SSID</label> <input id="ah_ssid" name="ah_ssid" type="text">
-        </div>
+<div id="main">
+    <table>
+    <tr><td>ap_ssid</td><td id="ap_ssid"></td></tr>
+    <tr><td>ah_ssid</td><td id="ah_ssid"></td></tr>
+    <tr><td>mesh_ip</td><td id="mesh_ip"></td></tr>
+    <tr><td>wan_interface</td><td id="wan_interface"></td></tr>
+    <tr><td>lan_interface</td><td id="lan_interface"></td></tr>
+    <tr><td>wifi_interface</td><td id="wifi_interface"></td></tr>
+    <tr><td>wifi_device</td><td id="wifi_device"></td></tr>
+    <tr><td>setup</td><td>1</td id="setup"></tr>
+    </table>
 
-        <div>                                                                                   
-            <label for="mesh_ip">mesh_ip</label> <input id="mesh_ip" name="mesh_ip" type="text">
-        </div>
-        <div>                                                                                   
-            <label for="wan_interface">wan_interface</label> <input id="wan_interface" name="wan_interface" type="text">
-        </div>
-        <div>                                                                                   
-            <label for="lan_interface">lan_interface</label> <input id="lan_interface" name="lan_interface" type="text">
-         </div>
-        <div>                                                                           
-             <label for="wifi_interface">wifi_interface</label> <input id="wifi_interface" name="wifi_interface" type="text">
-        </div>
-        <div>                                                                                                           
-              <label for="wifi_device">wifi_device</label> <input id="wifi_device" name="wifi_device" type="text">
-        </div>
-        <div>                                                                                                                
-               <label for="setup">setup</label> <input id="setup" name="setup" type="text">           
-        </div>
-    </fieldset>
--->    
-    <fieldset class="contact">
-        <legend>User Details</legend>
-        <div>
-            <label for="firstname">First Name</label> <input id="firstname" name="firstname" type="text">
-        </div>
-        <div>
-            <label for="lastname">Last Name</label> <input id="lastname" name="lastname" type="text">
-        </div>
-        <div class="radio">
-            <fieldset>
-                <legend><span>Batman-Adv Mode</span></legend>
-                <div>
-                    <input id="auto" name="batman_mode" value="auto" type="radio"> <label for="auto">Auto</label>
-                </div>
-                <div>
-                    <input id="client" name="batman_mode" value="client" type="radio"> <label for="client">Client</label>
-                </div>
-                <div>
-                    <input id="server" name="batman_mode" value="server" type="radio"> <label for="server">Server</label>
-                </div>
-            </fieldset>
-        </div>
-        <div class="date">
-        <label for="dob">Date of Birth</label> <input maxlength="10" class=" default default" value="YYYY/MM/DD" name="dob" id="dob" type="text"></div>
-        <div>
-            <label for="email">Email</label> <input id="email" name="email" class="email" type="text">
-        </div>
-    </fieldset>
-    <div><button type="submit" id="submit-go">Submit</button></div>
-</form>
+    <form action="">
+        <p>Please complete the form below.</p>
+    <!--    
+        <fieldset class="login">
+            <legend>Login Details</legend>
+            <div>
+                <label for="ap_ssid">AP SSID</label> <input id="ap_ssid" name="ap_ssid" type="text">
+            </div>
+            <div>
+                <label for="ah_ssid">AH SSID</label> <input id="ah_ssid" name="ah_ssid" type="text">
+            </div>
+
+            <div>                                                                                   
+                <label for="mesh_ip">mesh_ip</label> <input id="mesh_ip" name="mesh_ip" type="text">
+            </div>
+            <div>                                                                                   
+                <label for="wan_interface">wan_interface</label> <input id="wan_interface" name="wan_interface" type="text">
+            </div>
+            <div>                                                                                   
+                <label for="lan_interface">lan_interface</label> <input id="lan_interface" name="lan_interface" type="text">
+             </div>
+            <div>                                                                           
+                 <label for="wifi_interface">wifi_interface</label> <input id="wifi_interface" name="wifi_interface" type="text">
+            </div>
+            <div>                                                                                                           
+                  <label for="wifi_device">wifi_device</label> <input id="wifi_device" name="wifi_device" type="text">
+            </div>
+            <div>                                                                                                                
+                   <label for="setup">setup</label> <input id="setup" name="setup" type="text">           
+            </div>
+        </fieldset>
+    -->    
+        <fieldset class="contact">
+            <legend>User Details</legend>
+            <div>
+                <label for="firstname">First Name</label> <input id="firstname" name="firstname" type="text">
+            </div>
+            <div>
+                <label for="lastname">Last Name</label> <input id="lastname" name="lastname" type="text">
+            </div>
+            <div class="radio">
+                <fieldset>
+                    <legend><span>Batman-Adv Mode</span></legend>
+                    <div>
+                        <input id="auto" name="batman_mode" value="auto" type="radio"> <label for="auto">Auto</label>
+                    </div>
+                    <div>
+                        <input id="client" name="batman_mode" value="client" type="radio"> <label for="client">Client</label>
+                    </div>
+                    <div>
+                        <input id="server" name="batman_mode" value="server" type="radio"> <label for="server">Server</label>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="date">
+            <label for="dob">Date of Birth</label> <input maxlength="10" class=" default default" value="YYYY/MM/DD" name="dob" id="dob" type="text"></div>
+            <div>
+                <label for="email">Email</label> <input id="email" name="email" class="email" type="text">
+            </div>
+        </fieldset>
+        <div><button type="submit" id="submit-go">Submit</button></div>
+    </form>
+
+    <script type="text/javascript">
+    $.get("/cgi-bin/dispatch", { func: "get_batman" }, function(data){
+        $('#text').text(data);
+    });
+
+    $.get("/cgi-bin/dispatch", { func: "get_settings_ah_ssid" }, function(data){
+        $('#ah_ssid').text(data);
+    });
+
+    $.get("/cgi-bin/dispatch", { func: "get_settings_ap_ssid" }, function(data){
+        $('#ap_ssid').text(data);
+    });
+        
+    $.get("/cgi-bin/dispatch", { func: "get_batman_mode" }, function(data){
+         $('#batman_mode').text(data);                                                    
+    });
+    </script>
 </div>
-<div id="footer"></div>
+
 </body>
 </html>
 
