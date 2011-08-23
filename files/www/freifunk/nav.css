@@ -1,10 +1,11 @@
 
 #globalnav {
 	position:relative;
-	float:left;
+	float:auto;
 	width:98%;
 	padding:0 0 1.75em 1em;
 	margin:0;
+	margin-bottom:2%;
 	list-style:none;
 	line-height:1em;
 }
