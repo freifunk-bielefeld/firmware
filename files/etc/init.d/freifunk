@@ -107,7 +107,7 @@ echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
 uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
-uci set dhcp.mesh.start=$((256*256*$x+1))
+uci set dhcp.mesh.start=$((256*256*$ff_subnet+1))
 uci set dhcp.mesh.limit=$((255*255+253))
 uci set dhcp.mesh.leasetime=12h
 
