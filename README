@@ -15,7 +15,7 @@ make menuconfig
 # Target System => Atheros AR71xx #for TL-WR841ND
 # Target Profile => TP-LINK TL-WR841ND v7 #for TL-WR841ND
 # Kernel modules => Network Support => kmod-batman-adv
-# LuCI => Collections => luci
+# LuCI => Collections => luci #optional
 # Network => Captive Portals => nodogsplash
 # Network => VPN => n2n
 # Network => Web Servers/Proxies => uhttpd
