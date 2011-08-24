@@ -47,25 +47,6 @@ if [ -z "$lan_interface" ]; then
 fi
 echo "(I) Freifunk: lan interface: '$lan_interface'"
 
-wan_mac=$(ifconfig $wan_interface | grep HWaddr | awk '{print $5}')
-echo "(I) Freifunk: wan mac address: '$wan_mac'"
-
-let x=0x${wan_mac:12:2}
-let y=0x${wan_mac:15:2}
-mesh_ip="10.$ff_subnet.$x.$y"
-echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
-
-## /etc/config/network ##
-echo "(I) Freifunk: setup /etc/config/network"
-uci -q delete network.lan
-uci set network.mesh="interface"
-uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="bat0 $lan_interface"
-uci set network.mesh.mtu="1528"
-uci set network.mesh.ipaddr="$mesh_ip"
-uci set network.mesh.proto=static
-uci set network.mesh.netmask="255.0.0.0"
-
 wifi_device=`uci get wireless.@wifi-iface[0].device`
 if [ -z "$wifi_device" ]; then
     echo "(E) Freifunk: Cannot get wifi device."
@@ -75,7 +56,6 @@ echo "(I) Freifunk: wifi device: '$wifi_device'"
 
 
 echo "(I) Freifunk: setup /etc/config/wireless"
-## /etc/config/wireless ##
 uci set wireless.$wifi_device.channel=1
 
 #remove all wifi_interface entries
@@ -102,6 +82,36 @@ uci -q delete wireless.@wifi-device[0].disabled
 echo "(I) Freifunk: wireless down/up"
 wifi down
 wifi up
+
+
+echo "(I) Freifunk: get wifi interface"
+wifi_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
+if [ -z "$wifi_interface" ]; then
+    echo "(E) Freifunk: Cannot get wifi interface!"
+    exit 1
+fi
+echo "(I) Freifunk: wifi interface: '$wifi_interface'"
+
+
+wifi_mac=$(ifconfig $wifi_interface | grep HWaddr | awk '{print $5}')
+echo "(I) Freifunk: wifi mac address: '$wifi_mac'"
+
+let x=0x${wifi_mac:12:2}
+let y=0x${wifi_mac:15:2}
+mesh_ip="10.$ff_subnet.$x.$y"
+echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
+
+
+echo "(I) Freifunk: setup /etc/config/network"
+uci -q delete network.lan
+uci set network.mesh="interface"
+uci set network.mesh.type="bridge"
+uci set network.mesh.ifname="bat0 $lan_interface"
+uci set network.mesh.mtu="1528"
+uci set network.mesh.ipaddr="$mesh_ip"
+uci set network.mesh.proto=static
+uci set network.mesh.netmask="255.0.0.0"
+
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
@@ -133,13 +143,6 @@ uci set firewall.@zone[-1].input=ACCEPT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
 
-
-echo "(I) Freifunk: get wifi interface"
-wifi_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
-if [ -z "$wifi_interface" ]; then
-    echo "(E) Freifunk: Cannot get wifi interface!"
-    exit 1
-fi
 
 echo "(I) Freifunk: restart /etc/init.d/network"
 /etc/init.d/network restart
