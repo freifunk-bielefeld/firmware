@@ -3,8 +3,8 @@ Build Instructions:
 
 mkdir OpenWrt/
 cd OpenWrt/
-svn co svn://svn.openwrt.org/openwrt/tags/backfire_10.03
-cd backfire_10.03
+svn co svn://svn.openwrt.org/openwrt/trunk/
+cd trunk
 #put files/ from git repository into the working directory
 ./scripts/feeds update -a
 ./scripts/feeds install -a
