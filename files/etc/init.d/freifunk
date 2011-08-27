@@ -159,7 +159,8 @@ ifconfig $wifi_interface mtu 1528
 IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 if [ $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     echo "(I) Freifunk: Configure node as gateway."
-    if [ -n `uci get n2n.@edge[0].key` ]; then
+    key=`uci -q get n2n.@edge[0].key`
+    if [ -n "$key" ]; then
         echo "(I) Freifunk: Found key in /etc/config/n2n gefunden. Try to start VPN tunnel."
         /etc/init.d/n2n restart
         sleep 20
