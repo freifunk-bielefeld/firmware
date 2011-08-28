@@ -1,0 +1,18 @@
+#!/usr/bin/haserl
+<%
+
+case $GET_func in
+  route)
+    route
+	;;
+  uname)
+    uname -a
+  	;;
+  ifconfig)
+    ifconfig
+  	;;
+  *)
+    echo "Unknown function '$GET_func'."
+    ;;
+esac
+%>

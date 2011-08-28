@@ -1,3 +1,3 @@
-$.get("/cgi-bin/dispatch", { func: "get_batman" }, function(data){
+$.get("/cgi-bin/batman-adv", { func: "batclt_o" }, function(data){
     $('#data').text(data);
 });

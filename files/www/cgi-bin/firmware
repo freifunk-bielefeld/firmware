@@ -1,0 +1,12 @@
+#!/usr/bin/haserl
+<%
+
+case $GET_func in
+  apply_firmware)
+    if [ -n $HASERL_firmware_path ]; then
+        sysupgrade -n $HASERL_firmware_path
+    fi
+    #cat $HASERL_uploadfile_path | wc -c
+    ;;
+esac
+%>

@@ -1,3 +1,3 @@
-$.get("/cgi-bin/dispatch", { func: "get_nodogsplash" }, function(data){
+$.get("/cgi-bin/nodogsplash", { func: "ndsctl_status" }, function(data){
     $('#data').text(data);
 });
