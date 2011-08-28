@@ -33,7 +33,10 @@ $('#globalnav li').click(function()
 {
     var url = $(this).find("> a").attr("href");
     if(url != "#")
+    {
         $('#content').load(url + " #main");
+        $.getScript(url.replace(".html", ".js"));
+    }
     
     $("#globalnav ul").hide();
     $(this).parents('ul').show();
