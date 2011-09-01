@@ -121,7 +121,7 @@ while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
 uci add firewall forwarding
 uci set firewall.@forwarding[-1]="forwarding"
 uci set firewall.@forwarding[-1].src="mesh"
-uci set firewall.@forwarding[-1].dst="wan"
+uci set firewall.@forwarding[-1].dest="wan"
 
 while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
 uci add firewall zone
