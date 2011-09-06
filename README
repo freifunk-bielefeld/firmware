@@ -10,7 +10,7 @@ cd trunk
 ./scripts/feeds install -a
 make defconfig
 make menuconfig
-# Select the following modules:
+# Select the following modules (or copy package/* from git into your working dir): 
 # Target System => Atheros AR231x #for DIR-300
 # Target System => Atheros AR71xx #for TL-WR841ND
 # Target Profile => TP-LINK TL-WR841ND v7 #for TL-WR841ND
@@ -22,3 +22,4 @@ make menuconfig
 # Network => fping
 # Utilities => haserl
 make -j4
+
