@@ -45,10 +45,10 @@ if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: setup /etc/config/wireless"
     uci set wireless.$wifi_device.channel=1
 
-    #remove all wifi_interface entries
+    #remove all wifi interface entries
     while uci -q delete wireless.@wifi-iface[0]; do :; done
 
-    #AdHoc for batman
+    #ad-hoc for batman
     uci add wireless wifi-iface
     uci set wireless.@wifi-iface[-1].device="$wifi_device"
     uci set wireless.@wifi-iface[-1].mode=adhoc
@@ -56,7 +56,7 @@ if [ -n "$wifi_device" ]; then
     uci set wireless.@wifi-iface[-1].bssid="12:CA:FF:EE:BA:BE"
     uci set wireless.@wifi-iface[-1].hidden=1
 
-    #AccessPoint for clients
+    #access point for clients
     uci add wireless wifi-iface
     uci set wireless.@wifi-iface[-1].device="$wifi_device"
     uci set wireless.@wifi-iface[-1].mode=ap
@@ -70,17 +70,20 @@ if [ -n "$wifi_device" ]; then
     wifi down
     wifi up
     
-    wifi_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
-    echo "(I) Freifunk: wifi interface: '$wifi_interface'"
+    wifi_ap_interface=`iwconfig 2> /dev/null | awk "/Mode:Master/ { print \\$1 }"`
+    echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"
+    
+    wifi_ah_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
+    echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
 
 
-if [ -n "$wifi_interface" ]; then
-    bat_interface=$wifi_interface
+if [ -n "$wifi_ah_interface" ]; then
+    bat_interface=$wifi_ah_interface
     other_interface=$lan_interface
 elif [ -n "$lan_interface" ]; then
     bat_interface=$lan_interface
-    other_interface=$wifi_interface
+    other_interface=$wifi_ah_interface
 else
   echo "(E) Freifunk: No interface for batman found."
   exit 1
@@ -126,6 +129,7 @@ uci set firewall.@forwarding[-1].dest="wan"
 while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
 uci add firewall zone
 uci set firewall.@zone[-1].name=wan
+uci set firewall.@zone[-1].network=wan
 uci set firewall.@zone[-1].input=REJECT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
@@ -134,6 +138,7 @@ uci set firewall.@zone[-1].mtu_fix=1
 
 uci add firewall zone
 uci set firewall.@zone[-1].name=mesh
+uci set firewall.@zone[-1].network=mesh
 uci set firewall.@zone[-1].input=ACCEPT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
