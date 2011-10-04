@@ -45,35 +45,59 @@ if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: setup /etc/config/wireless"
     uci set wireless.$wifi_device.channel=1
 
-    #remove all wifi interface entries
-    while uci -q delete wireless.@wifi-iface[0]; do :; done
-
-    #ad-hoc for batman
-    uci add wireless wifi-iface
-    uci set wireless.@wifi-iface[-1].device="$wifi_device"
-    uci set wireless.@wifi-iface[-1].mode=adhoc
-    uci set wireless.@wifi-iface[-1].ssid="$ah_ssid"
-    uci set wireless.@wifi-iface[-1].bssid="12:CA:FF:EE:BA:BE"
-    uci set wireless.@wifi-iface[-1].hidden=1
-
-    #access point for clients
-    uci add wireless wifi-iface
-    uci set wireless.@wifi-iface[-1].device="$wifi_device"
-    uci set wireless.@wifi-iface[-1].mode=ap
-    uci set wireless.@wifi-iface[-1].network=mesh
-    uci set wireless.@wifi-iface[-1].ssid="$ap_ssid"
-
     #wireless is disabled by default
     uci -q delete wireless.@wifi-device[0].disabled
 
-    echo "(I) Freifunk: wireless down/up"
-    wifi down
-    wifi up
+    #remove all wifi interface entries
+    clear_wifi_interfaces() {
+        while uci -q delete wireless.@wifi-iface[0]; do :; done
+    }
     
-    wifi_ap_interface=`iwconfig 2> /dev/null | awk "/Mode:Master/ { print \\$1 }"`
+    #ad-hoc for batman
+    add_ah_interface() {
+        uci add wireless wifi-iface
+        uci set wireless.@wifi-iface[-1].device="$wifi_device"
+        uci set wireless.@wifi-iface[-1].mode=adhoc
+        uci set wireless.@wifi-iface[-1].ssid="$ah_ssid"
+        uci set wireless.@wifi-iface[-1].bssid="12:CA:FF:EE:BA:BE"
+        uci set wireless.@wifi-iface[-1].hidden=1
+    }
+    
+    #access point for clients
+    add_ap_interface() {
+        uci add wireless wifi-iface
+        uci set wireless.@wifi-iface[-1].device="$wifi_device"
+        uci set wireless.@wifi-iface[-1].mode=ap
+        uci set wireless.@wifi-iface[-1].network=mesh
+        uci set wireless.@wifi-iface[-1].ssid="$ap_ssid"
+    }
+
+    wifi_restart() {
+      echo "(I) Freifunk: wireless down/up"                                       
+      wifi down                                                                   
+      wifi up
+    }
+    
+    record_wifi_interfaces() {
+      wifi_ap_interface=`iwconfig 2> /dev/null | awk "/Mode:Master/ { print \\$1 }"`   
+      wifi_ah_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
+    }
+    
+    clear_wifi_interfaces
+    add_ah_interface
+    add_ap_interface
+    wifi_restart
+    record_wifi_interfaces
+    
+    #if not both interfaces work; try only ad-hoc
+    if [ -z "$wifi_ap_interface" -o -z "$wifi_ah_interface" ]; then
+      clear_wifi_interfaces
+      add_ah_interface
+      wifi_restart
+      record_wifi_interfaces
+    fi
+    
     echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"
-    
-    wifi_ah_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
     echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
 
@@ -81,9 +105,11 @@ fi
 if [ -n "$wifi_ah_interface" ]; then
     bat_interface=$wifi_ah_interface
     other_interface=$lan_interface
+    echo "(D) set bat interface to wifi_ah_interface: $wifi_ah_interface"
 elif [ -n "$lan_interface" ]; then
     bat_interface=$lan_interface
     other_interface=$wifi_ah_interface
+    echo "(D) set bat interface to lan_interface: $lan_interface"
 else
   echo "(E) Freifunk: No interface for batman found."
   exit 1
@@ -153,9 +179,12 @@ echo "(I) Freifunk: restart /etc/init.d/firewall"
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
 
+
 #for batman
+echo "(I) set mtu for $bat_interface"
 ifconfig $bat_interface mtu 1528
 
+echo "(I) check wan for internet now"
 IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 if [ -n "$wan_interface" -a  $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     echo "(I) Freifunk: Configure node as gateway."
