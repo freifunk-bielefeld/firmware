@@ -10,12 +10,12 @@ if [ "$ACTION" = "change" ] ; then
     let x=0x${BATDATA:12:2}
     let y=0x${BATDATA:15:2}
     GATE_IP="10.29.$x.$y"
-    echo "search lan" > /etc/resolv.conf
-    echo "nameserver 10.29.$x.$y" >> /etc/resolv.conf
     echo "update bat0 route to $BATDATA ($GATE_IP)" >> /dev/kmsg
     uci set dhcp.@dnsmasq[0].dhcp_option="option:router, 10.29.$x.$y"
     route del default
     route add default gw "$GATE_IP"
     /etc/init.d/dnsmasq reload
+    echo "search lan" > /etc/resolv.conf
+    echo "nameserver 10.29.$x.$y" >> /etc/resolv.conf
   fi
 fi
