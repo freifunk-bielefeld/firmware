@@ -1,5 +1,11 @@
 #!/bin/sh /etc/rc.common
 
+# TODO:
+# - preconfigure mesh, request address, configure mesh
+# - create debug toggle
+# - add n2n
+
+
 START=96
 
 
@@ -10,9 +16,19 @@ ah_ssid="batman.freifunk-bielefeld.de"
 ff_subnet=29
 
 
+# set (not so) magic numbers for start ip and address space
+# numbers are ip integer representation
+start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
+end_ip=$((255*255+253)) # -> 65278
+
 #write everything from stdout and stderr to a log file
 exec >/tmp/freifunk.log 2>&1
 date
+
+
+# ------------------------------------------------------- #
+# R E V O K E   D E F A U L T   C O N F I G U R A T I O N #
+# ------------------------------------------------------- # 
 
 echo "(I) Freifunk: stop /etc/init.d/nodogsplash"
 /etc/init.d/nodogsplash stop
@@ -29,6 +45,10 @@ echo "(I) Freifunk: stop /etc/init.d/firewall"
 echo "(I) Freifunk: stop /etc/init.d/network"
 /etc/init.d/network stop
 
+
+# ------------------------------------------- #
+# P R E C O N F I G U R I N G   N E T W O R K #
+# ------------------------------------------- # 
 
 echo "(I) Freifunk: start setup"
 
@@ -116,14 +136,72 @@ else
 fi
 echo "(I) Freifunk: interface for batman: '$bat_interface'"
 
+#for batman
+echo "(I) set mtu for $bat_interface"
+ifconfig $bat_interface mtu 1528
 
+# restarting on bat_interface cause we need to arping there
+# TODO add n2n to batman
+echo "(I) Freifunk: restarting batman on $bat_interface"
+uci set batman-adv.bat0.interfaces="$bat_interface"
+/etc/init.d/batman-adv restart
+
+#echo "(I) Freifunk: pre-setup /etc/config/network"
+#uci -q delete network.lan
+#uci set network.mesh="interface"
+#uci set network.mesh.type="bridge"
+#uci set network.mesh.ifname="bat0 $other_interface"
+#uci set network.mesh.mtu="1528"
+#/etc/init.d/network restart
+
+
+# ------------------------------- #
+# G E T   M E S H   A D D R E S S #
+# ------------------------------- # 
+
+# use the same algorithm as dnsmasq for generating address
+
+# create seed from batman interface mac
 bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
-echo "(I) Freifunk: batman mac: '$bat_mac'"
+echo "(D) Freifunk: batman interface mac: $bat_mac"
+						
+seed=0
+for x in $(echo $bat_mac | tr ":" "\n"); do
+	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
+done
 
-let x=0x${bat_mac:12:2}
-let y=0x${bat_mac:15:2}
-mesh_ip="10.$ff_subnet.$x.$y"
-echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
+addr_t=$((start_ip + (seed % end_ip)))
+
+mesh_ip=0
+while [ $mesh_ip -eq 0 ]; do
+
+	addr_a=$((10))
+	addr_b=$ff_subnet
+	addr_c=$(((addr_t & 0xff00) >> 8))
+	addr_d=$(((addr_t & 0x00ff) >> 0))
+
+	addr="$addr_a.$addr_b.$addr_c.$addr_d"
+
+	echo "(D) Freifunk: testing address $addr"
+
+	# ping_replies=$(arping -f -c 10 -I br-mesh $addr | grep Received | awk '{print $2}')
+
+	arping -c 5 -D -f -q -I bat0 $addr
+
+	if [ $? -gt 0 ]; then
+		echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
+		mesh_ip=$addr
+	else
+		echo "(D) Freifunk: address invalid (got $ping_replies replies)"
+		addr_t=$((addr_t+1))
+	fi
+
+done
+
+
+# ------------------------------------- #
+# C O N F I G U R I N G   N E T W O R K #
+# ------------------------------------- # 
 
 
 echo "(I) Freifunk: setup /etc/config/network"
@@ -136,14 +214,21 @@ uci set network.mesh.ipaddr="$mesh_ip"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
 
+echo "(I) Freifunk: restart /etc/init.d/network"
+/etc/init.d/network restart
+
+# -------------------------------- #
+# S T A R T I N G  S E R V I C E S #
+# -------------------------------- # 
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
 uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
-uci set dhcp.mesh.start=$((256*256*$ff_subnet+1))
-uci set dhcp.mesh.limit=$((255*255+253))
-uci set dhcp.mesh.leasetime=12h
+uci set dhcp.mesh.start=$start_ip
+uci set dhcp.mesh.limit=$end_ip
+uci set dhcp.mesh.leasetime=5m
+# fho: changed leasetime from 12h to 5m -> max time for address conflicts
 
 echo "(I) Freifunk: setup /etc/config/firewall"
 while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
@@ -170,9 +255,6 @@ uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
 
 
-echo "(I) Freifunk: restart /etc/init.d/network"
-/etc/init.d/network restart
-
 echo "(I) Freifunk: restart /etc/init.d/firewall"
 /etc/init.d/firewall restart
 
@@ -180,9 +262,9 @@ echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
 
 
-#for batman
-echo "(I) set mtu for $bat_interface"
-ifconfig $bat_interface mtu 1528
+# --------------------------------------- #
+# C H E C K I N G  F O R  I N T E R N E T #
+# --------------------------------------- # 
 
 echo "(I) check wan for internet now"
 IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
@@ -215,6 +297,12 @@ uci set batman-adv.bat0.gw_mode="$bat_mode"
 
 echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
+
+
+
+# ------- #
+# D O N E #
+# ------- # 
 
 date
 echo "(I) Freifunk: done"
