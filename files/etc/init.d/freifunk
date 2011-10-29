@@ -8,7 +8,7 @@ start () {
 ap_ssid="www.freifunk-bielefeld.de"
 ah_ssid="batman.freifunk-bielefeld.de"
 ff_subnet=29
-
+debug=0
 
 #write everything from stdout and stderr to a log file
 exec >/tmp/freifunk.log 2>&1
@@ -125,6 +125,16 @@ let y=0x${bat_mac:15:2}
 mesh_ip="10.$ff_subnet.$x.$y"
 echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
 
+
+if [ "$debug" == "1" ]; then
+    #debug code to identify routers by ssid
+    if [ -n "$wifi_ap_interface" ]; then
+        #TODO: only set ap interface, not just the last one
+        uci set wireless.@wifi-iface[-1].ssid="${ap_ssid:4}_$x.$y"
+        wifi down
+        wifi up
+    fi
+fi
 
 echo "(I) Freifunk: setup /etc/config/network"
 uci -q delete network.lan
