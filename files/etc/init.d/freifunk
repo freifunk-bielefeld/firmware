@@ -14,7 +14,7 @@ start () {
 ap_ssid="www.freifunk-bielefeld.de"
 ah_ssid="batman.freifunk-bielefeld.de"
 ff_subnet=29
-
+debug=0
 
 # set (not so) magic numbers for start ip and address space
 # numbers are ip integer representation
@@ -203,6 +203,16 @@ done
 # C O N F I G U R I N G   N E T W O R K #
 # ------------------------------------- # 
 
+
+if [ "$debug" == "1" ]; then
+    #debug code to identify routers by ssid
+    if [ -n "$wifi_ap_interface" ]; then
+        #TODO: only set ap interface, not just the last one
+        uci set wireless.@wifi-iface[-1].ssid="${ap_ssid:4}_$x.$y"
+        wifi down
+        wifi up
+    fi
+fi
 
 echo "(I) Freifunk: setup /etc/config/network"
 uci -q delete network.lan
