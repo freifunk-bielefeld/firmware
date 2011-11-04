@@ -28,12 +28,7 @@ case $GET_func in
 	ndsctl unallow $mac                                                                      
 	;;
   trust)
-  
-                    trust mac         Trust the given MAC address
-                      untrust mac       Untrust the given MAC address
-                        loglevel n        Set logging level to n
-                          password pass     Set gateway password
-                            username name     Set gateway username
+    ;;
   get_nodogsplash_macs)
     ;;
   ndsctl_status)

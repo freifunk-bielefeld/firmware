@@ -9,8 +9,5 @@ case $GET_func in
   batctl_gw)
   	batctl gw
   	;;
-  *)
-    echo "Unknown function '$GET_func'."
-    ;;
 esac
 %>

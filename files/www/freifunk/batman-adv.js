@@ -1,3 +1,3 @@
 $.get("/cgi-bin/batman-adv", { func: "batclt_o" }, function(data){
-    $('#data').text(data);
+    $('#batctl_o').text(data);
 });

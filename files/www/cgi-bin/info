@@ -11,8 +11,8 @@ case $GET_func in
   ifconfig)
     ifconfig
   	;;
-  *)
-    echo "Unknown function '$GET_func'."
-    ;;
+  freifunk_log)
+    cat /tmp/freifunk.log
+  	;;
 esac
 %>
