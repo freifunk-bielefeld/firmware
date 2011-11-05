@@ -137,12 +137,12 @@ fi
 echo "(I) Freifunk: interface for batman: '$bat_interface'"
 
 #for batman
-echo "(I) set mtu for $bat_interface"
+echo "(I) Freifunk: set mtu for '$bat_interface'"
 ifconfig $bat_interface mtu 1528
 
 # restarting on bat_interface cause we need to arping there
 # TODO add n2n to batman
-echo "(I) Freifunk: restarting batman on $bat_interface"
+echo "(I) Freifunk: restart batman on '$bat_interface'"
 uci set batman-adv.bat0.interfaces="$bat_interface"
 /etc/init.d/batman-adv restart
 
@@ -164,7 +164,8 @@ uci set batman-adv.bat0.interfaces="$bat_interface"
 # create seed from batman interface mac
 bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
 echo "(D) Freifunk: batman interface mac: $bat_mac"
-						
+
+#method for ip generation was taken from dnsmasq
 seed=0
 for x in $(echo $bat_mac | tr ":" "\n"); do
 	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
@@ -192,7 +193,7 @@ while [ $mesh_ip -eq 0 ]; do
 		echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
 		mesh_ip=$addr
 	else
-		echo "(D) Freifunk: address invalid (got $ping_replies replies)"
+		echo "(D) Freifunk: address taken (got $ping_replies replies)"
 		addr_t=$((addr_t+1))
 	fi
 
