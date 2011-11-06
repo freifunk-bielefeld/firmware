@@ -1,0 +1,1 @@
+*/5 * * * * /sbin/wan_watchdog > /dev/null

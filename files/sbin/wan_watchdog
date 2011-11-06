@@ -1,19 +1,18 @@
 #!/bin/sh
 
-exec >/tmp/freifunk.log 2>&1
+exec >/tmp/wan_watchdog.log 2>&1
 date
 
-echo "(I) start wan_watchdog"
-exit 0
+echo "(I) wan_watchdog: start"
 
 #various root servers
 IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 
 wan_interface=`uci -q get network.wan.ifname`
-echo "(I) Freifunk: wan interface: '$wan_interface'"
+echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
-echo "(I) Freifunk: batman mode: '$bat_mode'"
+echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
 #check if wan interface exists
 if [ ! -n "$wan_interface" ]; then
@@ -22,8 +21,8 @@ if [ ! -n "$wan_interface" ]; then
 fi
 
 #check if batman-adv is running
-if [ $(ifconfig bat0 2> /dev/null | wc -l) != 0 ]; then
-    echo "(I) wan_watchdog: No bat0 interface found. -> exit"
+if [ $(ifconfig bat0 2> /dev/null | wc -l) == 0 ]; then
+    echo "(I) wan_watchdog: batman-adv does not run. -> exit"
     exit 1
 fi
 
@@ -31,8 +30,8 @@ wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2
 
 #check if the WAN interface has an IP address
 if [ ! -n "$wan_ip" ]; then
-  echo "(I) wan_watchdog: WAN interface has no IP - try get one."
-  udhcpc -A 5 -t 1 -i $wan_interface
+  echo "(I) wan_watchdog: WAN interface has no IP - try to get one..."
+  udhcpc -t 3 -n -q -i $wan_interface
 else
     echo "(I) wan_watchdog: WAN IP is: $wan_ip"
 fi
@@ -45,7 +44,7 @@ if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
         echo "(I) wan_watchdog: Switch to gateway mode."
         uci set batman-adv.bat0.gw_mode="server"
         batctl gw server
-        /etc/init.d/nodogsplash start
+        /etc/init.d/nodogsplash start > /dev/null
     fi
 else
     # we have no internet
@@ -53,6 +52,8 @@ else
         echo "(I) wan_watchdog: Switch to client mode."
         uci set batman-adv.bat0.gw_mode="client"
         batctl gw client
-        /etc/init.d/nodogsplash stop
+        /etc/init.d/nodogsplash stop > /dev/null
     fi
 fi
+
+echo "(I) wan_watchdog: done"
