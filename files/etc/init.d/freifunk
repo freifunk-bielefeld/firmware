@@ -125,11 +125,11 @@ fi
 if [ -n "$wifi_ah_interface" ]; then
     bat_interface=$wifi_ah_interface
     other_interface=$lan_interface
-    echo "(D) set bat interface to wifi_ah_interface: $wifi_ah_interface"
+    echo "(D) Freifunk: set bat interface to wifi_ah_interface: '$wifi_ah_interface'"
 elif [ -n "$lan_interface" ]; then
     bat_interface=$lan_interface
     other_interface=$wifi_ah_interface
-    echo "(D) set bat interface to lan_interface: $lan_interface"
+    echo "(D) Freifunk: set bat interface to lan_interface: '$lan_interface'"
 else
   echo "(E) Freifunk: No interface for batman found."
   exit 1
@@ -163,7 +163,7 @@ uci set batman-adv.bat0.interfaces="$bat_interface"
 
 # create seed from batman interface mac
 bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
-echo "(D) Freifunk: batman interface mac: $bat_mac"
+echo "(D) Freifunk: batman interface mac: '$bat_mac'"
 
 #method for ip generation was taken from dnsmasq
 seed=0
@@ -183,14 +183,14 @@ while [ $mesh_ip -eq 0 ]; do
 
 	addr="$addr_a.$addr_b.$addr_c.$addr_d"
 
-	echo "(D) Freifunk: testing address $addr"
+	echo "(D) Freifunk: testing address '$addr'"
 
 	# ping_replies=$(arping -f -c 10 -I br-mesh $addr | grep Received | awk '{print $2}')
 
 	arping -c 5 -D -f -q -I bat0 $addr
 
 	if [ $? -gt 0 ]; then
-		echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
+		echo "(I) Freifunk: mesh ip: '$mesh_ip'"
 		mesh_ip=$addr
 	else
 		echo "(D) Freifunk: address taken (got $ping_replies replies)"
