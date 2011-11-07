@@ -173,8 +173,8 @@ done
 
 addr_t=$((start_ip + (seed % end_ip)))
 
-mesh_ip=0
-while [ $mesh_ip -eq 0 ]; do
+mesh_ip=""
+while [ ! -n "$mesh_ip" ]; do
 
 	addr_a=$((10))
 	addr_b=$ff_subnet
@@ -189,15 +189,16 @@ while [ $mesh_ip -eq 0 ]; do
 
 	arping -c 5 -D -f -q -I bat0 $addr
 
-	if [ $? -gt 0 ]; then
-		echo "(I) Freifunk: mesh ip: '$mesh_ip'"
-		mesh_ip=$addr
-	else
+	if [ $? -eq 0 ]; then
 		echo "(D) Freifunk: address taken (got $ping_replies replies)"
 		addr_t=$((addr_t+1))
+	else
+		mesh_ip="$addr"
 	fi
 
 done
+
+echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
 
 
 # ------------------------------------- #
