@@ -32,11 +32,10 @@ wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2
 if [ ! -n "$wan_ip" ]; then
   echo "(I) wan_watchdog: WAN interface has no IP - try to get one..."
   udhcpc -t 3 -n -q -i $wan_interface
+  wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 else
     echo "(I) wan_watchdog: WAN IP is: $wan_ip"
 fi
-
-wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 
 if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     # we have internet

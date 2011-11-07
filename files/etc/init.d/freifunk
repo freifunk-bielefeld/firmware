@@ -175,30 +175,25 @@ addr_t=$((start_ip + (seed % end_ip)))
 
 mesh_ip=""
 while [ ! -n "$mesh_ip" ]; do
+    addr_a=$((10))
+    addr_b=$ff_subnet
+    addr_c=$(((addr_t & 0xff00) >> 8))
+    addr_d=$(((addr_t & 0x00ff) >> 0))
 
-	addr_a=$((10))
-	addr_b=$ff_subnet
-	addr_c=$(((addr_t & 0xff00) >> 8))
-	addr_d=$(((addr_t & 0x00ff) >> 0))
+    addr="$addr_a.$addr_b.$addr_c.$addr_d"
 
-	addr="$addr_a.$addr_b.$addr_c.$addr_d"
+    echo "(D) Freifunk: testing address '$addr'"
 
-	echo "(D) Freifunk: testing address '$addr'"
+    arping -c 5 -D -f -q -I bat0 $addr
 
-	# ping_replies=$(arping -f -c 10 -I br-mesh $addr | grep Received | awk '{print $2}')
-
-	arping -c 5 -D -f -q -I bat0 $addr
-
-	if [ $? -eq 0 ]; then
-		echo "(D) Freifunk: address taken (got $ping_replies replies)"
-		addr_t=$((addr_t+1))
-	else
-		mesh_ip="$addr"
-	fi
-
+    if [ $? -eq 0 ]; then
+        echo "(D) Freifunk: address taken"
+        addr_t=$((addr_t+1))
+    else
+        mesh_ip="$addr"
+        echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
+    fi
 done
-
-echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
 
 
 # ------------------------------------- #
