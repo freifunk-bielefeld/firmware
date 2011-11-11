@@ -234,7 +234,7 @@ while [ -z "$addr" ]; do
 
     echo "(D) Freifunk: testing address '$addr'"
 
-    arping -c 5 -D -f -q -I br-mesh $addr
+    arping -c 3 -D -f -q -I br-mesh $addr
 
     if [ $? -eq 0 ]; then
         mesh_ip="$addr"
