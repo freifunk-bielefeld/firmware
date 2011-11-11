@@ -123,92 +123,24 @@ fi
 
 
 if [ -n "$wifi_ah_interface" ]; then
+    #ad-hoc wifi interface is up
     bat_interface=$wifi_ah_interface
     other_interface=$lan_interface
-    echo "(D) Freifunk: set bat interface to wifi_ah_interface: '$wifi_ah_interface'"
 elif [ -n "$lan_interface" ]; then
+    #lan interface is up
     bat_interface=$lan_interface
     other_interface=$wifi_ah_interface
-    echo "(D) Freifunk: set bat interface to lan_interface: '$lan_interface'"
 else
   echo "(E) Freifunk: No interface for batman found."
   exit 1
 fi
 echo "(I) Freifunk: interface for batman: '$bat_interface'"
-
-#for batman
-echo "(I) Freifunk: set mtu for '$bat_interface'"
-ifconfig $bat_interface mtu 1528
-
-# restarting on bat_interface cause we need to arping there
-# TODO add n2n to batman
-echo "(I) Freifunk: restart batman on '$bat_interface'"
-uci set batman-adv.bat0.interfaces="$bat_interface"
-/etc/init.d/batman-adv restart
-
-#echo "(I) Freifunk: pre-setup /etc/config/network"
-#uci -q delete network.lan
-#uci set network.mesh="interface"
-#uci set network.mesh.type="bridge"
-#uci set network.mesh.ifname="bat0 $other_interface"
-#uci set network.mesh.mtu="1528"
-#/etc/init.d/network restart
-
-
-# ------------------------------- #
-# G E T   M E S H   A D D R E S S #
-# ------------------------------- # 
-
-# use the same algorithm as dnsmasq for generating address
-
-# create seed from batman interface mac
-bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
-echo "(D) Freifunk: batman interface mac: '$bat_mac'"
-
-#method for ip generation was taken from dnsmasq
-seed=0
-for x in $(echo $bat_mac | tr ":" "\n"); do
-	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
-done
-
-addr_t=$((start_ip + (seed % end_ip)))
-
-addr=""
-while [ -z "$addr" ]; do
-    addr_c=$(((addr_t & 0xff00) >> 8))
-    addr_d=$(((addr_t & 0x00ff) >> 0))
-
-    addr="10.$ff_subnet.$addr_c.$addr_d"
-
-    echo "(D) Freifunk: testing address '$addr'"
-
-    arping -c 5 -D -f -q -I bat0 $addr
-
-    if [ $? -eq 0 ]; then
-        mesh_ip="$addr"
-        echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
-    else
-        echo "(D) Freifunk: address taken"
-        addr_t=$((addr_t+1))
-        addr=""
-    fi
-done
+echo "(I) Freifunk: other interface for batman: '$other_interface'"
 
 
 # ------------------------------------- #
 # C O N F I G U R I N G   N E T W O R K #
 # ------------------------------------- # 
-
-
-if [ "$debug" == "1" ]; then
-    #debug code to identify routers by ssid
-    if [ -n "$wifi_ap_interface" ]; then
-        #TODO: only set ap interface, not just the last one
-        uci set wireless.@wifi-iface[-1].ssid="${ap_ssid:4}_$x.$y"
-        wifi down
-        wifi up
-    fi
-fi
 
 echo "(I) Freifunk: setup /etc/config/network"
 uci -q delete network.lan
@@ -216,16 +148,9 @@ uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="bat0 $other_interface"
 uci set network.mesh.mtu="1528"
-uci set network.mesh.ipaddr="$mesh_ip"
+uci set network.mesh.ipaddr="10.$ff_subnet.1.1"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
-
-echo "(I) Freifunk: restart /etc/init.d/network"
-/etc/init.d/network restart
-
-# -------------------------------- #
-# S T A R T I N G  S E R V I C E S #
-# -------------------------------- # 
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
@@ -260,6 +185,17 @@ uci set firewall.@zone[-1].input=ACCEPT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
 
+ifconfig $bat_interface mtu 1528
+uci set batman-adv.bat0.interfaces="$bat_interface"
+uci set batman-adv.bat0.gw_mode="client"
+
+
+# -------------------------------- #
+# S T A R T I N G  S E R V I C E S #
+# -------------------------------- # 
+
+echo "(I) Freifunk: restart /etc/init.d/network"
+/etc/init.d/network restart
 
 echo "(I) Freifunk: restart /etc/init.d/firewall"
 /etc/init.d/firewall restart
@@ -267,49 +203,69 @@ echo "(I) Freifunk: restart /etc/init.d/firewall"
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
 
-
-# --------------------------------------- #
-# C H E C K I N G  F O R  I N T E R N E T #
-# --------------------------------------- # 
-
-echo "(I) check wan for internet now"
-IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
-if [ -n "$wan_interface" -a  $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
-    echo "(I) Freifunk: Configure node as gateway."
-    key=`uci -q get n2n.@edge[0].key`
-    if [ -n "$key" ]; then
-        echo "(I) Freifunk: Found key in /etc/config/n2n gefunden. Try to start VPN tunnel."
-        /etc/init.d/n2n restart
-        sleep 20
-    fi
-    
-    echo "(I) Freifunk: restart /etc/init.d/nodogsplash"
-    /etc/init.d/nodogsplash restart
-    
-    # Batman Server Mode
-    bat_mode="server"
-else
-    echo "(I) Freifunk: Configure node as client."
-    
-    #echo "(I) Freifunk: stop /etc/init.d/nodogsplash"
-    #/etc/init.d/nodogsplash stop
-    
-    # Batman Client Mode
-    bat_mode="client"
-fi
-
-uci set batman-adv.bat0.interfaces="$bat_interface"
-uci set batman-adv.bat0.gw_mode="$bat_mode"
-
-echo "(I) Freifunk: restart /etc/init.d/batman-adv"
+echo "(I) Freifunk: restart batman on '$bat_interface'"
 /etc/init.d/batman-adv restart
 
+
+# ------------------------------- #
+# G E T   M E S H   A D D R E S S #
+# ------------------------------- # 
+
+# use the same algorithm as dnsmasq for generating address
+
+# create seed from batman interface mac
+bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
+echo "(D) Freifunk: batman interface mac: '$bat_mac'"
+
+#method for ip generation was taken from dnsmasq
+seed=0
+for x in $(echo $bat_mac | tr ":" "\n"); do
+	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
+done
+
+addr_t=$((start_ip + (seed % end_ip)))
+
+addr=""
+while [ -z "$addr" ]; do
+    addr_c=$(((addr_t & 0xff00) >> 8))
+    addr_d=$(((addr_t & 0x00ff) >> 0))
+
+    addr="10.$ff_subnet.$addr_c.$addr_d"
+
+    echo "(D) Freifunk: testing address '$addr'"
+
+    arping -c 5 -D -f -q -I br-mesh $addr
+
+    if [ $? -eq 0 ]; then
+        mesh_ip="$addr"
+        echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
+    else
+        echo "(D) Freifunk: address taken"
+        addr_t=$((addr_t+1))
+        addr=""
+    fi
+done
+
+ifconfig br-mesh $mesh_ip
+
+
+if [ $debug -eq 1 ]; then
+  #debug code to identify routers by ssid
+  if [ -n "$wifi_ap_interface" ]; then
+    #TODO: only set ap interface, not just the last one
+    uci set wireless.@wifi-iface[-1].ssid="${ap_ssid:4}_${mesh_ip:6}"
+    wifi down
+    wifi up
+  fi
+fi
+
+#check wan interface for internet
+/sbin/wan_watchdog
 
 
 # ------- #
 # D O N E #
 # ------- # 
 
-date
 echo "(I) Freifunk: done"
 }
