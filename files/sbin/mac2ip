@@ -1,8 +1,14 @@
 #!/bin/sh
 
 #Get the IP of a node by MAC.
-
 mac=$1
+
+ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+debug=`uci get -q freifunk.settings.debug`
+
+start_ip=`uci get dhcp.mesh.start`
+end_ip=`uci get dhcp.mesh.limit`
+
 
 if [ ! ${#mac} -eq 17 ]
 then
@@ -10,11 +16,8 @@ then
     exit 1
 fi
 
-ff_subnet=`uci get -q freifunk.settings.ff_subnet`
-debug=`uci get -q freifunk.settings.debug`
-
-start_ip=`uci get dhcp.mesh.start`
-end_ip=`uci get dhcp.mesh.limit`
+#lowercase
+mac=`echo $mac | tr '[A-Z]' '[a-z]'`
 
 
 seed=0
@@ -36,7 +39,7 @@ do
     
     if [ $? -eq 0 ]; then
         #get MAC from arp cache
-        addr_mac=`arp -an | grep $addr_ip | awk '{print $2}'`
+        addr_mac=`cat /proc/net/arp | grep $addr_ip | awk '{print $4}'`
         
         if [ "$addr_mac" == "$mac" ]; then
             #found IP matching the given MAC :-)
