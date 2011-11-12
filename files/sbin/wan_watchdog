@@ -14,9 +14,18 @@ echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
 echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
+mesh_ip=`ifconfig br-mesh | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+echo "(I) wan_watchdog: current mesh ip: '$mesh_ip'"
+
 #check if wan interface exists
-if [ ! -n "$wan_interface" ]; then
+if [ -z "$wan_interface" ]; then
   echo "(I) wan_watchdog: No WAN interface available. -> exit"
+  exit 0
+fi
+
+#check if the node has a mesh ip
+if [ -z "$mesh_ip" ]; then
+  echo "(I) wan_watchdog: No mesh ip set. -> exit"
   exit 0
 fi
 
@@ -29,13 +38,14 @@ fi
 wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 
 #check if the WAN interface has an IP address
-if [ ! -n "$wan_ip" ]; then
+if [ -z "$wan_ip" ]; then
   echo "(I) wan_watchdog: WAN interface has no IP - try to get one..."
   udhcpc -t 3 -n -q -i $wan_interface
   wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 else
-    echo "(I) wan_watchdog: WAN IP is: $wan_ip"
+    echo "(I) wan_watchdog: WAN IP is: '$wan_ip'"
 fi
+
 
 if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     # we have internet
@@ -44,6 +54,8 @@ if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
         uci set batman-adv.bat0.gw_mode="server"
         batctl gw server
         /etc/init.d/nodogsplash start > /dev/null
+    else
+        echo "(I) wan_watchdog: Already in gateway mode."
     fi
 else
     # we have no internet
@@ -52,6 +64,8 @@ else
         uci set batman-adv.bat0.gw_mode="client"
         batctl gw client
         /etc/init.d/nodogsplash stop > /dev/null
+    else
+        echo "(I) wan_watchdog: Already in client mode."
     fi
 fi
 

@@ -1,0 +1,53 @@
+#!/bin/sh
+
+#Get the IP of a node by MAC.
+
+mac=$1
+
+if [ ! ${#mac} -eq 17 ]
+then
+    #mac is invalid
+    exit 1
+fi
+
+ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+debug=`uci get -q freifunk.settings.debug`
+
+start_ip=`uci get dhcp.mesh.start`
+end_ip=`uci get dhcp.mesh.limit`
+
+
+seed=0
+for x in $(echo $mac | tr ":" "\n"); do
+    seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
+done
+
+addr_t=$((start_ip + (seed % end_ip)))
+
+#we try only ten times to not to spam the network
+i=0
+while [ $i -lt 10 ]
+do
+    addr_c=$(((addr_t & 0xff00) >> 8))
+    addr_d=$(((addr_t & 0x00ff) >> 0))
+
+    addr_ip="10.$ff_subnet.$addr_c.$addr_d"
+    arping -c 3 -D -f -q -I br-mesh $addr_ip
+    
+    if [ $? -eq 0 ]; then
+        #get MAC from arp cache
+        addr_mac=`arp -an | grep $addr_ip | awk '{print $2}'`
+        
+        if [ "$addr_mac" == "$mac" ]; then
+            #found IP matching the given MAC :-)
+            echo $addr_ip
+            exit 0
+        fi
+    fi
+    
+    addr_t=$((addr_t+1))
+    i=$((i + 1))
+done
+
+#IP not found :-(
+exit 1

@@ -1,1 +1,2 @@
 */5 * * * * /sbin/wan_watchdog > /dev/null
+*/5 * * * * /sbin/ip_watchdog > /dev/null

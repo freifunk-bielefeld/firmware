@@ -1,30 +1,27 @@
 #!/bin/sh /etc/rc.common
 
-# TODO:
-# - preconfigure mesh, request address, configure mesh
-# - create debug toggle
-# - add n2n
-
-
 START=96
 
 
 start () {
 
-ap_ssid="www.freifunk-bielefeld.de"
-ah_ssid="batman.freifunk-bielefeld.de"
-ff_subnet=29
-debug=0
+#write everything from stdout and stderr to a log file
+exec >/root/freifunk.log 2>&1
+date
+
+ap_ssid=`uci get -q freifunk.settings.ap_ssid`
+ah_ssid=`uci get -q freifunk.settings.ah_ssid`
+ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+debug=`uci get -q freifunk.settings.debug`
 
 # set (not so) magic numbers for start ip and address space
 # numbers are ip integer representation
 start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
 end_ip=$((255*255+253)) # -> 65278
 
-#write everything from stdout and stderr to a log file
-exec >/tmp/freifunk.log 2>&1
-date
-
+if [ -f /etc/ap_ssid_overwrite ]; then
+    ap_ssid=`cat /etc/ap_ssid_overwrite`
+fi
 
 # ------------------------------------------------------- #
 # R E V O K E   D E F A U L T   C O N F I G U R A T I O N #
@@ -137,6 +134,8 @@ fi
 echo "(I) Freifunk: interface for batman: '$bat_interface'"
 echo "(I) Freifunk: other interface for batman: '$other_interface'"
 
+uci set -q freifunk.settings.wifi_ap_interface="$wifi_ap_interface"
+uci set -q freifunk.settings.bat_interface="$bat_interface"
 
 # ------------------------------------- #
 # C O N F I G U R I N G   N E T W O R K #
@@ -148,9 +147,10 @@ uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="bat0 $other_interface"
 uci set network.mesh.mtu="1528"
-uci set network.mesh.ipaddr="10.$ff_subnet.1.1"
+uci set network.mesh.ipaddr="10.1.1.1"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
+uci set network.wan.proto="none" #disable dhcpc on startup
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
@@ -158,8 +158,7 @@ uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
 uci set dhcp.mesh.start=$start_ip
 uci set dhcp.mesh.limit=$end_ip
-uci set dhcp.mesh.leasetime=5m
-# fho: changed leasetime from 12h to 5m -> max time for address conflicts
+uci set dhcp.mesh.leasetime=5m #max time for address conflicts
 
 echo "(I) Freifunk: setup /etc/config/firewall"
 while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
@@ -203,7 +202,7 @@ echo "(I) Freifunk: restart /etc/init.d/firewall"
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
 
-echo "(I) Freifunk: restart batman on '$bat_interface'"
+echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
 
 
@@ -211,57 +210,11 @@ echo "(I) Freifunk: restart batman on '$bat_interface'"
 # G E T   M E S H   A D D R E S S #
 # ------------------------------- # 
 
-# use the same algorithm as dnsmasq for generating address
+echo "(I) Freifunk: call ip_watchdog to set IP for br-mesh"
+/sbin/ip_watchdog
 
-# create seed from batman interface mac
-bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
-echo "(D) Freifunk: batman interface mac: '$bat_mac'"
-
-#method for ip generation was taken from dnsmasq
-seed=0
-for x in $(echo $bat_mac | tr ":" "\n"); do
-	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
-done
-
-addr_t=$((start_ip + (seed % end_ip)))
-
-addr=""
-while [ -z "$addr" ]; do
-    addr_c=$(((addr_t & 0xff00) >> 8))
-    addr_d=$(((addr_t & 0x00ff) >> 0))
-
-    addr="10.$ff_subnet.$addr_c.$addr_d"
-
-    echo "(D) Freifunk: testing address '$addr'"
-
-    arping -c 3 -D -f -q -I br-mesh $addr
-
-    if [ $? -eq 0 ]; then
-        mesh_ip="$addr"
-        echo "(I) Freifunk: mesh_ip: '$mesh_ip'"
-    else
-        echo "(D) Freifunk: address taken"
-        addr_t=$((addr_t+1))
-        addr=""
-    fi
-done
-
-ifconfig br-mesh $mesh_ip
-
-
-if [ $debug -eq 1 ]; then
-  #debug code to identify routers by ssid
-  if [ -n "$wifi_ap_interface" ]; then
-    #TODO: only set ap interface, not just the last one
-    uci set wireless.@wifi-iface[-1].ssid="${ap_ssid:4}_${mesh_ip:6}"
-    wifi down
-    wifi up
-  fi
-fi
-
-#check wan interface for internet
+echo "(I) Freifunk: call wan_watchdog to check for internet"
 /sbin/wan_watchdog
-
 
 # ------- #
 # D O N E #

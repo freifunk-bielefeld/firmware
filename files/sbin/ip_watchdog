@@ -1,0 +1,94 @@
+#!/bin/sh
+
+exec >/tmp/ip_watchdog.log 2>&1
+date
+
+echo "(I) ip_watchdog: start"
+
+
+#if [ -f /tmp/ip_watchdog.pid ]; then
+    #this scipt is already running
+#    exit 0
+#fi
+#echo $$ > /tmp/ip_watchdog.pid
+
+ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+debug=`uci get -q freifunk.settings.debug`
+bat_interface=`uci get -q freifunk.settings.bat_interface`
+
+start_ip=`uci get dhcp.mesh.start`
+end_ip=`uci get dhcp.mesh.limit`
+
+mesh_ip=`ifconfig br-mesh | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+
+if [ -n "$mesh_ip" -a "$mesh_ip" != "10.1.1.1" ]
+then
+    #how many results do we to indicate a conflict?
+    arping -c 3 -D -f -q -I br-mesh $mesh_ip
+    if [ $? -eq 0 ]; then
+        echo "(I) ip_watchdog: address '$mesh_ip' is still free - done"
+        #rm /tmp/ip_watchdog.pid
+        exit 0
+    fi
+fi
+
+#create seed from batman interface mac
+bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
+echo "(D) ip_watchdog: batman interface mac: '$bat_mac'"
+
+#method for ip generation was taken from dnsmasq
+seed=0
+for x in $(echo $bat_mac | tr ":" "\n"); do
+    seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
+done
+
+addr_t=$((start_ip + (seed % end_ip)))
+
+i=0
+while [ $i -lt 10 ]
+do
+    addr_c=$(((addr_t & 0xff00) >> 8))
+    addr_d=$(((addr_t & 0x00ff) >> 0))
+
+    addr_ip="10.$ff_subnet.$addr_c.$addr_d"
+    arping -c 3 -D -f -q -I br-mesh $addr_ip
+
+    if [ $? -eq 0 ]; then
+        mesh_ip="$addr_ip"
+        echo "(I) ip_watchdog: address is free: '$mesh_ip'"
+        break
+    else
+        echo "(D) ip_watchdog: address is taken: '$addr_ip'"
+    fi
+    
+    addr_t=$((addr_t+1))
+    i=$((i + 1))
+done
+
+#exit if no free IP has been found
+if [ -z "$mesh_ip" ]; then
+    echo "(E) ip_watchdog: No free IP has been found."
+    exit 1
+fi
+
+echo "(I) ip_watchdog: set new IP"
+uci set network.mesh.ipaddr="$mesh_ip"
+ifconfig br-mesh $mesh_ip
+
+#debug code to identify routers by ssid
+if [ $debug -eq 1 ]; then
+  ap_ssid=`cat /etc/ap_ssid_overwrite`
+  new_ap_ssid="freifunk_${mesh_ip}"
+  if [ "$ap_ssid" != "$new_ap_ssid" ]; then
+    echo "$new_ap_ssid" > /etc/ap_ssid_overwrite
+    reboot
+  fi
+elif [ -f /etc/ap_ssid_overwrite ]; then
+    rm /etc/ap_ssid_overwrite
+    reboot
+fi
+
+#remove pid file
+#rm /tmp/ip_watchdog.pid
+
+echo "(I) ip_watchdog: done"
