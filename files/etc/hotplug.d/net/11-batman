@@ -1,19 +1,25 @@
-exit 0
+#this script receives the mac of the best gateway in reach
+#from batman-adv and sets the routing table accordingly
 
-if [ "$ACTION" = "change" ] ; then
+if [ "$ACTION" = "change" ]; then
 
- if [ "$BATACTION" = "del" ] ; then
+  exec >/tmp/11-batman.log 2>&1
+  date
+
+  if [ "$BATACTION" = "del" ]; then
     echo "del default route" >> /dev/kmsg
     route del default
     exit 0
- fi
+  fi
 
- if [ -n "$BATDATA" ] ; then
-    echo "$BATDATA" > /tmp/11-batman.log
+  if [ -n "$BATDATA" ]; then
+    echo "(I) 11-batman: received gateway MAC: '$BATDATA'"
     GATE_IP=`mac2ip $BATDATA`
     if [ $? -eq 1 -o -z "$GATE_IP" ]; then
-        exit 1
+      echo "(I) 11-batman: cannot get IP from MAC"
+      exit 1
     fi
+    echo "(I) 11-batman: set gateway to '$GATE_IP'"
     echo "update bat0 route to $BATDATA ($GATE_IP)" >> /dev/kmsg
     uci set dhcp.@dnsmasq[0].dhcp_option="option:router, $GATE_IP"
     route del default
