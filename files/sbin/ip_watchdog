@@ -5,13 +5,6 @@ date
 
 echo "(I) ip_watchdog: start"
 
-
-#if [ -f /tmp/ip_watchdog.pid ]; then
-    #this scipt is already running
-#    exit 0
-#fi
-#echo $$ > /tmp/ip_watchdog.pid
-
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 debug=`uci get -q freifunk.settings.debug`
 bat_interface=`uci get -q freifunk.settings.bat_interface`
@@ -27,7 +20,6 @@ then
     arping -c 3 -D -f -q -I br-mesh $mesh_ip
     if [ $? -eq 0 ]; then
         echo "(I) ip_watchdog: address '$mesh_ip' is still free - done"
-        #rm /tmp/ip_watchdog.pid
         exit 0
     fi
 fi
@@ -88,7 +80,5 @@ elif [ -f /etc/ap_ssid_overwrite ]; then
     reboot
 fi
 
-#remove pid file
-#rm /tmp/ip_watchdog.pid
 
 echo "(I) ip_watchdog: done"
