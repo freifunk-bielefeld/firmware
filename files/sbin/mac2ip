@@ -10,14 +10,21 @@ start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
 
-if [ ! ${#mac} -eq 17 ]
+if [ ${#mac} -eq 17 ]
 then
+    #lowercase for later comparison
+    mac=`echo $mac | tr '[A-Z]' '[a-z]'`
+    
+    #convert from locally to universally administered mac
+    #so we can compare to the mac that arping will return
+    a=${mac%%:*} #cut out first hex
+    a=$((0x$a & 253)) #set second bit to 0
+    a=`printf '%x\n' $a` # convert to hex
+    mac="$a:${mac#*:}" #reassemble mac
+else
     #mac is invalid
     exit 1
 fi
-
-#lowercase
-mac=`echo $mac | tr '[A-Z]' '[a-z]'`
 
 
 seed=0
@@ -35,17 +42,12 @@ do
     addr_d=$(((addr_t & 0x00ff) >> 0))
 
     addr_ip="10.$ff_subnet.$addr_c.$addr_d"
-    arping -c 3 -D -f -q -I br-mesh $addr_ip
-    
-    if [ $? -eq 0 ]; then
-        #get MAC from arp cache
-        addr_mac=`cat /proc/net/arp | grep $addr_ip | awk '{print $4}'`
-        
-        if [ "$addr_mac" == "$mac" ]; then
-            #found IP matching the given MAC :-)
-            echo $addr_ip
-            exit 0
-        fi
+    addr_mac=`arping -c 3 -f -I br-mesh $addr_ip | grep -m 1 -o -E '[[:xdigit:]]{1,2}(:[[:xdigit:]]{2}){5}' | tr '[A-Z]' '[a-z]'`
+
+    if [ "$addr_mac" == "$mac" ]; then
+        #found IP matching the given MAC :-)
+        echo $addr_ip
+        exit 0
     fi
     
     addr_t=$((addr_t+1))

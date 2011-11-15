@@ -6,7 +6,7 @@ START=96
 start () {
 
 #write everything from stdout and stderr to a log file
-exec >/root/freifunk.log 2>&1
+exec >/tmp/freifunk.log 2>&1
 date
 
 ap_ssid=`uci get -q freifunk.settings.ap_ssid`
@@ -114,6 +114,8 @@ if [ -n "$wifi_device" ]; then
       record_wifi_interfaces
     fi
     
+    uci set -q freifunk.settings.wifi_ap_interface="$wifi_ap_interface"
+    
     echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"
     echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
@@ -134,8 +136,6 @@ fi
 echo "(I) Freifunk: interface for batman: '$bat_interface'"
 echo "(I) Freifunk: other interface for batman: '$other_interface'"
 
-uci set -q freifunk.settings.wifi_ap_interface="$wifi_ap_interface"
-uci set -q freifunk.settings.bat_interface="$bat_interface"
 
 # ------------------------------------- #
 # C O N F I G U R I N G   N E T W O R K #
@@ -205,6 +205,7 @@ echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
 
+ifconfig $bat_interface mtu 1528
 
 # ------------------------------- #
 # G E T   M E S H   A D D R E S S #

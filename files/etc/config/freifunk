@@ -2,7 +2,6 @@
 config ff_settings 'settings'
     option 'ap_ssid' 'www.freifunk-bielefeld.de'
     option 'ah_ssid' 'batman.freifunk-bielefeld.de'
-    option 'bat_interface' ''
-    option 'wifi_ap_interface' ''
     option 'ff_subnet' 29
     option 'debug' 0
+    option 'wifi_ap_interface' ''

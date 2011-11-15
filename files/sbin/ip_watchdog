@@ -5,14 +5,18 @@ date
 
 echo "(I) ip_watchdog: start"
 
+
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 debug=`uci get -q freifunk.settings.debug`
-bat_interface=`uci get -q freifunk.settings.bat_interface`
 
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
 mesh_ip=`ifconfig br-mesh | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+mesh_mac=$(ifconfig br-mesh | grep HWaddr | awk '{print $5}')
+
+echo "(D) ip_watchdog: br-mesh interface ip: '$mesh_ip'"
+echo "(D) ip_watchdog: br-mesh interface mac: '$mesh_mac'"
 
 if [ -n "$mesh_ip" -a "$mesh_ip" != "10.1.1.1" ]
 then
@@ -24,13 +28,9 @@ then
     fi
 fi
 
-#create seed from batman interface mac
-bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
-echo "(D) ip_watchdog: batman interface mac: '$bat_mac'"
-
 #method for ip generation was taken from dnsmasq
 seed=0
-for x in $(echo $bat_mac | tr ":" "\n"); do
+for x in $(echo $mesh_mac | tr ":" "\n"); do
     seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
 done
 
