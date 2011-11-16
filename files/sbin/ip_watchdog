@@ -28,34 +28,7 @@ then
     fi
 fi
 
-#method for ip generation was taken from dnsmasq
-seed=0
-for x in $(echo $mesh_mac | tr ":" "\n"); do
-    seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
-done
-
-addr_t=$((start_ip + (seed % end_ip)))
-
-i=0
-while [ $i -lt 10 ]
-do
-    addr_c=$(((addr_t & 0xff00) >> 8))
-    addr_d=$(((addr_t & 0x00ff) >> 0))
-
-    addr_ip="10.$ff_subnet.$addr_c.$addr_d"
-    arping -c 3 -D -f -q -I br-mesh $addr_ip
-
-    if [ $? -eq 0 ]; then
-        mesh_ip="$addr_ip"
-        echo "(I) ip_watchdog: address is free: '$mesh_ip'"
-        break
-    else
-        echo "(D) ip_watchdog: address is taken: '$addr_ip'"
-    fi
-    
-    addr_t=$((addr_t+1))
-    i=$((i + 1))
-done
+mesh_ip=`mac2ip $mesh_mac free`
 
 #exit if no free IP has been found
 if [ -z "$mesh_ip" ]; then
@@ -63,7 +36,7 @@ if [ -z "$mesh_ip" ]; then
     exit 1
 fi
 
-echo "(I) ip_watchdog: set new IP"
+echo "(I) ip_watchdog: set new IP: '$mesh_ip'"
 uci set network.mesh.ipaddr="$mesh_ip"
 ifconfig br-mesh $mesh_ip
 

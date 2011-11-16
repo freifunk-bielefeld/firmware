@@ -136,6 +136,8 @@ fi
 echo "(I) Freifunk: interface for batman: '$bat_interface'"
 echo "(I) Freifunk: other interface for batman: '$other_interface'"
 
+bat_mac=$(ifconfig $bat_interface | grep HWaddr | awk '{print $5}')
+echo "(I) Freifunk: batman interface mac: '$bat_mac'"
 
 # ------------------------------------- #
 # C O N F I G U R I N G   N E T W O R K #
@@ -148,6 +150,7 @@ uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="bat0 $other_interface"
 uci set network.mesh.mtu="1528"
 uci set network.mesh.ipaddr="10.1.1.1"
+uci set network.mesh.ipaddr="$bat_mac"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
 uci set network.wan.proto="none" #disable dhcpc on startup

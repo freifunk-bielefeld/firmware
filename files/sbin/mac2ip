@@ -2,6 +2,7 @@
 
 #Get the IP of a node by MAC.
 mac=$1
+free=$2 #if set, get the first free IP instead
 
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 debug=`uci get -q freifunk.settings.debug`
@@ -19,7 +20,7 @@ then
     #so we can compare to the mac that arping will return
     a=${mac%%:*} #cut out first hex
     a=$((0x$a & 253)) #set second bit to 0
-    a=`printf '%x\n' $a` # convert to hex
+    a=`printf '%x\n' $a` #convert to hex
     mac="$a:${mac#*:}" #reassemble mac
 else
     #mac is invalid
@@ -44,7 +45,13 @@ do
     addr_ip="10.$ff_subnet.$addr_c.$addr_d"
     addr_mac=`arping -c 3 -f -I br-mesh $addr_ip | grep -m 1 -o -E '[[:xdigit:]]{1,2}(:[[:xdigit:]]{2}){5}' | tr '[A-Z]' '[a-z]'`
 
-    if [ "$addr_mac" == "$mac" ]; then
+    if [ -n "$free" -a -z "$addr_mac" ]; then
+        #found free ip based on given MAC :)
+        echo $addr_ip
+        exit 0
+    fi
+    
+    if [ -z "$free" -a "$addr_mac" == "$mac" ]; then
         #found IP matching the given MAC :-)
         echo $addr_ip
         exit 0
