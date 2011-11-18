@@ -150,10 +150,10 @@ uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="bat0 $other_interface"
 uci set network.mesh.mtu="1528"
 uci set network.mesh.ipaddr="10.1.1.1"
-uci set network.mesh.ipaddr="$bat_mac"
+uci set network.mesh.macaddr="$bat_mac"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
-uci set network.wan.proto="none" #disable dhcpc on startup
+uci -q set network.wan.proto="none" #disable dhcpc on startup
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
@@ -187,7 +187,6 @@ uci set firewall.@zone[-1].input=ACCEPT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
 
-ifconfig $bat_interface mtu 1528
 uci set batman-adv.bat0.interfaces="$bat_interface"
 uci set batman-adv.bat0.gw_mode="client"
 
@@ -205,10 +204,11 @@ echo "(I) Freifunk: restart /etc/init.d/firewall"
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
 
+ifconfig $bat_interface mtu 1528
+
 echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
 
-ifconfig $bat_interface mtu 1528
 
 # ------------------------------- #
 # G E T   M E S H   A D D R E S S #
