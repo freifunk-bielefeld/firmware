@@ -10,22 +10,34 @@ debug=`uci get -q freifunk.settings.debug`
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
-
-if [ ${#mac} -eq 17 ]
-then
-    #lowercase for later comparison
-    mac=`echo $mac | tr '[A-Z]' '[a-z]'`
+#convert from locally to universally administered mac
+#and a common mac format
+fix_mac() {
+    mac_in="$1"
     
-    #convert from locally to universally administered mac
-    #so we can compare to the mac that arping will return
-    a=${mac%%:*} #cut out first hex
-    a=$((0x$a & 253)) #set second bit to 0
-    a=`printf '%x\n' $a` #convert to hex
-    mac="$a:${mac#*:}" #reassemble mac
-else
-    #mac is invalid
-    exit 1
-fi
+    if [ ${#mac_in} -lt 8 ]; then
+        return 1;
+    fi
+    
+    mac_out=${mac_in%%:*}
+    mac_out=$((0x$mac_out & 253))
+    mac_out=`printf '%02x\n' $mac_out`
+    mac_in="${mac_in#*:}"
+    
+    OIFS=$IFS
+    IFS=':'
+    
+    for x in $mac_in; do
+        n=$((0x$x))
+        n=`printf '%02x\n' $n`
+        mac_out="$mac_out:$n"
+    done
+
+    IFS=$OIFS
+    echo $mac_out
+}
+
+mac=$(fix_mac $mac)
 
 
 seed=0
@@ -43,7 +55,8 @@ do
     addr_d=$(((addr_t & 0x00ff) >> 0))
 
     addr_ip="10.$ff_subnet.$addr_c.$addr_d"
-    addr_mac=`arping -c 3 -f -I br-mesh $addr_ip | grep -m 1 -o -E '[[:xdigit:]]{1,2}(:[[:xdigit:]]{2}){5}' | tr '[A-Z]' '[a-z]'`
+    addr_mac=`arping -c 3 -f -I br-mesh $addr_ip | grep -m 1 -o -E '[[:xdigit:]]{1,2}(:[[:xdigit:]]{1,2}){5}'`
+    addr_mac=$(fix_mac $addr_mac)
 
     if [ -n "$free" -a -z "$addr_mac" ]; then
         #found free ip based on given MAC :)
