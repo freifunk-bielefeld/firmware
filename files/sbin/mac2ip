@@ -1,6 +1,7 @@
 #!/bin/sh
 
 #Get the IP of a node by MAC.
+
 mac=$1
 free=$2 #if set, get the first free IP instead
 

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#Check for Internet access on the WAN port and switch
+#batman-adv between client und server mode accordingly.
+
 exec >/tmp/wan_watchdog.log 2>&1
 date
 

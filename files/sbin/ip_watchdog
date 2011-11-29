@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#Check if the IP of the node is unique and set a
+#new one if it is already taken by another node.
+
 exec >/tmp/ip_watchdog.log 2>&1
 date
 
