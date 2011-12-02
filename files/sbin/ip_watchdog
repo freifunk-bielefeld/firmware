@@ -15,7 +15,7 @@ debug=`uci get -q freifunk.settings.debug`
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
-mesh_ip=`ifconfig br-mesh | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 mesh_mac=$(ifconfig br-mesh | grep HWaddr | awk '{print $5}')
 
 echo "(D) ip_watchdog: br-mesh interface ip: '$mesh_ip'"

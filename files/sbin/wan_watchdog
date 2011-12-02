@@ -17,7 +17,7 @@ echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
 echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
-mesh_ip=`ifconfig br-mesh | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 echo "(I) wan_watchdog: current mesh ip: '$mesh_ip'"
 
 #check if wan interface exists
@@ -38,13 +38,13 @@ if [ $(ifconfig bat0 2> /dev/null | wc -l) == 0 ]; then
     exit 1
 fi
 
-wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+wan_ip=`ifconfig $wan_interface | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 
 #check if the WAN interface has an IP address
 if [ -z "$wan_ip" ]; then
   echo "(I) wan_watchdog: WAN interface has no IP - try to get one..."
   udhcpc -t 3 -n -q -i $wan_interface
-  wan_ip=`ifconfig $wan_interface | grep "inet" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+  wan_ip=`ifconfig $wan_interface | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 else
     echo "(I) wan_watchdog: WAN IP is: '$wan_ip'"
 fi
