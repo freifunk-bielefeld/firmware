@@ -63,6 +63,9 @@ if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     
     # start n2n
     /etc/init.d/n2n start
+
+    # add n2n to batman
+    batctl if add edge0
 else
     # we have no internet
     if [ "$bat_mode" == "server" ]; then
