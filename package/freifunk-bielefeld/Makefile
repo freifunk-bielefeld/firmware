@@ -4,10 +4,7 @@ PKG_NAME:=freifunk-bielefeld
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/freifunk-bielefeld-$(PKG_VERSION)
-PKG_SOURCE:=freifunk-bielefeld-$(PKG_VERSION).tar.gz
-PKG_MD5SUM:=	
-PKG_CAT:=zcat
+PKG_BUILD_DIR:=$(BUILD_DIR)/freifunk
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -16,9 +13,16 @@ define Package/freifunk-bielefeld-basic
   CATEGORY:=Config
   DEFAULT:=y
   TITLE:= Freifunk-Bielefeld Basic
-  #DESCRIPTION:=This variable is obsolete. use the Package/name/description define instead!
   URL:=http://freifunk-bielefeld.de
   DEPENDS:=+kmod-batman-adv +nodogsplash +n2n +uhttpd +fping +haserl
+endef
+
+define Build/Prepare
+  echo "all: " > $(PKG_BUILD_DIR)/Makefile
+endef
+
+define Package/freifunk-bielefeld-basic/install
+  cp -rfa $(TOPDIR)/package/$(PKG_NAME)/files/* $(1)
 endef
 
 define Package/freifunk-bielefeld-basic-ath9k
