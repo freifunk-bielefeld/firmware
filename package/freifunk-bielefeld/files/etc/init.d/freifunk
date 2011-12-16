@@ -96,7 +96,10 @@ if [ -n "$wifi_device" ]; then
     }
     
     record_wifi_interfaces() {
-      wifi_ap_interface=`iwconfig 2> /dev/null | awk "/Mode:Master/ { print \\$1 }"`   
+      wifi_ap_interface=`iwconfig 2> /dev/null | awk "/$ap_ssid/ { print \\$1 }"`
+      if [ -z "$wifi_ap_interface" ]; then
+        wifi_ap_interface=`iwconfig 2> /dev/null | awk "/Mode:Master/ { print \\$1 }"`
+      fi
       wifi_ah_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
     }
     
