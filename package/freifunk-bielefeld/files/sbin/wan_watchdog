@@ -60,6 +60,9 @@ if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     else
         echo "(I) wan_watchdog: Already in gateway mode."
     fi
+    
+    # start n2n
+    /etc/init.d/n2n start
 else
     # we have no internet
     if [ "$bat_mode" == "server" ]; then
@@ -70,6 +73,9 @@ else
     else
         echo "(I) wan_watchdog: Already in client mode."
     fi
+    
+    # stop n2n
+    /etc/init.d/n2n stop
 fi
 
 echo "(I) wan_watchdog: done"

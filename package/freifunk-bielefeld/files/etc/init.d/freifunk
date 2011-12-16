@@ -47,6 +47,16 @@ echo "(I) Freifunk: stop /etc/init.d/network"
 # P R E C O N F I G U R I N G   N E T W O R K #
 # ------------------------------------------- # 
 
+echo "(I) Loading N2N Settings"
+uci add n2n edge
+uci set n2n.@edge[-1].ipaddr="0.0.0.0"
+uci set n2n.@edge[-1].supernode="fhaust.de"
+uci set n2n.@edge[-1].port=2011
+uci set n2n.@edge[-1].community="ffb1"
+uci set n2n.@edge[-1].mtu=1528
+#uci set n2n.@edge[-1].mac="42:DD:AB:AF:6C:94" 
+
+
 echo "(I) Freifunk: start setup"
 
 wan_interface=`uci -q get network.wan.ifname`
