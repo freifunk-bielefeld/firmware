@@ -1,0 +1,7 @@
+config N2N2_AES_ENCRYPTION
+        bool "n2n aes encryption"
+        depends PACKAGE_n2n2
+        default y
+        help
+          enable encryption in n2n networks
+
