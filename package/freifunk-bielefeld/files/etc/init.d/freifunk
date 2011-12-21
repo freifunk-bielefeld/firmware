@@ -212,8 +212,7 @@ uci -q delete network.wan
 if [ -n "$wan_interface" ]; then
     uci set network.wan="interface"
     uci set network.wan.ifname=$wan_interface
-    uci set network.wan.proto="none" #disable dhcpc on startup
-    uci set network.wan.auto=1 #bring up interface
+    uci set network.wan.proto="dhcp"
 fi
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
