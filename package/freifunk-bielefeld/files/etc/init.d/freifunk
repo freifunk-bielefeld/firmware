@@ -197,16 +197,19 @@ for x in $bat_interfaces; do
     uci set network.$name.auto=1 #bring up the interface at startup
 done
 
-if [ -n "$mesh_interfaces" ]; then
-    uci set network.mesh="interface"
-    uci set network.mesh.type="bridge"
-    uci set network.mesh.ifname="$mesh_interfaces"
-    #uci set network.mesh.mtu="1528"
-    uci set network.mesh.ipaddr="10.1.1.1"
-    uci set network.mesh.macaddr="$mesh_mac"
-    uci set network.mesh.proto=static
-    uci set network.mesh.netmask="255.0.0.0"
-fi
+#Create a dummy interface to be able to set the mac of bridge br-mesh.
+tunctl -t ff_dummy > /dev/null
+ifconfig ff_dummy hw ether $mesh_mac up
+
+uci set network.mesh="interface"
+uci set network.mesh.type="bridge"
+uci set network.mesh.ifname="ff_dummy $mesh_interfaces"
+#uci set network.mesh.mtu="1528"
+uci set network.mesh.ipaddr="10.1.1.1"
+#uci set network.mesh.macaddr="$mesh_mac"
+uci set network.mesh.proto=static
+uci set network.mesh.netmask="255.0.0.0"
+
 
 uci -q delete network.wan
 if [ -n "$wan_interface" ]; then
@@ -249,14 +252,12 @@ else
     while uci -q delete firewall.@rule[0]; do :; done
 fi
 
-if [ -n "$mesh_interfaces" ]; then
-    uci add firewall zone
-    uci set firewall.@zone[-1].name=mesh
-    uci set firewall.@zone[-1].network=mesh
-    uci set firewall.@zone[-1].input=ACCEPT
-    uci set firewall.@zone[-1].output=ACCEPT
-    uci set firewall.@zone[-1].forward=REJECT
-fi
+uci add firewall zone
+uci set firewall.@zone[-1].name=mesh
+uci set firewall.@zone[-1].network=mesh
+uci set firewall.@zone[-1].input=ACCEPT
+uci set firewall.@zone[-1].output=ACCEPT
+uci set firewall.@zone[-1].forward=REJECT
 
 uci set batman-adv.bat0.interfaces="$bat_interfaces"
 uci set batman-adv.bat0.gw_mode="client"
@@ -279,11 +280,8 @@ echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
 ifconfig bat0 up #for VirtualBox
 
-#add bat0 to bridge of non-batman interfaces
-#because it does not exist up until now
-if [ -n "$mesh_interfaces" ]; then
-    brctl addif br-mesh bat0
-fi
+#add bat0 to bridge
+brctl addif br-mesh bat0
 
 
 # ------------------------------- #
