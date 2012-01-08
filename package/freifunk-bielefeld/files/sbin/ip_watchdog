@@ -21,7 +21,7 @@ mesh_mac=$(ifconfig br-mesh | grep HWaddr | awk '{print $5}')
 echo "(D) ip_watchdog: br-mesh interface ip: '$mesh_ip'"
 echo "(D) ip_watchdog: br-mesh interface mac: '$mesh_mac'"
 
-if [ -n "$mesh_ip" -a "$mesh_ip" != "10.1.1.1" ]
+if [ -n "$mesh_ip" ]
 then
     #how many results do we to indicate a conflict?
     arping -c 3 -D -f -q -I br-mesh $mesh_ip

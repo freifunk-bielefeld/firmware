@@ -197,7 +197,7 @@ for x in $bat_interfaces; do
     uci set network.$name.auto=1 #bring up the interface at startup
 done
 
-#Create a dummy interface to be able to set the mac of bridge br-mesh.
+#Create a dummy interface to be able to set the mac of bridge br-mesh freely.
 tunctl -t ff_dummy > /dev/null
 ifconfig ff_dummy hw ether $mesh_mac up
 
@@ -205,7 +205,7 @@ uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="ff_dummy $mesh_interfaces"
 #uci set network.mesh.mtu="1528"
-uci set network.mesh.ipaddr="10.1.1.1"
+uci set network.mesh.ipaddr="0.0.0.0"
 #uci set network.mesh.macaddr="$mesh_mac"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
@@ -220,6 +220,7 @@ fi
 
 echo "(I) Freifunk: setup /etc/config/dhcp"
 uci -q delete dhcp.lan
+uci set dhcp.@dnsmasq[0].interfaces="br-mesh"
 uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
 uci set dhcp.mesh.start=$start_ip
@@ -273,26 +274,22 @@ echo "(I) Freifunk: restart /etc/init.d/network"
 echo "(I) Freifunk: restart /etc/init.d/firewall"
 /etc/init.d/firewall restart
 
-echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
-/etc/init.d/dnsmasq restart
-
 echo "(I) Freifunk: restart /etc/init.d/batman-adv"
 /etc/init.d/batman-adv restart
 ifconfig bat0 up #for VirtualBox
 
-#add bat0 to bridge
+echo "(I) Freifunk: add batman interface to br-mesh"
 brctl addif br-mesh bat0
-
-
-# ------------------------------- #
-# G E T   M E S H   A D D R E S S #
-# ------------------------------- # 
 
 echo "(I) Freifunk: call ip_watchdog to set IP for br-mesh"
 /sbin/ip_watchdog
 
+echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
+/etc/init.d/dnsmasq restart
+
 echo "(I) Freifunk: call wan_watchdog to check for internet"
 /sbin/wan_watchdog
+
 
 # ------- #
 # D O N E #
