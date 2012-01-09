@@ -48,15 +48,15 @@ if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
         uci set batman-adv.bat0.gw_mode="server"
         batctl gw server
         /etc/init.d/nodogsplash start > /dev/null
+        
+        # start n2n
+        /etc/init.d/n2n start
+
+        # add n2n to batman
+        batctl if add edge0
     else
         echo "(I) wan_watchdog: Already in gateway mode."
     fi
-    
-    # start n2n
-    /etc/init.d/n2n start
-
-    # add n2n to batman
-    batctl if add edge0
 else
     # we have no internet
     if [ "$bat_mode" == "server" ]; then
@@ -64,12 +64,12 @@ else
         uci set batman-adv.bat0.gw_mode="client"
         batctl gw client
         /etc/init.d/nodogsplash stop > /dev/null
+        
+        # stop n2n
+        /etc/init.d/n2n stop
     else
         echo "(I) wan_watchdog: Already in client mode."
     fi
-    
-    # stop n2n
-    /etc/init.d/n2n stop
 fi
 
 echo "(I) wan_watchdog: done"
