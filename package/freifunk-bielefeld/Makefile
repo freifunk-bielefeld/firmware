@@ -22,7 +22,7 @@ define Build/Prepare
 endef
 
 define Package/freifunk-bielefeld-basic/install
-  cp -rfa $(TOPDIR)/package/$(PKG_NAME)/files/* $(1)
+  #nothing to do here
 endef
 
 define Package/freifunk-bielefeld-basic-ath9k
