@@ -192,7 +192,7 @@ for x in $bat_interfaces; do
     name=`echo "$x" | tr -d -c a-z0-9_`
     uci set network.$name="interface"
     uci set network.$name.ifname=$x
-    #uci set network.$i.mtu=1528 #todo
+    uci set network.$name.mtu=1528
     uci set network.$name.proto=none
     uci set network.$name.auto=1 #bring up the interface at startup
 done
@@ -204,9 +204,8 @@ ifconfig ff_dummy hw ether $mesh_mac up
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="ff_dummy $mesh_interfaces"
-#uci set network.mesh.mtu="1528"
 uci set network.mesh.ipaddr="0.0.0.0"
-#uci set network.mesh.macaddr="$mesh_mac"
+#uci set network.mesh.macaddr="$mesh_mac" #does not work
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
 
