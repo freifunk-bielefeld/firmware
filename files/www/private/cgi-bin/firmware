@@ -3,8 +3,15 @@
 
 case $GET_func in
   apply_firmware)
-    if [ -n $HASERL_firmware_path ]; then
-        sysupgrade -n $HASERL_firmware_path
+    fpath="$HASERL_firmware_path"
+    if [ -a $fpath ]; then
+        /etc/init.d/batmna-adv/stop &> //dev/null
+        /etc/init.d/nodogsplash stop &> /dev/null
+        /etc/init.d/hotplug2 stop &> /dev/null
+        echo "(I) Start sysupgrade"
+        sysupgrade -n $fpath
+    else
+      echo "(E) Cannot find file '$fpath'."
     fi
     #cat $HASERL_uploadfile_path | wc -c
     ;;

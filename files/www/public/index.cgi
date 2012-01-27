@@ -1,4 +1,4 @@
-#!/usr/bin/haserl
+#!/usr/bin/haserl -n
 Content-type: text/html
 
 <html>
@@ -6,12 +6,14 @@ Content-type: text/html
 <title>Info</title>
 </head>
 <body>
-<h2>Nodes:</h2>
-<pre><% ndsctl status %></pre>
-<h2>Gateways:</h2>
+<a href="https://<% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>">Login</a>
+<b>Anzahl der Nutzer dieses Knotens:</b>
+<pre><% ndsctl clients %></pre>
+<b>Anzahl bekannter Knoten:</b>
+<pre><%batctl o | grep -c "^[0-9a-b]\{2\}:"%></pre>
+<b>Bekannte Gateways:</b>
 <pre><% batctl gwl %></pre>
-<h2>Splash:</h2>
+<b>Splash-Seite:</b>
 <pre><% ndsctl status %></pre>
 </body>
 </html>
-
