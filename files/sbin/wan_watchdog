@@ -45,9 +45,9 @@ if [ -n "$wan_ip" -a $(fping -a $IPCHECK 2> /dev/null | wc -l) != 0 ]; then
     # we have internet
     if [ "$bat_mode" == "client" ]; then
         echo "(I) wan_watchdog: Switch to gateway mode."
+        /etc/init.d/nodogsplash start > /dev/null
         uci set batman-adv.bat0.gw_mode="server"
         batctl gw server
-        /etc/init.d/nodogsplash start > /dev/null
         
         # start n2n
         /etc/init.d/n2n start
