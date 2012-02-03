@@ -1,19 +1,13 @@
 #!/bin/sh
 
-#Check if the IP of the node is unique and set a
-#new one if it is already taken by another node.
+#Set an IP for br-mesh.
 
 exec >/tmp/ip_watchdog.log 2>&1
 date
 
 echo "(I) ip_watchdog: start"
 
-
-ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 debug=`uci get -q freifunk.settings.debug`
-
-start_ip=`uci get dhcp.mesh.start`
-end_ip=`uci get dhcp.mesh.limit`
 
 mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 mesh_mac=$(ifconfig br-mesh | grep HWaddr | awk '{print $5}')
@@ -21,40 +15,13 @@ mesh_mac=$(ifconfig br-mesh | grep HWaddr | awk '{print $5}')
 echo "(D) ip_watchdog: br-mesh interface ip: '$mesh_ip'"
 echo "(D) ip_watchdog: br-mesh interface mac: '$mesh_mac'"
 
-if [ -n "$mesh_ip" ]
-then
-    #how many results do we to indicate a conflict?
-    arping -c 3 -D -f -q -I br-mesh $mesh_ip
-    if [ $? -eq 0 ]; then
-        echo "(I) ip_watchdog: address '$mesh_ip' is still free - done"
-        exit 0
-    fi
-fi
-
-mesh_ip=`mac2ip $mesh_mac free`
-
-#exit if no free IP has been found
 if [ -z "$mesh_ip" ]; then
-    echo "(E) ip_watchdog: No free IP has been found."
-    exit 1
+    mesh_ip=`mac2ip $mesh_mac`
+    echo "(I) ip_watchdog: set new IP: '$mesh_ip'"
+    uci set network.mesh.ipaddr="$mesh_ip"
+    ifconfig br-mesh $mesh_ip
+else
+    echo "(I) ip_watchdog: nothing to do"
 fi
-
-echo "(I) ip_watchdog: set new IP: '$mesh_ip'"
-uci set network.mesh.ipaddr="$mesh_ip"
-ifconfig br-mesh $mesh_ip
-
-#debug code to identify routers by ssid
-if [ $debug -eq 1 ]; then
-  ap_ssid=`cat /etc/ap_ssid_overwrite`
-  new_ap_ssid="freifunk_${mesh_ip}"
-  if [ "$ap_ssid" != "$new_ap_ssid" ]; then
-    echo "$new_ap_ssid" > /etc/ap_ssid_overwrite
-    reboot
-  fi
-elif [ -f /etc/ap_ssid_overwrite ]; then
-    rm /etc/ap_ssid_overwrite
-    reboot
-fi
-
 
 echo "(I) ip_watchdog: done"

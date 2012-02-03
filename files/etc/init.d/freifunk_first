@@ -1,0 +1,30 @@
+#!/bin/sh /etc/rc.common
+
+START=31
+
+
+start () 
+{
+exec >/tmp/freifunk_first.log 2>&1
+
+echo "(I) Freifunk: start"
+
+mac=`uci get freifunk.settings.mac`
+if [ -n "$mac" ]; then
+    
+    echo "(I) Freifunk: Use mac: '$mac'"
+
+    #Create dummy interfaces to be able to set the mac of
+    #br-mesh and the mac for the OGMs of batman-adv freely.
+
+    echo "(I) Freifunk: Create ff_dummy1 interface."
+    tunctl -t ff_dummy1 > /dev/null
+    ifconfig ff_dummy1 hw ether $mac up
+
+    echo "(I) Freifunk: Create ff_dummy2 interface."
+    tunctl -t ff_dummy2 > /dev/null
+    ifconfig ff_dummy2 hw ether $mac up
+fi
+
+echo "(I) Freifunk: done"
+}

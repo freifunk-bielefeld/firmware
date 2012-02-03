@@ -18,7 +18,7 @@ bat_mode=`uci -q get batman-adv.bat0.gw_mode`
 echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
 mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
-echo "(I) wan_watchdog: current mesh ip: '$mesh_ip'"
+#echo "(I) wan_watchdog: current mesh ip: '$mesh_ip'"
 
 #check if wan interface exists
 if [ -z "$wan_interface" ]; then

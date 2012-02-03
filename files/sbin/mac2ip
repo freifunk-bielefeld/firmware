@@ -48,32 +48,6 @@ done
 
 addr_t=$((start_ip + (seed % end_ip)))
 
-#we try only ten times to not to spam the network
-i=0
-while [ $i -lt 10 ]
-do
-    addr_c=$(((addr_t & 0xff00) >> 8))
-    addr_d=$(((addr_t & 0x00ff) >> 0))
-
-    addr_ip="10.$ff_subnet.$addr_c.$addr_d"
-    addr_mac=`arping -c 3 -f -I br-mesh $addr_ip | grep -m 1 -o -E '[[:xdigit:]]{1,2}(:[[:xdigit:]]{1,2}){5}'`
-    addr_mac=$(fix_mac $addr_mac)
-
-    if [ -n "$free" -a -z "$addr_mac" ]; then
-        #found free ip based on given MAC :)
-        echo $addr_ip
-        exit 0
-    fi
-    
-    if [ -z "$free" -a "$addr_mac" == "$mac" ]; then
-        #found IP matching the given MAC :-)
-        echo $addr_ip
-        exit 0
-    fi
-    
-    addr_t=$((addr_t+1))
-    i=$((i + 1))
-done
-
-#IP not found :-(
-exit 1
+addr_c=$(((addr_t & 0xff00) >> 8))
+addr_d=$(((addr_t & 0x00ff) >> 0))
+echo "10.$ff_subnet.$addr_c.$addr_d"

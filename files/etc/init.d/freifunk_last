@@ -1,0 +1,39 @@
+#!/bin/sh /etc/rc.common
+
+START=96
+
+
+start () {
+
+#write everything from stdout and stderr to a log file
+exec >/tmp/freifunk_last.log 2>&1
+
+echo "(I) Freifunk: start"
+
+
+if [ -f /etc/rc.d/S50telnet ]; then
+  echo "(I) Freifunk: setup start"
+  /sbin/freifunk_setup
+  echo "(I) Freifunk: setup end"
+  reboot #todo: work without reboot here
+fi
+
+echo "(I) Freifunk: start /etc/init.d/batman-adv"
+/etc/init.d/batman-adv start
+ifconfig bat0 up #for VirtualBox
+
+echo "(I) Freifunk: add batman interface to br-mesh"
+brctl addif br-mesh bat0
+
+echo "(I) Freifunk: call ip_watchdog to set IP for br-mesh"
+/sbin/ip_watchdog
+
+echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
+/etc/init.d/dnsmasq restart
+
+echo "(I) Freifunk: call wan_watchdog to check for internet"
+/sbin/wan_watchdog
+
+
+echo "(I) Freifunk: done"
+}

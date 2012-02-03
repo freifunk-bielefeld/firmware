@@ -1,60 +1,40 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh
 
-START=96
+#Initialize the Freifunk configuration
 
+exec >/tmp/freifunk_setup.log 2>&1
 
-start () {
+echo "(I) Freifunk: start"
 
-#write everything from stdout and stderr to a log file
-exec >/tmp/freifunk.log 2>&1
-date
+#disable telnet
+/etc/init.d/telnet disable
+/etc/init.d/batman-adv disable
+
+#set empty password for root
+(echo ""; sleep 1; echo "") | passwd
 
 ap_ssid=`uci get -q freifunk.settings.ap_ssid`
 ah_ssid=`uci get -q freifunk.settings.ah_ssid`
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
-debug=`uci get -q freifunk.settings.debug`
 
 # set (not so) magic numbers for start ip and address space
 # numbers are ip integer representation
 start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
 end_ip=$((255*255+253)) # -> 65278
 
-if [ -f /etc/ap_ssid_overwrite ]; then
-    ap_ssid=`cat /etc/ap_ssid_overwrite`
-fi
-
-# ------------------------------------------------------- #
-# R E V O K E   D E F A U L T   C O N F I G U R A T I O N #
-# ------------------------------------------------------- # 
-
-echo "(I) Freifunk: stop /etc/init.d/nodogsplash"
-/etc/init.d/nodogsplash stop
-
-echo "(I) Freifunk: stop /etc/init.d/batman-adv"
-/etc/init.d/batman-adv stop
-
-echo "(I) Freifunk: stop /etc/init.d/dnsmasq"
-/etc/init.d/dnsmasq stop
-
-echo "(I) Freifunk: stop /etc/init.d/firewall"
-/etc/init.d/firewall stop
-
-echo "(I) Freifunk: stop /etc/init.d/network"
-/etc/init.d/network stop
-
 
 # ------------------------------------------- #
 # P R E C O N F I G U R I N G   N E T W O R K #
 # ------------------------------------------- # 
 
-echo "(I) Loading N2N Settings"
+echo "(I) Freifunk: Loading N2N Settings"
 uci add n2n edge
 uci set n2n.@edge[-1].ipaddr="0.0.0.0"
 uci set n2n.@edge[-1].supernode="fhaust.de"
 uci set n2n.@edge[-1].port=2011
 uci set n2n.@edge[-1].community="ffb1"
 uci set n2n.@edge[-1].mtu=1528
-#uci set n2n.@edge[-1].mac="42:DD:AB:AF:6C:94" 
+uci set n2n.@edge[-1].mac="42:DD:AB:AF:6C:94" 
 
 
 echo "(I) Freifunk: start setup"
@@ -128,8 +108,6 @@ if [ -n "$wifi_device" ]; then
       record_wifi_interfaces
     fi
     
-    uci set -q freifunk.settings.wifi_ap_interface="$wifi_ap_interface"
-    
     echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"
     echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
@@ -168,16 +146,17 @@ if [ -z "$bat_interfaces" ]; then
     exit 1
 fi
 
-
-#use the mac of the first interface used for batman
+#get the mac of the interface that will be used by batman-adv
 mesh_mac=$(ifconfig ${bat_interfaces%% *} | grep HWaddr | awk '{print $5}')
-#translate to locally administered mac address
-a=${mesh_mac%%:*} #cut out first hex
-a=$((0x$a & 253)) #set second bit to 0
-a=`printf '%02x\n' $a` #convert to hex
-mesh_mac="$a:${mesh_mac#*:}" #reassemble mac
-
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
+
+
+mesh_interfaces=$(trim "ff_dummy1 $mesh_interfaces")
+bat_interfaces=$(trim "ff_dummy2 $bat_interfaces")
+
+uci set freifunk.settings.bat_interfaces="$bat_interfaces"
+uci set freifunk.settings.mesh_interfaces="$mesh_interfaces"
+uci set freifunk.settings.mac="$mesh_mac"
 
 
 # ------------------------------------- #
@@ -197,13 +176,9 @@ for x in $bat_interfaces; do
     uci set network.$name.auto=1 #bring up the interface at startup
 done
 
-#Create a dummy interface to be able to set the mac of bridge br-mesh freely.
-tunctl -t ff_dummy > /dev/null
-ifconfig ff_dummy hw ether $mesh_mac up
-
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="ff_dummy $mesh_interfaces"
+uci set network.mesh.ifname="$mesh_interfaces"
 uci set network.mesh.ipaddr="0.0.0.0"
 #uci set network.mesh.macaddr="$mesh_mac" #does not work
 uci set network.mesh.proto=static
@@ -262,37 +237,6 @@ uci set firewall.@zone[-1].forward=REJECT
 uci set batman-adv.bat0.interfaces="$bat_interfaces"
 uci set batman-adv.bat0.gw_mode="client"
 
-
-# -------------------------------- #
-# S T A R T I N G  S E R V I C E S #
-# -------------------------------- # 
-
-echo "(I) Freifunk: restart /etc/init.d/network"
-/etc/init.d/network restart
-
-echo "(I) Freifunk: restart /etc/init.d/firewall"
-/etc/init.d/firewall restart
-
-echo "(I) Freifunk: restart /etc/init.d/batman-adv"
-/etc/init.d/batman-adv restart
-ifconfig bat0 up #for VirtualBox
-
-echo "(I) Freifunk: add batman interface to br-mesh"
-brctl addif br-mesh bat0
-
-echo "(I) Freifunk: call ip_watchdog to set IP for br-mesh"
-/sbin/ip_watchdog
-
-echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
-/etc/init.d/dnsmasq restart
-
-echo "(I) Freifunk: call wan_watchdog to check for internet"
-/sbin/wan_watchdog
-
-
-# ------- #
-# D O N E #
-# ------- # 
+uci commit
 
 echo "(I) Freifunk: done"
-}
