@@ -11,8 +11,7 @@ Content-type: text/html
 <b>Andere Knoten im Netz: </b>
 <% batctl o | grep -c "^[0-9a-b]\{2\}:" %>
 <br /><br />
-<b>Liste bekannter Gateways:</b>
-<ul>
+<b>Liste bekannter Gateways: </b>
 <%
 gw_macs=`batctl gwl | grep "^=>" | awk '{ print $2 }'`
 if [ `batctl gw | grep -c -o -m 1 "^server"` = 1 ]; then
@@ -20,20 +19,23 @@ if [ `batctl gw | grep -c -o -m 1 "^server"` = 1 ]; then
 fi
 
 if [ ! -z "$gw_macs"]; then
+  echo "<ul>"
   if [ -n "$own_ip" ]; then
     echo "<li>$own_ip (dieser Knoten)</li>"
   fi
   for mac in "$gw_macs"; do
     [ -n "$mac" ] && echo "<li>" `mac2ip "$mac"` "</li>"
   done
+  echo "</ul>"
 else
   if [ -n "$own_ip" ]; then
+    echo "<ul>"
     echo "<li>$own_ip (dieser Knoten)</li>"
+    echo "</ul>"
   else
-    echo "<li>Keine</li>"
+    echo "Keine"
   fi
 fi
 %>
-</ul>
 </body>
 </html>
