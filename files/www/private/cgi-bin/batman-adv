@@ -2,7 +2,7 @@
 <%
 
 
-case $GET_func in
+case $POST_func in
   batctl_o)
 	batctl o
 	;;

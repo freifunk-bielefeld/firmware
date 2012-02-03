@@ -1,13 +1,28 @@
 #!/usr/bin/haserl
 <%
 
-ipaddr=`uci get n2n.ipaddr`
-supernode=`uci get n2n.supernode`
-port=`uci get n2n.port`
-community=`uci get n2n.community`
-key=`uci get n2n.key`
-route=`uci get n2n.route`
+case $POST_func in
+    get_config)
+        echo -n "{"
+        i=0
+        while [ `uci get -q n2n.@edge[$i]` ]
+        do
+          ipaddr=`uci -q get n2n.@edge[$i].ipaddr`
+          supernode=`uci -q get n2n.@edge[$i].supernode`
+          port=`uci -q get n2n.@edge[$i].port`
+          community=`uci -q get n2n.@edge[$i].community`
+          key=`uci -q get n2n.@edge[$i].key`
+          route=`uci -q get n2n.@edge[$i].route`
 
-echo "{ 'ipaddr':'$ipaddr', 'supernode':'$supernode', 'port':'$port', 'community':'$community', 'key':'$key', 'route':'$route'}"
+          [ $i -gt 0 ] && echo -n ", "
+          echo -n "$i : { \"ipaddr\":\"$ipaddr\", \"supernode\":\"$supernode\", \"port\":\"$port\", \"community\":\"$community\", \"key\":\"$key\", \"route\":\"$route\"}"
 
+          i=$(($i+1))
+        done
+        echo "}"
+    ;;
+    set_config)
+        #new_ip="$POST_ipaddr"
+    ;;
+esac
 %>

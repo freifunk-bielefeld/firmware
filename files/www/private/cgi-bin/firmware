@@ -1,7 +1,7 @@
 #!/usr/bin/haserl
 <%
 
-case $GET_func in
+case $POST_func in
   apply_firmware)
     fpath="$HASERL_firmware_path"
     if [ -a $fpath ]; then

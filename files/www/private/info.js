@@ -1,11 +1,8 @@
-$.get("/cgi-bin/info", { func: "route" }, function(data){
-    $('#route').text(data);
+
+$.post("/cgi-bin/info", { func: "uname" }, function(data){
+    $('#uname').text(data);
 });
 
-$.get("/cgi-bin/info", { func: "ifconfig" }, function(data){
-    $('#ifconfig').text(data);
-});
-
-$.get("/cgi-bin/info", { func: "freifunk_log" }, function(data){
-    $('#freifunk_log').text(data);
+$.post("/cgi-bin/info", { func: "uptime" }, function(data){
+    $('#uptime').text(data);
 });

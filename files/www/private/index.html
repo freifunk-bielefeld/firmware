@@ -22,14 +22,22 @@
             <li><a href='#'>Sponsorship</a></li>
         </ul>
     </li>
+    <li><a href="mac.html">Mac</a></li>
     <li><a href="firmware.html">Firmware</a></li>
     <li><a href="info.html">Info</a></li>
     <li><a href="batman-adv.html">Batman-adv</a></li>
+    <li><a href="reboot.html">Reboot</a></li>
 </ul>
 
-<script type="text/javascript">
-$("#globalnav ul").hide();
+<div id='systemWorking'>
+	<img src='spinner.gif'>
+</div>
+<pre id="status"></pre>
 
+<script type="text/javascript">
+$('#systemWorking').hide();
+
+$("#globalnav ul").hide();
 $('#globalnav li').click(function()
 {
     var url = $(this).find("> a").attr("href");
@@ -50,9 +58,6 @@ $('#globalnav li').click(function()
     return false;
 });
 </script>
-
-
-<pre id="status"></pre>
 
 <div id="content">
     <img src='logo.png' alt='freifunk_logo'/>

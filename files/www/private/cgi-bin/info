@@ -1,7 +1,7 @@
 #!/usr/bin/haserl
 <%
 
-case $GET_func in
+case $POST_func in
   route)
     route
 	;;
@@ -11,8 +11,8 @@ case $GET_func in
   ifconfig)
     ifconfig
   	;;
-  freifunk_log)
-    cat /tmp/freifunk.log
+  uptime)
+    uptime
   	;;
 esac
 %>
