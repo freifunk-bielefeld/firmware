@@ -4,7 +4,7 @@
 
 exec >/tmp/freifunk_setup.log 2>&1
 
-echo "(I) Freifunk: start"
+echo "(I) Freifunk: start freifunk_setup"
 
 #disable telnet
 /etc/init.d/telnet disable
@@ -28,17 +28,13 @@ end_ip=$((255*255+253)) # -> 65278
 # P R E C O N F I G U R I N G   N E T W O R K #
 # ------------------------------------------- # 
 
-echo "(I) Freifunk: Loading N2N Settings"
+echo "(I) Freifunk: Set default N2N settings"
 uci add n2n edge
 uci set n2n.@edge[-1].ipaddr="0.0.0.0"
 uci set n2n.@edge[-1].supernode="fhaust.de"
 uci set n2n.@edge[-1].port=2011
 uci set n2n.@edge[-1].community="ffb1"
 uci set n2n.@edge[-1].mtu=1528
-uci set n2n.@edge[-1].mac="42:DD:AB:AF:6C:94" 
-
-
-echo "(I) Freifunk: start setup"
 
 wan_interface=`uci -q get network.wan.ifname`
 echo "(I) Freifunk: wan interface: '$wan_interface'"
@@ -240,4 +236,4 @@ uci set batman-adv.bat0.gw_mode="client"
 
 uci commit
 
-echo "(I) Freifunk: done"
+echo "(I) Freifunk: done freifunk_setup"
