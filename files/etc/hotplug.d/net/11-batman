@@ -8,7 +8,7 @@ if [ "$ACTION" = "change" ]; then
 
   if [ "$BATACTION" = "del" ]; then
     echo "del default route" >> /dev/kmsg
-    route del default
+    route del default 2> /dev/null
     exit 0
   fi
 
@@ -22,8 +22,8 @@ if [ "$ACTION" = "change" ]; then
     echo "(I) 11-batman: set gateway to '$GATE_IP'"
     echo "update bat0 route to $BATDATA ($GATE_IP)" >> /dev/kmsg
     uci set dhcp.@dnsmasq[0].dhcp_option="option:router, $GATE_IP"
-    route del default
-    route add default gw "$GATE_IP"
+    route del default 2> /dev/null
+    route add default gw $GATE_IP
     /etc/init.d/dnsmasq reload
     echo "search lan" > /etc/resolv.conf
     echo "nameserver $GATE_IP" >> /etc/resolv.conf
