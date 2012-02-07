@@ -9,6 +9,7 @@ echo "(I) Freifunk: start"
 #disable telnet
 /etc/init.d/telnet disable
 /etc/init.d/batman-adv disable
+/etc/init.d/n2n disable
 
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd
