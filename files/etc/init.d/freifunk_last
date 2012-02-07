@@ -3,12 +3,12 @@
 START=96
 
 
-start () {
-
+start ()
+{
 #write everything from stdout and stderr to a log file
-exec >/tmp/freifunk_last.log 2>&1
+exec >>/tmp/freifunk.log 2>&1
 
-echo "(I) Freifunk: start"
+echo "(I) Freifunk: start freifunk_last"
 
 
 if [ -f /etc/rc.d/S50telnet ]; then
@@ -35,5 +35,5 @@ echo "(I) Freifunk: call wan_watchdog to check for internet"
 /sbin/wan_watchdog
 
 
-echo "(I) Freifunk: done"
+echo "(I) Freifunk: done feifunk_last"
 }

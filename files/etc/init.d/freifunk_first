@@ -5,9 +5,9 @@ START=31
 
 start () 
 {
-exec >/tmp/freifunk_first.log 2>&1
+exec >/tmp/freifunk.log 2>&1
 
-echo "(I) Freifunk: start"
+echo "(I) Freifunk: start freifunk_first"
 
 mac=`uci get freifunk.settings.mac`
 if [ -n "$mac" ]; then
@@ -26,5 +26,5 @@ if [ -n "$mac" ]; then
     ifconfig ff_dummy2 hw ether $mac up
 fi
 
-echo "(I) Freifunk: done"
+echo "(I) Freifunk: done freifunk_first"
 }
