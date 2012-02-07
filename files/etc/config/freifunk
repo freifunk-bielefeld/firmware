@@ -4,4 +4,6 @@ config ff_settings 'settings'
     option 'ah_ssid' 'batman.freifunk-bielefeld.de'
     option 'ff_subnet' 29
     option 'debug' 0
-    option 'wifi_ap_interface' ''
+    option 'mac' ''
+    option 'mesh_interfaces' ''
+    option 'bat_interfaces' ''
