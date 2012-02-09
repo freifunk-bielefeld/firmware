@@ -14,11 +14,11 @@ Content-type: text/html
 <b>Liste bekannter Gateways: </b>
 <%
 gw_macs=`batctl gwl | grep "^=>" | awk '{ print $2 }'`
-if [ `batctl gw | grep -c -o -m 1 "^server"` = 1 ]; then
+if [ `batctl gw | grep -c -o -m 1 "^server"` -eq 1 ]; then
   own_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 fi
 
-if [ ! -z "$gw_macs"]; then
+if [ ! -z "$gw_macs" ]; then
   echo "<ul>"
   if [ -n "$own_ip" ]; then
     echo "<li>$own_ip (dieser Knoten)</li>"

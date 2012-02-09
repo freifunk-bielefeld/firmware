@@ -7,22 +7,74 @@ case $POST_func in
         i=0
         while [ `uci get -q n2n.@edge[$i]` ]
         do
-          ipaddr=`uci -q get n2n.@edge[$i].ipaddr`
-          supernode=`uci -q get n2n.@edge[$i].supernode`
-          port=`uci -q get n2n.@edge[$i].port`
-          community=`uci -q get n2n.@edge[$i].community`
-          key=`uci -q get n2n.@edge[$i].key`
-          route=`uci -q get n2n.@edge[$i].route`
+            ipaddr=`uci -q get n2n.@edge[$i].ipaddr`
+            supernode=`uci -q get n2n.@edge[$i].supernode`
+            port=`uci -q get n2n.@edge[$i].port`
+            community=`uci -q get n2n.@edge[$i].community`
+            key=`uci -q get n2n.@edge[$i].key`
+            route=`uci -q get n2n.@edge[$i].route`
 
-          [ $i -gt 0 ] && echo -n ", "
-          echo -n "$i : { \"ipaddr\":\"$ipaddr\", \"supernode\":\"$supernode\", \"port\":\"$port\", \"community\":\"$community\", \"key\":\"$key\", \"route\":\"$route\"}"
+            [ $i -gt 0 ] && echo -n ", "
+            echo -n "\"entry_$i\" : { \"ipaddr\":\"$ipaddr\", \"supernode\":\"$supernode\", \"port\":\"$port\", \"community\":\"$community\", \"key\":\"$key\", \"route\":\"$route\"}"
 
-          i=$(($i+1))
+            i=$(($i+1))
         done
         echo "}"
     ;;
+    del_config)
+        id=`echo "$POST_id" | sed -n -r 's/entry_([[:digit:]]+)/\1/p'` 
+        uci -q delete n2n.@edge[$id] &> /dev/null
+        if [ $? -eq 0 ]; then
+            echo "(I) N2N: Setting '$id' deleted."
+        else
+            echo "(E) N2N: Could not delete setting '$id'."
+        fi
+    ;;
+    add_config)
+        uci -q add n2n edge &> /dev/null
+        if [ $? -eq 0 ]; then
+            echo "(I) N2N: Added section."
+        else
+            echo "(E) N2N: Could not create section."
+        fi
+    ;;
     set_config)
-        #new_ip="$POST_ipaddr"
+        id=`echo "$POST_id" | sed -n -r 's/entry_([[:digit:]]+)/\1/p'`
+        ipaddr="$POST_ipaddr"
+        supernode="$POST_supernode"
+        port="$POST_port"
+        community="$POST_community"
+        key="$POST_key"
+        route="$POST_route"
+      
+        if [ `uci get -q n2n.@edge[$id]` -eq 1 ]; then
+          echo "(E) N2N: Invalid setting number '$id'"
+          exit
+        fi
+
+        uci -q set n2n.@edge[$id].ipaddr=$ipaddr
+        uci -q set n2n.@edge[$id].supernode=$supernode
+        uci -q set n2n.@edge[$id].port=$port
+        uci -q set n2n.@edge[$id].community=$community
+        uci -q set n2n.@edge[$id].key=$key
+        uci -q set n2n.@edge[$id].mtu=1528
+
+        if [ $? -eq 0 ]; then
+          echo "(I) N2N: Setting '$id' set."
+        else
+          echo "(E) N2N: Could not set setting '$id'."
+        fi
+    ;;
+    save_config)
+      uci -q commit n2n
+      if [ $? -eq 0 ]; then
+        echo "(I) N2N: Settings saved."
+      else
+        echo "(E) N2N: Could not save settings."
+      fi
+    ;;
+    *)
+      echo "(E) N2N: '$POST_func' not implemented."
     ;;
 esac
 %>

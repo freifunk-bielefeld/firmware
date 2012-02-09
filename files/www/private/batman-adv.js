@@ -1,3 +1,4 @@
-$.post("/cgi-bin/batman-adv", { func: "batctl_o" }, function(data){
-    $('#batctl_o').text(data);
+
+$.post("/cgi-bin/batman-adv", { func: "get_originators" }, function(data) {
+    $('#originators').text(data);
 });

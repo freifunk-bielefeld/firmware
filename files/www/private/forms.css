@@ -5,94 +5,84 @@ html {
 	padding:1em;
 	background:#fafafa;
 }
+
 form {
 	background:#fff;
 	padding:1em;
 	border:1px solid #eee;
 }
-/*
-.login {
-	background:url(../gfx/user.gif) no-repeat 95% 1em;
-}
-.contact {
-	background:url(../gfx/email2.gif) no-repeat 95% 1em;
-}*/
 
 fieldset div {
 	margin:0.3em 0;
 	clear:both;
 }
+/*
 form {
 	margin:1em;
 	width:27em;
 }
+*/
+
 label {
 	float:left;
 	width:10em;
 	text-align:right;
 	margin-right:1em;
 }
+
 legend {
 	color:#0b77b7;
 	font-size:1.2em;
 }
+
 legend span {
 	width:10em;
 	text-align:right;
 }
+
 input {
 	padding:0.15em;
-	width:10em;
+	width:15em;
 	border:1px solid #ddd;
 	background:#fafafa;
 	font:bold 0.95em arial, sans-serif;
 	-moz-border-radius:0.4em;
 	-khtml-border-radius:0.4em;
 }
+
 input:hover, input:focus {
 	border-color:#c5c5c5;
 	background:#f6f6f6;
 } 
+
 fieldset {
 	border:1px solid #ddd;
 	padding:0 0.5em 0.5em;
 }
-.date input {
-	/*background-image:url(../gfx/calendar-small.gif);*/
-	background-repeat:no-repeat;
-	background-position:100% 50%;
-}
 
-.date fieldset label {
-	float:none;
-	display:block;
-	text-align:left;
-	width:auto;
-}
-.date fieldset div {
-	float:left;
-	clear:none;
-	margin-right:0.2em;
-}
-.radio, .date {
+.radio {
 	position:relative;
 }
-.radio fieldset, .date fieldset {
+
+.radio fieldset {
 	border:none;
 	width:auto;
 	padding:1px 0 0 11em;
 }
-.radio legend, .date legend {
+
+.radio legend {
 	font-size:1em;
 	color:#000;
 }
-.radio legend span, .date legend span {
+
+.radio legend span {
 	position:absolute;
 	left:0;
 	top:0.3em;
 	width:10em;
 	display:block;
 }
+
 .radio label, .radio input {
 	vertical-align:middle;
 	display:inline;
@@ -101,33 +91,13 @@ fieldset {
 	background:none;
 	border:none;
 }
+
 .radio div {
 	float:left;
 	white-space:nowrap;
 	clear:none;
 }
 
-/*
-.email {
-	width:14em;
-}
-*/
 input.default {
 	color:#bbb;
 }
-/*
-#submit-go {
-	margin-top:1em;
-	width:69px;
-	height:26px;
-	text-indent:-9999px;
-	overflow:hidden;
-	border:0;
-	background:url(../gfx/submit-button.gif) no-repeat 0 0;
-	display:block;
-	cursor:pointer !important; cursor:hand;
-}
-#submit-go:hover {
-	background-position:0 -26px;
-}
-*/

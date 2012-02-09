@@ -4,14 +4,17 @@
 <head>
 <title>Freifunk</title>
 <link rel="stylesheet" type="text/css" href="nav.css" />
+<link rel="stylesheet" type="text/css" href="style.css">
 <link rel="stylesheet" type="text/css" href="forms.css">
 <script src="jquery.min.js"></script>
+<script src="index.js"></script>
 </head>
-<body>
+<body onload="init();">
 
 <ul id="globalnav">
     <li><a href="nodogsplash.html">Nodogsplash</a></li>
-    <li><a href="password.html">Password</a></li>
+    <li><a href="settings.html">Einstellungen</a></li>
+    <li><a href="batman-adv.html">Batman-adv</a></li>
     <li><a href="n2n.html">N2N</a>
         <ul>
             <li><a href='#'>Vision</a></li>
@@ -22,11 +25,10 @@
             <li><a href='#'>Sponsorship</a></li>
         </ul>
     </li>
-    <li><a href="mac.html">Mac</a></li>
     <li><a href="firmware.html">Firmware</a></li>
-    <li><a href="info.html">Info</a></li>
-    <li><a href="batman-adv.html">Batman-adv</a></li>
-    <li><a href="reboot.html">Reboot</a></li>
+    <li><a href="password.html">Password</a></li>
+    <li><a id="reboot" href="#">Reboot</a></li>
+    <!-- <li><a href="reboot.html">Reboot</a></li> -->
 </ul>
 
 <div id='systemWorking'>
@@ -34,37 +36,14 @@
 </div>
 <pre id="status"></pre>
 
-<script type="text/javascript">
-$('#systemWorking').hide();
-
-$("#globalnav ul").hide();
-$('#globalnav li').click(function()
-{
-    var url = $(this).find("> a").attr("href");
-    if(url != "#")
-    {
-        $('#content').load(url + " #main");
-        $.getScript(url.replace(".html", ".js"));
-    }
-    
-    $("#globalnav ul").hide();
-    $(this).parents('ul').show();
-    $(this).find("> ul").show();
-    
-    $("#globalnav a").removeClass("here");
-    $(this).parents('li').find("> a").addClass("here");
-    $(this).find("> a").addClass("here");
-    
-    return false;
-});
-</script>
-
 <div id="content">
     <img src='logo.png' alt='freifunk_logo'/>
-    Welcome!
+    <pre id="uname">Some info</pre>
+    <pre id="uptime">Some info</pre>
 </div>
 
 <div id="footer"></div>
 
 </body>
 </html>
+

@@ -1,0 +1,76 @@
+#!/usr/bin/haserl
+<%
+
+case $POST_func in
+    save_settings)
+        uci commit freifunk
+    ;;
+    get_settings)
+        ap_ssid=`uci -q get freifunk.settings.ap_ssid`
+        ah_ssid=`uci -q get freifunk.settings.ah_ssid`
+        mesh_ifs=`uci -q get freifunk.settings.mesh_interfaces`
+        bat_ifs=`uci -q get freifunk.settings.bat_interfaces`
+        mac=`uci -q get freifunk.settings.mac`
+
+        echo -n "{ \"ap_ssid\" : \"$ap_ssid\", \"ah_ssid\" : \"$ah_ssid\", \"mesh_ifs\" : \"$mesh_ifs\", \"bat_ifs\" : \"$bat_ifs\", \"mac\" : \"$mac\" }"
+    ;;
+    set_settings)
+        ap_ssid="$POST_ap_ssid"
+        ah_ssid="$POST_ah_ssid"
+        mesh_ifs="$POST_mesh_ifs"
+        bat_ifs="$POST_bat_ifs"
+        mac="$POST_mac"
+
+        if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
+            if [ ${#ap_ssid} -gt 32 ]; then
+                echo "(E) Settings: Invalid Accesspoint name: '$ap_ssid'."
+                exit
+            fi
+            uci -q set freifunk.settings.ap_ssid=$ap_ssid
+        fi
+
+        if [ `uci -q get freifunk.settings.ah_ssid` != $ah_ssid ]; then
+            if [ ${#ah_ssid} -gt 32 ]; then
+                echo "(E) Settings: Invalid Accesspoint name: '$ah_ssid'."
+                exit
+            fi
+            uci -q set freifunk.settings.ah_ssid=$ah_ssid
+        fi
+
+        if [ `uci -q get freifunk.settings.mac` != $mac ]; then
+            #check if mac format is valid
+            if [ `echo "mac" | grep -c -E '^[[:xdigit:]]{1,2}(:[[:xdigit:]]{1,2}){5}$'` -eq 0 ]; then
+                echo "(E) Settings: Invalid MAC: '$mac'."
+                exit
+            fi
+
+            ifconfig ff_dummy1 hw ether $mac up &> /dev/null
+            ifconfig ff_dummy2 hw ether $mac up &> /dev/null
+            ifconfig br-mesh hw ether $mac up &> /dev/null
+            ifconfig br-mesh `/sbin/mac2ip $mac` &> /dev/null
+
+            uci -q set freifunk.settings.mac=$mac
+        fi
+
+        if [ `uci -q freifunk.settings.mesh_ifs` != $mesh_ifs ]; then 
+            if [ `echo $mesh_ifs | grep -c -o -m 1 "^ff_dummy1"` -eq 0 ]; then
+                echo "(E) Settings: Mesh interfaces must start with ff_dummy1"
+                exit
+            fi
+            uci -q set freifunk.settings.mesh_ifs=$mesh_ifs  
+        fi  
+
+        if [ `uci -q freifunk.settings.bat_ifs` != $bat_ifs ]; then
+            if [ `echo $bat_ifs | grep -c -o -m 1 "^ff_dummy2"` -eq 0 ]; then
+                echo "(E) Settings: Bat interfaces must start with ff_dummy2"
+                exit
+            fi
+            uci -q set freifunk.settings.bat_ifs=$bat_ifs
+        fi
+    ;;
+    *)
+        echo "(E) settings: Invalid command: '$POST_func'"
+    ;;
+esac
+%>
+

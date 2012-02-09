@@ -1,3 +1,5 @@
-$.post("/cgi-bin/nodogsplash", { func: "ndsctl_status" }, function(data){
-    $('#ndsctl_status').text(data);
+
+$.post("/cgi-bin/nodogsplash", { func: "get_status" }, function(data){
+    if(data.length)
+        $('#ndsctl_status').text(data);
 });

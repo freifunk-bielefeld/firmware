@@ -2,8 +2,20 @@
 <%
 
 case $POST_func in
-    reboot)
-        reboot
-    ;;
+  reboot)
+    reboot
+  ;;
+  route)
+    route
+  ;;
+  uname)
+    uname -a
+  ;;
+  uptime)
+    uptime
+  ;;
+  *)
+  echo "(E) misc: Invalid command: '$POST_func'"
+  ;;
 esac
 %>

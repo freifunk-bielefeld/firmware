@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Freifunk-Info</title>
+<link rel="stylesheet" type="text/css" href="forms.css">
+<script src="jquery.min.js"></script>
+</head>
+<body>
+
+<div id="main">
+    <fieldset>
+        <legend>Konfiguration</legend>
+        <div>
+            <label>AccessPoint:</label> <input id="ap_ssid" type="text">
+        </div>
+        <div>
+            <label>AdHoc:</label> <input id="ah_ssid" type="text">
+        </div>
+        <div>
+            <label>Mesh-Interfaces:</label> <input id="mesh_ifs" type="text">
+        </div>
+        <div>
+            <label>Bat-Interfaces:</label> <input id="bat_ifs" type="text">
+        </div>
+        <div>
+            <label>MAC:</label> <input id="mac" type="text">
+        </div>
+<!--        <div class="radio">
+            <fieldset>
+                <legend><span>Batman-Adv Mode</span></legend>
+                <div>
+                    <input id="auto" name="batman_mode" value="auto" type="radio"> <label>Auto</label>
+                </div>
+                <div>
+                    <input id="client" name="batman_mode" value="client" type="radio"> <label>Client</label>
+                </div>
+                <div>
+                    <input id="server" name="batman_mode" value="server" type="radio"> <label>Server</label>
+                </div>
+            </fieldset> 
+            </div>
+-->
+    </fieldset>
+    <div>
+        <button type="text" id="apply_button">Anwenden</button>
+        <button type="text" id="save_button">Speichern</button>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,4 +1,6 @@
 
+document.getElementById("p1").focus();
+
 $('#apply_button').click(function() {
   p1=$('#p1').val();
   p2=$('#p2').val();
@@ -10,4 +12,3 @@ $('#apply_button').click(function() {
       $('#status').text(data);
   })
 })
-

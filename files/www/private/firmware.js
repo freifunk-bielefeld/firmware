@@ -1,1 +1,2 @@
-//
+
+document.getElementById("file").focus();

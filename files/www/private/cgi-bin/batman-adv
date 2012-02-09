@@ -1,13 +1,15 @@
 #!/usr/bin/haserl 
 <%
 
-
 case $POST_func in
-  batctl_o)
-	batctl o
-	;;
-  batctl_gw)
-  	batctl gw
-  	;;
+  get_originators)
+    batctl o
+    ;;
+  get_gw_mode)
+    batctl gw
+    ;;
+  *)
+    echo "(E) batman-adv: Invalid command: '$POST_func'"
+    ;;
 esac
 %>
