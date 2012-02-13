@@ -18,7 +18,10 @@ if [ -f /etc/rc.d/S50telnet ]; then
   reboot #todo: work without reboot here
 fi
 
-#Set mac of the br-mesh explicitly.
+#Set the mac of br-mesh explicitly.
+#a bridge takes the mac of the first interface
+#but openwrt may change the order freely.
+#So we set it again; just in case.
 mac=`uci get freifunk.settings.mac`
 echo "(I) Freifunk: set mac of br-mesh to '$mac'"
 ifconfig br-mesh hw ether $mac

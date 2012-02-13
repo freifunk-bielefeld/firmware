@@ -115,44 +115,44 @@ fi
 # ------------------------------------- # 
 
 if [ -n "$wifi_ah_interface" ]; then
-    bat_interfaces="$bat_interfaces $wifi_ah_interface"
+    mesh_interfaces="$mesh_interfaces $wifi_ah_interface"
 fi
 
 if [ -n "$wifi_ap_interface" ]; then
-    mesh_interfaces="$mesh_interfaces $wifi_ap_interface"
+    ext_interfaces="$ext_interfaces $wifi_ap_interface"
 fi
 
 if [ -n "$lan_interface" ]; then
     if [ -n "$wifi_ah_interface" ]; then
-        mesh_interfaces="$mesh_interfaces $lan_interface"
+        ext_interfaces="$ext_interfaces $lan_interface"
     else
-        bat_interfaces="$bat_interfaces $lan_interface"
+        mesh_interfaces="$mesh_interfaces $lan_interface"
     fi
 fi
 
 #trim variables
 trim() { echo $1; }
-bat_interfaces=$(trim "$bat_interfaces")
 mesh_interfaces=$(trim "$mesh_interfaces")
+ext_interfaces=$(trim "$ext_interfaces")
 
-echo "(I) Freifunk: batman-adv interfaces: '$bat_interfaces'"
 echo "(I) Freifunk: mesh interfaces: '$mesh_interfaces'"
+echo "(I) Freifunk: external interfaces: '$ext_interfaces'"
 
-if [ -z "$bat_interfaces" ]; then
-    echo "(E) Freifunk: No interface for batman-adv found."
+if [ -z "$mesh_interfaces" ]; then
+    echo "(E) Freifunk: No mesh interfaces found."
     exit 1
 fi
 
 #get the mac of the interface that will be used by batman-adv
-mesh_mac=$(ifconfig ${bat_interfaces%% *} | grep HWaddr | awk '{print $5}')
+mesh_mac=$(ifconfig ${mesh_interfaces%% *} | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 
-mesh_interfaces=$(trim "ff_dummy1 $mesh_interfaces")
-bat_interfaces=$(trim "ff_dummy2 $bat_interfaces")
+ext_interfaces=$(trim "dummy_ext $ext_interfaces")
+mesh_interfaces=$(trim "dummy_mesh $mesh_interfaces")
 
-uci set freifunk.settings.bat_interfaces="$bat_interfaces"
 uci set freifunk.settings.mesh_interfaces="$mesh_interfaces"
+uci set freifunk.settings.ext_interfaces="$ext_interfaces"
 uci set freifunk.settings.mac="$mesh_mac"
 
 
@@ -164,7 +164,7 @@ echo "(I) Freifunk: setup /etc/config/network"
 
 uci -q delete network.lan
 
-for x in $bat_interfaces; do
+for x in $mesh_interfaces; do
     name=`echo "$x" | tr -d -c a-z0-9_`
     uci set network.$name="interface"
     uci set network.$name.ifname=$x
@@ -175,7 +175,7 @@ done
 
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="$mesh_interfaces"
+uci set network.mesh.ifname="$ext_interfaces"
 uci set network.mesh.ipaddr="0.0.0.0"
 #uci set network.mesh.macaddr="$mesh_mac" #does not work
 uci set network.mesh.proto=static
@@ -231,7 +231,7 @@ uci set firewall.@zone[-1].input=ACCEPT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
 
-uci set batman-adv.bat0.interfaces="$bat_interfaces"
+uci set batman-adv.bat0.interfaces="$mesh_interfaces"
 uci set batman-adv.bat0.gw_mode="client"
 
 uci commit

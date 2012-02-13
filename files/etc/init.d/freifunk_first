@@ -17,13 +17,13 @@ if [ -n "$mac" ]; then
     #Create dummy interfaces to be able to set the mac of
     #br-mesh and the mac for the OGMs of batman-adv freely.
 
-    echo "(I) Freifunk: Create ff_dummy1 interface."
-    tunctl -t ff_dummy1 > /dev/null
-    ifconfig ff_dummy1 hw ether $mac up
+    echo "(I) Freifunk: Create dummy_ext interface."
+    tunctl -t dummy_ext > /dev/null
+    ifconfig dummy_ext hw ether $mac up
 
-    echo "(I) Freifunk: Create ff_dummy2 interface."
-    tunctl -t ff_dummy2 > /dev/null
-    ifconfig ff_dummy2 hw ether $mac up
+    echo "(I) Freifunk: Create dummy_mesh interface."
+    tunctl -t dummy_mesh > /dev/null
+    ifconfig dummy_mesh hw ether $mac up
 fi
 
 echo "(I) Freifunk: done freifunk_first"

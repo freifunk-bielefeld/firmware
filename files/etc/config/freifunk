@@ -6,4 +6,4 @@ config ff_settings 'settings'
     option 'debug' 0
     option 'mac' ''
     option 'mesh_interfaces' ''
-    option 'bat_interfaces' ''
+    option 'ext_interfaces' ''
