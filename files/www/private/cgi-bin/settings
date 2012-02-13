@@ -1,6 +1,5 @@
 #!/usr/bin/haserl
 <%
-
 case $POST_func in
     save_settings)
         uci commit freifunk
@@ -8,17 +7,17 @@ case $POST_func in
     get_settings)
         ap_ssid=`uci -q get freifunk.settings.ap_ssid`
         ah_ssid=`uci -q get freifunk.settings.ah_ssid`
+        ext_ifs=`uci -q get freifunk.settings.ext_interfaces`
         mesh_ifs=`uci -q get freifunk.settings.mesh_interfaces`
-        bat_ifs=`uci -q get freifunk.settings.bat_interfaces`
         mac=`uci -q get freifunk.settings.mac`
 
-        echo -n "{ \"ap_ssid\" : \"$ap_ssid\", \"ah_ssid\" : \"$ah_ssid\", \"mesh_ifs\" : \"$mesh_ifs\", \"bat_ifs\" : \"$bat_ifs\", \"mac\" : \"$mac\" }"
+        echo -n "{ \"ap_ssid\" : \"$ap_ssid\", \"ah_ssid\" : \"$ah_ssid\", \"ext_ifs\" : \"$ext_ifs\", \"mesh_ifs\" : \"$mesh_ifs\", \"mac\" : \"$mac\" }"
     ;;
     set_settings)
         ap_ssid="$POST_ap_ssid"
         ah_ssid="$POST_ah_ssid"
+        ext_ifs="$POST_ext_ifs"
         mesh_ifs="$POST_mesh_ifs"
-        bat_ifs="$POST_bat_ifs"
         mac="$POST_mac"
 
         if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
@@ -44,28 +43,42 @@ case $POST_func in
                 exit
             fi
 
-            ifconfig ff_dummy1 hw ether $mac up &> /dev/null
-            ifconfig ff_dummy2 hw ether $mac up &> /dev/null
+            ifconfig dummy_ext hw ether $mac up &> /dev/null
+            ifconfig dummy_mesh hw ether $mac up &> /dev/null
             ifconfig br-mesh hw ether $mac up &> /dev/null
             ifconfig br-mesh `/sbin/mac2ip $mac` &> /dev/null
 
             uci -q set freifunk.settings.mac=$mac
         fi
 
-        if [ `uci -q freifunk.settings.mesh_ifs` != $mesh_ifs ]; then 
-            if [ `echo $mesh_ifs | grep -c -o -m 1 "^ff_dummy1"` -eq 0 ]; then
-                echo "(E) Settings: Mesh interfaces must start with ff_dummy1"
+        if [ `uci -q freifunk.settings.ext_ifs` != "$ext_ifs" ]; then 
+            if [ `echo "$ext_ifs" | grep -c -o -m 1 "^dummy_ext"` -eq 0 ]; then
+                echo "(E) Settings: External interfaces must start with dummy_ext interface."
                 exit
             fi
-            uci -q set freifunk.settings.mesh_ifs=$mesh_ifs  
+            
+            for if in $ext_ifs; do
+                ifconfig $if &> /dev/null
+                [ $? != 0 ] && ( echo "(E) settings: '$if' does not exist."; exit )
+                [ "$if" != "${mesh_ifs/$if/}" ] &&  ( echo "(E) settings: '$if' is in mesh interfaces already."; exit )
+            done
+            
+            uci -q set freifunk.settings.ext_ifs=$ext_ifs  
         fi  
 
-        if [ `uci -q freifunk.settings.bat_ifs` != $bat_ifs ]; then
-            if [ `echo $bat_ifs | grep -c -o -m 1 "^ff_dummy2"` -eq 0 ]; then
-                echo "(E) Settings: Bat interfaces must start with ff_dummy2"
+        if [ `uci -q freifunk.settings.mesh_ifs` != "$mesh_ifs" ]; then
+            if [ `echo "$mesh_ifs" | grep -c -o -m 1 "^dummy_mesh"` -eq 0 ]; then
+                echo "(E) Settings: Mesh interfaces must start with dummy_mesh interface."
                 exit
             fi
-            uci -q set freifunk.settings.bat_ifs=$bat_ifs
+            
+            for if in $mesh_ifs; do
+                ifconfig $if &> /dev/null
+                [ $? != 0 ] && ( echo "(E) settings: '$if' does not exist."; exit )
+                [ "$if" != "${ext_ifs/$if/}" ] &&  ( echo "(E) settings: '$if' is in external interfaces already."; exit )
+            done
+            
+            uci -q set freifunk.settings.mesh_ifs=$mesh_ifs
         fi
     ;;
     *)
@@ -73,4 +86,3 @@ case $POST_func in
     ;;
 esac
 %>
-
