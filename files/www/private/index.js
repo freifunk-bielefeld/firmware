@@ -29,6 +29,10 @@ function init() {
       })
     });
     
+    $('#logout').click(function() {
+        window.location="https://none@" + window.location.host;
+    });
+    
     $.post("/cgi-bin/misc", { func: "uname" }, function(data) {
         $('#uname').text(data);
     });
