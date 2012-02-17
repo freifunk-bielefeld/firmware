@@ -58,12 +58,10 @@ function parse_config(data) {
             //var id = getParentId(this);
             $.post("/cgi-bin/n2n",
                 { func : "set_config", id : id,
-                ipaddr : get(id + "_ipaddr"),
                 supernode : get(id + "_supernode"),
                 port : get(id + "_port"),
                 community : get(id + "_community"),
                 key : get(id + "_key"),
-                route : get(id + "_route") },
                 function(data) { $('#status').text(data); }
             );
         }
@@ -86,12 +84,10 @@ function parse_config(data) {
             fieldset.appendChild(div);
         }
 
-        add("IP", "ipaddr");
         add("Supernode", "supernode");
         add("Port", "port");
         add("Community", "community");
         add("Key", "key");
-        add("Route", "route");
         
         var div = document.createElement('div');
         div.appendChild(del_button);

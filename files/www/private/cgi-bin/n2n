@@ -7,15 +7,13 @@ case $POST_func in
         i=0
         while [ `uci get -q n2n.@edge[$i]` ]
         do
-            ipaddr=`uci -q get n2n.@edge[$i].ipaddr`
             supernode=`uci -q get n2n.@edge[$i].supernode`
             port=`uci -q get n2n.@edge[$i].port`
             community=`uci -q get n2n.@edge[$i].community`
             key=`uci -q get n2n.@edge[$i].key`
-            route=`uci -q get n2n.@edge[$i].route`
 
             [ $i -gt 0 ] && echo -n ", "
-            echo -n "\"entry_$i\" : { \"ipaddr\":\"$ipaddr\", \"supernode\":\"$supernode\", \"port\":\"$port\", \"community\":\"$community\", \"key\":\"$key\", \"route\":\"$route\"}"
+            echo -n "\"entry_$i\" : { \"supernode\":\"$supernode\", \"port\":\"$port\", \"community\":\"$community\", \"key\":\"$key\"}"
 
             i=$(($i+1))
         done
@@ -40,23 +38,22 @@ case $POST_func in
     ;;
     set_config)
         id=`echo "$POST_id" | sed -n -r 's/entry_([[:digit:]]+)/\1/p'`
-        ipaddr="$POST_ipaddr"
         supernode="$POST_supernode"
         port="$POST_port"
         community="$POST_community"
         key="$POST_key"
-        route="$POST_route"
-      
+
         if [ `uci get -q n2n.@edge[$id]` -eq 1 ]; then
           echo "(E) N2N: Invalid setting number '$id'"
           exit
         fi
 
-        uci -q set n2n.@edge[$id].ipaddr=$ipaddr
-        uci -q set n2n.@edge[$id].supernode=$supernode
-        uci -q set n2n.@edge[$id].port=$port
-        uci -q set n2n.@edge[$id].community=$community
-        uci -q set n2n.@edge[$id].key=$key
+        uci -q set n2n.@edge[$id].ipaddr="0.0.0.0"
+        uci -q set n2n.@edge[$id].supernode="$supernode"
+        uci -q set n2n.@edge[$id].port="$port"
+        uci -q set n2n.@edge[$id].community="$community"
+        uci -q set n2n.@edge[$id].key="$key"
+        uci -q set n2n.@edge[$id].route=""
         uci -q set n2n.@edge[$id].mtu=1528
 
         if [ $? -eq 0 ]; then
