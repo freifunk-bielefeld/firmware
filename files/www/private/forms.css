@@ -6,22 +6,19 @@ html {
 	background:#fafafa;
 }
 
-form {
-	background:#fff;
-	padding:1em;
-	border:1px solid #eee;
+
+fieldset {
+  margin:1em 0;
 }
 
 fieldset div {
-	margin:0.3em 0;
-	clear:both;
+  margin:0.3em 0;
+  clear:both;
 }
-/*
-form {
-	margin:1em;
-	width:27em;
+
+#buttons {
+  clear:both;
 }
-*/
 
 label {
 	float:left;
@@ -60,30 +57,12 @@ fieldset {
 	padding:0 0.5em 0.5em;
 }
 
-.radio {
-	position:relative;
-}
-
-.radio fieldset {
-	border:none;
-	width:auto;
-	padding:1px 0 0 11em;
-}
-
-.radio legend {
+.radio label {
 	font-size:1em;
 	color:#000;
 }
 
-.radio legend span {
-	position:absolute;
-	left:0;
-	top:0.3em;
-	width:10em;
-	display:block;
-}
-
-.radio label, .radio input {
+.radio div label, .radio div input {
 	vertical-align:middle;
 	display:inline;
 	float:none;
@@ -101,3 +80,4 @@ fieldset {
 input.default {
 	color:#bbb;
 }
+

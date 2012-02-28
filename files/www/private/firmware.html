@@ -10,9 +10,9 @@
 
 <div id="main">
     <form action="/cgi-bin/firmware" enctype="multipart/form-data" method="post">
-    <input id="file" type="file" name="datafile" size="40">
-    <br />
-    <input id="send_button" type="submit" value="Send">
+    <input id="file" type="file" name="firmware" size="40"><br />
+    <button type="submit" id="send_button">Senden</button>
+    <input type="checkbox" name="keep_config" value="yes" /> Konfiguration erhalten<br />
     </form>
 </div>
 

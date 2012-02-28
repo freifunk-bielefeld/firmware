@@ -9,7 +9,7 @@ Content-type: text/html
 <a href="https://<% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ printf "%s", $1 }' %>">Login</a><br />
 <br />
 <b>Andere Knoten im Netz: </b>
-<% batctl o | grep -c "^[0-9a-b]\{2\}:" %>
+<% batctl o | grep -c "^[0-9a-f]\{2\}:" %>
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <%

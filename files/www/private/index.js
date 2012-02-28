@@ -37,6 +37,14 @@ function init() {
         $('#uname').text(data);
     });
 
+    $("fieldset input").each(function() {
+        var name = "#" + this.id + "_help";
+        $(this).parent().hover (
+          function() { $(name).show(); },
+          function() {$(name).hide(); }
+        );
+    });
+
     $.post("/cgi-bin/misc", { func: "uptime" }, function(data) {
         $('#uptime').text(data);
     });

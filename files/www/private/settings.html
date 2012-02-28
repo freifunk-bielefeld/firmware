@@ -9,8 +9,8 @@
 <body>
 
 <div id="main">
-    <fieldset>
-        <legend>Konfiguration</legend>
+    <fieldset id="common">
+        <legend>Allgemeine Einstellungen:</legend>
         <div>
             <label>AccessPoint:</label> <input id="ap_ssid" type="text">
         </div>
@@ -18,33 +18,21 @@
             <label>AdHoc:</label> <input id="ah_ssid" type="text">
         </div>
         <div>
-            <label>Ext-Interfaces:</label> <input id="ext_ifs" type="text">
+            <label>MAC-Adresse:</label> <input id="mac" type="text">
         </div>
-        <div>
-            <label>Mesh-Interfaces:</label> <input id="mesh_ifs" type="text">
-        </div>
-        <div>
-            <label>MAC:</label> <input id="mac" type="text">
-        </div>
-<!--        <div class="radio">
-            <fieldset>
-                <legend><span>Batman-Adv Mode</span></legend>
-                <div>
-                    <input id="auto" name="batman_mode" value="auto" type="radio"> <label>Auto</label>
-                </div>
-                <div>
-                    <input id="client" name="batman_mode" value="client" type="radio"> <label>Client</label>
-                </div>
-                <div>
-                    <input id="server" name="batman_mode" value="server" type="radio"> <label>Server</label>
-                </div>
-            </fieldset> 
-            </div>
--->
+        <div class="radio">
+            <label>Internet Freigeben:</label>
+            <div><input name="share_wan" value="yes" type="radio"><label> Ja</label></div>
+            <div><input name="share_wan" value="no" type="radio"><label> Nein</label></div>
+       </div>
     </fieldset>
+    
+    <fieldset id="interfaces">
+    </fieldset>
+    
     <div>
-        <button type="text" id="apply_button">Anwenden</button>
-        <button type="text" id="save_button">Speichern</button>
+        <button type="text" id="set_button">Setzen</button><!-- TODO: Anwenden -->
+        <button type="text" id="save_button">Speichern</button> 
     </div>
 </div>
 

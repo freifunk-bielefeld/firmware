@@ -1,18 +1,17 @@
-#!/usr/bin/haserl
+#!/usr/bin/haserl --upload-dir=/tmp --upload-limit=6000
 <%
+path="$POST_firmware"
+keep_config="$POST_keep_config"
 
-case $POST_func in
-  apply_firmware)
-    fpath="$HASERL_firmware_path"
-    if [ -a $fpath ]; then
-        /etc/init.d/batmna-adv/stop &> /dev/null
-        /etc/init.d/nodogsplash stop &> /dev/null
-        /etc/init.d/hotplug2 stop &> /dev/null
-        echo "(I) Start sysupgrade..."
-        sysupgrade -n $fpath
+if [ -e "$path" ]; then
+    echo "(I) Start sysupgrade..."
+    if [ "$keep_config" = "yes" ]; then
+        args="-c"
     else
-        echo "(E) Cannot find file '$fpath'."
+        args="-n"
     fi
-    ;;
-esac
+    sysupgrade $args $path
+else
+    echo "(E) Cannot find file '$path'."
+fi
 %>

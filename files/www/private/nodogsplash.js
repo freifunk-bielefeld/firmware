@@ -23,6 +23,7 @@ function mark_mac_list()
 function reload()
 {
     $.post("/cgi-bin/nodogsplash", { func: "get_status" }, function(text){
+        if(text.length == 0) return;
         text = text.replace(/([0-9a-f]{1,2}(:[0-9a-f]{1,2}){5})/gi, "<span class='nds_mac'>$1</span>");
         document.getElementById('nds_status').innerHTML=text;
         mark_mac_list();
@@ -50,6 +51,8 @@ $('#block_button').click(function() { button_action("block"); });
 $('#unblock_button').click(function() { button_action("unblock"); });
 $('#auth_button').click(function() { button_action("auth"); });
 $('#deauth_button').click(function() { button_action("deauth"); });
+$('#trust_button').click(function() { button_action("trust"); });
+$('#untrust_button').click(function() { button_action("untrust"); });
 
 
 reload();

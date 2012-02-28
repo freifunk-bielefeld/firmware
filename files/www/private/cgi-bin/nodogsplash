@@ -8,7 +8,7 @@ case $POST_func in
   get_clients)
     ntsctl clients
     ;;
-  auth|deauth|block|unblock|allow|unallow)
+  auth|deauth|block|unblock|allow|unallow|trust|untrust)
     func="$POST_func"
     macs="$POST_macs"
     fail=0
@@ -18,18 +18,9 @@ case $POST_func in
         exit
       fi
       
-      ndsctl $func $mac &> /dev/null
-      
-      if [ $? != 0 ]; then
-      	fail=$(($fail + 1))
-      fi
+      echo -n "(I) nodogsplash: "
+      ndsctl $func $mac
     done
-    
-    if [ $fail -eq 0 ]; then
-      echo "(I) nodogsplash: Alles ok"
-    else
-      echo "(E) nodogsplash: Something went wrong."  
-    fi
     ;;
   *)
     echo "(E) nodogsplash: Invalid command: '$POST_func'"

@@ -12,9 +12,8 @@ function get(id) {
 }
 
 function removeChilds(p) {
-  while(p.hasChildNodes()) {
-    p.removeChild(p.firstChild);
-  }
+    while(p.hasChildNodes())
+        p.removeChild(p.firstChild);
 }
 
 function parse_config(data) {
@@ -31,14 +30,14 @@ function parse_config(data) {
         var legend = document.createElement('legend');
         var span = document.createElement('span');
         
-        span.appendChild(document.createTextNode("Verbindung " + id.replace("entry_", "")));
+        span.innerHTML = "Verbindung " + id.replace("entry_", "");
         legend.appendChild(span);
         fieldset.appendChild(legend);
         
         //delete button
         var del_button = document.createElement('button');
         del_button.type = 'button';
-        del_button.appendChild(document.createTextNode('Loeschen'));
+        del_button.innerHTML = 'L&ouml;schen';
         del_button.onclick = function() {
             //var id = getParentId(this);
             if(confirm("Eintrag wirklich Loeschen?"))
@@ -48,12 +47,12 @@ function parse_config(data) {
                     rebuild_config();
                 });
             }
-        }
+        };
         
         //save button
         var set_button = document.createElement('button');
         set_button.type = 'button';
-        set_button.appendChild(document.createTextNode('Speichern'));
+        set_button.innerHTML = 'Speichern';
         set_button.onclick = function() {
             //var id = getParentId(this);
             $.post("/cgi-bin/n2n",
@@ -61,10 +60,10 @@ function parse_config(data) {
                 supernode : get(id + "_supernode"),
                 port : get(id + "_port"),
                 community : get(id + "_community"),
-                key : get(id + "_key"),
+                key : get(id + "_key") },
                 function(data) { $('#status').text(data); }
             );
-        }
+        };
 
         function add(label_text, name)
         {
@@ -72,7 +71,7 @@ function parse_config(data) {
             var label = document.createElement('label');
             var input = document.createElement('input');
           
-            label.appendChild(document.createTextNode(label_text + ":"));
+            label.innerHTML = label_text + ":";
             
             input.value = obj[name];
             input.id = id + "_" + name;
