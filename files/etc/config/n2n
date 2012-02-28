@@ -1,0 +1,7 @@
+
+config 'edge'
+	option 'ipaddr' '0.0.0.0'
+	option 'supernode' 'fhaust.de'
+	option 'port' '2011'
+	option 'community' 'ffb1'
+	option 'mtu' '1528'

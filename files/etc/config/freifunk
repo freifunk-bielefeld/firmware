@@ -3,7 +3,8 @@ config ff_settings 'settings'
     option 'ap_ssid' 'www.freifunk-bielefeld.de'
     option 'ah_ssid' 'batman.freifunk-bielefeld.de'
     option 'ff_subnet' 29
-    option 'debug' 0
     option 'mac' ''
-    option 'mesh_interfaces' ''
-    option 'ext_interfaces' ''
+    option 'share_wan' 'yes' #share internet?
+    option 'mesh_interfaces' '' #used by batman
+    option 'ext_interfaces' '' #used for computers
+    option 'wan_interfaces' ''

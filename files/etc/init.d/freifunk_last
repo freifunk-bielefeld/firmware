@@ -6,7 +6,7 @@ START=96
 start ()
 {
 #write everything from stdout and stderr to a log file
-exec >>/tmp/freifunk.log 2>&1
+exec >/tmp/freifunk_last.log 2>&1
 
 echo "(I) Freifunk: start freifunk_last"
 
@@ -33,8 +33,11 @@ ifconfig bat0 up #for VirtualBox
 echo "(I) Freifunk: add batman interface to br-mesh"
 brctl addif br-mesh bat0
 
-echo "(I) Freifunk: call ip_watchdog to set IP for br-mesh"
-/sbin/ip_watchdog
+echo "(I) Freifunk: set IP for br-mesh"
+mesh_mac=`uci get -q freifunk.settings.mac`
+mesh_ip=`mac2ip $mesh_mac`
+uci set network.mesh.ipaddr="$mesh_ip"
+ifconfig br-mesh $mesh_ip
 
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart

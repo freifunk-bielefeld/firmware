@@ -3,16 +3,14 @@
 #Get the IP of a node by MAC.
 
 mac=$1
-free=$2 #if set, get the first free IP instead
 
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
-debug=`uci get -q freifunk.settings.debug`
 
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
 #convert from locally to universally administered mac
-#and a common mac format
+#and a common mac format (lower case and two digit hex hex format)
 fix_mac() {
     mac_in="$1"
     

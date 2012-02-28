@@ -11,7 +11,10 @@ echo "(I) wan_watchdog: start"
 #various root servers
 IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 
-wan_interface=`uci -q get network.wan.ifname`
+#share_wan=`uci get freifunk.settings.share_wan`
+#echo "(I) wan_watchdog: share internet: '$share_wan'"
+
+wan_interface=`uci -q get freifunk.settings.wan_interfaces`
 echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
@@ -20,9 +23,16 @@ echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 #echo "(I) wan_watchdog: current mesh ip: '$mesh_ip'"
 
+
+#check if we want to share internet
+#if [ "$share_wan" = "no" ]; then
+#    echo "(I) wan_watchdog: No internet sharing allowed. -> exit"
+#    exit 0
+#fi
+
 #check if wan interface exists
 if [ -z "$wan_interface" ]; then
-  echo "(I) wan_watchdog: No WAN interface available. -> exit"
+  echo "(I) wan_watchdog: No wan interfaces available. -> exit"
   exit 0
 fi
 

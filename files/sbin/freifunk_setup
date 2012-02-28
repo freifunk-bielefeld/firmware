@@ -1,12 +1,11 @@
 #!/bin/sh
 
-#Initialize the Freifunk configuration
+#check system for initial Freifunk configuration
 
-exec >/tmp/freifunk_setup.log 2>&1
+exec >/root/freifunk_setup.log 2>&1
 
 echo "(I) Freifunk: start freifunk_setup"
 
-#disable telnet
 /etc/init.d/telnet disable
 /etc/init.d/batman-adv disable
 /etc/init.d/n2n disable
@@ -16,25 +15,7 @@ echo "(I) Freifunk: start freifunk_setup"
 
 ap_ssid=`uci get -q freifunk.settings.ap_ssid`
 ah_ssid=`uci get -q freifunk.settings.ah_ssid`
-ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
-# set (not so) magic numbers for start ip and address space
-# numbers are ip integer representation
-start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
-end_ip=$((255*255+253)) # -> 65278
-
-
-# ------------------------------------------- #
-# P R E C O N F I G U R I N G   N E T W O R K #
-# ------------------------------------------- # 
-
-echo "(I) Freifunk: Set default N2N settings"
-uci add n2n edge
-uci set n2n.@edge[-1].ipaddr="0.0.0.0"
-uci set n2n.@edge[-1].supernode="fhaust.de"
-uci set n2n.@edge[-1].port=2011
-uci set n2n.@edge[-1].community="ffb1"
-uci set n2n.@edge[-1].mtu=1528
 
 wan_interface=`uci -q get network.wan.ifname`
 echo "(I) Freifunk: wan interface: '$wan_interface'"
@@ -45,6 +26,12 @@ echo "(I) Freifunk: lan interface: '$lan_interface'"
 wifi_device=`uci -q get wireless.@wifi-iface[0].device`
 echo "(I) Freifunk: wifi device: '$wifi_device'"
 
+
+# ------------------------------------------- #
+# P R E C O N F I G U R I N G   W I R E L E S S #
+# ------------------------------------------- # 
+
+#test if we can span both ad-hoc and access point interfaces
 if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: setup /etc/config/wireless"
     uci set wireless.$wifi_device.channel=1
@@ -137,6 +124,7 @@ ext_interfaces=$(trim "$ext_interfaces")
 
 echo "(I) Freifunk: mesh interfaces: '$mesh_interfaces'"
 echo "(I) Freifunk: external interfaces: '$ext_interfaces'"
+echo "(I) Freifunk: wan interfaces: '$wan_interface'"
 
 if [ -z "$mesh_interfaces" ]; then
     echo "(E) Freifunk: No mesh interfaces found."
@@ -148,91 +136,10 @@ mesh_mac=$(ifconfig ${mesh_interfaces%% *} | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 
-ext_interfaces=$(trim "dummy_ext $ext_interfaces")
-mesh_interfaces=$(trim "dummy_mesh $mesh_interfaces")
-
 uci set freifunk.settings.mesh_interfaces="$mesh_interfaces"
 uci set freifunk.settings.ext_interfaces="$ext_interfaces"
+uci set freifunk.settings.wan_interfaces="$wan_interface"
 uci set freifunk.settings.mac="$mesh_mac"
-
-
-# ------------------------------------- #
-# C O N F I G U R I N G   N E T W O R K #
-# ------------------------------------- # 
-
-echo "(I) Freifunk: setup /etc/config/network"
-
-uci -q delete network.lan
-
-for x in $mesh_interfaces; do
-    name=`echo "$x" | tr -d -c a-z0-9_`
-    uci set network.$name="interface"
-    uci set network.$name.ifname=$x
-    uci set network.$name.mtu=1528
-    uci set network.$name.proto=none
-    uci set network.$name.auto=1 #bring up the interface at startup
-done
-
-uci set network.mesh="interface"
-uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="$ext_interfaces"
-uci set network.mesh.ipaddr="0.0.0.0"
-#uci set network.mesh.macaddr="$mesh_mac" #does not work
-uci set network.mesh.proto=static
-uci set network.mesh.netmask="255.0.0.0"
-
-
-uci -q delete network.wan
-if [ -n "$wan_interface" ]; then
-    uci set network.wan="interface"
-    uci set network.wan.ifname=$wan_interface
-    uci set network.wan.proto="dhcp"
-fi
-
-echo "(I) Freifunk: setup /etc/config/dhcp"
-uci -q delete dhcp.lan
-uci set dhcp.@dnsmasq[0].interfaces="br-mesh"
-uci set dhcp.mesh=dhcp
-uci set dhcp.mesh.interface=mesh
-uci set dhcp.mesh.start=$start_ip
-uci set dhcp.mesh.limit=$end_ip
-uci set dhcp.mesh.leasetime=5m #max time for address conflicts
-if [ -z "$wan_interface" ]; then
-    uci -q delete dhcp.wan
-fi
-
-echo "(I) Freifunk: setup /etc/config/firewall"
-while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
-while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
-
-if [ -n "$wan_interface" ];
-then
-    uci add firewall forwarding
-    uci set firewall.@forwarding[-1]="forwarding"
-    uci set firewall.@forwarding[-1].src="mesh"
-    uci set firewall.@forwarding[-1].dest="wan"
-
-    uci add firewall zone
-    uci set firewall.@zone[-1].name=wan
-    uci set firewall.@zone[-1].network=wan
-    uci set firewall.@zone[-1].input=REJECT
-    uci set firewall.@zone[-1].output=ACCEPT
-    uci set firewall.@zone[-1].forward=REJECT
-    uci set firewall.@zone[-1].masq=1
-    uci set firewall.@zone[-1].mtu_fix=1
-else
-    while uci -q delete firewall.@rule[0]; do :; done
-fi
-
-uci add firewall zone
-uci set firewall.@zone[-1].name=mesh
-uci set firewall.@zone[-1].network=mesh
-uci set firewall.@zone[-1].input=ACCEPT
-uci set firewall.@zone[-1].output=ACCEPT
-uci set firewall.@zone[-1].forward=REJECT
-
-uci set batman-adv.bat0.interfaces="$mesh_interfaces"
-uci set batman-adv.bat0.gw_mode="client"
 
 uci commit
 

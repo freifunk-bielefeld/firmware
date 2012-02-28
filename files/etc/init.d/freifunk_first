@@ -5,26 +5,183 @@ START=31
 
 start () 
 {
-exec >/tmp/freifunk.log 2>&1
+exec >/tmp/freifunk_first.log 2>&1
+
+if [ -f /etc/rc.d/S50telnet ]; then
+    echo "(I) Freifunk: skip and wait for setup to be run"
+    exit
+fi
 
 echo "(I) Freifunk: start freifunk_first"
 
+
 mac=`uci get freifunk.settings.mac`
-if [ -n "$mac" ]; then
+echo "(I) Freifunk: mac: '$mac'"
+
+ext_interfaces=`uci get freifunk.settings.ext_interfaces`
+echo "(I) Freifunk: ext_interfaces: '$ext_interfaces'"
+
+mesh_interfaces=`uci get freifunk.settings.mesh_interfaces`
+echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
+
+wan_interfaces=`uci get freifunk.settings.wan_interfaces`
+echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
+
+share_wan=`uci get freifunk.settings.share_wan`
+echo "(I) Freifunk: share_wan: '$share_wan'"
+
+ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+
+#Create dummy interfaces to be able to set the mac of
+#br-mesh and the mac for the OGMs of batman-adv freely.
+
+echo "(I) Freifunk: Create dummy_ext interface."
+tunctl -t dummy_ext > /dev/null
+ifconfig dummy_ext hw ether $mac up
+
+echo "(I) Freifunk: Create dummy_mesh interface."
+tunctl -t dummy_mesh > /dev/null
+ifconfig dummy_mesh hw ether $mac up
+
+ext_interfaces="dummy_ext $ext_interfaces"
+mesh_interfaces="dummy_mesh $mesh_interfaces"
+
+
+# ------------------------------------- #
+# E X T E R N A L  S E T U P #
+# ------------------------------------- #
+
+echo "(I) Freifunk: Setup external interfaces."
+
+uci -q delete network.lan
+uci -q delete dhcp.lan
+while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
+while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
+
+uci set network.mesh="interface"
+uci set network.mesh.type="bridge"
+uci set network.mesh.ifname="$ext_interfaces"
+uci set network.mesh.ipaddr="0.0.0.0"
+#uci set network.mesh.macaddr="$mesh_mac" #does not work
+uci set network.mesh.proto=static
+uci set network.mesh.netmask="255.0.0.0"
+
+
+# set (not so) magic numbers for start ip and address space
+# numbers are ip integer representation
+start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
+end_ip=$((255*255+253)) # -> 65278
+
+uci set dhcp.@dnsmasq[0].interfaces="br-mesh"
+uci set dhcp.mesh=dhcp
+uci set dhcp.mesh.interface=mesh
+uci set dhcp.mesh.start=$start_ip
+uci set dhcp.mesh.limit=$end_ip
+uci set dhcp.mesh.leasetime=5m #max time for address conflicts
+
+
+# ------------------------------------- #
+# M E S H  S E T U P #
+# ------------------------------------- #
+
+echo "(I) Freifunk: Setup mesh interfaces."
+
+for if in $mesh_interfaces; do
+    name=`echo "$if" | tr -d -c a-z0-9_`
+    uci set network.$name="interface"
+    uci set network.$name.ifname=$if
+    uci set network.$name.mtu=1528
+    uci set network.$name.proto=none
+    uci set network.$name.auto=1 #bring up the interface at startup
+done
+
+uci add firewall zone
+uci set firewall.@zone[-1].name=mesh
+uci set firewall.@zone[-1].network=mesh
+uci set firewall.@zone[-1].input=ACCEPT
+uci set firewall.@zone[-1].output=ACCEPT
+uci set firewall.@zone[-1].forward=REJECT
+
+uci set batman-adv.bat0.interfaces="$mesh_interfaces"
+uci set batman-adv.bat0.gw_mode="client"
+
+
+# ------------------------------------- #
+# W A N  S E T U P #
+# ------------------------------------- # 
+
+echo "(I) Freifunk: Setup wan interfaces."
+
+uci -q delete network.wan
+uci -q delete dhcp.wan
+while uci -q delete firewall.@rule[0]; do :; done
+
+for if in $wan_interfaces; do
+    name=`echo "$if" | tr -d -c a-z0-9_`
+
+    #these settings are based on the default
+    #openwrt configuration for the wan interface
+
+    uci set network.$name="interface"
+    uci set network.$name.ifname=$if
+    uci set network.$name.proto="dhcp"
+
+    uci set dhcp.$name=dhcp
+    uci set dhcp.$name.interface=$name
+    uci set dhcp.$name.ignore=1
+
+    #these sections were copied fom
+    #the openwrt default configuration
+
+    uci add firewall zone
+    uci set firewall.@zone[-1].name=$name
+    uci set firewall.@zone[-1].network=$name
+    uci set firewall.@zone[-1].input=REJECT
+    uci set firewall.@zone[-1].output=ACCEPT
+    uci set firewall.@zone[-1].forward=REJECT
+    uci set firewall.@zone[-1].masq=1
+    uci set firewall.@zone[-1].mtu_fix=1
     
-    echo "(I) Freifunk: Use mac: '$mac'"
+    if [ "$share_wan" = "yes" ]; then
+        uci add firewall forwarding
+        uci set firewall.@forwarding[-1]="forwarding"
+        uci set firewall.@forwarding[-1].src="mesh"
+        uci set firewall.@forwarding[-1].dest="$name"
+    fi
+    
+    # We need to accept udp packets on port 68,
+    # see https://dev.openwrt.org/ticket/4108
+    uci add firewall rule
+    uci set firewall.@rule[-1].src=$name
+    uci set firewall.@rule[-1].proto=udp
+    uci set firewall.@rule[-1].dest_port=68
+    uci set firewall.@rule[-1].target=ACCEPT
+    uci set firewall.@rule[-1].family=ipv4
 
-    #Create dummy interfaces to be able to set the mac of
-    #br-mesh and the mac for the OGMs of batman-adv freely.
+    # Allow IPv4 ping
+    uci add firewall rule
+    uci set firewall.@rule[-1].src=$name
+    uci set firewall.@rule[-1].proto=icmp
+    uci set firewall.@rule[-1].icmp_type=echo-request
+    uci set firewall.@rule[-1].family=ipv4
+    uci set firewall.@rule[-1].target=ACCEPT
 
-    echo "(I) Freifunk: Create dummy_ext interface."
-    tunctl -t dummy_ext > /dev/null
-    ifconfig dummy_ext hw ether $mac up
+    # Allow essential incoming IPv6 ICMP traffic
+    uci add firewall rule
+    uci set firewall.@rule[-1].src=$name
+    uci set firewall.@rule[-1].dest=*
+    uci set firewall.@rule[-1].proto=icmp
+    uci add_list firewall.@rule[-1].icmp_type=echo-request
+    uci add_list firewall.@rule[-1].icmp_type=destination-unreachable
+    uci add_list firewall.@rule[-1].icmp_type=packet-too-big
+    uci add_list firewall.@rule[-1].icmp_type=time-exceeded
+    uci add_list firewall.@rule[-1].icmp_type=bad-header
+    uci add_list firewall.@rule[-1].icmp_type=unknown-header-type
+    uci set firewall.@rule[-1].limit=1000/sec
+    uci set firewall.@rule[-1].family=ipv6
+    uci set firewall.@rule[-1].target=ACCEPT
 
-    echo "(I) Freifunk: Create dummy_mesh interface."
-    tunctl -t dummy_mesh > /dev/null
-    ifconfig dummy_mesh hw ether $mac up
-fi
+done
 
 echo "(I) Freifunk: done freifunk_first"
 }
