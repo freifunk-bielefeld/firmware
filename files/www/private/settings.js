@@ -6,12 +6,20 @@ var ext_ifs = {};
 var mesh_ifs = {};
 
 
-function get(id) {
+function getInputVal(id) {
     return document.getElementById(id).value;
 }
 
-function set(id, val) {
+function setInputVal(id, val) {
     document.getElementById(id).value = val;
+}
+
+function setBoxVal(name, val) {
+    $("input[name="+name+"]").filter("[value="+val+"]").prop("checked",true);
+}
+
+function getBoxVal(name) {
+    return $("input[name='"+name+"']:checked").val();
 }
 
 function removeChilds(p) {
@@ -32,10 +40,10 @@ function set_settings()
     $.post("/cgi-bin/settings",
         {
             func : "set_settings",
-            ap_ssid : get("ap_ssid"),
-            ah_ssid : get("ah_ssid"),
-            share_wan : get("share_wan"),
-            mac : get("mac"),
+            ap_ssid : getInputVal("ap_ssid"),
+            ah_ssid : getInputVal("ah_ssid"),
+            share_wan : getBoxVal("share_wan"),
+            mac : getInputVal("mac"),
             mesh_ifs : toString(mesh_ifs),
             wan_ifs : toString(wan_ifs),
             ext_ifs : toString(ext_ifs)
@@ -60,10 +68,10 @@ function load_settings()
     {
         var obj = jQuery.parseJSON(data);
         
-        set("ap_ssid", obj.ap_ssid);
-        set("ah_ssid", obj.ah_ssid);
-        set("share_wan", obj.share_wan);
-        set("mac", obj.mac);
+        setInputVal("ap_ssid", obj.ap_ssid);
+        setInputVal("ah_ssid", obj.ah_ssid);
+        setBoxVal("share_wan", obj.share_wan);
+        setInputVal("mac", obj.mac);
         
         wan_ifs = toObject(obj.wan_ifs);
         mesh_ifs = toObject(obj.mesh_ifs);
@@ -159,7 +167,7 @@ $('#set_button').click(function() {
 });
 
 $('#save_button').click(function() {
-    $.post("/cgi-bin/save_settings", { func : "save_settings" }, function(data) {
+    $.post("/cgi-bin/settings", { func : "save_settings" }, function(data) {
         if(data.length)
             $('#status').text(data);
     });
