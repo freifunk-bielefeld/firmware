@@ -10,7 +10,7 @@ start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
 #convert from locally to universally administered mac
-#and a common mac format (lower case and two digit hex hex format)
+#and a common mac format (lower case and two digit hex format)
 fix_mac() {
     mac_in="$1"
     

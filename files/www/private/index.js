@@ -41,7 +41,7 @@ function init() {
         var name = "#" + this.id + "_help";
         $(this).parent().hover (
           function() { $(name).show(); },
-          function() {$(name).hide(); }
+          function() { $(name).hide(); }
         );
     });
 
