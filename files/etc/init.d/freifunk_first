@@ -87,7 +87,7 @@ uci set dhcp.mesh.leasetime=5m #max time for address conflicts
 echo "(I) Freifunk: Setup mesh interfaces."
 
 for if in $mesh_interfaces; do
-    name=`echo "$if" | tr -d -c a-z0-9_`
+    name=`echo -n "$if" | tr -c a-z0-9_ _`
     uci set network.$name="interface"
     uci set network.$name.ifname=$if
     uci set network.$name.mtu=1528
@@ -117,7 +117,7 @@ uci -q delete dhcp.wan
 while uci -q delete firewall.@rule[0]; do :; done
 
 for if in $wan_interfaces; do
-    name=`echo "$if" | tr -d -c a-z0-9_`
+    name=`echo -n "$if" | tr -c a-z0-9_ _`
 
     #these settings are based on the default
     #openwrt configuration for the wan interface
