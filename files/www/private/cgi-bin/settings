@@ -1,9 +1,9 @@
 #!/usr/bin/haserl
 <%
 
-trim() { echo "$1" | sed 's/^ *//g' |  sed 's/ *$//g'; }
-ssort() { echo "$1" | tr ' ' '\n' | sort | tr '\n' ' ' | sed 's/^ *//g' |  sed 's/ *$//g'; }
-ssort_uniq() { echo "$1" | tr ' ' '\n' | sort | uniq | tr '\n' ' ' | sed 's/^ *//g' |  sed 's/ *$//g'; }
+strip() { echo "$@"; }
+ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
+ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
 
 case $POST_func in
     save_settings)

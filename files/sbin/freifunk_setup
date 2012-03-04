@@ -117,10 +117,10 @@ if [ -n "$lan_interface" ]; then
     fi
 fi
 
-#trim variables
-trim() { echo $1; }
-mesh_interfaces=$(trim "$mesh_interfaces")
-ext_interfaces=$(trim "$ext_interfaces")
+#trim variables and remove double spaces
+strip() { echo "$@"; }
+mesh_interfaces=$(strip $mesh_interfaces)
+ext_interfaces=$(strip $ext_interfaces)
 
 echo "(I) Freifunk: mesh interfaces: '$mesh_interfaces'"
 echo "(I) Freifunk: external interfaces: '$ext_interfaces'"
