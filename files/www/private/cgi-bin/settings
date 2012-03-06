@@ -1,6 +1,7 @@
 #!/usr/bin/haserl
 <%
 
+count() { echo $#; }
 strip() { echo "$@"; }
 ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
 ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
@@ -66,6 +67,11 @@ case $POST_func in
             #ifconfig br-mesh `/sbin/mac2ip $mac` &> /dev/null
 
             uci -q set freifunk.settings.mac=$mac
+        fi
+
+        if [ $(count $wan_ifs) -gt 1 ]; then
+            echo "(E) Settings: Multi-WAN is not yet supported."
+            exit
         fi
 
         all_ifs=$(ssort "$mesh_ifs $ext_ifs $wan_ifs")
