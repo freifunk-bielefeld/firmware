@@ -70,6 +70,9 @@ case $POST_func in
         echo "(E) N2N: Could not save settings."
       fi
     ;;
+    get_version)
+        edge --help | head -n1 | sed -n -r 's/.*(v[0-9\.]*).*/\1/p'
+    ;;
     *)
       echo "(E) N2N: '$POST_func' not implemented."
     ;;

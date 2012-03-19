@@ -44,7 +44,15 @@ function init() {
           function() { $(name).hide(); }
         );
     });
-
+    
+    $.post("/cgi-bin/batman-adv", { func: "get_version" }, function(data) {
+        $('#batman_version').text(data);
+    });
+    
+    $.post("/cgi-bin/n2n", { func: "get_version" }, function(data) {
+        $('#n2n_version').text(data);
+    });
+    
     $.post("/cgi-bin/misc", { func: "uptime" }, function(data) {
         $('#uptime').text(data);
     });
