@@ -58,14 +58,6 @@ uci -q delete dhcp.lan
 while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
 while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
 
-#especially needed for vlans to show up
-for if in $ext_interfaces; do
-    name=`echo -n "$if" | tr -c a-z0-9_ _`
-    uci set network.$name="interface"
-    uci set network.$name.ifname=$if
-    uci set network.$name.proto=none
-done
-
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="$ext_interfaces"
