@@ -43,7 +43,7 @@ echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null
 ifconfig dummy_mesh hw ether $mac up
 
-ext_interfaces="dummy_ext $ext_interfaces"
+ext_interfaces="dummy_ext bat0 $ext_interfaces"
 mesh_interfaces="dummy_mesh $mesh_interfaces"
 
 
@@ -72,7 +72,7 @@ uci set network.mesh.netmask="255.0.0.0"
 start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
 end_ip=$((255*255+253)) # -> 65278
 
-uci set dhcp.@dnsmasq[0].interfaces="br-mesh"
+uci add_list dhcp.@dnsmasq[0].interface="br-mesh"
 uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
 uci set dhcp.mesh.start=$start_ip
@@ -86,13 +86,13 @@ uci set dhcp.mesh.leasetime=5m #max time for address conflicts
 
 echo "(I) Freifunk: Setup mesh interfaces."
 
+#make sure the interface is up and has mtu set for batman-adv
 for if in $mesh_interfaces; do
-    name=`echo -n "$if" | tr -c a-z0-9_ _`
-    uci set network.$name="interface"
-    uci set network.$name.ifname=$if
-    uci set network.$name.mtu=1528
-    uci set network.$name.proto=none
-    uci set network.$name.auto=1 #bring up the interface at startup
+    uci add network interface
+    uci set network.@interface[-1].ifname=$if
+    uci set network.@interface[-1].mtu=1528
+    uci set network.@interface[-1].proto=none
+    uci set network.@interface[-1].auto=1 #bring up the interface at startup
 done
 
 uci add firewall zone
@@ -117,7 +117,7 @@ uci -q delete dhcp.wan
 while uci -q delete firewall.@rule[0]; do :; done
 
 for if in $wan_interfaces; do
-    name=`echo -n "$if" | tr -c a-z0-9_ _`
+    name=`echo -n "ff_$if" | tr -c a-z0-9_ _`
 
     #these settings are based on the default
     #openwrt configuration for the wan interface
@@ -152,6 +152,7 @@ for if in $wan_interfaces; do
     # We need to accept udp packets on port 68,
     # see https://dev.openwrt.org/ticket/4108
     uci add firewall rule
+    uci set firewall.@rule[-1].name=Allow-DHCP-Renew
     uci set firewall.@rule[-1].src=$name
     uci set firewall.@rule[-1].proto=udp
     uci set firewall.@rule[-1].dest_port=68
@@ -160,18 +161,52 @@ for if in $wan_interfaces; do
 
     # Allow IPv4 ping
     uci add firewall rule
+    uci set firewall.@rule[-1].name=Allow-Ping
     uci set firewall.@rule[-1].src=$name
     uci set firewall.@rule[-1].proto=icmp
     uci set firewall.@rule[-1].icmp_type=echo-request
     uci set firewall.@rule[-1].family=ipv4
     uci set firewall.@rule[-1].target=ACCEPT
 
+    # Allow DHCPv6 replies
+    # see https://dev.openwrt.org/ticket/10381
+    uci add firewall rule
+    uci set firewall.@rule[-1].name=Allow-DHCPv6
+    uci set firewall.@rule[-1].src=$name
+    uci set firewall.@rule[-1].proto=udp
+    uci set firewall.@rule[-1].src_ip=fe80::/10
+    uci set firewall.@rule[-1].src_port=547
+    uci set firewall.@rule[-1].dest_ip=fe80::/10
+    uci set firewall.@rule[-1].dest_port=546
+    uci set firewall.@rule[-1].family=ipv6
+    uci set firewall.@rule[-1].target=ACCEPT
+
     # Allow essential incoming IPv6 ICMP traffic
     uci add firewall rule
+    uci set firewall.@rule[-1].name=Allow-ICMPv6-Input
+    uci set firewall.@rule[-1].src=$name
+    uci set firewall.@rule[-1].proto=icmp
+    uci add_list firewall.@rule[-1].icmp_type=echo-request
+    uci add_list firewall.@rule[-1].icmp_type=echo-reply
+    uci add_list firewall.@rule[-1].icmp_type=destination-unreachable
+    uci add_list firewall.@rule[-1].icmp_type=packet-too-big
+    uci add_list firewall.@rule[-1].icmp_type=time-exceeded
+    uci add_list firewall.@rule[-1].icmp_type=bad-header
+    uci add_list firewall.@rule[-1].icmp_type=unknown-header-type
+    uci add_list firewall.@rule[-1].icmp_type=router-solicitation
+    uci add_list firewall.@rule[-1].icmp_type=neighbour-solicitation
+    uci set firewall.@rule[-1].limit=1000/sec
+    uci set firewall.@rule[-1].family=ipv6
+    uci set firewall.@rule[-1].target=ACCEPT
+
+    # Allow essential forwarded IPv6 ICMP traffic
+    uci add firewall rule
+    uci set firewall.@rule[-1].name=Allow-ICMPv6-Forward
     uci set firewall.@rule[-1].src=$name
     uci set firewall.@rule[-1].dest=*
     uci set firewall.@rule[-1].proto=icmp
     uci add_list firewall.@rule[-1].icmp_type=echo-request
+    uci add_list firewall.@rule[-1].icmp_type=echo-reply
     uci add_list firewall.@rule[-1].icmp_type=destination-unreachable
     uci add_list firewall.@rule[-1].icmp_type=packet-too-big
     uci add_list firewall.@rule[-1].icmp_type=time-exceeded

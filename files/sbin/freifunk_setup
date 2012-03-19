@@ -7,7 +7,7 @@ exec >/root/freifunk_setup.log 2>&1
 echo "(I) Freifunk: start freifunk_setup"
 
 /etc/init.d/telnet disable
-/etc/init.d/batman-adv disable
+/etc/init.d/nodogsplash disable
 /etc/init.d/n2n disable
 
 #set empty password for root
@@ -61,6 +61,7 @@ if [ -n "$wifi_device" ]; then
         uci set wireless.@wifi-iface[-1].mode=ap
         uci set wireless.@wifi-iface[-1].network=mesh
         uci set wireless.@wifi-iface[-1].ssid="$ap_ssid"
+        uci set wireless.@wifi-iface[-1].encryption="none"
     }
 
     wifi_restart() {

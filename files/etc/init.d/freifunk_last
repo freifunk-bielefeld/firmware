@@ -18,23 +18,13 @@ if [ -f /etc/rc.d/S50telnet ]; then
   reboot #todo: work without reboot here
 fi
 
-#Set the mac of br-mesh explicitly.
-#a bridge takes the mac of the first interface
-#but openwrt may change the order freely.
-#So we set it again; just in case.
-mac=`uci get freifunk.settings.mac`
-echo "(I) Freifunk: set mac of br-mesh to '$mac'"
-ifconfig br-mesh hw ether $mac
-
-echo "(I) Freifunk: start /etc/init.d/batman-adv"
-/etc/init.d/batman-adv start
-ifconfig bat0 up #for VirtualBox
-
-echo "(I) Freifunk: add batman interface to br-mesh"
-brctl addif br-mesh bat0
+#Set the mac of br-mesh explicitly so it is fixed.
+#A bridge may change to the lowest may mac otherwise.
+mesh_mac=`uci get freifunk.settings.mac`
+echo "(I) Freifunk: set mac of br-mesh to '$mesh_mac'"
+ifconfig br-mesh hw ether $mesh_mac
 
 echo "(I) Freifunk: set IP for br-mesh"
-mesh_mac=`uci get -q freifunk.settings.mac`
 mesh_ip=`mac2ip $mesh_mac`
 uci set network.mesh.ipaddr="$mesh_ip"
 ifconfig br-mesh $mesh_ip
@@ -44,7 +34,6 @@ echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 
 echo "(I) Freifunk: call wan_watchdog to check for internet"
 /sbin/wan_watchdog
-
 
 echo "(I) Freifunk: done feifunk_last"
 }
