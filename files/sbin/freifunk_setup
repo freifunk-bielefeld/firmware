@@ -128,8 +128,10 @@ if [ -z "$mesh_interfaces" ]; then
     exit 1
 fi
 
-#get the mac of the interface that will be used by batman-adv
-mesh_mac=$(ifconfig ${mesh_interfaces%% *} | grep HWaddr | awk '{print $5}')
+#get a unique (but not just random) mac to identify the system
+[ -z "$mac_if" ] && mac_if=${mesh_interfaces%% *}
+[ -z "$mac_if" ] && mac_if=${ext_interfaces%% *}
+mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 
