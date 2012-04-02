@@ -15,19 +15,19 @@ fi
 echo "(I) Freifunk: start freifunk_first"
 
 
-mac=`uci get freifunk.settings.mac`
+mac=`uci get -q freifunk.settings.mac`
 echo "(I) Freifunk: mac: '$mac'"
 
-ext_interfaces=`uci get freifunk.settings.ext_interfaces`
+ext_interfaces=`uci get -q freifunk.settings.ext_interfaces`
 echo "(I) Freifunk: ext_interfaces: '$ext_interfaces'"
 
-mesh_interfaces=`uci get freifunk.settings.mesh_interfaces`
+mesh_interfaces=`uci get -q freifunk.settings.mesh_interfaces`
 echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
 
-wan_interfaces=`uci get freifunk.settings.wan_interfaces`
+wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
 echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
 
-share_wan=`uci get freifunk.settings.share_wan`
+share_wan=`uci get -q freifunk.settings.share_wan`
 echo "(I) Freifunk: share_wan: '$share_wan'"
 
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
