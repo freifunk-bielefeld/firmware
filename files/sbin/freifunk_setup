@@ -103,40 +103,40 @@ fi
 # ------------------------------------- # 
 
 if [ -n "$wifi_ah_interface" ]; then
-    mesh_interfaces="$mesh_interfaces $wifi_ah_interface"
+    bat_interfaces="$bat_interfaces $wifi_ah_interface"
 fi
 
 if [ -n "$wifi_ap_interface" ]; then
-    ext_interfaces="$ext_interfaces $wifi_ap_interface"
+    mesh_interfaces="$mesh_interfaces $wifi_ap_interface"
 fi
 
 if [ -n "$lan_interface" ]; then
-    ext_interfaces="$ext_interfaces $lan_interface"
+    mesh_interfaces="$mesh_interfaces $lan_interface"
 fi
 
 #trim variables and remove double spaces
 strip() { echo "$@"; }
+bat_interfaces=$(strip $bat_interfaces)
 mesh_interfaces=$(strip $mesh_interfaces)
-ext_interfaces=$(strip $ext_interfaces)
 
-echo "(I) Freifunk: mesh interfaces: '$mesh_interfaces'"
-echo "(I) Freifunk: external interfaces: '$ext_interfaces'"
+echo "(I) Freifunk: mesh interfaces: '$bat_interfaces'"
+echo "(I) Freifunk: external interfaces: '$mesh_interfaces'"
 echo "(I) Freifunk: wan interfaces: '$wan_interface'"
 
-if [ -z "$mesh_interfaces" ]; then
+if [ -z "$bat_interfaces" ]; then
     echo "(E) Freifunk: No mesh interfaces found."
     exit 1
 fi
 
-#get a unique (but not just random) mac to identify the system
+#get a unique (but not just random) mac to identify the node
+[ -z "$mac_if" ] && mac_if=${bat_interfaces%% *}
 [ -z "$mac_if" ] && mac_if=${mesh_interfaces%% *}
-[ -z "$mac_if" ] && mac_if=${ext_interfaces%% *}
 mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 
+uci set freifunk.settings.bat_interfaces="$bat_interfaces"
 uci set freifunk.settings.mesh_interfaces="$mesh_interfaces"
-uci set freifunk.settings.ext_interfaces="$ext_interfaces"
 uci set freifunk.settings.wan_interfaces="$wan_interface"
 uci set freifunk.settings.mac="$mesh_mac"
 

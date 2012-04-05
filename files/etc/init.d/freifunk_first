@@ -18,11 +18,14 @@ echo "(I) Freifunk: start freifunk_first"
 mac=`uci get -q freifunk.settings.mac`
 echo "(I) Freifunk: mac: '$mac'"
 
-ext_interfaces=`uci get -q freifunk.settings.ext_interfaces`
-echo "(I) Freifunk: ext_interfaces: '$ext_interfaces'"
-
 mesh_interfaces=`uci get -q freifunk.settings.mesh_interfaces`
 echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
+
+bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
+echo "(I) Freifunk: bat_interfaces: '$bat_interfaces'"
+
+lan_interfaces=`uci get -q freifunk.settings.lan_interfaces`
+echo "(I) Freifunk: lan_interfaces: '$lan_interfaces'"
 
 wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
 echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
@@ -35,16 +38,16 @@ ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 #Create dummy interfaces to be able to set the mac of
 #br-mesh and the mac for the OGMs of batman-adv freely.
 
-echo "(I) Freifunk: Create dummy_ext interface."
-tunctl -t dummy_ext > /dev/null
-ifconfig dummy_ext hw ether $mac up
-
 echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null
 ifconfig dummy_mesh hw ether $mac up
 
-ext_interfaces="dummy_ext bat0 $ext_interfaces"
-mesh_interfaces="dummy_mesh $mesh_interfaces"
+echo "(I) Freifunk: Create dummy_bat interface."
+tunctl -t dummy_bat > /dev/null
+ifconfig dummy_bat hw ether $mac up
+
+mesh_interfaces="dummy_mesh bat0 $mesh_interfaces"
+bat_interfaces="dummy_bat $bat_interfaces"
 
 
 # ------------------------------------- #
@@ -60,7 +63,7 @@ while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
 
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="$ext_interfaces"
+uci set network.mesh.ifname="$mesh_interfaces"
 uci set network.mesh.ipaddr="0.0.0.0"
 #uci set network.mesh.macaddr="$mesh_mac" #does not work
 uci set network.mesh.proto=static
@@ -87,7 +90,7 @@ uci set dhcp.mesh.leasetime=5m #max time for address conflicts
 echo "(I) Freifunk: Setup mesh interfaces."
 
 #make sure the interface is up and has mtu set for batman-adv
-for if in $mesh_interfaces; do
+for if in $bat_interfaces; do
     uci add network interface
     uci set network.@interface[-1].ifname=$if
     uci set network.@interface[-1].mtu=1528
@@ -102,7 +105,7 @@ uci set firewall.@zone[-1].input=ACCEPT
 uci set firewall.@zone[-1].output=ACCEPT
 uci set firewall.@zone[-1].forward=REJECT
 
-uci set batman-adv.bat0.interfaces="$mesh_interfaces"
+uci set batman-adv.bat0.interfaces="$bat_interfaces"
 uci set batman-adv.bat0.gw_mode="client"
 
 
