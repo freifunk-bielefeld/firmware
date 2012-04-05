@@ -15,20 +15,22 @@ case $POST_func in
         ah_ssid=`uci -q get freifunk.settings.ah_ssid`
         mac=`uci -q get freifunk.settings.mac`
         share_wan=`uci -q get freifunk.settings.share_wan`
-        ext_ifs=`uci -q get freifunk.settings.ext_interfaces`
         mesh_ifs=`uci -q get freifunk.settings.mesh_interfaces`
+        bat_ifs=`uci -q get freifunk.settings.bat_interfaces`
         wan_ifs=`uci -q get freifunk.settings.wan_interfaces`
+        lan_ifs=`uci -q get freifunk.settings.lan_interfaces`
         
-        echo -n "{ \"ap_ssid\" : \"$ap_ssid\", \"ah_ssid\" : \"$ah_ssid\", \"mac\" : \"$mac\", \"share_wan\" : \"$share_wan\", \"ext_ifs\" : \"$ext_ifs\", \"mesh_ifs\" : \"$mesh_ifs\", \"wan_ifs\" : \"$wan_ifs\" }"
+        echo -n "{ \"ap_ssid\" : \"$ap_ssid\", \"ah_ssid\" : \"$ah_ssid\", \"mac\" : \"$mac\", \"share_wan\" : \"$share_wan\", \"mesh_ifs\" : \"$mesh_ifs\", \"bat_ifs\" : \"$bat_ifs\", \"wan_ifs\" : \"$wan_ifs\", \"lan_ifs\" : \"$lan_ifs\" }"
     ;;
     set_settings)
         ap_ssid="$POST_ap_ssid"
         ah_ssid="$POST_ah_ssid"
         mac="$POST_mac"
         share_wan="$POST_share_wan"
-        ext_ifs=$(ssort "$POST_ext_ifs")
         mesh_ifs=$(ssort "$POST_mesh_ifs")
+        bat_ifs=$(ssort "$POST_bat_ifs")
         wan_ifs=$(ssort "$POST_wan_ifs")
+        lan_ifs=$(ssort "$POST_wan_ifs")
         
         if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
             if [ ${#ap_ssid} -gt 32 ]; then
@@ -74,8 +76,8 @@ case $POST_func in
             exit
         fi
 
-        all_ifs=$(ssort "$mesh_ifs $ext_ifs $wan_ifs")
-        all_ifs_uniq=$(ssort_uniq "$mesh_ifs $ext_ifs $wan_ifs")
+        all_ifs=$(ssort "$bat_ifs $mesh_ifs $wan_ifs $lan_ifs")
+        all_ifs_uniq=$(ssort_uniq "$bat_ifs $mesh_ifs $wan_ifs $lan_ifs")
         if [ "$all_ifs" != "$all_ifs_uniq" ]; then
             echo "(E) Settings: duplicate entries detected"
             exit
@@ -86,9 +88,10 @@ case $POST_func in
             [ $? != 0 ] && ( echo "(E) settings: '$ifce' does not exist."; exit )
         done
 
-        uci -q set freifunk.settings.ext_interfaces=$ext_ifs
         uci -q set freifunk.settings.mesh_interfaces=$mesh_ifs
+        uci -q set freifunk.settings.bat_interfaces=$bat_ifs
         uci -q set freifunk.settings.wan_interfaces=$wan_ifs
+        uci -q set freifunk.settings.lan_interfaces=$lan_ifs
     ;;
     *)
         echo "(E) settings: Invalid command: '$POST_func'"

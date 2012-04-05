@@ -1,0 +1,218 @@
+#!/usr/bin/haserl --upload-dir=/tmp --upload-limit=10
+<%
+
+count() { echo $#; }
+strip() { echo "$@"; }
+ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
+ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
+is_valid() { echo -n "$1" | grep -c '^[0-9a-zA-Z]*$'; }
+
+collect_hostnames()
+{
+    for line in `uci show tinc`; do
+        host=`echo "$line" | sed -n -r 's/^tinc\.(.*)\=tinc-host$/\1/p'`
+        [ -n "$host" ] && hosts="$hosts $host"
+    done
+    strip $hosts
+}
+
+collect_netnames()
+{
+    for line in `uci show tinc`; do
+        net=`echo "$line" | sed -n -r 's/^tinc\.(.*)\=tinc-net$/\1/p'`
+        [ -n "$net" ] && nets="$nets $net"
+    done
+    strip "$nets"
+}
+
+#get JSON representation of a settings item
+get_item()
+{                
+    id=$1
+    echo -n "\"$id\" : { "
+    c=0
+    
+    for line in `uci -q show tinc.$id`; do
+        value=${line##*=}
+        name=${line%%=*}
+        name=${name##*.}
+        
+        [ "$name" = "$id" ] && continue
+       
+        [ $c -eq 1 ] && echo -n ", "
+        c=1
+       
+        echo -n "\"$name\" : \"$value\""
+    done
+    echo -n " }"
+}
+
+check_host() {
+    [ $(is_valid "$1") -ne 1 ] && (
+        echo "(E) tinc: host name '$1' is invalid."
+        exit
+    )
+}
+
+check_net() {
+    [ $(is_valid "$1") -ne 1 ] && (
+        echo "(E) tinc: net name '$1' is invalid."
+        exit
+    )
+}
+
+
+case $POST_func in
+    get_key_list)
+        ls /etc/tinc/freifunk/hosts/
+    ;;
+    import_key)
+        host_name="$POST_host_name"
+        net_name="$POST_net_name"
+        path="$POST_public_key_file"
+        
+        check_host "$host_name"
+        check_net "$net_name"
+        
+        cp $path /etc/tinc/$net_name/hosts/$host_name 2> /dev/null
+        
+        if [ $? -eq 0 ]; then
+            echo "(E) tinc: Added host '$host_name' to net '$net_name'."
+        else
+            echo "(E) tinc: some error."
+        fi
+    ;;
+    export_key)
+        host_name="$POST_host_name"
+        net_name="$POST_net_name"
+        
+        check_host "$host_name"
+        check_net "$net_name"
+        
+        path="/etc/tinc/$net_name/hosts/$host_name"
+        if [ ! -f $path ]; then
+            echo "(E) tinc: File not found: '$path'."
+            exit
+        fi
+        
+        echo "Content-Type: text/plain"
+        echo 'Content-Disposition: attachment; filename="$host_name"'
+        cat $path
+    ;;
+    get_key)
+      name="$POST_name"
+      net="$POST_net"
+      
+      #echo -n "{ key : \""
+      cat /etc/tinc/$net/hosts/$name
+      #echo -n "\" }"
+    ;;
+    get_nets)
+        echo -n "{ "
+        c=0
+        for name in `collect_netnames`; do
+            [ $c -eq 1 ] && echo ", "
+            c=1
+            get_item "$name"
+        done
+        echo -n " }"
+    ;;
+    get_hosts)
+        echo -n "{ "
+        c=0
+        for name in `collect_hostnames`; do
+            [ $c -eq 1 ] && echo ", "
+            c=1
+            get_item "$name"
+        done
+        echo -n " }"
+    ;;
+    get_net)
+        name="$POST_name"
+        check_item "$name"
+        get_item "$name"
+    ;;
+    get_host)
+        name="$POST_name"
+        check_item "$name"
+        get_item "$name"
+    ;;
+    set_net)
+        net_name="$POST_name"
+        enabled="$POST_enabled"
+        ConnectTo="$POST_ConnectTo"
+        Name="$POST_Name"
+        
+        check_net "$net_name"
+        
+        if [ `uci get -q tinc.$net_name` = "tinc-host" ]; then
+            echo "(E) tinc: Name conflict with host entry '$net_name'."
+            exit
+        fi
+        
+        mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
+        
+        #make sure the directory exists
+        #if [ ! -d "/etc/tinc/$net_name/" ]; then
+        #    mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
+        #fi
+        
+        uci set tinc.$net_name=tinc-net
+        uci set tinc.$net_name.enabled=$enabled
+        uci set tinc.$net_name.ConnectTo=$ConnectTo
+        uci set tinc.$net_name.Name=$Name
+    ;;
+    set_host)
+        host_name="$POST_host_name"
+        enabled="$POST_enabled"
+        net_name="$POST_net"
+        
+        check_host "$host_name"
+        check_net "$net_name"
+        
+        if [ `uci get -q tinc.$host_name` = "tinc-net" ]; then
+            echo "(E) tinc: Name conflict with net entry '$host_name'."
+            exit
+        fi
+        
+        mkdir -p /etc/tinc/$net_name/hosts
+        
+        #if [ ! -d "/etc/tinc/$net_name/hosts" ]; then
+        #    mkdir -p /etc/tinc/$net_name/hosts
+        #    [ $? -ne 0 ] && exit
+        #fi
+        
+        uci set tinc.$name=tinc-host
+        uci set tinc.$name.enabled=$enabled
+        uci set tinc.$name.net=$net
+    ;;
+    del_host)
+        host_name="$POST_host_name"
+        
+        check_host "$host_name"
+        
+        if [ `uci get -q tinc.$host_name` = "tinc-host" ]; then
+            uci delete -q tinc.$host_name
+        else
+            echo "(E) tinc: Host entry '$host_name' does not exist."
+        fi
+    ;;
+    del_net)
+        net_name="$POST_net_name"
+        
+        check_net "$net_name"
+        
+        if [ `uci get -q tinc.$net_name` = "tinc-net" ]; then
+            uci delete -q tinc.$net_name
+        else
+            echo "(E) tinc: Net entry '$net_name' does not exist."
+        fi
+    ;;
+    get_version)
+      tincd --version  | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
+    ;;
+    *)
+      echo "(E) tinc: '$POST_func' not implemented."
+    ;;
+esac
+%>

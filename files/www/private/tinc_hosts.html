@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Tinc-Hosts</title>
+<link rel="stylesheet" type="text/css" href="forms.css">
+<script src="jquery.min.js"></script>
+</head>
+<body>
+
+<div id="main">
+  <div id="hosts"></div>
+  <button type="button" id="add_button">Neue Verbindung</button>
+  <button type="button" id="apply_button">Anwenden</button>
+  <button type="button" id="save_button">Speichern</button>
+  
+  <button type="button" id="export_key">Export Key</button>
+<!--  <button type="button" id="import_key">Import Key</button>-->
+  
+  <form action="/cgi-bin/tinc" enctype="multipart/form-data" method="post">
+    <input id="file" type="file" name="public_key_file" size="40"><br />
+    <button type="submit" id="send_button">Import Key</button>
+    <input type="hidden" name="func" value="import_key">
+  </form>
+  
+  <!--
+  <div id="new_key">                                          
+     <label>Name:</label><input id="new_key_name" type="text">  
+    <br />                                                      
+    <label>Adresse:</label><input id="new_key_addr" type="text">
+    <br />                                                      
+    <textarea id="new_key_value" rows="10" cols="60"></textarea>
+  </div>
+  --> 
+</div>
+
+</body>
+</html>

@@ -12,6 +12,6 @@ if [ -e "$path" ]; then
     fi
     sysupgrade $args $path
 else
-    echo "(E) Cannot find file '$path'."
+    echo "(E) firmware: Cannot find file '$path'."
 fi
 %>

@@ -2,30 +2,9 @@
 document.getElementById("ap_ssid").focus();
 
 var wan_ifs = {};
-var ext_ifs = {};
+var bat_ifs = {};
 var mesh_ifs = {};
-
-
-function getInputVal(id) {
-    return document.getElementById(id).value;
-}
-
-function setInputVal(id, val) {
-    document.getElementById(id).value = val;
-}
-
-function setBoxVal(name, val) {
-    $("input[name="+name+"]").filter("[value="+val+"]").prop("checked",true);
-}
-
-function getBoxVal(name) {
-    return $("input[name='"+name+"']:checked").val();
-}
-
-function removeChilds(p) {
-    while(p.hasChildNodes())
-        p.removeChild(p.firstChild);
-}
+var lan_ifs = {};
 
 function set_settings()
 {
@@ -36,17 +15,18 @@ function set_settings()
             str += item + " ";
         return jQuery.trim(str);
     }
-        
+    
     $.post("/cgi-bin/settings",
         {
             func : "set_settings",
             ap_ssid : getInputVal("ap_ssid"),
             ah_ssid : getInputVal("ah_ssid"),
-            share_wan : getBoxVal("share_wan"),
+            share_wan : getRadioVal("share_wan"),
             mac : getInputVal("mac"),
             mesh_ifs : toString(mesh_ifs),
             wan_ifs : toString(wan_ifs),
-            ext_ifs : toString(ext_ifs)
+            lan_ifs : toString(lan_ifs),
+            bat_ifs : toString(bat_ifs)
         },
         function(data) { $('#status').text(data); }
     );
@@ -70,12 +50,13 @@ function load_settings()
         
         setInputVal("ap_ssid", obj.ap_ssid);
         setInputVal("ah_ssid", obj.ah_ssid);
-        setBoxVal("share_wan", obj.share_wan);
+        setRadioVal("share_wan", obj.share_wan);
         setInputVal("mac", obj.mac);
         
         wan_ifs = toObject(obj.wan_ifs);
         mesh_ifs = toObject(obj.mesh_ifs);
-        ext_ifs = toObject(obj.ext_ifs);
+        lan_ifs = toObject(obj.lan_ifs);
+        bat_ifs = toObject(obj.bat_ifs);
         
         rebuild_interfaces();
     });
@@ -86,64 +67,18 @@ function move_if(set_name, if_name)
 {
     delete wan_ifs[if_name];
     delete mesh_ifs[if_name];
-    delete ext_ifs[if_name];
+    delete bat_ifs[if_name];
     
     if(set_name == "mesh")
         mesh_ifs[if_name] = true;
-    else if(set_name == "ext")
-        ext_ifs[if_name] = true;
+    else if(set_name == "bat")
+        bat_ifs[if_name] = true;
+    else if(set_name == "lan")
+        lan_ifs[if_name] = true;
     else if(set_name == "wan")
         wan_ifs[if_name] = true;
     else
         alert("error: invalid set '" + set_name + "'");
-}
-
-function add_interfaces(fieldset, ifs, select)
-{
-    for(var if_name in ifs)
-    {
-        if(if_name.length == 0)
-            continue;
-        
-        var div = document.createElement('div');
-        div.className = "radio";
-        
-        var label = document.createElement('label');
-        label.innerHTML = if_name;
-        div.appendChild(label);
-        
-        function getChoice(if_name, choice_name, choice_label)
-        {
-            var div = document.createElement('div');
-            var input = document.createElement('input');
-            var label = document.createElement('label');
-            
-            label.innerHTML = " " + choice_label;
-            input.name = if_name;
-            input.value = choice_name;
-            input.type = "radio";
-            
-            if(choice_name == select)
-                input.checked="checked";
-            
-            input.onclick = function() { 
-                var set_name = this.value;
-                var if_name = this.name;
-                move_if(set_name, if_name);
-            };
-            
-            div.appendChild(input);
-            div.appendChild(label);
-            
-            return div;
-        }
-        
-        div.appendChild(getChoice(if_name, "mesh", "mesh"));
-        div.appendChild(getChoice(if_name, "ext", "extern"));
-        div.appendChild(getChoice(if_name, "wan", "wan"));
-        
-        fieldset.appendChild(div);
-    }
 }
 
 //rebuild interfaces section from interfaces lists
@@ -156,10 +91,26 @@ function rebuild_interfaces()
     
     legend.innerHTML = "Anschl&uuml;sse Zuordnen:";
     fieldset.appendChild(legend);
+    
+    function add_interfaces(ifs, selected) {
+        for(var if_name in ifs) {
+            if(if_name.length == 0)
+                continue;
+            
+            append_radio(fieldset, if_name, if_name, {"Mesh" : "mesh", "Bat" : "bat", "Lan" : "lan", "Wan" : "wan"}, selected);
+        }
+    }
 
-    add_interfaces(fieldset, mesh_ifs, "mesh");
-    add_interfaces(fieldset, ext_ifs, "ext");
-    add_interfaces(fieldset, wan_ifs, "wan");
+    add_interfaces(mesh_ifs, "mesh");
+    add_interfaces(bat_ifs, "bat");
+    add_interfaces(lan_ifs, "lan");
+    add_interfaces(wan_ifs, "wan");
+    
+    $(fieldset).find("input").click(function() {
+        var set_name = this.value;
+        var if_name = this.name;
+        move_if(set_name, if_name);
+    });
 }
 
 $('#set_button').click(function() {
