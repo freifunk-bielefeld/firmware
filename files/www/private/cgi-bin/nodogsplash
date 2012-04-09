@@ -1,6 +1,9 @@
 #!/usr/bin/haserl 
 <%
 
+config="/etc/nodogsplash/nodogsplash.conf"
+reg="[ \t]*GatewayInterface[ \t]+([a-zA-Z0-9_\-]+).*"
+
 case $POST_func in
   get_status)
     ndsctl status
@@ -21,6 +24,13 @@ case $POST_func in
       echo -n "(I) nodogsplash: "
       ndsctl $func $mac
     done
+    ;;
+    get_gw_interface)
+        echo $config | sed -n -r "s/$reg/\1/p"
+    ;;
+    set_gw_interface)
+        gw_if=$POST_gw_interface
+        echo $config | sed -r "s/$reg/GatewayInterface $gw_if/" > $config
     ;;
   *)
     echo "(E) nodogsplash: Invalid command: '$POST_func'"
