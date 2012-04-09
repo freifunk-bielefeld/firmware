@@ -6,17 +6,15 @@ html {
 	background:#fafafa;
 }
 
-
 fieldset {
-  margin:1em 0;
+	border:1px solid #ddd;
+	padding: 0.5em;
+	margin: 0.5em;
+	width: 30em;
 }
 
 fieldset div {
   margin:0.3em 0;
-  clear:both;
-}
-
-#buttons {
   clear:both;
 }
 
@@ -51,11 +49,6 @@ input:hover, input:focus {
 	border-color:#c5c5c5;
 	background:#f6f6f6;
 } 
-
-fieldset {
-	border:1px solid #ddd;
-	padding:0 0.5em 0.5em;
-}
 
 .radio label {
 	font-size:1em;

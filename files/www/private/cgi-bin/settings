@@ -1,26 +1,13 @@
 #!/usr/bin/haserl
 <%
-
-count() { echo $#; }
-strip() { echo "$@"; }
-ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
-ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
+. /www/private/cgi-bin/shared.sh
 
 case $POST_func in
     save_settings)
         uci commit freifunk
     ;;
     get_settings)
-        ap_ssid=`uci -q get freifunk.settings.ap_ssid`
-        ah_ssid=`uci -q get freifunk.settings.ah_ssid`
-        mac=`uci -q get freifunk.settings.mac`
-        share_wan=`uci -q get freifunk.settings.share_wan`
-        mesh_ifs=`uci -q get freifunk.settings.mesh_interfaces`
-        bat_ifs=`uci -q get freifunk.settings.bat_interfaces`
-        wan_ifs=`uci -q get freifunk.settings.wan_interfaces`
-        lan_ifs=`uci -q get freifunk.settings.lan_interfaces`
-        
-        echo -n "{ \"ap_ssid\" : \"$ap_ssid\", \"ah_ssid\" : \"$ah_ssid\", \"mac\" : \"$mac\", \"share_wan\" : \"$share_wan\", \"mesh_ifs\" : \"$mesh_ifs\", \"bat_ifs\" : \"$bat_ifs\", \"wan_ifs\" : \"$wan_ifs\", \"lan_ifs\" : \"$lan_ifs\" }"
+        export_json "freifunk" "settings"
     ;;
     set_settings)
         ap_ssid="$POST_ap_ssid"
@@ -85,7 +72,7 @@ case $POST_func in
 
         for ifce in $all_ifs; do
             ifconfig $ifce &> /dev/null
-            [ $? != 0 ] && ( echo "(E) settings: '$ifce' does not exist."; exit )
+            [ $? != 0 ] && { echo "(E) settings: '$ifce' does not exist."; exit; }
         done
 
         uci -q set freifunk.settings.mesh_interfaces=$mesh_ifs

@@ -37,6 +37,7 @@ function load_settings()
     function toObject(str)
     {
         var obj = {};
+        if(typeof str == "undefined") return obj;
         var array = str.split(" ");
         for(var i = 0; i < array.length; i++)
             if(array[i].length > 0)
@@ -53,10 +54,10 @@ function load_settings()
         setRadioVal("share_wan", obj.share_wan);
         setInputVal("mac", obj.mac);
         
-        wan_ifs = toObject(obj.wan_ifs);
-        mesh_ifs = toObject(obj.mesh_ifs);
-        lan_ifs = toObject(obj.lan_ifs);
-        bat_ifs = toObject(obj.bat_ifs);
+        wan_ifs = toObject(obj.wan_interfaces);
+        mesh_ifs = toObject(obj.mesh_interfaces);
+        lan_ifs = toObject(obj.lan_interfaces);
+        bat_ifs = toObject(obj.bat_interfaces);
         
         rebuild_interfaces();
     });

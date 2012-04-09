@@ -4,7 +4,15 @@ body {
 
 a { text-decoration: none; }
 
-/* for nodogsplash */
-.nds_mac {
+#tinc a:hover { text-decoration:underline; }
+#tinc ul { margin:0.5em 1em; }
+#tinc li { margin:0.5em; }
+
+#tinc > div {
+	float:left;
+	padding: 1% 1%;
+}
+
+#nodogsplash .nds_mac {
   color:blue;
 }

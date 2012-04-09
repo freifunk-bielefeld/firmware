@@ -7,7 +7,8 @@ function init() {
         var url = $(this).find("> a").attr("href");
         if(url == "#") return false;
         
-        $('#content').load(url + " #main");
+        var id = url.substring(0, url.lastIndexOf('.'));
+        $('#content').load(url + " #" + id);
         $.getScript(url.replace(".html", ".js"));
         
         $("#globalnav ul").hide();
@@ -97,6 +98,14 @@ function getRadioVal(name) {
     return $("input[name='"+name+"']:checked").val();
 }
 
+function show_error(data)
+{
+    var is_error = (data.substr(0, 3) == "(E)");
+    if(is_error)
+        $('#status').text(data);
+    return is_error;
+}
+
 function append_button(parent, text, onclick)
 {
     var button = document.createElement('button');
@@ -115,8 +124,7 @@ function append_input(parent, label_text, name, value)
     var input = document.createElement('input');
   
     label.innerHTML = label_text + ":";
-    
-    input.value = (typeof x == "undefined") ? "" : value;
+    input.value = (typeof value == "undefined") ? "" : value;
     input.id = name;
     input.type = "text";
     

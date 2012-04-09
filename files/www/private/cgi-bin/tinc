@@ -1,11 +1,7 @@
 #!/usr/bin/haserl --upload-dir=/tmp --upload-limit=10
 <%
+. /www/private/cgi-bin/shared.sh
 
-count() { echo $#; }
-strip() { echo "$@"; }
-ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
-ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
-is_valid() { echo -n "$1" | grep -c '^[0-9a-zA-Z]*$'; }
 
 collect_hostnames()
 {
@@ -25,41 +21,8 @@ collect_netnames()
     strip "$nets"
 }
 
-#get JSON representation of a settings item
-get_item()
-{                
-    id=$1
-    echo -n "\"$id\" : { "
-    c=0
-    
-    for line in `uci -q show tinc.$id`; do
-        value=${line##*=}
-        name=${line%%=*}
-        name=${name##*.}
-        
-        [ "$name" = "$id" ] && continue
-       
-        [ $c -eq 1 ] && echo -n ", "
-        c=1
-       
-        echo -n "\"$name\" : \"$value\""
-    done
-    echo -n " }"
-}
-
-check_host() {
-    [ $(is_valid "$1") -ne 1 ] && (
-        echo "(E) tinc: host name '$1' is invalid."
-        exit
-    )
-}
-
-check_net() {
-    [ $(is_valid "$1") -ne 1 ] && (
-        echo "(E) tinc: net name '$1' is invalid."
-        exit
-    )
-}
+valid_host() { valid_name "$1"; valid_entry "$1" "tinc-host"; }
+valid_net() { valid_name "$1"; valid_entry "$1" "tinc-net"; }
 
 
 case $POST_func in
@@ -71,8 +34,8 @@ case $POST_func in
         net_name="$POST_net_name"
         path="$POST_public_key_file"
         
-        check_host "$host_name"
-        check_net "$net_name"
+        valid_name "$host_name"
+        valid_name "$net_name"
         
         cp $path /etc/tinc/$net_name/hosts/$host_name 2> /dev/null
         
@@ -86,8 +49,8 @@ case $POST_func in
         host_name="$POST_host_name"
         net_name="$POST_net_name"
         
-        check_host "$host_name"
-        check_net "$net_name"
+        valid_host "$host_name"
+        valid_net "$net_name"
         
         path="/etc/tinc/$net_name/hosts/$host_name"
         if [ ! -f $path ]; then
@@ -113,7 +76,8 @@ case $POST_func in
         for name in `collect_netnames`; do
             [ $c -eq 1 ] && echo ", "
             c=1
-            get_item "$name"
+            echo -n "\"$name\" : "
+            export_json "tinc" "$name"
         done
         echo -n " }"
     ;;
@@ -123,19 +87,20 @@ case $POST_func in
         for name in `collect_hostnames`; do
             [ $c -eq 1 ] && echo ", "
             c=1
-            get_item "$name"
+            echo -n "\"$name\" : "
+            export_json "tinc" "$name"
         done
         echo -n " }"
     ;;
     get_net)
         name="$POST_name"
-        check_item "$name"
-        get_item "$name"
+        valid_net "$name"
+        export_json "tinc" "$name"
     ;;
     get_host)
         name="$POST_name"
-        check_item "$name"
-        get_item "$name"
+        valid_host "$name"
+        export_json "tinc" "$name"
     ;;
     set_net)
         net_name="$POST_name"
@@ -143,7 +108,7 @@ case $POST_func in
         ConnectTo="$POST_ConnectTo"
         Name="$POST_Name"
         
-        check_net "$net_name"
+        valid_name "$net_name"
         
         if [ `uci get -q tinc.$net_name` = "tinc-host" ]; then
             echo "(E) tinc: Name conflict with host entry '$net_name'."
@@ -167,8 +132,8 @@ case $POST_func in
         enabled="$POST_enabled"
         net_name="$POST_net"
         
-        check_host "$host_name"
-        check_net "$net_name"
+        valid_name "$host_name"
+        valid_name "$net_name"
         
         if [ `uci get -q tinc.$host_name` = "tinc-net" ]; then
             echo "(E) tinc: Name conflict with net entry '$host_name'."
@@ -188,31 +153,21 @@ case $POST_func in
     ;;
     del_host)
         host_name="$POST_host_name"
+        valid_host "$host_name"
         
-        check_host "$host_name"
-        
-        if [ `uci get -q tinc.$host_name` = "tinc-host" ]; then
-            uci delete -q tinc.$host_name
-        else
-            echo "(E) tinc: Host entry '$host_name' does not exist."
-        fi
+        uci delete -q tinc.$host_name
     ;;
     del_net)
         net_name="$POST_net_name"
+        valid_net "$net_name"
         
-        check_net "$net_name"
-        
-        if [ `uci get -q tinc.$net_name` = "tinc-net" ]; then
-            uci delete -q tinc.$net_name
-        else
-            echo "(E) tinc: Net entry '$net_name' does not exist."
-        fi
+        uci delete -q tinc.$net_name
     ;;
     get_version)
       tincd --version  | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
     ;;
     *)
-      echo "(E) tinc: '$POST_func' not implemented."
+        echo "(E) tinc: '$POST_func' not implemented."
     ;;
 esac
 %>
