@@ -4,7 +4,11 @@ body {
 
 a { text-decoration: none; }
 
-#tinc a:hover { text-decoration:underline; }
+#tinc a:hover {
+	text-decoration:underline;
+	cursor:pointer;
+}
+
 #tinc ul { margin:0.5em 1em; }
 #tinc li { margin:0.5em; }
 
