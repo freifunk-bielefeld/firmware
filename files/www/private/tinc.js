@@ -18,13 +18,14 @@ function update_host(hn)
 {
     var fs = document.getElementById("host");
     removeChilds(fs);
+    fs["data-host"] = hn;
+    fs.appendChild(create_header("Host: '"+hn+"'"));
     if(hn.length == 0) return;
     
     $.post("/cgi-bin/tinc", { func: "get_host", name : hn}, function(data) {
         if(show_error(data)) return;
         var obj = jQuery.parseJSON(data);
         
-        fs.appendChild(create_header("Host: '"+hn+"'"));
         appendSettings(fs, hn, obj);
         /*
         var div = document.createElement('div');
@@ -54,13 +55,14 @@ function update_net(nn)
 {
     var fs = document.getElementById("net");
     removeChilds(fs);
+    fs["data-net"] = nn;
+    fs.appendChild(create_header("Netz: '"+nn+"'"));
     if(nn.length == 0) return;
     
     $.post("/cgi-bin/tinc", { func: "get_net", name : nn }, function(data) {
         if(show_error(data)) return;
         var obj = jQuery.parseJSON(data);
         
-        fs.appendChild(create_header("Netz: '"+nn+"'"));
         appendSettings(fs, nn, obj);
         /*
         var div = document.createElement('div');
@@ -84,23 +86,8 @@ function update_net(nn)
     });
 }
 
-function show_host()
-{
-    var hn = getParentId(this);
-    var nn = getParentId(this.parentNode);
-    
-    update_host(hn);
-    update_net(nn);
-}
-
-function show_net()
-{
-    var nn = getParentId(this);
-    update_net(nn);
-    update_host("");
-}
-
-var ttable = { "enabled" : "Aktiv", "name" : "Name", "net" : "Netz", "ConnectTo", "Verbinden zu.."};
+//setting => label
+var ttable = { "enabled" : "Aktiv", "name" : "Name", "net" : "Netz", "Address" : "Adresse", "generate_keys" : "Schlüssel generieren", "ConnectTo" : "Verbinden zu.."};
 function getLabel(name)
 {
     var label = ttable[name];
@@ -114,7 +101,7 @@ function appendSettings(parent, name, obj)
         var label = getLabel(setting);
         var value = obj[setting];
         var id = name+"_"+setting;
-        if(setting == "enabled")
+        if(setting == "enabled" || setting == "generate_keys")
         {
             append_radio(parent, label, id, {"Ja":1, "Nein":0}, value);
         }
@@ -131,7 +118,7 @@ function parse_list(data)
     var ul = document.getElementById('data');
     removeChilds(ul);
     
-    function makeList(net, ConnectTo)
+    function makeList(nn, ConnectTo)
     {
         var ul = document.createElement('ul');
         if(typeof ConnectTo == "undefined") return ul;
@@ -141,9 +128,11 @@ function parse_list(data)
         {
             var li = document.createElement('li');
             var a = document.createElement('a');
-            a.innerHTML="Host: '"+hosts[i]+"'";
-            a.onclick = show_host;
-            li.id=hosts[i];
+            var hn = hosts[i];
+            
+            a.innerHTML="Host: '"+hn+"'";
+            a.onclick = function() { update_host(hn); update_net(nn); };
+            
             li.appendChild(a);
             ul.appendChild(li);
        }
@@ -159,9 +148,8 @@ function parse_list(data)
         var a = document.createElement('a');
         var div = document.createElement('div');
         
-        a.innerHTML="Netz: "+nn+"'";
-        a.onclick = show_net;
-        li.id=nn;
+        a.innerHTML="Netz: '"+nn+"'";
+        a.onclick = function() { update_net(nn); update_host(""); };
         
         li.appendChild(a);
         li.appendChild(makeList(nn, obj.ConnectTo));
@@ -170,12 +158,15 @@ function parse_list(data)
     }
 }
 
-$('#export_host_key').click(function() {
-    send({ func : "export_key", host_name : "", net_name : "" });
+$('#export_net_key').click(function() {
+    var net = get("net")["data-net"];
+    send({ func : "export_key", host_name : net, net_name : net });
 });
 
-$('#export_net_key').click(function() {
-    send({ func : "export_key", host_name : "", net_name : "" });
+$('#export_host_key').click(function() {
+    var host = get("host")["data-host"];
+    var net = get("net")["data-net"];
+    send({ func : "export_key", host_name : host, net_name : net });
 });
 
 function rebuild_list() {
