@@ -9,7 +9,6 @@ echo "(I) Freifunk: start freifunk_setup"
 /etc/init.d/telnet disable
 /etc/init.d/nodogsplash disable
 /etc/init.d/n2n disable
-/etc/init.d/tinc disable
 
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd
@@ -98,16 +97,6 @@ if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
 
-# ------------------------------------- #
-# S E T U P  T I N C #
-# ------------------------------------- # 
-
-# ok, we have tinc_extern to connecto different foreign
-# only activate when wan is present?
-# if interface if for batman
-#
-#mkdir -p /etc/tinc/tinc_extern/hosts
-#mkdir -p /etc/tinc/tinc_mesh/hosts
 
 # ------------------------------------- #
 # A S S I G N  I N T E R F A C E S #
