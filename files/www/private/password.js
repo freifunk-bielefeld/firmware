@@ -9,6 +9,6 @@ $('#apply_button').click(function() {
   $('#p2').val("");
   
   $.post("/cgi-bin/password", { func : "set_password", pass1 : p1, pass2 : p2 }, function(data){
-      $('#status').text(data);
+        $('#msg').text(data);
   })
 })

@@ -1,18 +1,34 @@
 
 function send(obj) {
     $.post("/cgi-bin/n2n", obj, function(data) {
-        $('#status').text(data); 
+        $('#msg').text(data); 
     });
 }
 
 function send_rebuild(obj) {
     $.post("/cgi-bin/n2n", obj, function(data) {
-        $('#status').text(data);
+        $('#msg').text(data);
         rebuild_config();
     });
 }
 
-function parse_config(data) {
+function createDelAction(n) {
+    return function() {
+        if(confirm("Eintrag wirklich Loeschen?"))
+            send_rebuild({ func : "del_config", id : n });
+    }
+}
+
+function createSetAction(fieldset, n) {
+    return function() {
+        var obj = { func : "set_config", id : n};
+        collect_inputs(fieldset, obj);
+        send(obj);
+    }
+}
+
+function parse_config(data)
+{
     var objs = jQuery.parseJSON(data);
     var p = document.getElementById('data');
     
@@ -37,36 +53,25 @@ function parse_config(data) {
         
         var div = document.createElement('div');
         
-        append_button(div, 'L&ouml;schen', function() {
-            if(confirm("Eintrag wirklich Loeschen?"))
-                send_rebuild({ func : "del_config", id : n });
-        });
-        
-        append_button(div, 'Speichern', function() {
-            send({ func : "set_config", id : n,
-                supernode : getInputVal(n + "_supernode"),
-                port : getInputVal(n + "_port"),
-                community : getInputVal(n + "_community"),
-                key : getInputVal(n + "_key") }
-            );
-        });
+        append_button(div, 'L&ouml;schen', createDelAction(n));
+        append_button(div, 'Speichern', createSetAction(fieldset, n));
         
         fieldset.appendChild(div);
         p.appendChild(fieldset);
     }
 }
 
-$('#add_button').click(function() {
+function add_config() {
     send_rebuild({ func : "add_config" });
-});
+}
 
-$('#apply_button').click(function() {
+function apply_config() {
     send({ func : "apply_config" });
-});
+}
 
-$('#save_button').click(function() {
+function save_config() {
     send_rebuild({ func : "save_config" });
-});
+}
 
 function rebuild_config() {
     $.post("/cgi-bin/n2n", { func: "get_config" }, parse_config);

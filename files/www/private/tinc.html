@@ -13,11 +13,10 @@
 <div id="tinc">
 <div style="width: 20em;">
     <ul id="data"></ul>
-    <button type="button" id="new_host">Neuer Host</button>
     <button type="button" id="new_net">Neues Netz</button>
     <form action="/cgi-bin/tinc" enctype="multipart/form-data" method="post">
         <input id="file" type="file" name="public_key_file" size="15"><br />
-        <button type="submit" id="send_button">Import Key</button>
+        <button type="submit" id="send_button">Import Host Key</button>
         <input type="hidden" name="func" value="import_key">
         <input type="hidden" name="host_name" value="">
         <input type="hidden" name="net_name" value="">
@@ -25,17 +24,19 @@
 </div>
 <div>
     <fieldset id="net" data-net="">
-        <legend><span>Netz:</span></legend>
+        <legend><span>Netz: '<span id="net_name"></span>'</span></legend>
     </fieldset>
-    <button type="button" id="save_net_button">Speichern</button>
-    <button type="button" id="export_net_key">Export Key</button>
+    <button type="button" onclick="save_net()">Speichern</button>
+    <button type="button" onclick="delete_net()">Löschen</button>
+    <button type="button" onclick="export_net_key()">Export Key</button>
 </div>
 <div>
     <fieldset id="host" data-host="">
-        <legend><span>Host:</span></legend>
+        <legend><span>Host: '<span id="host_name"></span>'</span></legend>
     </fieldset>
-    <button type="button" id="save_host_button">Speichern</button>
-   <button type="button" id="export_host_key">Export Key</button>
+    <button type="button" onclick="save_host()">Speichern</button>
+    <button type="button" onclick="delete_host()">Löschen</button>
+   <button type="button" onclick="export_host_key()">Export Key</button>
 </div>
 </div>
 

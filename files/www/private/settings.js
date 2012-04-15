@@ -1,89 +1,72 @@
 
-document.getElementById("ap_ssid").focus();
-
-var wan_ifs = {};
-var bat_ifs = {};
-var mesh_ifs = {};
-var lan_ifs = {};
-
 function set_settings()
 {
-    function toString(obj)
-    {
-        var str = "";
-        for(var item in obj)
-            str += item + " ";
-        return jQuery.trim(str);
-    }
+    /*
+    function invert_by_name(obj, name) {
+        var value = obj[name];
+        if(value in obj)
+            obj[value] += " " + name;
+       else
+            obj[value] = name;
+        delete obj[name];
+    }*/
     
-    $.post("/cgi-bin/settings",
+    function invert_by_value(obj, value)
+    {
+        for(var name in obj) if(obj[name] == value)
         {
-            func : "set_settings",
-            ap_ssid : getInputVal("ap_ssid"),
-            ah_ssid : getInputVal("ah_ssid"),
-            share_wan : getRadioVal("share_wan"),
-            mac : getInputVal("mac"),
-            mesh_ifs : toString(mesh_ifs),
-            wan_ifs : toString(wan_ifs),
-            lan_ifs : toString(lan_ifs),
-            bat_ifs : toString(bat_ifs)
-        },
-        function(data) { $('#status').text(data); }
+            if(value in obj)
+                obj[value] += " " + name;
+            else
+                obj[value] = name;
+        }
+        delete obj[name];
+    }
+   
+    var pre = "settings_";
+    var obj = { func : "set_settings" };
+    collect_inputs(get("content"), obj, pre);
+    
+    invert_by_value(obj, pre+"mesh");
+    invert_by_value(obj, pre+"bat");
+    invert_by_value(obj, pre+"lan");
+    invert_by_value(obj, pre+"wan");
+    
+    $.post("/cgi-bin/settings", obj,
+        function(data) { $('#msg').text(data); }
     );
+}
+
+function save_settings() {
+    $.post("/cgi-bin/settings", { func : "save_settings" }, function(data) {
+        if(data.length)
+            $('#msg').text(data);
+    });
 }
 
 function load_settings()
 {
-    function toObject(str)
-    {
-        var obj = {};
-        if(typeof str == "undefined") return obj;
-        var array = str.split(" ");
-        for(var i = 0; i < array.length; i++)
-            if(array[i].length > 0)
-                obj[array[i]] = true;
-        return obj;
-    }
-        
     $.post("/cgi-bin/settings", { func : "get_settings" }, function(data) 
     {
         var obj = jQuery.parseJSON(data);
+        var fs = document.getElementById('common');
+        removeChilds(fs);
         
-        setInputVal("ap_ssid", obj.ap_ssid);
-        setInputVal("ah_ssid", obj.ah_ssid);
-        setRadioVal("share_wan", obj.share_wan);
-        setInputVal("mac", obj.mac);
+        var legend = document.createElement('legend');
+        legend.innerHTML="Allgemeine Einstellungen:";
+        fs.appendChild(legend);
         
-        wan_ifs = toObject(obj.wan_interfaces);
-        mesh_ifs = toObject(obj.mesh_interfaces);
-        lan_ifs = toObject(obj.lan_interfaces);
-        bat_ifs = toObject(obj.bat_interfaces);
-        
-        rebuild_interfaces();
+        append_input(fs, "AccessPoint", "ap_ssid", obj.ap_ssid);
+        append_input(fs, "AdHoc", "ah_ssid", obj.ah_ssid);
+        append_radio(fs, "Internet Freigeben", "share_wan", {"Ja":"yes", "Nein":"no"}, obj.share_wan);
+        append_input(fs, "MAC-Adresse", "mac", obj.mac);
+      
+        rebuild_interfaces(obj);
     });
 }
 
-//keep interface lists in sync when selection changes
-function move_if(set_name, if_name)
-{
-    delete wan_ifs[if_name];
-    delete mesh_ifs[if_name];
-    delete bat_ifs[if_name];
-    
-    if(set_name == "mesh")
-        mesh_ifs[if_name] = true;
-    else if(set_name == "bat")
-        bat_ifs[if_name] = true;
-    else if(set_name == "lan")
-        lan_ifs[if_name] = true;
-    else if(set_name == "wan")
-        wan_ifs[if_name] = true;
-    else
-        alert("error: invalid set '" + set_name + "'");
-}
-
 //rebuild interfaces section from interfaces lists
-function rebuild_interfaces()
+function rebuild_interfaces(obj)
 {
     var fieldset = document.getElementById('interfaces');
     var legend = document.createElement('legend');
@@ -92,37 +75,24 @@ function rebuild_interfaces()
     
     legend.innerHTML = "Anschl&uuml;sse Zuordnen:";
     fieldset.appendChild(legend);
-    
+   
     function add_interfaces(ifs, selected) {
-        for(var if_name in ifs) {
-            if(if_name.length == 0)
+        if(typeof ifs == "undefined") return;
+        var array = ifs.split(" ");
+        for(var i in array)
+        {
+            var if_name = array[i]
+            if(array[i].length == 0)
                 continue;
             
             append_radio(fieldset, if_name, if_name, {"Mesh" : "mesh", "Bat" : "bat", "Lan" : "lan", "Wan" : "wan"}, selected);
         }
     }
-
-    add_interfaces(mesh_ifs, "mesh");
-    add_interfaces(bat_ifs, "bat");
-    add_interfaces(lan_ifs, "lan");
-    add_interfaces(wan_ifs, "wan");
     
-    $(fieldset).find("input").click(function() {
-        var set_name = this.value;
-        var if_name = this.name;
-        move_if(set_name, if_name);
-    });
+    add_interfaces(obj.mesh_interfaces, "mesh");
+    add_interfaces(obj.bat_interfaces, "bat");
+    add_interfaces(obj.lan_interfaces, "lan");
+    add_interfaces(obj.wan_interfaces, "wan");
 }
-
-$('#set_button').click(function() {
-    set_settings();
-});
-
-$('#save_button').click(function() {
-    $.post("/cgi-bin/settings", { func : "save_settings" }, function(data) {
-        if(data.length)
-            $('#status').text(data);
-    });
-});
 
 load_settings();

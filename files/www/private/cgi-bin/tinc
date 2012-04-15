@@ -21,92 +21,114 @@ collect_netnames()
     strip "$nets"
 }
 
-valid_host() { valid_name "$1"; valid_entry "$1" "tinc-host"; }
-valid_net() { valid_name "$1"; valid_entry "$1" "tinc-net"; }
+valid_host() { valid_name "$1"; valid_entry "tinc.$1" "tinc-host"; }
+valid_net() { valid_name "$1"; valid_entry "tinc.$1" "tinc-net"; }
 
 
 case $POST_func in
-    get_key_list)
-        ls /etc/tinc/freifunk/hosts/
+    get_net_list)
+        echo -n "{ "
+        c=0
+        for net_name in `collect_netnames`; do
+            [ $c -eq 1 ] && echo ", "
+            c=1
+            #get host list but filter out own public key
+            own=`uci get -q tinc.$net_name.Name`
+            hosts=""
+            for host in `ls /etc/tinc/$net_name/hosts/`; do
+                [ "$host" = "$own" ] && continue
+                hosts="$hosts $host"
+            done
+            hosts=`strip $hosts`
+            echo -n "\"$net_name\" : \""$hosts"\""
+        done
+        echo -n " }"
     ;;
     import_key)
-        host_name="$POST_host_name"
         net_name="$POST_net_name"
-        path="$POST_public_key_file"
+        key_name="$POST_key_name"
+        src_path="$POST_public_key_file"
         
-        valid_name "$host_name"
-        valid_name "$net_name"
+        valid_net "$net_name"
+        valid_name "$key_name"
         
-        cp $path /etc/tinc/$net_name/hosts/$host_name 2> /dev/null
+        dst_path="/etc/tinc/$net_name/hosts/$key_name"
+        addr_reg=""
         
-        if [ $? -eq 0 ]; then
-            echo "(E) tinc: Added host '$host_name' to net '$net_name'."
+        [ -f $dst_path ] && { echo "(E) Key already exists."; exit; }
+        [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) A net entry of the same name exists."; exit; }
+        
+        new_addr=`cat $src_path | head -n3 | sed -n -r s/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/p'`
+        #cp $src_path $dst_path > /dev/null 2>&1
+        sed "/^[ \t]*Address.*/d" $src_path > $dst_path #remove Address line while moving
+        
+        if [ `uci get -q tinc.$key_name` = "tinc-host" ]; then
+            old_addr=`uci set -q tinc.$key_name.Address`
+            uci set -q tinc.$key_name.Address=`strip $old_addr $new_addr`
         else
-            echo "(E) tinc: some error."
+            uci set -q tinc.$key_name=tinc-host
+            uci set -q tinc.$key_name.enabled=0
+            uci set -q tinc.$key_name.net=$net_name
+            uci set -q tinc.$key_name.Address="new_addr"
         fi
+        
+        echo "(I) tinc: Added host '$key_name' to net '$net_name'."
     ;;
     export_key)
-        host_name="$POST_host_name"
         net_name="$POST_net_name"
+        key_name="$POST_key_name"
         
-        valid_host "$host_name"
         valid_net "$net_name"
+        valid_name "$key_name"
         
-        path="/etc/tinc/$net_name/hosts/$host_name"
+        path="/etc/tinc/$net_name/hosts/$key_name"
         if [ ! -f $path ]; then
             echo "(E) tinc: File not found: '$path'."
             exit
         fi
         
+        Address=`uci get -q tinc.$key_name.Address`
+        
         echo "Content-Type: text/plain"
-        echo 'Content-Disposition: attachment; filename="$host_name"'
+        echo 'Content-Disposition: attachment; filename="$key_name"'
+        echo
+        [ -n "$Address" ] && echo "Address = $Address"
         cat $path
-    ;;
-    get_key)
-      name="$POST_name"
-      net="$POST_net"
-      
-      #echo -n "{ key : \""
-      cat /etc/tinc/$net/hosts/$name
-      #echo -n "\" }"
     ;;
     get_nets)
         echo -n "{ "
         c=0
-        for name in `collect_netnames`; do
+        for net_name in `collect_netnames`; do
             [ $c -eq 1 ] && echo ", "
             c=1
-            echo -n "\"$name\" : "
-            export_json "tinc" "$name"
+            echo -n "\"$net_name\" : "
+            export_json "tinc" "$net_name"
         done
         echo -n " }"
     ;;
     get_hosts)
         echo -n "{ "
         c=0
-        for name in `collect_hostnames`; do
+        for host_name in `collect_hostnames`; do
             [ $c -eq 1 ] && echo ", "
             c=1
-            echo -n "\"$name\" : "
-            export_json "tinc" "$name"
+            echo -n "\"$host_name\" : "
+            export_json "tinc" "$host_name"
         done
         echo -n " }"
     ;;
     get_net)
-        name="$POST_name"
-        valid_net "$name"
-        export_json "tinc" "$name"
+        net_name="$POST_net_name"
+        valid_net "$net_name"
+        export_json "tinc" "$net_name"
     ;;
     get_host)
-        name="$POST_name"
-        valid_host "$name"
-        export_json "tinc" "$name"
+        host_name="$POST_host_name"
+        valid_host "$host_name"
+        export_json "tinc" "$host_name"
     ;;
     set_net)
-        net_name="$POST_name"
-        enabled="$POST_enabled"
-        ConnectTo="$POST_ConnectTo"
-        Name="$POST_Name"
+        net_name="$POST_net_name"
         
         valid_name "$net_name"
         
@@ -115,56 +137,41 @@ case $POST_func in
             exit
         fi
         
+        #make sure the directory exists
         mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
         
-        #make sure the directory exists
-        #if [ ! -d "/etc/tinc/$net_name/" ]; then
-        #    mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
-        #fi
-        
-        uci set tinc.$net_name=tinc-net
-        uci set tinc.$net_name.enabled=$enabled
-        uci set tinc.$net_name.ConnectTo=$ConnectTo
-        uci set tinc.$net_name.Name=$Name
+        env_str=`env`
+        import_settings "tinc" "$net_name" "$env_str" "enabled ConnectTo Name generate_keys"
     ;;
     set_host)
         host_name="$POST_host_name"
-        enabled="$POST_enabled"
-        net_name="$POST_net"
         
         valid_name "$host_name"
-        valid_name "$net_name"
         
         if [ `uci get -q tinc.$host_name` = "tinc-net" ]; then
             echo "(E) tinc: Name conflict with net entry '$host_name'."
             exit
         fi
         
-        mkdir -p /etc/tinc/$net_name/hosts
-        
-        #if [ ! -d "/etc/tinc/$net_name/hosts" ]; then
-        #    mkdir -p /etc/tinc/$net_name/hosts
-        #    [ $? -ne 0 ] && exit
-        #fi
-        
-        uci set tinc.$name=tinc-host
-        uci set tinc.$name.enabled=$enabled
-        uci set tinc.$name.net=$net
+        env_str=`env`
+        import_settings "tinc" "$host_name" "$env_str" "enabled net Address"
     ;;
     del_host)
         host_name="$POST_host_name"
         valid_host "$host_name"
-        
+
+        valid_host"$host_name"
         uci delete -q tinc.$host_name
     ;;
     del_net)
         net_name="$POST_net_name"
         valid_net "$net_name"
         
+        valid_net "$net_name"
         uci delete -q tinc.$net_name
     ;;
     get_version)
-      tincd --version  | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
+        tincd --version  | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
     ;;
     *)
         echo "(E) tinc: '$POST_func' not implemented."

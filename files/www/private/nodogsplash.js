@@ -41,18 +41,8 @@ function button_action(func)
 
     if(macs.length == 0) return;
     $.post("/cgi-bin/nodogsplash", { func : func, macs : macs }, function(data) {
-        $('#status').text(data);
+        $('#msg').text(data);
     });
 }
-
-$('#allow_button').click(function() { button_action("allow"); });
-$('#unallow_button').click(function() { button_action("unallow"); });
-$('#block_button').click(function() { button_action("block"); });
-$('#unblock_button').click(function() { button_action("unblock"); });
-$('#auth_button').click(function() { button_action("auth"); });
-$('#deauth_button').click(function() { button_action("deauth"); });
-$('#trust_button').click(function() { button_action("trust"); });
-$('#untrust_button').click(function() { button_action("untrust"); });
-
 
 reload();
