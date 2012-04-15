@@ -157,18 +157,22 @@ case $POST_func in
         import_settings "tinc" "$host_name" "$env_str" "enabled net Address"
     ;;
     del_host)
+        net_name="$POST_net_name"
         host_name="$POST_host_name"
-        valid_host "$host_name"
-
-        valid_host"$host_name"
+        
+        valid_net "$net_name"
+        valid_name "$host_name"
+        
         uci delete -q tinc.$host_name
+        rm -f /etc/tinc/$net_name/$host_name 2> /dev/null
     ;;
     del_net)
         net_name="$POST_net_name"
         valid_net "$net_name"
         
-        valid_net "$net_name"
+        valid_name "$net_name"
         uci delete -q tinc.$net_name
+        rm -rf /etc/tinc/$net_name 2> /dev/null
     ;;
     get_version)
         tincd --version  | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
