@@ -58,7 +58,7 @@ function load_settings()
         
         append_input(fs, "AccessPoint", "ap_ssid", obj.ap_ssid);
         append_input(fs, "AdHoc", "ah_ssid", obj.ah_ssid);
-        append_radio(fs, "Internet Freigeben", "share_wan", {"Ja":"yes", "Nein":"no"}, obj.share_wan);
+        append_radio(fs, "Internet Freigeben", "share_wan", obj.share_wan, {"Ja":"yes", "Nein":"no"});
         append_input(fs, "MAC-Adresse", "mac", obj.mac);
       
         rebuild_interfaces(obj);
@@ -85,7 +85,7 @@ function rebuild_interfaces(obj)
             if(array[i].length == 0)
                 continue;
             
-            append_radio(fieldset, if_name, if_name, {"Mesh" : "mesh", "Bat" : "bat", "Lan" : "lan", "Wan" : "wan"}, selected);
+            append_radio(fieldset, if_name, if_name, selected, {"Mesh" : "mesh", "Bat" : "bat", "Lan" : "lan", "Wan" : "wan"});
         }
     }
     

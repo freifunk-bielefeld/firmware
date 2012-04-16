@@ -58,9 +58,9 @@ function appendSettings(parent, n, obj)
     {
         var label = getLabel(setting);
         var value = obj[setting];
-        var name = /*n+"_"+*/ setting;
+        var name = setting;
         if(setting == "enabled" || setting == "generate_keys") {
-            append_radio(parent, label, name, {"Ja":1, "Nein":0}, value);
+            append_radio(parent, label, name, value, {"Ja":1, "Nein":0});
         } else {
             append_input(parent, label, name, value);
         }
@@ -116,11 +116,13 @@ function parse_list(data)
 }
 
 function get_net_name() {
-    return get("net_name").firstChild.nodeValue;
+    var c = get("net_name").firstChild;
+    return (c === null) ? "" : c.nodeValue;
 }
 
 function get_host_name() {
-    return get("host_name").firstChild.nodeValue;
+    var c = get("host_name").firstChild;
+    return (c === null) ? "" : c.nodeValue;
 }
 
 function save_net() {
@@ -138,22 +140,39 @@ function save_host() {
 }
 
 function delete_net() {
-    if(confirm("Eintrag wirklich Loeschen?"))
+    if(confirm("Netz wirklich Loeschen?\nAlle zugehörigen Host-Schlüssel werden geschlöscht!"))
         send_rebuild( { func : "del_net", net_name : get_net_name() });
 }
 
 function delete_host() {
-    if(confirm("Eintrag wirklich Loeschen?"))
-        send({ func : "del_host", host_name : get_host_name() });
+    if(confirm("Host wirklich Loeschen?"))
+        send({ func : "del_host", net_name : get_net_name(), host_name : get_host_name() });
 }
+
+function import_key() {
+    get("uf_net_name").value = get_net_name();
+    get("uf").submit();
+}
+
+function export_key(net_name, key_name) {
+    get("df_net_name").value = net_name;
+    get("df_key_name").value = key_name;
+    get("df").submit();
+ }
 
 function export_net_key() {
     var obj = {}; collect_inputs(get("net"), obj); //hackish
-    send({ func : "export_key", net_name : get_net_name(), key_name : obj.Name });
+    export_key(get_net_name(), obj.Name);
 }
 
 function export_host_key() {
-    send({ func : "export_key", net_name : get_net_name(), key_name : get_host_name() });
+    export_key(get_net_name(), get_host_name());
+}
+
+function add_net() {
+    var net_name = get("new_net_name").value;
+    send({ func : "add_net", net_name : net_name });
+    rebuild_list();
 }
 
 function rebuild_list() {

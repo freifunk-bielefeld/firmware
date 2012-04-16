@@ -13,13 +13,19 @@
 <div id="tinc">
 <div style="width: 20em;">
     <ul id="data"></ul>
-    <button type="button" id="new_net">Neues Netz</button>
-    <form action="/cgi-bin/tinc" enctype="multipart/form-data" method="post">
-        <input id="file" type="file" name="public_key_file" size="15"><br />
-        <button type="submit" id="send_button">Import Host Key</button>
+    <input type="text" id="new_net_name" value="" style="width: 10em;">
+    <button type="button" onclick="add_net()">Neues Netz</button>
+    <br />
+    <form id="uf" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post">
+        <div style="position: relative">
+            <input type="file" name="public_key_file" class="file" onchange="get('fake_input').value = this.value" onmouseout="get('fake_input').value = this.value">
+            <div class="fakefile">
+                <input  type="text" name="_" value="" style="width: 10em;" id="fake_input" />
+                <button type="button" onclick="import_key()">Neuer Host</button>
+            </div>
+        </div>
         <input type="hidden" name="func" value="import_key">
-        <input type="hidden" name="host_name" value="">
-        <input type="hidden" name="net_name" value="">
+        <input type="hidden" name="net_name" value="" id="uf_net_name">
     </form>
 </div>
 <div>
@@ -27,7 +33,7 @@
         <legend><span>Netz: '<span id="net_name"></span>'</span></legend>
     </fieldset>
     <button type="button" onclick="save_net()">Speichern</button>
-    <button type="button" onclick="delete_net()">Löschen</button>
+    <button type="button" onclick="delete_net()">L&ouml;schen</button>
     <button type="button" onclick="export_net_key()">Export Key</button>
 </div>
 <div>
@@ -35,9 +41,15 @@
         <legend><span>Host: '<span id="host_name"></span>'</span></legend>
     </fieldset>
     <button type="button" onclick="save_host()">Speichern</button>
-    <button type="button" onclick="delete_host()">Löschen</button>
+    <button type="button" onclick="delete_host()">L&ouml;schen</button>
    <button type="button" onclick="export_host_key()">Export Key</button>
 </div>
+
+<form id="df" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post" style="display:none">
+    <input type="hidden" name="func" value="export_key">
+    <input type="hidden" name="net_name" value="" id="df_net_name">
+    <input type="hidden" name="key_name" value="" id="df_key_name">
+</form>
 </div>
 
 </body>

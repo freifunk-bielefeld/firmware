@@ -62,3 +62,9 @@ valid_entry() {
         exit 1
     }
 }
+
+add_item() {
+    tmp=`uci get $1`
+    tmp=`ssort_uniq $tmp $2`
+    uci set -q $1="$tmp"
+}

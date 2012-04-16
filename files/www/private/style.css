@@ -17,6 +17,24 @@ a { text-decoration: none; }
 	padding: 1% 1%;
 }
 
+#tinc div.fakefile {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1;
+}
+
+#tinc input.file {
+	position: relative;
+	text-align: right;
+	-moz-opacity:0 ;
+	filter:alpha(opacity: 0);
+	opacity: 0;
+	z-index: 2;
+
+    left: -11em;
+}
+
 #nodogsplash .nds_mac {
   color:blue;
 }
