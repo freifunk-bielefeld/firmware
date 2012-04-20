@@ -36,7 +36,8 @@ echo "(I) Freifunk: share_wan: '$share_wan'"
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
 #Create dummy interfaces to be able to set the mac of
-#br-mesh and the mac for the OGMs of batman-adv freely.
+#br-mesh, br-lan and the mac used by batman-adv for OGMs.
+#Also, we make sure we have at least one interface for the bridges.
 
 echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null
@@ -46,26 +47,62 @@ echo "(I) Freifunk: Create dummy_bat interface."
 tunctl -t dummy_bat > /dev/null
 ifconfig dummy_bat hw ether $mac up
 
+echo "(I) Freifunk: Create dummy_lan interface."
+tunctl -t dummy_lan > /dev/null
+ifconfig dummy_lan hw ether $mac up
+
 mesh_interfaces="dummy_mesh bat0 $mesh_interfaces"
 bat_interfaces="dummy_bat $bat_interfaces"
-
-
-# ------------------------------------- #
-# E X T E R N A L  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Freifunk: Setup external interfaces."
+lan_interfaces="dummy_lan $lan_interfaces"
 
 uci -q delete network.lan
 uci -q delete dhcp.lan
+
 while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
 while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
+
+uci -q delete network.wan
+uci -q delete dhcp.wan
+while uci -q delete firewall.@rule[0]; do :; done
+
+# ------------------------------------- #
+# L A N  S E T U P #
+# ------------------------------------- #
+
+echo "(I) Freifunk: Setup lan interfaces."
+
+uci set network.lan="interface"
+uci set network.lan.type="bridge"
+uci set network.lan.ifname="$lan_interfaces"
+uci set network.lan.ipaddr="192.168.1.1"
+uci set network.lan.proto=static
+uci set network.lan.netmask="255.255.0.0"
+
+uci add_list dhcp.@dnsmasq[0].interface="br-lan"
+uci set dhcp.lan=dhcp
+uci set dhcp.lan.interface=lan
+uci set dhcp.lan.start=100
+uci set dhcp.lan.limit=150
+uci set dhcp.lan.leasetime=12h
+
+#forward from lan to mesh
+uci add firewall forwarding
+uci set firewall.@forwarding[-1]="forwarding"
+uci set firewall.@forwarding[-1].src="lan"
+uci set firewall.@forwarding[-1].dest="mesh"
+
+
+# ------------------------------------- #
+# M E S H  S E T U P #
+# ------------------------------------- #
+
+echo "(I) Freifunk: Setup mesh interfaces."
 
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="$mesh_interfaces"
 uci set network.mesh.ipaddr="0.0.0.0"
-#uci set network.mesh.macaddr="$mesh_mac" #does not work
+#uci set network.mesh.macaddr="$mac" #does not work
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
 
@@ -80,14 +117,14 @@ uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
 uci set dhcp.mesh.start=$start_ip
 uci set dhcp.mesh.limit=$end_ip
-uci set dhcp.mesh.leasetime=5m #max time for address conflicts
+uci set dhcp.mesh.leasetime=2h #max time for address conflicts
 
 
 # ------------------------------------- #
-# M E S H  S E T U P #
+# B A T  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Freifunk: Setup mesh interfaces."
+echo "(I) Freifunk: Setup bat interfaces."
 
 #make sure the interface is up and has mtu set for batman-adv
 for if in $bat_interfaces; do
@@ -114,10 +151,6 @@ uci set batman-adv.bat0.gw_mode="client"
 # ------------------------------------- # 
 
 echo "(I) Freifunk: Setup wan interfaces."
-
-uci -q delete network.wan
-uci -q delete dhcp.wan
-while uci -q delete firewall.@rule[0]; do :; done
 
 for if in $wan_interfaces; do
     name=`echo -n "ff_$if" | tr -c a-z0-9_ _`
@@ -146,11 +179,18 @@ for if in $wan_interfaces; do
     uci set firewall.@zone[-1].mtu_fix=1
     
     if [ "$share_wan" = "yes" ]; then
+        #forward from mesh to wan
         uci add firewall forwarding
         uci set firewall.@forwarding[-1]="forwarding"
         uci set firewall.@forwarding[-1].src="mesh"
         uci set firewall.@forwarding[-1].dest="$name"
     fi
+    
+    #forward from lan to wan
+    uci add firewall forwarding
+    uci set firewall.@forwarding[-1]="forwarding"
+    uci set firewall.@forwarding[-1].src="lan"
+    uci set firewall.@forwarding[-1].dest="$name"
     
     # We need to accept udp packets on port 68,
     # see https://dev.openwrt.org/ticket/4108
