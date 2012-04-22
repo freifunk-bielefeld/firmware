@@ -36,8 +36,8 @@ echo "(I) Freifunk: share_wan: '$share_wan'"
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
 #Create dummy interfaces to be able to set the mac of
-#br-mesh, br-lan and the mac used by batman-adv for OGMs.
-#Also, we make sure we have at least one interface for the bridges.
+#br-mesh and the mac for the OGMs of batman-adv freely.
+#Also, a bridge needs at least one interface.
 
 echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null

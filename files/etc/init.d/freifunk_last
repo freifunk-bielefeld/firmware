@@ -24,8 +24,8 @@ mesh_mac=`uci get freifunk.settings.mac`
 echo "(I) Freifunk: set mac of br-mesh to '$mesh_mac'"
 ifconfig br-mesh hw ether $mesh_mac
 
-echo "(I) Freifunk: set IP for br-mesh"
 mesh_ip=`mac2ip $mesh_mac`
+echo "(I) Freifunk: set IP for br-mesh to '$mesh_ip'"
 uci set network.mesh.ipaddr="$mesh_ip"
 ifconfig br-mesh $mesh_ip
 
