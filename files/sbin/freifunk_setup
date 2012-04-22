@@ -135,9 +135,10 @@ mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 
-uci set freifunk.settings.bat_interfaces="$bat_interfaces"
-uci set freifunk.settings.mesh_interfaces="$mesh_interfaces"
-uci set freifunk.settings.wan_interfaces="$wan_interface"
+uci set freifunk.settings.bat_interfaces="$bat_interfaces "
+uci set freifunk.settings.mesh_interfaces="$mesh_interfaces "
+uci set freifunk.settings.lan_interfaces=" "
+uci set freifunk.settings.wan_interfaces="$wan_interface "
 uci set freifunk.settings.mac="$mesh_mac"
 
 uci commit
