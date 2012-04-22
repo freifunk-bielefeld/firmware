@@ -1,7 +1,7 @@
 #!/usr/bin/haserl 
 <%
 
-case $POST_func in
+case $GET_func in
   get_originators)
     batctl o
     ;;
@@ -9,10 +9,10 @@ case $POST_func in
     batctl gw
     ;;
   get_version)
-    batctl -v | head -n1 | sed -n -r 's/.*batman-adv: ([0-9\.]*).*/\1/p'
+    batctl -v 2>&1 | head -n1 | sed -n -r 's/.*batman-adv: ([0-9\.]*).*/\1/p'
     ;;
   *)
-    echo "(E) batman-adv: Invalid command: '$POST_func'"
+    echo "(E) batman-adv: Invalid command: '$GET_func'"
     ;;
 esac
 %>

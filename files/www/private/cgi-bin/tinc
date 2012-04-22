@@ -2,7 +2,6 @@
 <%
 . /www/private/cgi-bin/shared.sh
 
-
 collect_netnames()
 {
     for line in `uci show tinc`; do
@@ -15,7 +14,10 @@ collect_netnames()
 valid_host() { valid_name "$1"; valid_entry "tinc.$1" "tinc-host"; }
 valid_net() { valid_name "$1"; valid_entry "tinc.$1" "tinc-net"; }
 
-case $POST_func in
+[ -n "$GET_func" ] && func="$GET_func"
+[ -n "$POST_func" ] && func="$POST_func"
+
+case $func in
     get_net_list)
         echo -n "{ "
         c=0
@@ -24,12 +26,8 @@ case $POST_func in
             c=1
             #get host list but filter out own public key
             own=`uci get -q tinc.$net_name.Name`
-            hosts=""
-            for host in `ls /etc/tinc/$net_name/hosts/`; do
-                [ "$host" = "$own" ] && continue
-                hosts="$hosts $host"
-            done
-            hosts=`strip $hosts`
+            hosts=`ls /etc/tinc/$net_name/hosts/`
+            hosts=`del_item "$hosts" "$own"`
             echo -n "\"$net_name\" : \"$hosts\""
         done
         echo -n " }"
@@ -79,6 +77,7 @@ case $POST_func in
             exit
         fi
         
+        #is empty if key_name is a net entry!
         Address=`uci get -q tinc.$key_name.Address`
         
         echo 'X-Download-Options: noopen'
@@ -89,37 +88,39 @@ case $POST_func in
         cat $path
     ;;
     get_net)
-        net_name="$POST_net_name"
+        net_name="$GET_net_name"
         valid_net "$net_name"
         export_json "tinc" "$net_name"
     ;;
     get_host)
-        host_name="$POST_host_name"
+        host_name="$GET_host_name"
         valid_host "$host_name"
         export_json "tinc" "$host_name"
     ;;
     set_net)
-        net_name="$POST_net_name"
+        net_name="$GET_net_name"
         
         valid_net "$net_name"
         
         env_str=`env`
-        import_settings "tinc" "$net_name" "$env_str" "enabled ConnectTo Name AddressFamily BindToAddress BindToInterface generate_keys"
+        import_settings "tinc" "$net_name" "$env_str"
         uci commit tinc 2> /dev/null
+        echo "(I) tinc: Settings set for net '$net_name'."
     ;;
     set_host)
-        host_name="$POST_host_name"
+        host_name="$GET_host_name"
         
         valid_host "$host_name"
         
         env_str=`env`
-        import_settings "tinc" "$host_name" "$env_str" "enabled net Address"
+        import_settings "tinc" "$host_name" "$env_str"
         uci commit tinc 2> /dev/null
+        echo "(I) tinc: Settings set for host '$host_name'."
     ;;
     add_net)
-        net_name="$POST_net_name"
+        net_name="$GET_net_name"
         
-        valid_name "$host_name"
+        valid_name "$net_name"
         
         if uci get -q tinc.$net_name > /dev/null 2>&1; then
             echo "(E) An entry 'net_name' already exists."
@@ -127,18 +128,21 @@ case $POST_func in
         fi
         
         uci set -q tinc.$net_name=tinc-net
-        uci set -q tinc.$net_name.enabled=0
+        uci set -q tinc.$net_name.enabled=1
         uci set -q tinc.$net_name.generate_keys=1
+        uci set -q tinc.$net_name.Name="$net_name"
         
         mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
         uci commit tinc 2> /dev/null
         
         #add to freifunk mesh interfaces by default
-        add_item freifunk.settings.mesh_interfaces $host_name
+        uci_add_to_list "freifunk.settings.mesh_interfaces" $net_name
+    
+       echo "(I) tinc: Net '$net_name' was added. Please reboot for the keys to be generated."
     ;;
     del_host)
-        net_name="$POST_net_name"
-        host_name="$POST_host_name"
+        net_name="$GET_net_name"
+        host_name="$GET_host_name"
         
         valid_net "$net_name"
         valid_host "$host_name"
@@ -150,21 +154,31 @@ case $POST_func in
         [ $more_uses -eq 0 ] && { uci delete -q tinc.$host_name; uci commit tinc 2> /dev/null; }
         
         rm -f /etc/tinc/$net_name/hosts/$host_name 2> /dev/null
+        echo "(I) tinc: Host '$host_name' has been removed. Please reboot."
     ;;
     del_net)
-        net_name="$POST_net_name"
+        net_name="$GET_net_name"
         
         valid_net "$net_name"
         
         uci delete -q tinc.$net_name
         rm -rf /etc/tinc/$net_name 2> /dev/null
         uci commit tinc 2> /dev/null
+        
+        #remove net from internal FF interface lists
+        uci_del_from_list "freifunk.settings.mesh_interfaces" "$net_name"
+        uci_del_from_list "freifunk.settings.lan_interfaces" "$net_name"
+        uci_del_from_list "freifunk.settings.wan_interfaces" "$net_name"
+        uci_del_from_list "freifunk.settings.bat_interfaces" "$net_name"
+        uci commit freifunk 2> /dev/null
+        
+        echo "(I) tinc: Net '$host_name' has been removed. Please reboot."
     ;;
     get_version)
-        tincd --version  | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
+        tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
     ;;
     *)
-        echo "(E) tinc: '$POST_func' not implemented."
+        echo "(E) tinc: '$func' not implemented."
     ;;
 esac
 %>

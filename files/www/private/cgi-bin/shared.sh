@@ -26,7 +26,7 @@ export_json()
     unset IFS
 }
 
-#POST_foo_bar=42 => uci set -q ham.foo.bar="42"
+#GET_foo_bar=42 => uci set -q ham.foo.bar="42"
 import_settings()
 {
     config=$1
@@ -34,15 +34,15 @@ import_settings()
     env_str=$3
     allowed=$4
     
-    for line in `echo -n "$env_str" | sed  "/^POST_${section}_.*/!d"`; do
+    for line in `echo -n "$env_str" | sed  "/^GET_${section}_.*/!d"`; do
         value=${line##*=}
         name=${line%%=*}
-        name=${name##POST_${section}_}
-        case "$allowed" in
+        name=${name##GET_${section}_}
+        [ -n "$allowed" ] && case "$allowed" in
           *"$name"*) ;;
             *) continue ;;
         esac
-        
+        [ -z "$value" ] && value=" "
         uci set -q $config.$section.$name="$value"
     done
 }
@@ -57,14 +57,35 @@ valid_name() {
 
 valid_entry() {
     tmp=`uci get -q $1`
-    [ "$tmp" != "$2" ] && {
+    [ "$tmp" != "$2" -o -z $1 ] && {
         echo "(E) Entry '$1' does not exist."
         exit 1
     }
 }
 
-add_item() {
-    tmp=`uci get $1`
-    tmp=`ssort_uniq $tmp $2`
+del_item()
+{
+    items=$1
+    ex=$2
+    
+    ns=""
+    for item in $items; do
+        [ "$item" = "$ex" ] && continue
+        ns="$ns $item"
+    done
+    echo $ns
+}
+
+uci_del_from_list() {
+    tmp=`uci get -q $1`
+    tmp=`del_item "$tmp" "$2"`
+    [ -z "$tmp" ] && tmp=" "
+    uci set -q $1="$tmp"
+}
+
+uci_add_to_list() {
+    tmp=`uci get -q $1`
+    tmp=`ssort_uniq "$tmp" "$2"`
+    [ -z "$tmp" ] && tmp=" "
     uci set -q $1="$tmp"
 }

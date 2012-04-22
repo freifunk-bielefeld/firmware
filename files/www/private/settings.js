@@ -1,63 +1,48 @@
 
 function set_settings()
 {
-    /*
-    function invert_by_name(obj, name) {
-        var value = obj[name];
-        if(value in obj)
-            obj[value] += " " + name;
-       else
-            obj[value] = name;
-        delete obj[name];
-    }*/
-    
-    function invert_by_value(obj, value)
-    {
-        for(var name in obj) if(obj[name] == value)
-        {
-            if(value in obj)
-                obj[value] += " " + name;
-            else
-                obj[value] = name;
+    function invert_by_value(obj, value) {
+        obj[value] = "";
+        for(var name in obj) if(obj[name] == value) {
+            obj[value] += name + " ";
+            delete obj[name];
         }
-        delete obj[name];
     }
    
-    var pre = "settings_";
     var obj = { func : "set_settings" };
-    collect_inputs(get("content"), obj, pre);
+    collect_inputs(get("content"), obj);
     
-    invert_by_value(obj, pre+"mesh");
-    invert_by_value(obj, pre+"bat");
-    invert_by_value(obj, pre+"lan");
-    invert_by_value(obj, pre+"wan");
+    invert_by_value(obj, "mesh_ifs");
+    invert_by_value(obj, "bat_ifs");
+    invert_by_value(obj, "lan_ifs");
+    invert_by_value(obj, "wan_ifs");
     
-    $.post("/cgi-bin/settings", obj,
-        function(data) { $('#msg').text(data); }
+    send("/cgi-bin/settings", obj,
+        function(data) { setText('msg', data); }
     );
 }
 
 function save_settings() {
-    $.post("/cgi-bin/settings", { func : "save_settings" }, function(data) {
+    send("/cgi-bin/settings", { func : "save_settings" }, function(data) {
         if(data.length)
-            $('#msg').text(data);
+            setText('msg', data);
     });
 }
 
 function load_settings()
 {
-    $.post("/cgi-bin/settings", { func : "get_settings" }, function(data) 
+    send("/cgi-bin/settings", { func : "get_settings" }, function(data) 
     {
-        var obj = jQuery.parseJSON(data);
-        var fs = document.getElementById('common');
+        var obj = parseJSON(data);
+        var fs = get('common');
         removeChilds(fs);
         
-        var legend = document.createElement('legend');
+        var legend = create('legend');
         legend.innerHTML="Allgemeine Einstellungen:";
         fs.appendChild(legend);
         
         append_input(fs, "AccessPoint", "ap_ssid", obj.ap_ssid);
-        append_input(fs, "AdHoc", "ah_ssid", obj.ah_ssid);
+        append_input(fs, "AdHoc", "ah_ssid", obj.ah_ssid).disabled="disabled";
         append_radio(fs, "Internet Freigeben", "share_wan", obj.share_wan, {"Ja":"yes", "Nein":"no"});
         append_input(fs, "MAC-Adresse", "mac", obj.mac);
       
@@ -68,31 +53,28 @@ function load_settings()
 //rebuild interfaces section from interfaces lists
 function rebuild_interfaces(obj)
 {
-    var fieldset = document.getElementById('interfaces');
-    var legend = document.createElement('legend');
+    var fieldset = get('interfaces');
+    var legend = create('legend');
     
     removeChilds(fieldset);
     
-    legend.innerHTML = "Anschl&uuml;sse Zuordnen:";
+    legend.innerHTML = "Anschl\xFCsse Zuordnen:";
     fieldset.appendChild(legend);
    
     function add_interfaces(ifs, selected) {
         if(typeof ifs == "undefined") return;
         var array = ifs.split(" ");
-        for(var i in array)
-        {
-            var if_name = array[i]
+        for(var i = 0; i < array.length; ++i) {
             if(array[i].length == 0)
                 continue;
-            
-            append_radio(fieldset, if_name, if_name, selected, {"Mesh" : "mesh", "Bat" : "bat", "Lan" : "lan", "Wan" : "wan"});
+            append_radio(fieldset, array[i], array[i], selected, {"Mesh" :  "mesh_ifs", "Bat" : "bat_ifs", "Lan" : "lan_ifs", "Wan" : "wan_ifs"});
         }
     }
     
-    add_interfaces(obj.mesh_interfaces, "mesh");
-    add_interfaces(obj.bat_interfaces, "bat");
-    add_interfaces(obj.lan_interfaces, "lan");
-    add_interfaces(obj.wan_interfaces, "wan");
+    add_interfaces(obj.mesh_interfaces, "mesh_ifs");
+    add_interfaces(obj.bat_interfaces, "bat_ifs");
+    add_interfaces(obj.lan_interfaces, "lan_ifs");
+    add_interfaces(obj.wan_interfaces, "wan_ifs");
 }
 
 load_settings();

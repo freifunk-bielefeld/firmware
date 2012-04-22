@@ -1,51 +1,63 @@
 
-function send(obj) {
-    $.post("/cgi-bin/tinc", obj, function(data) {
-        $('#msg').text(data); 
+function mysend(obj) {
+    send("/cgi-bin/tinc", obj, function(data) {
+        setText("msg", data);
     });
 }
 
 function get_onclick(nn, hn) {
     return function() {
-        $('#msg').text('');
-        update_net(nn);
-        update_host(hn);
-    };
-}
-
-function update_host(hn)
-{
-    var fs = document.getElementById("host");
-    removeChildsBut(fs, "LEGEND");
-    get("host_name").innerHTML = hn;
-    if(hn.length == 0) return;
-    
-    $.post("/cgi-bin/tinc", { func: "get_host", host_name : hn}, function(data) {
-        if(show_error(data)) return;
-        var obj = jQuery.parseJSON(data);
+        setText("msg", "");
         
-        appendSettings(fs, hn, obj);
-    });
+        hide(get("host_div"));
+        hide(get("net_div"));
+        
+        onDesc(get("data"), 'A', function(n) { removeClass(n, "selected"); });
+        
+        addClass(this, "selected");
+        
+        setText("net_name", nn);
+        setText("host_name", hn);
+        
+        if(hn.length == 0)
+        {
+            update_net(nn);
+            show(get("net_div"));
+        }
+        else
+        {
+            update_host(hn);
+            show(get("host_div"));
+        }
+    };
 }
 
 function update_net(nn)
 {
-    var fs = document.getElementById("net");
+    var fs = get("net_fs");
     removeChildsBut(fs, "LEGEND");
-    get("net_name").innerHTML = nn;
     
-    if(nn.length == 0) return;
-    
-    $.post("/cgi-bin/tinc", { func: "get_net", net_name : nn }, function(data) {
+    send("/cgi-bin/tinc", { func: "get_net", net_name : nn }, function(data) {
         if(show_error(data)) return;
-        var obj = jQuery.parseJSON(data);
-        
+        var obj = parseJSON(data);
         appendSettings(fs, nn, obj);
     });
 }
 
+function update_host(hn)
+{
+    var fs = get("host_fs");
+    removeChildsBut(fs, "LEGEND");
+    
+    send("/cgi-bin/tinc", { func: "get_host", host_name : hn}, function(data) {
+        if(show_error(data)) return;
+        var obj = parseJSON(data);
+        appendSettings(fs, hn, obj);
+    });
+}
+
 //setting => label
-var ttable = { "enabled" : "Aktiv", "name" : "Host Name", "net" : "Netz", "Address" : "Adresse", "generate_keys" : "Schlüssel generieren", "ConnectTo" : "Verbinden zu"};
+var ttable = { "enabled" : "Aktiv", "name" : "Host Name", "net" : "Netz", "Address" : "Adresse", "generate_keys" : "Schl\xFCssel generieren", "ConnectTo" : "Verbinden zu"};
 function getLabel(name)
 {
     var label = ttable[name];
@@ -58,7 +70,7 @@ function appendSettings(parent, n, obj)
     {
         var label = getLabel(setting);
         var value = obj[setting];
-        var name = setting;
+        var name = n+"_"+setting;
         if(setting == "enabled" || setting == "generate_keys") {
             append_radio(parent, label, name, value, {"Ja":1, "Nein":0});
         } else {
@@ -67,15 +79,22 @@ function appendSettings(parent, n, obj)
     }
 }
 
+function rebuild_list() {
+    hide(get("host_div"));
+    hide(get("net_div"));
+
+    send("/cgi-bin/tinc", { func: "get_net_list" }, parse_list);
+}
+
 function parse_list(data)
 {
-    var nets = jQuery.parseJSON(data);
-    var ul = document.getElementById('data');
+    var nets = parseJSON(data);
+    var ul = get('data');
     removeChilds(ul);
     
     function makeList(nn, host_list)
     {
-        var ul = document.createElement('ul');
+        var ul = create('ul');
         var hosts = host_list.split(" ");
         
         for(var i in hosts)
@@ -84,8 +103,8 @@ function parse_list(data)
                 continue;
             
             var hn = hosts[i];
-            var li = document.createElement('li');
-            var a = document.createElement('a');
+            var li = create('li');
+            var a = create('a');
             
             a.innerHTML="Host: '"+hn+"'";
             a.onclick = get_onclick(nn, hn);
@@ -101,9 +120,9 @@ function parse_list(data)
     {
         var host_list = nets[nn];
         
-        var li = document.createElement('li');
-        var a = document.createElement('a');
-        var div = document.createElement('div');
+        var li = create('li');
+        var a = create('a');
+        var div = create('div');
         
         a.innerHTML="Netz: '"+nn+"'";
         a.onclick = get_onclick(nn, "");
@@ -116,37 +135,39 @@ function parse_list(data)
 }
 
 function get_net_name() {
-    var c = get("net_name").firstChild;
-    return (c === null) ? "" : c.nodeValue;
+    return get("net_name").firstChild.nodeValue;
 }
 
 function get_host_name() {
-    var c = get("host_name").firstChild;
-    return (c === null) ? "" : c.nodeValue;
+    return get("host_name").firstChild.nodeValue;
 }
 
 function save_net() {
     var nn = get_net_name();
     var obj = { func : "set_net", net_name : nn };
-    collect_inputs(get("net"), obj, nn+"_");
-    send(obj);
+    collect_inputs(get("net_fs"), obj);
+    mysend(obj);
 }
 
 function save_host() {
     var hn = get_host_name();
     var obj = { func : "set_host", host_name : hn };
-    collect_inputs(get("host"), obj, hn+"_");
-    send(obj);
+    collect_inputs(get("host_fs"), obj);
+    mysend(obj);
 }
 
 function delete_net() {
-    if(confirm("Netz wirklich Loeschen?\nAlle zugehörigen Host-Schlüssel werden geschlöscht!"))
-        send_rebuild( { func : "del_net", net_name : get_net_name() });
+    if(confirm("Netz wirklich L\xF6schen?\nAlle zugeh\xF6rigen Host-Schl\xFCssel werden geschl\xF6scht!")) {
+        mysend( { func : "del_net", net_name : get_net_name() });
+        rebuild_list();
+    }
 }
 
 function delete_host() {
-    if(confirm("Host wirklich Loeschen?"))
-        send({ func : "del_host", net_name : get_net_name(), host_name : get_host_name() });
+    if(confirm("Host wirklich L\xF6schen?")) {
+        mysend({ func : "del_host", net_name : get_net_name(), host_name : get_host_name() });
+        rebuild_list();
+    }
 }
 
 function import_key() {
@@ -161,8 +182,12 @@ function export_key(net_name, key_name) {
  }
 
 function export_net_key() {
-    var obj = {}; collect_inputs(get("net"), obj); //hackish
-    export_key(get_net_name(), obj.Name);
+    var obj = {}; collect_inputs(get("net_fs"), obj); //hackish
+    var nn = get_net_name();
+    var kn = obj[nn+"_Name"];
+    if(typeof kn == 'undefined')
+        alert("Schl\xFCsselname is unbekannt.");
+    export_key(nn, kn);
 }
 
 function export_host_key() {
@@ -171,13 +196,9 @@ function export_host_key() {
 
 function add_net() {
     var net_name = get("new_net_name").value;
-    send({ func : "add_net", net_name : net_name });
+    get("new_net_name").value = "";
+    mysend({ func : "add_net", net_name : net_name });
     rebuild_list();
 }
 
-function rebuild_list() {
-    $.post("/cgi-bin/tinc", { func: "get_net_list" }, parse_list);
-}
-
 rebuild_list();
-

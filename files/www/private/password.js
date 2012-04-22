@@ -1,14 +1,14 @@
 
-document.getElementById("p1").focus();
+get("p1").focus();
 
-$('#apply_button').click(function() {
-  p1=$('#p1').val();
-  p2=$('#p2').val();
+function apply() {
+  p1 = get('p1').value;
+  p2 = get('p2').value;
   
-  $('#p1').val("");
-  $('#p2').val("");
+  get('p1').value = "";
+  get('p2').value = "";
   
-  $.post("/cgi-bin/password", { func : "set_password", pass1 : p1, pass2 : p2 }, function(data){
-        $('#msg').text(data);
-  })
-})
+  send("/cgi-bin/password", { func : "set_password", pass1 : p1, pass2 : p2 }, function(data){
+        setText('msg', data);
+  });
+}

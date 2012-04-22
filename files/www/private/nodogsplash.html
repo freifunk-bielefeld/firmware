@@ -2,18 +2,16 @@
 
 <html>
 <head>
-<title>NoDogSplash-Info</title>
-<link rel="stylesheet" type="text/css" href="forms.css">
-<script src="jquery.min.js"></script>
+<title>nodogsplash</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="shared.js"></script>
+<script src="nodogsplash.js"></script>
 </head>
 <body>
 <div id="nodogsplash">
 
 <pre id="nds_status">Keine Splash-Seite aktiv.</pre>
-
 <div>
-    <ul id="mac_list"><ul>
-    <br />
     <button type="text" onclick="button_action('auth')">Autorisieren</button>
     <button type="text" onclick="button_action('deauth')">Autorisierung Aufheben</button>
     <button type="text" onclick="button_action('block')">Blockieren</button>
@@ -23,6 +21,7 @@
     <button type="text" onclick="button_action('trust')">Vertrauen</button>
     <button type="text" onclick="button_action('untrust')">Vertrauen Aufheben</button>
 </div>
+<ul id="mac_list"><ul>
 
 </div>
 </body>

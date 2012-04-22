@@ -3,12 +3,9 @@
 <html>
 <head>
 <title>Freifunk</title>
-<link rel="stylesheet" type="text/css" href="nav.css" />
 <link rel="stylesheet" type="text/css" href="style.css">
-<link rel="stylesheet" type="text/css" href="forms.css">
-<script src="jquery.min.js"></script>
-<script src="shared.js"></script>
-<script src="index.js"></script>
+<script type="text/javascript" src="shared.js"></script>
+<script type="text/javascript" src="index.js"></script>
 </head>
 <body onload="init();">
 
@@ -17,16 +14,13 @@
     <li><a href="settings.html">Einstellungen</a></li>
     <li><a href="batman-adv.html">Batman-adv</a></li>
     <li><a href="n2n.html">N2N</a></li>
-    <li><a href="tinc.html">tinc</a></li>
+    <li><a href="tinc.html">VPN</a></li>
     <li><a href="firmware.html">Firmware</a></li>
     <li><a href="password.html">Password</a></li>
-    <li><a id="reboot" href="#">Reboot</a></li>
-    <li><a id="logout" href="#">Logout</a></li>
+    <li><a href="#" onclick="reboot()">Reboot</a></li>
+    <li><a href="#" onclick="logout()">Logout</a></li>
 </ul>
 
-<div id='systemWorking'>
-	<img src='spinner.gif'>
-</div>
 <pre id="msg"></pre>
 
 <div id="content">

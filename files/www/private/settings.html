@@ -2,23 +2,20 @@
 
 <html>
 <head>
-<title>Freifunk-Info</title>
-<link rel="stylesheet" type="text/css" href="forms.css">
-<script src="jquery.min.js"></script>
+<title>Einstellungen</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="shared.js"></script>
+<script src="settings.js"></script>
 </head>
 <body>
 
 <div id="settings">
-    <fieldset id="common">
-    </fieldset>
-    
-    <fieldset id="interfaces">
-    </fieldset>
-    
-    <div>
-        <button type="text" onclick="set_settings()">Setzen</button><!-- TODO: Anwenden -->
-        <button type="text" onclick="save_settings()">Speichern</button> 
-    </div>
+<fieldset id="common"></fieldset>
+<fieldset id="interfaces"></fieldset>
+<div>
+    <button type="text" onclick="set_settings()">Setzen</button>
+    <button type="text" onclick="save_settings()">Speichern</button> 
+</div>
 </div>
 
 </body>

@@ -2,7 +2,7 @@
 <%
 . /www/private/cgi-bin/shared.sh
 
-case $POST_func in
+case $GET_func in
     save_settings)
         uci commit freifunk
     ;;
@@ -10,14 +10,14 @@ case $POST_func in
         export_json "freifunk" "settings"
     ;;
     set_settings)
-        ap_ssid="$POST_ap_ssid"
-        ah_ssid="$POST_ah_ssid"
-        mac="$POST_mac"
-        share_wan="$POST_share_wan"
-        mesh_ifs=$(ssort "$POST_mesh_ifs")
-        bat_ifs=$(ssort "$POST_bat_ifs")
-        wan_ifs=$(ssort "$POST_wan_ifs")
-        lan_ifs=$(ssort "$POST_wan_ifs")
+        ap_ssid="$GET_ap_ssid"
+        ah_ssid="$GET_ah_ssid"
+        mac="$GET_mac"
+        share_wan="$GET_share_wan"
+        mesh_ifs=$(ssort "$GET_mesh_ifs")
+        bat_ifs=$(ssort "$GET_bat_ifs")
+        wan_ifs=$(ssort "$GET_wan_ifs")
+        lan_ifs=$(ssort "$GET_lan_ifs")
         
         if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
             if [ ${#ap_ssid} -gt 32 ]; then
@@ -55,7 +55,7 @@ case $POST_func in
             #ifconfig br-mesh hw ether $mac up &> /dev/null
             #ifconfig br-mesh `/sbin/mac2ip $mac` &> /dev/null
 
-            uci -q set freifunk.settings.mac=$mac
+            uci -q set freifunk.settings.mac="$mac"
         fi
 
         if [ $(count $wan_ifs) -gt 1 ]; then
@@ -66,7 +66,7 @@ case $POST_func in
         all_ifs=$(ssort "$bat_ifs $mesh_ifs $wan_ifs $lan_ifs")
         all_ifs_uniq=$(ssort_uniq "$bat_ifs $mesh_ifs $wan_ifs $lan_ifs")
         if [ "$all_ifs" != "$all_ifs_uniq" ]; then
-            echo "(E) Settings: duplicate entries detected"
+            echo "(E) Settings: Duplicate entries detected."
             exit
         fi
 
@@ -75,13 +75,13 @@ case $POST_func in
             [ $? != 0 ] && { echo "(E) settings: '$ifce' does not exist."; exit; }
         done
 
-        uci -q set freifunk.settings.mesh_interfaces=$mesh_ifs
-        uci -q set freifunk.settings.bat_interfaces=$bat_ifs
-        uci -q set freifunk.settings.wan_interfaces=$wan_ifs
-        uci -q set freifunk.settings.lan_interfaces=$lan_ifs
+        uci -q set freifunk.settings.mesh_interfaces="$mesh_ifs "
+        uci -q set freifunk.settings.bat_interfaces="$bat_ifs "
+        uci -q set freifunk.settings.wan_interfaces="$wan_ifs "
+        uci -q set freifunk.settings.lan_interfaces="$lan_ifs "
     ;;
     *)
-        echo "(E) settings: Invalid command: '$POST_func'"
+        echo "(E) settings: Invalid command: '$GET_func'"
     ;;
 esac
 %>

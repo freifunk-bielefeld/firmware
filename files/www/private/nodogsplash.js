@@ -1,31 +1,29 @@
 
 function mark_mac_list()
 {
-    $(".nds_mac").each(function() {
-        $(this).click(function() {
+    onDesc(get("nds_status"), 'SPAN', function(e) {
+        e.onclick = function() {
             var mac = this.textContent;
-            var ul = document.getElementById('mac_list');
-            var lis = ul.childNodes;
-            for (i=0;i<lis.length;i++)
-                if(lis[i].nodeName == "LI")
-                    if(lis[i].textContent == mac)
-                        return;
-            var li = document.createElement('li');
-            $(li).click(function() {
-                ul.removeChild(this);
-            });
+            var ul = get('mac_list');
+
+            onChilds(ul, 'LI', function(e) { if(e.textContent == mac) mac = ""; });
+            if(mac.length == 0) return;
+
+            var li = create('li');
+            li.onclick = function() { ul.removeChild(this); };
             li.appendChild(document.createTextNode(mac));
+
             ul.appendChild(li);
-        });
+        };
     });
 }
 
 function reload()
 {
-    $.post("/cgi-bin/nodogsplash", { func: "get_status" }, function(text){
+    send("/cgi-bin/nodogsplash", { func: "get_status" }, function(text) {
         if(text.length == 0) return;
         text = text.replace(/([0-9a-f]{1,2}(:[0-9a-f]{1,2}){5})/gi, "<span class='nds_mac'>$1</span>");
-        document.getElementById('nds_status').innerHTML=text;
+        setText('nds_status', text);
         mark_mac_list();
     });
 }
@@ -33,15 +31,11 @@ function reload()
 function button_action(func)
 {
     var macs = "";
-    var ul = document.getElementById('mac_list');
-    var lis = ul.childNodes;
-    for (i=0;i<lis.length;i++)
-        if(lis[i].nodeName == "LI")
-            macs += " " + lis[i].textContent;
+    onChilds(get('mac_list'), 'LI', function(e) { macs += " " + e.textContent; });
 
     if(macs.length == 0) return;
-    $.post("/cgi-bin/nodogsplash", { func : func, macs : macs }, function(data) {
-        $('#msg').text(data);
+    send("/cgi-bin/nodogsplash", { func : func, macs : macs }, function(data) {
+        setText('msg', data);
     });
 }
 

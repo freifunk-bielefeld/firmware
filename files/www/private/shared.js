@@ -1,31 +1,72 @@
 
-function getParentId(elem) {
-  if(elem == document)
-    alert("(E) tinc.js: document root reached");
+function get(id) { return document.getElementById(id); }
+function create(name) { return document.createElement(name); }
+function show(e) { e.style.display='block'; }
+function hide(e) { e.style.display='none'; }
+function addClass(e, c) { e.classList.add(c); } //HTML5!
+function removeClass(e, c) { e.classList.remove(c); }
+function setText(id, txt) { get(id).innerHTML = txt; }
 
-  var id = elem.parentNode.id;
-  if(id) { return id; } else { return getParentId(elem.parentNode); }
+function parseJSON(data)
+{
+    data = data.replace(/[\n\r]/g, ""); //for IE
+    return eval("("+data+")");
 }
 
-function get(id) {
-    return document.getElementById(id);
+function params(obj)
+{
+    var str = "";
+    for(var key in obj) {
+        if(str.length) str += "&";
+        else str += "?";
+        str += encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]);
+    }
+    return str.replace(/%20/g, "+");
 }
 
-function create(name) {
-    return document.getElementById(name);
+function send(url, obj, func)
+{
+    url += params(obj);
+    jx.load(url, func, 'text');
 }
 
-function removeChilds(p) {
+function onDesc(e, tag, func)
+{
+    for(var i = 0; i < e.childNodes.length; ++i) {
+        var c = e.childNodes[i];
+        if(c.tagName == tag && func(c) == false) return;
+        onDesc(c, tag, func);
+    }
+}
+
+function onChilds(e, tag, func)
+{
+    for(var i = 0; i < e.childNodes.length; ++i) {
+        var c = e.childNodes[i];
+        if(c.tagName == tag && func(c) == false) return;
+    }
+}
+
+function onParents(e, tag, func)
+{
+    while(e != document) {
+        e = e.parentNode;
+        if(e.tagName == tag && func(e) == false) return;
+    }
+}
+
+function removeChilds(p)
+{
     while(p.hasChildNodes())
         p.removeChild(p.firstChild);
 }
 
-function removeChildsBut(p, name) {
+function removeChildsBut(p, name)
+{
     var s;
     while(p.hasChildNodes()) {
         var n = p.removeChild(p.firstChild);
-        if(n.tagName == name)
-            s = n;
+        if(n.tagName == name) s = n;
     }
     if(typeof s != 'undefined')
         p.appendChild(s);
@@ -35,17 +76,8 @@ function show_error(data)
 {
     var is_error = (data.substr(0, 3) == "(E)");
     if(is_error)
-        $('#msg').text(data);
+        setText('msg', data);
     return is_error;
-}
-
-function append_button(parent, text, onclick)
-{
-    var button = document.createElement('button');
-    button.type = 'button';
-    button.innerHTML = text;
-    button.onclick = onclick;
-    parent.appendChild(button);
 }
 
 function collect_inputs(p, obj)
@@ -58,13 +90,23 @@ function collect_inputs(p, obj)
         collect_inputs(p.childNodes[i], obj);
 }
 
+function append_button(parent, text, onclick)
+{
+    var button = create('button');
+    button.type = 'button';
+    button.innerHTML = text;
+    button.onclick = onclick;
+    parent.appendChild(button);
+    return button;
+}
+
 //append an input field
 //e.g. create_input("Name", "name_string", "MyName")
 function append_input(parent, label_text, name, value)
 {
-    var div = document.createElement('div');
-    var label = document.createElement('label');
-    var input = document.createElement('input');
+    var div = create('div');
+    var label = create('label');
+    var input = create('input');
   
     label.innerHTML = label_text + ":";
     input.value = (typeof value == "undefined") ? "" : value;
@@ -75,16 +117,17 @@ function append_input(parent, label_text, name, value)
     div.appendChild(input);
     
     parent.appendChild(div);
+    return input;
 }
 
 //append an radio field
 //e.g. create_choice("Enabled", "enabled", 0, { "Yes" : 1, "No" : 2})
 function append_radio(parent, label_text, name, selected, choices)
 {
-    var p = document.createElement('div');
-    var label = document.createElement('label');
+    var p = create('div');
+    var label = create('label');
 
-    p.className="radio";
+    p.className = "radio";
     label.innerHTML = label_text + ":";
     p.appendChild(label);
     
@@ -93,9 +136,9 @@ function append_radio(parent, label_text, name, selected, choices)
         var choice_text = " " + id
         var choice_value = choices[id];
         
-        var div = document.createElement('div');
-        var input = document.createElement('input');
-        var label = document.createElement('label');
+        var div = create('div');
+        var input = create('input');
+        var label = create('label');
         
         input.name = name;
         input.value = choice_value;
@@ -111,4 +154,8 @@ function append_radio(parent, label_text, name, selected, choices)
     }
     
     parent.appendChild(p);
+    return p;
 }
+
+//from jx_compressed.js
+jx={getHTTPObject:function(){var A=false;if(typeof ActiveXObject!="undefined"){try{A=new ActiveXObject("Msxml2.XMLHTTP")}catch(C){try{A=new ActiveXObject("Microsoft.XMLHTTP")}catch(B){A=false}}}else{if(window.XMLHttpRequest){try{A=new XMLHttpRequest()}catch(C){A=false}}}return A},load:function(url,callback,format){var http=this.init();if(!http||!url){return }if(http.overrideMimeType){http.overrideMimeType("text/xml")}if(!format){var format="text"}format=format.toLowerCase();var now="uid="+new Date().getTime();url+=(url.indexOf("?")+1)?"&":"?";url+=now;http.open("GET",url,true);http.onreadystatechange=function(){if(http.readyState==4){if(http.status==200){var result="";if(http.responseText){result=http.responseText}if(format.charAt(0)=="j"){result=result.replace(/[\n\r]/g,"");result=eval("("+result+")")}if(callback){callback(result)}}else{if(error){error(http.status)}}}};http.send(null)},init:function(){return this.getHTTPObject()}}

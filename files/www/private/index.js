@@ -1,60 +1,77 @@
 
+function nav_onclick() 
+{
+    setText('msg', "");
+    var url = this.getAttribute("href");
+    if(url == '#') return false;
+    
+    var id = url.substring(0, url.lastIndexOf('.'));
+    
+    //load html file
+    jx.load(url, function(data) {
+        data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        var div = create("div");
+        div.innerHTML = data;
+        var e;
+        onDesc(div, 'DIV', function(d) {
+            if(d.id != id) return;
+            e = d; return false;
+        });
+        
+        var c = get("content");
+        removeChilds(c);
+        c.appendChild(e);
+    },'text');
+    
+    //load javascript file
+    jx.load(url.replace(".html", ".js"), function(data) {
+        (window.execScript || function(data) {
+            window[ "eval" ].call( window, data);
+        })(data);
+    },'text');
+    
+    onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
+    onParents(this, 'UL', function(n) { show(n); });
+    onChilds(this.parentNode, 'UL', function(n) { show(n); });
+    
+    onDesc(get("globalnav"), 'A', function(n) { removeClass(n, "here"); });
+    onParents(this, 'LI', function(n) { addClass(n.firstChild, "here"); });
+
+    return false;
+}
+
+
 function init() {
-    $('#systemWorking').hide();
-
-    $("#globalnav ul").hide();
-    $('#globalnav li').click(function() {
-        var url = $(this).find("> a").attr("href");
-        if(url == "#") return false;
-        
-        var id = url.substring(0, url.lastIndexOf('.'));
-        $('#content').load(url + " #" + id);
-        $.getScript(url.replace(".html", ".js"));
-        
-        $("#globalnav ul").hide();
-        $(this).parents('ul').show();
-        $(this).find("> ul").show();
-        
-        $("#globalnav a").removeClass("here");
-        $(this).parents('li').find("> a").addClass("here");
-        $(this).find("> a").addClass("here");
-       
-        $('#msg').text(""); 
-        return false;
+    onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
+    onDesc(get("globalnav"), 'A', function(n) {
+        if(n.getAttribute("href") != '#')
+            n.onclick = nav_onclick;
     });
     
-    $('#reboot').click(function() {
-      $.post("/cgi-bin/misc", { func : "reboot" }, function(data){
-        if(confirm("Reboot durchfuehren?"))
-            $('#msg').text(data);
-      })
-    });
-    
-    $('#logout').click(function() {
-        window.location="https://none@" + window.location.host;
-    });
-    
-    $.post("/cgi-bin/misc", { func: "uname" }, function(data) {
-        $('#uname').text(data);
+    send("/cgi-bin/misc", { func: "uname" }, function(data) {
+        setText('uname', data);
     });
 
-    $("fieldset input").each(function() {
-        var name = "#" + this.id + "_help";
-        $(this).parent().hover (
-          function() { $(name).show(); },
-          function() { $(name).hide(); }
-        );
+    send("/cgi-bin/batman-adv", { func: "get_version" }, function(data) {
+        setText('batman_version', data);
     });
     
-    $.post("/cgi-bin/batman-adv", { func: "get_version" }, function(data) {
-        $('#batman_version').text(data);
+    send("/cgi-bin/n2n", { func: "get_version" }, function(data) {
+        setText('n2n_version', data);
     });
     
-    $.post("/cgi-bin/n2n", { func: "get_version" }, function(data) {
-        $('#n2n_version').text(data);
+    send("/cgi-bin/misc", { func: "uptime" }, function(data) {
+        setText('uptime', data);
     });
-    
-    $.post("/cgi-bin/misc", { func: "uptime" }, function(data) {
-        $('#uptime').text(data);
+}
+
+function reboot() {
+    if(!confirm("Reboot durchf\xFChren?")) return;
+    send("/cgi-bin/misc", { func : "reboot" }, function(data) {
+        setText('msg', data);
     });
+}
+
+function logout() {
+    window.location="https://none@" + window.location.host;
 }

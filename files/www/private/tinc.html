@@ -4,8 +4,7 @@
 <head>
 <title>Tinc-VPN</title>
 <link rel="stylesheet" type="text/css" href="style.css">
-<link rel="stylesheet" type="text/css" href="forms.css">
-<script src="jquery.min.js"></script>
+<script src="shared.js"></script>
 <script src="tinc.js"></script>
 </head>
 <body>
@@ -13,6 +12,7 @@
 <div id="tinc">
 <div style="width: 20em;">
     <ul id="data"></ul>
+    <br />
     <input type="text" id="new_net_name" value="" style="width: 10em;">
     <button type="button" onclick="add_net()">Neues Netz</button>
     <br />
@@ -28,28 +28,30 @@
         <input type="hidden" name="net_name" value="" id="uf_net_name">
     </form>
 </div>
-<div>
-    <fieldset id="net" data-net="">
-        <legend><span>Netz: '<span id="net_name"></span>'</span></legend>
+<div id="net_div">
+    <fieldset id="net_fs">
+        <legend><span>Netz: '<span id="net_name"> </span>'</span></legend>
     </fieldset>
     <button type="button" onclick="save_net()">Speichern</button>
     <button type="button" onclick="delete_net()">L&ouml;schen</button>
     <button type="button" onclick="export_net_key()">Export Key</button>
 </div>
-<div>
-    <fieldset id="host" data-host="">
-        <legend><span>Host: '<span id="host_name"></span>'</span></legend>
+<div id="host_div">
+    <fieldset id="host_fs">
+        <legend><span>Host: '<span id="host_name"> </span>'</span></legend>
     </fieldset>
     <button type="button" onclick="save_host()">Speichern</button>
     <button type="button" onclick="delete_host()">L&ouml;schen</button>
    <button type="button" onclick="export_host_key()">Export Key</button>
 </div>
 
-<form id="df" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post" style="display:none">
+<form id="df" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post" target="dframe" style="display:none">
     <input type="hidden" name="func" value="export_key">
     <input type="hidden" name="net_name" value="" id="df_net_name">
     <input type="hidden" name="key_name" value="" id="df_key_name">
+    <frame id="dframe" style="display:none"></frame>
 </form>
+
 </div>
 
 </body>
