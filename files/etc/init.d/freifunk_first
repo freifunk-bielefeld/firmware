@@ -76,7 +76,7 @@ uci set network.lan.type="bridge"
 uci set network.lan.ifname="$lan_interfaces"
 uci set network.lan.ipaddr="192.168.1.1"
 uci set network.lan.proto=static
-uci set network.lan.netmask="255.255.0.0"
+uci set network.lan.netmask="255.255.255.0"
 
 uci add_list dhcp.@dnsmasq[0].interface="br-lan"
 uci set dhcp.lan=dhcp
