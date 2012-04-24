@@ -61,15 +61,10 @@ function removeChilds(p)
         p.removeChild(p.firstChild);
 }
 
-function removeChildsBut(p, name)
-{
-    var s;
-    while(p.hasChildNodes()) {
-        var n = p.removeChild(p.firstChild);
-        if(n.tagName == name) s = n;
-    }
-    if(typeof s != 'undefined')
-        p.appendChild(s);
+function inArray(item, array) {
+    for(var i = 0; i < array.length; i++)
+        if(array[i] == item) return true;
+    return false;
 }
 
 function show_error(data)

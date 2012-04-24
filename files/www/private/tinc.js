@@ -1,58 +1,63 @@
 
+var nn = "";
+var hn = "";
+
+
 function mysend(obj) {
     send("/cgi-bin/tinc", obj, function(data) {
         setText("msg", data);
     });
 }
 
-function get_onclick(nn, hn) {
+function get_onclick(net_name, host_name) {
     return function() {
         setText("msg", "");
         
-        hide(get("host_div"));
-        hide(get("net_div"));
+        var fs = get("entry");
+        hide(fs.parentNode);
+        
+        removeChilds(fs);
+        nn = net_name;
+        hn = host_name;
         
         onDesc(get("data"), 'A', function(n) { removeClass(n, "selected"); });
-        
         addClass(this, "selected");
         
-        setText("net_name", nn);
-        setText("host_name", hn);
-        
         if(hn.length == 0)
-        {
-            update_net(nn);
-            show(get("net_div"));
-        }
+            update_net(fs, nn);
         else
-        {
-            update_host(hn);
-            show(get("host_div"));
-        }
+            update_host(fs, hn);
     };
 }
 
-function update_net(nn)
+function appendHeader(fs, text)
 {
-    var fs = get("net_fs");
-    removeChildsBut(fs, "LEGEND");
-    
+    var legend = create("legend");
+    var span = create("span");
+    span.innerHTML = text;
+    legend.appendChild(span);
+    fs.appendChild(legend);
+}
+
+function update_net(fs)
+{
     send("/cgi-bin/tinc", { func: "get_net", net_name : nn }, function(data) {
         if(show_error(data)) return;
         var obj = parseJSON(data);
+        appendHeader(fs, "Netz: '"+nn+"'");
         appendSettings(fs, nn, obj);
+        show(fs.parentNode);
     });
 }
 
-function update_host(hn)
+function update_host(fs)
 {
-    var fs = get("host_fs");
-    removeChildsBut(fs, "LEGEND");
-    
-    send("/cgi-bin/tinc", { func: "get_host", host_name : hn}, function(data) {
+    send("/cgi-bin/tinc", { func: "get_host", host_name : hn }, function(data) {
         if(show_error(data)) return;
         var obj = parseJSON(data);
+        appendHeader(fs, "Host: '"+hn+"'");
         appendSettings(fs, hn, obj);
+        show(fs.parentNode);
     });
 }
 
@@ -71,7 +76,7 @@ function appendSettings(parent, n, obj)
         var label = getLabel(setting);
         var value = obj[setting];
         var name = n+"_"+setting;
-        if(setting == "enabled" || setting == "generate_keys") {
+        if(inArray(setting, ["enabled", "generate_keys", "DirectOnly", "IndirectData"])) {
             append_radio(parent, label, name, value, {"Ja":1, "Nein":0});
         } else {
             append_input(parent, label, name, value);
@@ -80,9 +85,7 @@ function appendSettings(parent, n, obj)
 }
 
 function rebuild_list() {
-    hide(get("host_div"));
-    hide(get("net_div"));
-
+    hide(get("entry").parentNode);
     send("/cgi-bin/tinc", { func: "get_net_list" }, parse_list);
 }
 
@@ -134,65 +137,51 @@ function parse_list(data)
     }
 }
 
-function get_net_name() {
-    return get("net_name").firstChild.nodeValue;
-}
-
-function get_host_name() {
-    return get("host_name").firstChild.nodeValue;
-}
-
-function save_net() {
-    var nn = get_net_name();
-    var obj = { func : "set_net", net_name : nn };
-    collect_inputs(get("net_fs"), obj);
+function save_entry() 
+{
+    if(hn.length == 0)
+        var obj = { func : "set_net", net_name : nn };
+    else
+        var obj = { func : "set_host", host_name : hn };
+    
+    collect_inputs(get("entry"), obj);
     mysend(obj);
 }
 
-function save_host() {
-    var hn = get_host_name();
-    var obj = { func : "set_host", host_name : hn };
-    collect_inputs(get("host_fs"), obj);
-    mysend(obj);
-}
-
-function delete_net() {
-    if(confirm("Netz wirklich L\xF6schen?\nAlle zugeh\xF6rigen Host-Schl\xFCssel werden geschl\xF6scht!")) {
-        mysend( { func : "del_net", net_name : get_net_name() });
-        rebuild_list();
+function delete_entry() 
+{
+    if(hn.length == 0) {
+        if(!confirm("Netz '"+nn+"' wirklich L\xF6schen?\nAlle zugeh\xF6rigen Host-Schl\xFCssel werden geschl\xF6scht!")) return;
+        mysend( { func : "del_net", net_name : nn });
+    } else {
+        if(!confirm("Host '"+hn+"' wirklich L\xF6schen?")) return;
+        mysend({ func : "del_host", net_name : nn, host_name : hn });
     }
-}
-
-function delete_host() {
-    if(confirm("Host wirklich L\xF6schen?")) {
-        mysend({ func : "del_host", net_name : get_net_name(), host_name : get_host_name() });
-        rebuild_list();
-    }
+    rebuild_list();
 }
 
 function import_key() {
-    get("uf_net_name").value = get_net_name();
+    get("uf_net_name").value = nn;
     get("uf").submit();
 }
 
-function export_key(net_name, key_name) {
-    get("df_net_name").value = net_name;
-    get("df_key_name").value = key_name;
+ function export_key()
+ {
+    var kn = hn;
+    if(kn.length == 0) {
+        var obj = {}; collect_inputs(get("entry"), obj); //hackish
+        kn = obj[nn+"_Name"];
+    }
+
+    if(typeof kn == 'undefined') {
+        alert("Schl\xFCsselname is unbekannt.");
+        return;
+    }
+
+    get("df_net_name").value = nn;
+    get("df_key_name").value = kn;
     get("df").submit();
  }
-
-function export_net_key() {
-    var obj = {}; collect_inputs(get("net_fs"), obj); //hackish
-    var nn = get_net_name();
-    var kn = obj[nn+"_Name"];
-    if(typeof kn == 'undefined')
-        alert("Schl\xFCsselname is unbekannt.");
-    export_key(nn, kn);
-}
-
-function export_host_key() {
-    export_key(get_net_name(), get_host_name());
-}
 
 function add_net() {
     var net_name = get("new_net_name").value;

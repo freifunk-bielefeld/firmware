@@ -28,21 +28,12 @@
         <input type="hidden" name="net_name" value="" id="uf_net_name">
     </form>
 </div>
-<div id="net_div">
-    <fieldset id="net_fs">
-        <legend><span>Netz: '<span id="net_name"> </span>'</span></legend>
-    </fieldset>
-    <button type="button" onclick="save_net()">Speichern</button>
-    <button type="button" onclick="delete_net()">L&ouml;schen</button>
-    <button type="button" onclick="export_net_key()">Export Key</button>
-</div>
-<div id="host_div">
-    <fieldset id="host_fs">
-        <legend><span>Host: '<span id="host_name"> </span>'</span></legend>
-    </fieldset>
-    <button type="button" onclick="save_host()">Speichern</button>
-    <button type="button" onclick="delete_host()">L&ouml;schen</button>
-   <button type="button" onclick="export_host_key()">Export Key</button>
+
+<div>
+    <fieldset id="entry"></fieldset>
+    <button type="button" onclick="save_entry()">Speichern</button>
+    <button type="button" onclick="delete_entry()">L&ouml;schen</button>
+    <button type="button" onclick="export_key()">Export Key</button>
 </div>
 
 <form id="df" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post" target="dframe" style="display:none">
