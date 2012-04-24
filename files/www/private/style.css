@@ -53,9 +53,7 @@ body {
     left: -11em;
 }
 
-#nodogsplash .nds_mac {
-  color:blue;
-}
+.mac { color:#0033CC; }
 
 
 /* forms */

@@ -1,4 +1,6 @@
 
+var mac_regex = /([0-9a-f]{1,2}(:[0-9a-f]{1,2}){5})/gi;
+
 function get(id) { return document.getElementById(id); }
 function create(name) { return document.createElement(name); }
 function show(e) { e.style.display='block'; }
