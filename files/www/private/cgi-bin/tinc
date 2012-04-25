@@ -86,7 +86,7 @@ case $func in
             #key_name is a net entry
             ifce=`uci get -q tinc.$key_name.BindToInterface`
             [ -z "$ifce" ] && ifce=`uci get -q freifunk.settings.wan_interfaces`
-            addr=`get_ip "$ifce"`
+            addr=`get_ip "${ifce%% *}"`
         else
             #key_name is a host entry
             addr=`uci get -q tinc.$key_name.Address`
