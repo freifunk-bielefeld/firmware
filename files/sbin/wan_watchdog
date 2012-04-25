@@ -14,7 +14,8 @@ IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.
 #share_wan=`uci get freifunk.settings.share_wan`
 #echo "(I) wan_watchdog: share internet: '$share_wan'"
 
-wan_interface=`uci -q get freifunk.settings.wan_interfaces`
+wan_interfaces=`uci -q get freifunk.settings.wan_interfaces`
+wan_interface=${wan_interfaces%% *} #get first interface
 echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
