@@ -50,7 +50,7 @@ case $func in
         #[ -f $dst_path ] && { echo "(E) Key file already exists."; exit; }
         [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) A net entry of the same name exists."; exit; }
         
-        new_addr=`cat $src_path | head -n3 | sed -n -r s/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/p'`
+        new_addr=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/p'`
         #cp $src_path $dst_path > /dev/null 2>&1
         sed "/^[ \t]*Address.*/d" $src_path > $dst_path #remove Address line while moving
         [ $? -ne 0 ] && { echo "(E) Could not copy file to '$dst_path'."; exit; }
