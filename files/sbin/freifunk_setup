@@ -98,11 +98,6 @@ if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
 
-# ------------------------------------- #
-# S E T U P  T I N C #
-# ------------------------------------- # 
-
-#TODO
 
 # ------------------------------------- #
 # A S S I G N  I N T E R F A C E S #
@@ -125,8 +120,9 @@ strip() { echo "$@"; }
 bat_interfaces=$(strip $bat_interfaces)
 mesh_interfaces=$(strip $mesh_interfaces)
 
-echo "(I) Freifunk: mesh interfaces: '$bat_interfaces'"
-echo "(I) Freifunk: external interfaces: '$mesh_interfaces'"
+echo "(I) Freifunk: bat interfaces: '$bat_interfaces'"
+echo "(I) Freifunk: mesh interfaces: '$mesh_interfaces'"
+echo "(I) Freifunk: lan interfaces: '$lan_interfaces'"
 echo "(I) Freifunk: wan interfaces: '$wan_interface'"
 
 if [ -z "$bat_interfaces" ]; then
@@ -140,10 +136,17 @@ fi
 mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
+# ------------------------------------- #
+# S E T U P  T I N C #
+# ------------------------------------- # 
+
+#TODO
+bat_interfaces="$bat_interfaces tinc_bat"
+
 
 uci set freifunk.settings.bat_interfaces="$bat_interfaces "
 uci set freifunk.settings.mesh_interfaces="$mesh_interfaces "
-uci set freifunk.settings.lan_interfaces=" "
+uci set freifunk.settings.lan_interfaces="$lan_interfaces "
 uci set freifunk.settings.wan_interfaces="$wan_interface "
 uci set freifunk.settings.mac="$mesh_mac"
 
