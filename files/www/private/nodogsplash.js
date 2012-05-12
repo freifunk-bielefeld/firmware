@@ -20,7 +20,6 @@ function reload()
         if(text.length == 0) return;
         text = text.replace(mac_regex, '<span onclick="addIP(this)" class="mac">$1</span>');
         setText('nds_status', text);
-        mark_mac_list();
     });
 }
 

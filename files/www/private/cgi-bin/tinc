@@ -57,7 +57,7 @@ case $func in
         
         if [ `uci get -q tinc.$key_name` = "tinc-host" ]; then
             old_addr=`uci set -q tinc.$key_name.Address`
-            addr=`strip $old_addr $new_addr`
+            addr=`strip $old_addr $new_addr` #merge
             uci set -q tinc.$key_name.Address="$addr"
         else
             uci set -q tinc.$key_name=tinc-host

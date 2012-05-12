@@ -79,6 +79,8 @@ case $GET_func in
         uci -q set freifunk.settings.bat_interfaces="$bat_ifs "
         uci -q set freifunk.settings.wan_interfaces="$wan_ifs "
         uci -q set freifunk.settings.lan_interfaces="$lan_ifs "
+        
+        echo "(I) Settings: Settings set. Please reboot to apply changes."
     ;;
     *)
         echo "(E) settings: Invalid command: '$GET_func'"

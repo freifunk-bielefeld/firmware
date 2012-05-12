@@ -19,6 +19,8 @@ make menuconfig
 # For the TL-WR841ND:
 #  Target System => Atheros AR71xx
 #  Target Profile => TP-LINK TL-WR841ND
+# Many other routers have not been tested yet
+# but may work. Give it a try! :-)
 
 make
 
