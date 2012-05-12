@@ -35,5 +35,5 @@ echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 echo "(I) Freifunk: call wan_watchdog to check for internet"
 /sbin/wan_watchdog
 
-echo "(I) Freifunk: done feifunk_last"
+echo "(I) Freifunk: done freifunk_last"
 }

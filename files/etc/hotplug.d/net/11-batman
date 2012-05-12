@@ -7,25 +7,14 @@ if [ "$ACTION" = "change" ]; then
   date
 
   if [ "$BATACTION" = "del" ]; then
-    echo "del default route" >> /dev/kmsg
-    route del default 2> /dev/null
+    /sbin/set_gateway "mesh" ""
     exit 0
   fi
 
   if [ -n "$BATDATA" ]; then
     echo "(I) 11-batman: received gateway MAC: '$BATDATA'"
     GATE_IP=`mac2ip $BATDATA`
-    if [ $? -eq 1 -o -z "$GATE_IP" ]; then
-      echo "(I) 11-batman: cannot get IP from MAC"
-      exit 1
-    fi
-    echo "(I) 11-batman: set gateway to '$GATE_IP'"
-    echo "update bat0 route to $BATDATA ($GATE_IP)" >> /dev/kmsg
-    uci set dhcp.@dnsmasq[0].dhcp_option="option:router, $GATE_IP"
-    route del default 2> /dev/null
-    route add default gw $GATE_IP
-    /etc/init.d/dnsmasq reload
-    echo "search lan" > /etc/resolv.conf
-    echo "nameserver $GATE_IP" >> /etc/resolv.conf
+    /sbin/set_gateway "mesh" "$GATE_IP"
+    exit 0
   fi
 fi

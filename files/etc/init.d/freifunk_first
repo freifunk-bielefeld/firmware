@@ -84,6 +84,7 @@ uci set dhcp.lan.interface=lan
 uci set dhcp.lan.start=100
 uci set dhcp.lan.limit=150
 uci set dhcp.lan.leasetime=12h
+uci set dhcp.lan.dhcp_option="3" #no gateway yet
 
 #forward from lan to mesh
 uci add firewall forwarding
@@ -118,6 +119,7 @@ uci set dhcp.mesh.interface=mesh
 uci set dhcp.mesh.start=$start_ip
 uci set dhcp.mesh.limit=$end_ip
 uci set dhcp.mesh.leasetime=2h #max time for address conflicts
+uci set dhcp.mesh.dhcp_option="3" #no gateway yet
 
 
 # ------------------------------------- #
