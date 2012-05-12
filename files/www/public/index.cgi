@@ -8,8 +8,14 @@ Content-type: text/html
 <body>
 <a href="https://<% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ printf "%s", $1 }' %>">Login</a><br />
 <br />
+<b>Eigene IP: </b>
+<% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
+<br />
 <b>Andere Knoten im Netz: </b>
 <% batctl o | grep -c "^[0-9a-f]\{2\}:" %>
+<br />
+<b>Anzahl benachbarter Knoten: </b>
+<% batctl o | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 4 | sort | uniq | wc -l %>
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <%
