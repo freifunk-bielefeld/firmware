@@ -1,0 +1,87 @@
+#!/bin/sh
+
+
+exec >>/tmp/set_gateway.log 2>&1
+date
+
+echo "(I) set_gateway: start set_gateway"
+
+
+if="$1" #mesh or wan
+gw="$2" #gateway ip
+
+share_wan=`uci get -q freifunk.settings.share_wan`
+
+get_gw() {
+  `uci get -q dhcp.$1.dhcp_option | sed -n -r 's/.*3,([0-9\.]{7,}.*)/\1/p'`
+}
+
+set_gw() {
+  ip=$2
+  [ -n "$ip" ] && ip=",$ip"
+  uci set dhcp.$1.dhcp_option="3$ip"
+}
+
+pre_mesh_gw=`get_gw mesh`
+pre_local_gw=`get_gw lan`
+
+if [ "$if" = "mesh" ]; then
+    #called by /etc/hotplug.d/net/11-batman
+    echo "got mesh gw '$gw'"
+    mesh_gw="$gw"
+    local_gw=$pre_local_gw
+else
+    #called by /sbin/wan_watchdog
+    echo "got local gw '$gw'"
+    mesh_gw=$pre_mesh_gw
+    local_gw="$gw"
+fi
+
+
+echo "pre_mesh_gw '$pre_mesh_gw'"  
+echo "pre_local_gw '$pre_local_gw'"
+
+[ "$pre_mesh_gw" == "$mesh_gw" -a "$pre_local_gw" == "$local_gw" ] && {
+  echo "(I) set_gateway: Nothing to change."
+  exit 0
+}
+
+#set gw to annouce in lan and mesh
+if [ "$share_wan" = "yes" ]; then
+  if [ -n "$local_gw" ]; then
+    echo "c1"
+    set_gw "mesh" "$local_gw"
+    set_gw "lan" "$local_gw"
+  else
+    echo "c2"
+    set_gw "mesh" "$mesh_gw"
+    set_gw "lan" "$mesh_gw"
+  fi
+else
+  if [ -n "$local_gw" ]; then
+    echo "c3"
+    set_gw "mesh" "$mesh_gw"
+    set_gw "lan" "$local_gw"
+  else
+    echo "c4"
+    set_gw "mesh" "$mesh_gw"
+    set_gw "lan" "$mesh_gw"
+  fi
+fi
+
+echo "(I) set_gateway: Remove all default routes."
+while true; do
+  route del default 2> /dev/null
+  [ $? -ne 0 ] && break
+done
+
+#set local default gateway
+if [ -n "$local_gw" ]; then
+  gw=`cat /tmp/state/network | sed -n -r 's/^.*lease_gateway=(.*)$/\1/p'`
+  [ -n "$gw" ] && route add default gw $gw
+else
+  route add default gw $mesh_gw
+fi
+
+killall -HUP dnsmasq
+
