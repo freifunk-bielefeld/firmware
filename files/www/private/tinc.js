@@ -161,6 +161,8 @@ function delete_entry()
 }
 
 function import_key() {
+    if(nn.length == 0)
+        return alert("Zuerst muss noch ein Netz ausgew\xE4hlt werden.");
     get("uf_net_name").value = nn;
     get("uf").submit();
 }
@@ -173,10 +175,8 @@ function import_key() {
         kn = obj[nn+"_Name"];
     }
 
-    if(typeof kn == 'undefined') {
-        alert("Schl\xFCsselname is unbekannt.");
-        return;
-    }
+    if(typeof kn == 'undefined')
+        return alert("Schl\xFCsselname is unbekannt.");
 
     get("df_net_name").value = nn;
     get("df_key_name").value = kn;

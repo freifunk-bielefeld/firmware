@@ -48,23 +48,25 @@ case $func in
         dst_path="/etc/tinc/$net_name/hosts/$key_name"
         
         #[ -f $dst_path ] && { echo "(E) Key file already exists."; exit; }
-        [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) A net entry of the same name exists."; exit; }
+        [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) A conflicting net entry named '$key_name' already exists."; exit; }
         
-        new_addr=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/p'`
-        #cp $src_path $dst_path > /dev/null 2>&1
-        sed "/^[ \t]*Address.*/d" $src_path > $dst_path #remove Address line while moving
+        addr=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/p'`
+        port=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Port[ \t]*=[ \t]*([0-9]*)$/\1/p'`
+        sed  '/-----/,/-----/!d' $src_path > $dst_path
         [ $? -ne 0 ] && { echo "(E) Could not copy file to '$dst_path'."; exit; }
         
-        if [ `uci get -q tinc.$key_name` = "tinc-host" ]; then
-            old_addr=`uci set -q tinc.$key_name.Address`
-            addr=`strip $old_addr $new_addr` #merge
-            uci set -q tinc.$key_name.Address="$addr"
-        else
+        if [ `uci get -q tinc.$key_name` = "tinc-host" ]; then #update entry
+            [ -z "$addr" ] && addr=`uci set -q tinc.$key_name.Address`
+            [ -z "$port" ] && port=`uci set -q tinc.$key_name.Port`
+        else #create new entry
             uci set -q tinc.$key_name=tinc-host
             uci set -q tinc.$key_name.enabled=0
             uci set -q tinc.$key_name.net=$net_name
-            uci set -q tinc.$key_name.Address="$new_addr"
         fi
+
+        [ -z "$port" ] && port="655"
+        uci set -q tinc.$key_name.Address="$addr"
+        uci set -q tinc.$key_name.Port="$port"
         
         uci commit tinc 2> /dev/null
         echo "(I) tinc: Added host '$key_name' to net '$net_name'."
@@ -91,12 +93,15 @@ case $func in
             #key_name is a host entry
             addr=`uci get -q tinc.$key_name.Address`
         fi
-
+        port=`uci get -q tinc.$key_name.Port`
+        
         echo 'X-Download-Options: noopen'
         echo 'Content-Type: text/plain; authoritative=true;'
         echo 'Content-Disposition: attachment; filename="'$key_name'"'
         echo
         [ -n "$addr" ] && echo "Address = $addr"
+        [ -n "$port" ] && echo "Port = $port"
+        echo
         cat $path
     ;;
     get_net)
@@ -193,9 +198,6 @@ case $func in
         uci commit freifunk 2> /dev/null
         
         echo "(I) tinc: Net '$host_name' has been removed. Please reboot."
-    ;;
-    get_version)
-        tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'
     ;;
     *)
         echo "(E) tinc: '$func' not implemented."
