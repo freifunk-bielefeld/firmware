@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-exec >>/tmp/set_gateway.log 2>&1
+exec >/tmp/set_gateway.log 2>&1
 date
 
 echo "(I) set_gateway: start set_gateway"
@@ -38,8 +38,8 @@ else
 fi
 
 
-echo "pre_mesh_gw '$pre_mesh_gw'"  
-echo "pre_local_gw '$pre_local_gw'"
+echo "(I) set_gateway: pre_mesh_gw '$pre_mesh_gw'"  
+echo "(I) set_gateway: pre_local_gw '$pre_local_gw'"
 
 [ "$pre_mesh_gw" == "$mesh_gw" -a "$pre_local_gw" == "$local_gw" ] && {
   echo "(I) set_gateway: Nothing to change."
@@ -83,5 +83,6 @@ else
   route add default gw $mesh_gw
 fi
 
-killall -HUP dnsmasq
+#killall -HUP dnsmasq
+/etc/init.d/dnsmasq restart
 
