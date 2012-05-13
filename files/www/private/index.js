@@ -48,20 +48,9 @@ function init() {
             n.onclick = nav_onclick;
     });
     
-    send("/cgi-bin/misc", { func: "uname" }, function(data) {
-        setText('uname', data);
-    });
-
-    send("/cgi-bin/batman-adv", { func: "get_version" }, function(data) {
-        setText('batman_version', data);
-    });
-    
-    send("/cgi-bin/n2n", { func: "get_version" }, function(data) {
-        setText('n2n_version', data);
-    });
-    
-    send("/cgi-bin/misc", { func: "uptime" }, function(data) {
-        setText('uptime', data);
+    send("/cgi-bin/misc", { func: "status" }, function(data) {
+        var obj = parseJSON(data);
+        for(var key in obj) setText(key, obj[key]);
     });
 }
 

@@ -8,9 +8,6 @@ case $GET_func in
   get_gw_mode)
     batctl gw
     ;;
-  get_version)
-    batctl -v 2>&1 | head -n1 | sed -n -r 's/.*batman-adv: ([0-9\.]*).*/\1/p'
-    ;;
   *)
     echo "(E) batman-adv: Invalid command: '$GET_func'"
     ;;
