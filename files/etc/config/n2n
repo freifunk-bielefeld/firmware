@@ -1,5 +1,6 @@
 
-config 'edge'
+config 'edge' 'n2n_bat'
+	option 'enabled' 1
 	option 'ipaddr' '0.0.0.0'
 	option 'supernode' 'fhaust.de'
 	option 'port' '2011'
