@@ -61,19 +61,11 @@ function update_host(fs)
     });
 }
 
-//setting => label
-var ttable = { "enabled" : "Aktiv", "name" : "Host Name", "net" : "Netz", "Address" : "Adresse", "generate_keys" : "Schl\xFCssel generieren", "ConnectTo" : "Verbinden zu"};
-function getLabel(name)
-{
-    var label = ttable[name];
-    return (typeof label == "undefined") ? name : label;
-}
-
 function appendSettings(parent, n, obj)
 {
     for(var setting in obj)
     {
-        var label = getLabel(setting);
+        var label = setting;
         var value = obj[setting];
         var name = n+"_"+setting;
         if(inArray(setting, ["enabled", "generate_keys", "DirectOnly", "IndirectData"])) {

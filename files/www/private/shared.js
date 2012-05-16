@@ -130,7 +130,7 @@ function append_radio(parent, label_text, name, selected, choices)
     
     for (var id in choices)
     {
-        var choice_text = " " + id
+        var choice_text = " " + id;
         var choice_value = choices[id];
         
         var div = create('div');

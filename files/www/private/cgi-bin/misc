@@ -12,10 +12,8 @@ case $GET_func in
   status)
     uptime=`uptime`
     uname=`uname -a`
-    has_internet="Yes"
-    is_gateway="No"
-    #share_internet="No"
-    #other_gateway - knows other gateway?
+    has_internet="Yes" #todo
+    is_gateway=`uci -q get batman-adv.bat0.gw_mode`
     node_count=`batctl o | grep -c "^[0-9a-f]\{2\}:"`
     neigh_count=`batctl o | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 4 | sort | uniq | wc -l`
     tinc_version=`tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'`

@@ -159,11 +159,10 @@ case $func in
         
         mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
         uci commit tinc 2> /dev/null
-        
-        #add to freifunk mesh interfaces by default
-        uci_add_to_list "freifunk.settings.mesh_interfaces" $net_name
-    
-       echo "(I) tinc: Net '$net_name' was added. Please reboot for the keys to be generated."
+
+        add_ff_interface $net_name
+
+        echo "(I) tinc: Net '$net_name' was added. Please reboot for the keys to be generated."
     ;;
     del_host)
         net_name="$GET_net_name"
@@ -190,12 +189,7 @@ case $func in
         rm -rf /etc/tinc/$net_name 2> /dev/null
         uci commit tinc 2> /dev/null
         
-        #remove net from internal FF interface lists
-        uci_del_from_list "freifunk.settings.mesh_interfaces" "$net_name"
-        uci_del_from_list "freifunk.settings.lan_interfaces" "$net_name"
-        uci_del_from_list "freifunk.settings.wan_interfaces" "$net_name"
-        uci_del_from_list "freifunk.settings.bat_interfaces" "$net_name"
-        uci commit freifunk 2> /dev/null
+        del_ff_interface "$net_name"
         
         echo "(I) tinc: Net '$host_name' has been removed. Please reboot."
     ;;
