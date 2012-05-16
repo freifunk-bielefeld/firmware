@@ -8,14 +8,14 @@ ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
 #get JSON representation of a settings item
 export_json()
 {
-    config=$1
-    section=$2
+    local config=$1
+    local section=$2
     echo -n "{ "
-    c=0; IFS="
+    local c=0; IFS="
 "
     for line in `uci -q show $config.$section | tail -n +2`; do
-        value=${line##*=}
-        name=${line%%=*}
+        local value=${line##*=}
+        local name=${line%%=*}
         name=${name##*.}
        
         [ $c -eq 1 ] && echo -n ", " || c=1
@@ -29,14 +29,14 @@ export_json()
 #GET_foo_bar=42 => uci set -q ham.foo.bar="42"
 import_settings()
 {
-    config=$1
-    section=$2
-    env_str=$3
-    allowed=$4
+    local config=$1
+    local section=$2
+    local env_str=$3
+    local allowed=$4
     
     for line in `echo -n "$env_str" | sed  "/^GET_${section}_.*/!d"`; do
-        value=${line##*=}
-        name=${line%%=*}
+        local value=${line##*=}
+        local name=${line%%=*}
         name=${name##GET_${section}_}
         [ -n "$allowed" ] && case "$allowed" in
           *"$name"*) ;;
@@ -48,7 +48,7 @@ import_settings()
 }
 
 valid_name() {
-    tmp=`echo -n "$1" | grep -c '^[0-9a-zA-Z_]*$'`
+    local tmp=`echo -n "$1" | grep -c '^[0-9a-zA-Z_]*$'`
     [ $tmp -ne 1 ] && {
         echo "(E) Name '$1' is invalid."
         exit 1
@@ -56,7 +56,7 @@ valid_name() {
 }
 
 valid_entry() {
-    tmp=`uci get -q $1`
+    local tmp=`uci get -q $1`
     [ "$tmp" != "$2" -o -z $1 ] && {
         echo "(E) Entry '$1' does not exist."
         exit 1
@@ -65,10 +65,10 @@ valid_entry() {
 
 del_item()
 {
-    items=$1
-    ex=$2
+    local items=$1
+    local ex=$2
     
-    ns=""
+    local ns=""
     for item in $items; do
         [ "$item" = "$ex" ] && continue
         ns="$ns $item"
@@ -77,15 +77,30 @@ del_item()
 }
 
 uci_del_from_list() {
-    tmp=`uci get -q $1`
+    local tmp=`uci get -q $1`
     tmp=`del_item "$tmp" "$2"`
     [ -z "$tmp" ] && tmp=" "
     uci set -q $1="$tmp"
 }
 
 uci_add_to_list() {
-    tmp=`uci get -q $1`
+    local tmp=`uci get -q $1`
     tmp=`ssort_uniq "$tmp" "$2"`
     [ -z "$tmp" ] && tmp=" "
     uci set -q $1="$tmp"
+}
+
+add_ff_interface() {
+    #add to freifunk mesh interfaces by default
+    uci_add_to_list "freifunk.settings.mesh_interfaces" $1
+    uci commit freifunk 2> /dev/null
+}
+
+del_ff_interface() {
+   #remove net from internal FF interface lists
+    uci_del_from_list "freifunk.settings.mesh_interfaces" "$1"
+    uci_del_from_list "freifunk.settings.lan_interfaces" "$1"
+    uci_del_from_list "freifunk.settings.wan_interfaces" "$1"
+    uci_del_from_list "freifunk.settings.bat_interfaces" "$1"
+    uci commit freifunk 2> /dev/null
 }
