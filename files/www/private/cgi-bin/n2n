@@ -1,74 +1,68 @@
 #!/usr/bin/haserl
 <%
+. /www/private/cgi-bin/shared.sh
+
+collect_netnames()
+{
+    for line in `uci show n2n`; do
+        net=`echo "$line" | sed -n -r 's/^n2n\.(.*)\=edge$/\1/p'`
+        [ -n "$net" ] && nets="$nets $net"
+    done
+    strip "$nets"
+}
 
 case $GET_func in
-    get_config)
-        echo -n "{"
-        i=0
-        while [ `uci get -q n2n.@edge[$i]` ]
-        do
-            supernode=`uci -q get n2n.@edge[$i].supernode`
-            port=`uci -q get n2n.@edge[$i].port`
-            community=`uci -q get n2n.@edge[$i].community`
-            key=`uci -q get n2n.@edge[$i].key`
-
-            [ $i -gt 0 ] && echo -n ", "
-            echo -n "\"entry_$i\" : { \"supernode\":\"$supernode\", \"port\":\"$port\", \"community\":\"$community\", \"key\":\"$key\"}"
-
-            i=$(($i+1))
+    get_configs)
+        echo -n "{ "
+        c=0
+        for name in `collect_netnames`; do
+            [ $c -eq 1 ] && echo ", "
+            c=1
+            echo -n "\"$name\" : "
+            export_json "n2n" "$name"
         done
-        echo "}"
+        echo -n " }"
     ;;
     del_config)
-        id=`echo "$GET_id" | sed -n -r 's/entry_([[:digit:]]+)/\1/p'` 
-        uci -q delete n2n.@edge[$id] &> /dev/null
-        if [ $? -eq 0 ]; then
-            echo "(I) N2N: Setting '$id' deleted."
-        else
-            echo "(E) N2N: Could not delete setting '$id'."
-        fi
+        name="$GET_name"
+        valid_name "$name"
+
+        uci delete -q n2n.$name
+        echo "(I) N2N: Section '$name' deleted."
     ;;
     add_config)
-        uci -q add n2n edge &> /dev/null
-        if [ $? -eq 0 ]; then
-            echo "(I) N2N: Added section."
-        else
-            echo "(E) N2N: Could not create section."
-        fi
+        name="$GET_name"
+        valid_name "$name"
+
+        [ `uci get -q n2n.$name` = "edge" ] && { echo "(E) n2n: A conflicting net entry named '$name' already exists."; exit; }
+
+        uci set -q n2n.$name=edge
+        uci set -q n2n.$name.enabled=0
+        uci set -q n2n.$name.ipaddr="0.0.0.0"
+        uci set -q n2n.$name.supernode=" "
+        uci set -q n2n.$name.port=" "
+        uci set -q n2n.$name.community=" "
+        uci set -q n2n.$name.key=" "
+        uci set -q n2n.$name.route=" "
+        uci set -q n2n.$name.mtu=1528
+
+        echo "(I) n2n: Section '$name' added."
+
+        add_ff_interface "$name"
     ;;
     set_config)
-        id=`echo "$GET_id" | sed -n -r 's/entry_([[:digit:]]+)/\1/p'`
-        supernode="$GET_supernode"
-        port="$GET_port"
-        community="$GET_community"
-        key="$GET_key"
+        name="$GET_name"
+        valid_name "$name"
 
-        if [ `uci get -q n2n.@edge[$id]` -eq 1 ]; then
-          echo "(E) N2N: Invalid setting number '$id'"
-          exit
-        fi
+        [ `uci get -q n2n.$name` != "edge" ] && { echo "(E) n2n: Section '$name' does not exist."; exit; }
 
-        uci -q set n2n.@edge[$id].ipaddr="0.0.0.0"
-        uci -q set n2n.@edge[$id].supernode="$supernode"
-        uci -q set n2n.@edge[$id].port="$port"
-        uci -q set n2n.@edge[$id].community="$community"
-        uci -q set n2n.@edge[$id].key="$key"
-        uci -q set n2n.@edge[$id].route=""
-        uci -q set n2n.@edge[$id].mtu=1528
-
-        if [ $? -eq 0 ]; then
-          echo "(I) N2N: Setting '$id' set."
-        else
-          echo "(E) N2N: Could not set setting '$id'."
-        fi
+        env_str=`env`
+        import_settings "n2n" "$name" "$env_str"
+        echo "(I) n2n: Settings set for '$name'."
     ;;
     save_config)
-      uci -q commit n2n
-      if [ $? -eq 0 ]; then
-        echo "(I) N2N: Settings saved."
-      else
-        echo "(E) N2N: Could not save settings."
-      fi
+        uci -q commit n2n 2> /dev/null
+        echo "(I) N2N: Settings saved. Please reboot."
     ;;
     *)
       echo "(E) N2N: '$GET_func' not implemented."

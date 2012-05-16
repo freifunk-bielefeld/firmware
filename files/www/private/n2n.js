@@ -15,15 +15,30 @@ function mysend_rebuild(obj) {
 function createDelAction(n) {
     return function() {
         if(confirm("Eintrag wirklich L\xF6schen?"))
-            mysend_rebuild({ func : "del_config", id : n });
+            mysend_rebuild({ func : "del_config", name : n });
     }
 }
 
 function createSetAction(fieldset, n) {
     return function() {
-        var obj = { func : "set_config", id : n};
+        var obj = { func : "set_config", name : n };
         collect_inputs(fieldset, obj);
         mysend(obj);
+    }
+}
+
+function appendSettings(parent, n, obj)
+{
+    for(var setting in obj)
+    {
+        var label = setting;
+        var value = obj[setting];
+        var name = n+"_"+setting;
+        if(inArray(setting, ["enabled"])) {
+            append_radio(parent, label, name, value, {"Ja":1, "Nein":0});
+        } else {
+            append_input(parent, label, name, value);
+        }
     }
 }
 
@@ -34,27 +49,23 @@ function parse_config(data)
     
     removeChilds(p);
     
-    for (var n in objs)
+    for (var name in objs)
     {
-        var obj = objs[n];
+        var obj = objs[name];
         
         var fieldset = create('fieldset');
         var legend = create('legend');
         var span = create('span');
         
-        span.innerHTML = "Verbindung " + n.replace("entry_", "");
+        span.innerHTML = "Verbindung: '" + name + "'";
         legend.appendChild(span);
         fieldset.appendChild(legend);
         
-        append_input(fieldset, "Supernode", "supernode", obj.supernode);
-        append_input(fieldset, "Port", "port", obj.port);
-        append_input(fieldset, "Community", "community", obj.community);
-        append_input(fieldset, "Key", "key", obj.key);
-        
+        appendSettings(fieldset, name, obj);
+
         var div = create('div');
-        
-        append_button(div, 'L\xF6schen', createDelAction(n));
-        append_button(div, 'Speichern', createSetAction(fieldset, n));
+        append_button(div, 'L\xF6schen', createDelAction(name));
+        append_button(div, 'Speichern', createSetAction(fieldset, name));
         
         fieldset.appendChild(div);
         p.appendChild(fieldset);
@@ -62,11 +73,8 @@ function parse_config(data)
 }
 
 function add_config() {
-    mysend_rebuild({ func : "add_config" });
-}
-
-function apply_config() {
-    mysend({ func : "apply_config" });
+    var name = get("new_name").value;
+    mysend_rebuild({ func : "add_config", name : name });
 }
 
 function save_config() {
@@ -74,7 +82,7 @@ function save_config() {
 }
 
 function rebuild_config() {
-    send("/cgi-bin/n2n", { func: "get_config" }, parse_config);
+    send("/cgi-bin/n2n", { func: "get_configs" }, parse_config);
 }
 
 rebuild_config();
