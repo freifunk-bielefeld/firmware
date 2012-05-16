@@ -9,7 +9,7 @@ echo "(I) Freifunk: start freifunk_setup"
 /etc/init.d/telnet disable
 /etc/init.d/nodogsplash disable
 /etc/init.d/n2n disable
-/etc/init.d/tinc enable
+/etc/init.d/tinc disable
 
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd

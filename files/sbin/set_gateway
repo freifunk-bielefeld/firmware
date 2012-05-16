@@ -27,12 +27,12 @@ pre_local_gw=`get_gw lan`
 
 if [ "$if" = "mesh" ]; then
     #called by /etc/hotplug.d/net/11-batman
-    echo "got mesh gw '$gw'"
+    echo "(I) set_gateway: got mesh gw '$gw'"
     mesh_gw="$gw"
     local_gw=$pre_local_gw
 else
     #called by /sbin/wan_watchdog
-    echo "got local gw '$gw'"
+    echo "(I) set_gateway: got local gw '$gw'"
     mesh_gw=$pre_mesh_gw
     local_gw="$gw"
 fi
@@ -49,21 +49,17 @@ echo "(I) set_gateway: pre_local_gw '$pre_local_gw'"
 #set gw to annouce in lan and mesh
 if [ "$share_wan" = "yes" ]; then
   if [ -n "$local_gw" ]; then
-    echo "c1"
     set_gw "mesh" "$local_gw"
     set_gw "lan" "$local_gw"
   else
-    echo "c2"
     set_gw "mesh" "$mesh_gw"
     set_gw "lan" "$mesh_gw"
   fi
 else
   if [ -n "$local_gw" ]; then
-    echo "c3"
     set_gw "mesh" "$mesh_gw"
     set_gw "lan" "$local_gw"
   else
-    echo "c4"
     set_gw "mesh" "$mesh_gw"
     set_gw "lan" "$mesh_gw"
   fi
@@ -76,12 +72,15 @@ while true; do
 done
 
 #set local default gateway
+unset gw
 if [ -n "$local_gw" ]; then
   gw=`cat /tmp/state/network | sed -n -r 's/^.*lease_gateway=(.*)$/\1/p'`
-  [ -n "$gw" ] && route add default gw $gw
 else
-  route add default gw $mesh_gw
+  gw=$mesh_gw
 fi
+
+echo "(I) set_gateway: Set local default route to '$gw'."
+[ -n "$gw" ] && route add default gw $gw
 
 #killall -HUP dnsmasq
 /etc/init.d/dnsmasq restart
