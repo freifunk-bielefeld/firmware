@@ -13,7 +13,7 @@ gw="$2" #gateway ip
 share_wan=`uci get -q freifunk.settings.share_wan`
 
 get_gw() {
-  `uci get -q dhcp.$1.dhcp_option | sed -n -r 's/.*3,([0-9\.]{7,}.*)/\1/p'`
+    echo `uci get -q dhcp.$1.dhcp_option | sed -n -r 's/.*3,([0-9\.]{7,}.*)/\1/p'`
 }
 
 set_gw() {
