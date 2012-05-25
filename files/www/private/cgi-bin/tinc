@@ -50,8 +50,8 @@ case $func in
         #[ -f $dst_path ] && { echo "(E) Key file already exists."; exit; }
         [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) A conflicting net entry named '$key_name' already exists."; exit; }
         
-        addr=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/p'`
-        port=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Port[ \t]*=[ \t]*([0-9]*)$/\1/p'`
+        addr=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/pI'`
+        port=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Port[ \t]*=[ \t]*([0-9]*)$/\1/pI'`
         sed  '/-----/,/-----/!d' $src_path > $dst_path
         [ $? -ne 0 ] && { echo "(E) Could not copy file to '$dst_path'."; exit; }
         
