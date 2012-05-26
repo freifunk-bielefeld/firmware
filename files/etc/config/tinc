@@ -1,0 +1,19 @@
+config tinc-net tinc_bat
+	option enabled 1
+	#option log /tmp/log/tinc.NETNAME.log
+	#option debug 3
+    option generate_keys 1
+	list ConnectTo HSNode
+	option DirectOnly 1
+    option IndirectData 1
+	option Name OpenWRT
+    option DeviceType tap
+	option Mode switch
+    option Hostnames 1
+    option PingTimeout 30
+
+config tinc-host HSNode
+	option enabled 1
+	option net tinc_bat
+	list Address hsb.schadco.de
+    option Port 60655
