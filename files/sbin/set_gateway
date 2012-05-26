@@ -1,5 +1,6 @@
 #!/bin/sh
 
+#set the gateway dnsmasq delivers via dhcp leases
 
 exec >/tmp/set_gateway.log 2>&1
 date
@@ -7,14 +8,14 @@ date
 echo "(I) set_gateway: start set_gateway"
 
 
-if="$1" #mesh or wan
-gw="$2" #gateway ip
+arg_if="$1" #mesh or wan
+arg_gw="$2" #gateway ip
 
-share_wan=`uci get -q freifunk.settings.share_wan`
+pre_local_gw=`cat /tmp/ff_local_gw 2> /dev/null`
+pre_mesh_gw=`cat /tmp/ff_mesh_gw 2> /dev/null`
 
-get_gw() {
-    echo `uci get -q dhcp.$1.dhcp_option | sed -n -r 's/.*3,([0-9\.]{7,}.*)/\1/p'`
-}
+echo "(I) set_gateway: arg_if: '$arg_if', arg_gw: '$arg_gw'"
+
 
 set_gw() {
   ip=$2
@@ -22,31 +23,28 @@ set_gw() {
   uci set dhcp.$1.dhcp_option="3$ip"
 }
 
-pre_mesh_gw=`get_gw mesh`
-pre_local_gw=`get_gw lan`
-
-if [ "$if" = "mesh" ]; then
-    #called by /etc/hotplug.d/net/11-batman
-    echo "(I) set_gateway: got mesh gw '$gw'"
-    mesh_gw="$gw"
+if [ "$arg_if" = "mesh" ]
+then #called by /etc/hotplug.d/net/11-batman
+    mesh_gw="$arg_gw"
     local_gw=$pre_local_gw
-else
-    #called by /sbin/wan_watchdog
-    echo "(I) set_gateway: got local gw '$gw'"
+else #called by /sbin/wan_watchdog
     mesh_gw=$pre_mesh_gw
-    local_gw="$gw"
+    local_gw="$arg_gw"
 fi
 
-
-echo "(I) set_gateway: pre_mesh_gw '$pre_mesh_gw'"  
-echo "(I) set_gateway: pre_local_gw '$pre_local_gw'"
+echo "(I) set_gateway: pre_mesh_gw: '$pre_mesh_gw', pre_local_gw: '$pre_local_gw'"
+echo "(I) set_gateway: mesh_gw: '$mesh_gw', local_gw: '$local_gw'"
 
 [ "$pre_mesh_gw" == "$mesh_gw" -a "$pre_local_gw" == "$local_gw" ] && {
   echo "(I) set_gateway: Nothing to change."
   exit 0
 }
 
+echo -n "$local_gw" > /tmp/ff_local_gw
+echo -n "$mesh_gw" > /tmp/ff_mesh_gw
+
 #set gw to annouce in lan and mesh
+share_wan=`uci get -q freifunk.settings.share_wan`
 if [ "$share_wan" = "yes" ]; then
   if [ -n "$local_gw" ]; then
     set_gw "mesh" "$local_gw"
@@ -65,22 +63,20 @@ else
   fi
 fi
 
-echo "(I) set_gateway: Remove all default routes."
-while true; do
-  route del default 2> /dev/null
-  [ $? -ne 0 ] && break
-done
+#echo "(I) set_gateway: Remove all default routes."
+#while true; do
+#  route del default 2> /dev/null
+#  [ $? -ne 0 ] && break
+#done
 
 #set local default gateway
-unset gw
-if [ -n "$local_gw" ]; then
-  gw=`cat /tmp/state/network | sed -n -r 's/^.*lease_gateway=(.*)$/\1/p'`
-else
-  gw=$mesh_gw
-fi
-
-echo "(I) set_gateway: Set local default route to '$gw'."
-[ -n "$gw" ] && route add default gw $gw
+#echo "(I) set_gateway: Set local default route to '$gw'."
+#gw=`cat /tmp/state/network | sed -n -r 's/^.*lease_gateway=(.*)$/\1/p'`
+#if [ -n "$local_gw" -a -n "$gw" ]; then
+#    route add default gw $gw
+#elif [ -n "$mesh_gw"]
+#    route add default gw $mesh_gw
+#fi
 
 #killall -HUP dnsmasq
 /etc/init.d/dnsmasq restart

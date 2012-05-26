@@ -8,8 +8,8 @@ date
 
 echo "(I) wan_watchdog: start"
 
-#share_wan=`uci get freifunk.settings.share_wan`
-#echo "(I) wan_watchdog: share internet: '$share_wan'"
+share_wan=`uci get freifunk.settings.share_wan`
+echo "(I) wan_watchdog: share internet: '$share_wan'"
 
 wan_interfaces=`uci -q get freifunk.settings.wan_interfaces`
 wan_interface=${wan_interfaces%% *} #get first interface
@@ -18,81 +18,95 @@ echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
 echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
+mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+
 
 #todo: what if gw route to wan already exists - we don't want to delete it then
-check_internet() {
+has_internet()
+{
+    [ -z "$wan_interface" ] && {
+      echo "(I) wan_watchdog: No wan interfaces found."
+      return 1
+    }
+
+    [ -z "$mesh_ip" ] && {
+      echo "(I) wan_watchdog: No mesh ip set."
+      return 1
+    }
+
+    local wan_ip=`ifconfig $wan_interface | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+    [ -z "$wan_ip" ] && {
+        echo "(I) wan_watchdog: No wan ip set."
+        return 1
+    }
+
+    local gw=`route -n | sed  "/^0\.0\.0\.0.*$wan_interface$/!d" | awk '{ print $2; }'`
+    [ -z "$gw" ] && {
+        echo "(I) wan_watchdog: No gateway ip found."
+        return 1
+    }
+    
     #various root servers
     IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
-    local gw=`cat /tmp/state/network | sed -n -r 's/^.*lease_gateway=(.*)$/\1/p'`
-   
-    [ -z "$gw" ] && { echo 0; return; } 
-    local ret=0
     for ip in $IPCHECK; do
         route add -host $gw dev $wan_interface
         route add -host $ip gw $gw
         ping $ip -c 1 -I $wan_interface -q -W 1 > /dev/null
-        [ $? -eq 0 ] && ret=1
+        [ $? -eq 0 ] && return 0
         route del -host $gw dev $wan_interface
         route del -host $ip gw $gw
-        [ $ret -eq 1 ] && break
     done
-    echo $ret
+    echo "(E) wan_watchdog: Cannot reach any test IP."
+    return 1
 }
 
+is_running() {
+  ps | grep -v grep | grep "$1" > /dev/null
+}
 
-#check if wan interface exists
-if [ -z "$wan_interface" ]; then
-  echo "(I) wan_watchdog: No wan interfaces available. -> exit"
-  exit 0
-fi
-
-mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
-
-#check if the node has a mesh ip
-if [ -z "$mesh_ip" ]; then
-  echo "(I) wan_watchdog: No mesh ip set. -> exit"
-  exit 0
-fi
-
-wan_ip=`ifconfig $wan_interface | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
-has_internet=$(check_internet)
-
-#todo: check if the we just got internet or already had it before
-
-if [ -n "$wan_ip" -a $has_internet -eq 1 ]; then
-    # we have internet
-    if [ "$bat_mode" == "client" ]; then
-        echo "(I) wan_watchdog: Switch to gateway mode."
-        /etc/init.d/nodogsplash start > /dev/null
-        
-        /sbin/set_gateway "lan" "$mesh_ip"
-        
-        uci set batman-adv.bat0.gw_mode="server"
-        batctl gw server
-        
-        # start n2n
-        #/etc/init.d/n2n start
-
-        # add n2n to batman
-        #batctl if add n2n_bat
-    else
-        echo "(I) wan_watchdog: Already in gateway mode."
-    fi
-else
-    # we have no internet
+#switch to client
+bat_client()
+{
     if [ "$bat_mode" == "server" ]; then
         echo "(I) wan_watchdog: Switch to client mode."
         uci set batman-adv.bat0.gw_mode="client"
         batctl gw client
         /etc/init.d/nodogsplash stop > /dev/null
-        
-        /sbin/set_gateway "lan" ""
-        
-        # stop n2n
-        #/etc/init.d/n2n stop
     else
         echo "(I) wan_watchdog: Already in client mode."
     fi
+}
+
+#switch to server
+bat_server()
+{
+    if [ "$bat_mode" == "client" ]; then
+        echo "(I) wan_watchdog: Switch to gateway mode."
+        /etc/init.d/nodogsplash start > /dev/null
+        
+        uci set batman-adv.bat0.gw_mode="server"
+        batctl gw server
+    else
+        echo "(I) wan_watchdog: Already in gateway mode."
+    fi
+}
+
+if has_internet; then
+    # we have internet
+    /sbin/set_gateway "lan" "$mesh_ip"
+    
+    [ "$share_wan" = "yes" ] && bat_server || bat_client
+    
+    #is_running "n2n" || /etc/init.d/n2n start
+    is_running "tinc" || /etc/init.d/tinc start
+else
+    # we have no internet
+    /sbin/set_gateway "lan" ""
+
+    bat_client
+
+    #is_running "n2n" || /etc/init.d/n2n stop
+    is_running "tinc" || /etc/init.d/tinc stop
 fi
 
 echo "(I) wan_watchdog: done"
