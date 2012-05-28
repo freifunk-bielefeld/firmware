@@ -129,13 +129,16 @@ uci set dhcp.mesh.dhcp_option="3" #no gateway yet
 echo "(I) Freifunk: Setup bat interfaces."
 
 #make sure the interface is up and has mtu set for batman-adv
-for if in $bat_interfaces; do
-    uci add network interface
-    uci set network.@interface[-1].ifname=$if
-    uci set network.@interface[-1].mtu=1528
-    uci set network.@interface[-1].proto=none
-    uci set network.@interface[-1].auto=1 #bring up the interface at startup
-done
+#for if in $bat_interfaces; do
+#    #skip wlan devices, need to be done in /etc/config/wireless
+#    case $if in wlan*|ath*|wl*) continue;; esac
+#
+#    uci add network interface
+#    uci set network.@interface[-1].ifname=$if
+#    uci set network.@interface[-1].mtu=1528
+#    uci set network.@interface[-1].proto=none
+#    uci set network.@interface[-1].auto=1 #bring up the interface at startup
+#done
 
 uci add firewall zone
 uci set firewall.@zone[-1].name=mesh

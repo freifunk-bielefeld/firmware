@@ -18,6 +18,11 @@ if [ -f /etc/rc.d/S50telnet ]; then
   reboot #todo: work without reboot here
 fi
 
+bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
+for if in $bat_interfaces; do
+    ifconfig $if mtu 1528 up &> /dev/null
+done
+
 #Set the mac of br-mesh explicitly so it is fixed.
 #A bridge may change to the lowest may mac otherwise.
 mesh_mac=`uci get freifunk.settings.mac`
