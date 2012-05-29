@@ -34,6 +34,11 @@ echo "(I) Freifunk: set IP for br-mesh to '$mesh_ip'"
 uci set network.mesh.ipaddr="$mesh_ip"
 ifconfig br-mesh $mesh_ip
 
+#let "node" in a browser resolve to this node 
+uci add dhcp domain
+uci set dhcp.@domain[-1].name="freifunk"
+uci set dhcp.@domain[-1].ip="$mesh_ip"
+
 echo "(I) Freifunk: restart /etc/init.d/dnsmasq"
 /etc/init.d/dnsmasq restart
 
