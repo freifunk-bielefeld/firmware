@@ -33,12 +33,13 @@ else #called by /sbin/wan_watchdog
 fi
 
 echo "(I) set_gateway: pre_mesh_gw: '$pre_mesh_gw', pre_local_gw: '$pre_local_gw'"
-echo "(I) set_gateway: mesh_gw: '$mesh_gw', local_gw: '$local_gw'"
 
 [ "$pre_mesh_gw" == "$mesh_gw" -a "$pre_local_gw" == "$local_gw" ] && {
-  echo "(I) set_gateway: Nothing to change."
+  echo "(I) set_gateway: Nothing to change. - done"
   exit 0
 }
+
+echo "(I) set_gateway: mesh_gw: '$mesh_gw', local_gw: '$local_gw'"
 
 echo -n "$local_gw" > /tmp/ff_local_gw
 echo -n "$mesh_gw" > /tmp/ff_mesh_gw
@@ -81,3 +82,4 @@ fi
 #killall -HUP dnsmasq
 /etc/init.d/dnsmasq restart
 
+echo "(I) set_gateway: done"
