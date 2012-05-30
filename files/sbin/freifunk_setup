@@ -137,11 +137,10 @@ mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 # ------------------------------------- #
-# S E T U P  T I N C #
+# S E T U P  T I N C  /  N 2 N #
 # ------------------------------------- # 
 
-#TODO
-bat_interfaces="$bat_interfaces tinc_bat"
+bat_interfaces="$bat_interfaces tinc_bat n2n_bat"
 
 
 uci set freifunk.settings.bat_interfaces="$bat_interfaces "
