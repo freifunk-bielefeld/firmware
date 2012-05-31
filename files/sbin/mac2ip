@@ -3,40 +3,9 @@
 #Get the IP of a node by MAC.
 
 mac=$1
-
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
-
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
-
-#convert from locally to universally administered mac
-#and a common mac format (lower case and two digit hex format)
-fix_mac() {
-    mac_in="$1"
-    
-    if [ ${#mac_in} -lt 8 ]; then
-        return 1;
-    fi
-    
-    mac_out=${mac_in%%:*}
-    mac_out=$((0x$mac_out & 253))
-    mac_out=`printf '%02x\n' $mac_out`
-    mac_in="${mac_in#*:}"
-    
-    OIFS=$IFS
-    IFS=':'
-    
-    for x in $mac_in; do
-        n=$((0x$x))
-        n=`printf '%02x\n' $n`
-        mac_out="$mac_out:$n"
-    done
-
-    IFS=$OIFS
-    echo $mac_out
-}
-
-mac=$(fix_mac $mac)
 
 
 seed=0
@@ -45,7 +14,7 @@ for x in $(echo $mac | tr ":" "\n"); do
 done
 
 addr_t=$((start_ip + (seed % end_ip)))
-
 addr_c=$(((addr_t & 0xff00) >> 8))
 addr_d=$(((addr_t & 0x00ff) >> 0))
+
 echo "10.$ff_subnet.$addr_c.$addr_d"
