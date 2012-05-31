@@ -24,6 +24,8 @@ mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 
 #todo: what if gw route to wan already exists - we don't want to delete it then
 has_internet()
 {
+    echo "no" > /tmp/ff_has_internet
+
     [ -z "$wan_interface" ] && {
       echo "(I) wan_watchdog: No wan interfaces found."
       return 1
@@ -52,7 +54,7 @@ has_internet()
         route add -host $gw dev $wan_interface
         route add -host $ip gw $gw
         ping $ip -c 1 -I $wan_interface -q -W 1 > /dev/null
-        [ $? -eq 0 ] && return 0
+        [ $? -eq 0 ] &&  { echo "yes" > /tmp/ff_has_internet; return 0; }
         route del -host $gw dev $wan_interface
         route del -host $ip gw $gw
     done

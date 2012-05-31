@@ -10,9 +10,13 @@ case $GET_func in
     /sbin/mac2ip "$GET_mac"
   ;;
   status)
-    uptime=`uptime`
-    uname=`uname -a`
-    has_internet="Yes" #todo
+    up=`uptime`
+    load=${up##*:}
+    uptime=${up%%,*}
+    uptime=${uptime##*up}
+    uname=`uname -s -m -r`
+    date=`date`
+    has_internet=`cat /tmp/ff_has_internet 2> /dev/null`
     is_gateway=`uci -q get batman-adv.bat0.gw_mode`
     node_count=`batctl o | grep -c "^[0-9a-f]\{2\}:"`
     neigh_count=`batctl o | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 4 | sort | uniq | wc -l`
@@ -22,8 +26,8 @@ case $GET_func in
     
     echo -n "{\"node_count\" : \"$node_count\", \"neigh_count\" : \"$neigh_count\","\
 "\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"is_gateway\" : \"$is_gateway\","\
-"\"tinc_version\" : \"$tinc_version\", \"n2n_version\" : \"$n2n_version\","\
-"\"batman_version\" : \"$batman_version\", \"uname\" : \"$uname\"}"
+"\"tinc_version\" : \"$tinc_version\", \"n2n_version\" : \"$n2n_version\", \"load\" : \"$load\", "\
+"\"batman_version\" : \"$batman_version\", \"uname\" : \"$uname\", \"date\" : \"$date\"}"
   ;;
   *)
   echo "(E) misc: Invalid command: '$GET_func'"
