@@ -24,7 +24,7 @@ mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 
 #todo: what if gw route to wan already exists - we don't want to delete it then
 has_internet()
 {
-    echo "no" > /tmp/ff_has_internet
+    echo -n "no" > /tmp/ff_has_internet
 
     [ -z "$wan_interface" ] && {
       echo "(I) wan_watchdog: No wan interfaces found."
@@ -50,13 +50,14 @@ has_internet()
     
     #various root servers
     IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
+    local ok
     for ip in $IPCHECK; do
         route add -host $gw dev $wan_interface
         route add -host $ip gw $gw
-        ping $ip -c 1 -I $wan_interface -q -W 1 > /dev/null
-        [ $? -eq 0 ] &&  { echo "yes" > /tmp/ff_has_internet; return 0; }
+        ping $ip -c 1 -I $wan_interface -q -W 1 > /dev/null; ok=$?;
         route del -host $gw dev $wan_interface
         route del -host $ip gw $gw
+        [ $ok -eq 0 ] && { echo -n "yes" > /tmp/ff_has_internet; return 0; }
     done
     echo "(E) wan_watchdog: Cannot reach any test IP."
     return 1
