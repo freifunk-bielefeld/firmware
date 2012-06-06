@@ -1,5 +1,5 @@
 config tinc-net tinc_bat
-	option enabled 1
+	option enabled 0
 	#option log /tmp/log/tinc.NETNAME.log
 	#option debug 3
     option generate_keys 1
