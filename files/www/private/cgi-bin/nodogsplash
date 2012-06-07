@@ -6,10 +6,12 @@ reg="[ \t]*GatewayInterface[ \t]+([a-zA-Z0-9_\-]+).*"
 
 case $GET_func in
   get_status)
-    ndsctl status
+    ndsctl status 2> /dev/null
+    [ $? -eq 1 ] && echo "(W) Splash page is not running."
     ;;
   get_clients)
-    ntsctl clients
+    ntsctl clients 2> /dev/null
+    [ $? -eq 1 ] && echo "(W) Splash page is not running."
     ;;
   auth|deauth|block|unblock|allow|unallow|trust|untrust)
     func="$GET_func"
