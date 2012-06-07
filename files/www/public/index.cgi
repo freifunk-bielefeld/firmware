@@ -19,7 +19,7 @@ Content-type: text/html
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <%
-gw_macs=`batctl gwl | tail -n+2 | grep -v "^No" | awk '{ print $1 }'`
+gw_macs=`batctl gwl | grep "^=>" | awk '{ print $2 }'`
 if [ `batctl gw | grep -c -o -m 1 "^server"` -eq 1 ]; then
   own_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 fi
