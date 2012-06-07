@@ -70,7 +70,7 @@ is_running() {
 #switch to client
 bat_client()
 {
-    if [ "$bat_mode" == "server" ]; then
+    if [ "$bat_mode" != "client" ]; then
         echo "(I) wan_watchdog: Switch to client mode."
         uci set batman-adv.bat0.gw_mode="client"
         batctl gw client
@@ -83,7 +83,7 @@ bat_client()
 #switch to server
 bat_server()
 {
-    if [ "$bat_mode" == "client" ]; then
+    if [ "$bat_mode" != "server" ]; then
         echo "(I) wan_watchdog: Switch to gateway mode."
         /etc/init.d/nodogsplash start > /dev/null
         
