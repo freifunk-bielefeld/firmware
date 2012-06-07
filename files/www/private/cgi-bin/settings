@@ -70,10 +70,10 @@ case $GET_func in
             exit
         fi
 
-        for ifce in $all_ifs; do
-            ifconfig $ifce &> /dev/null
-            [ $? != 0 ] && { echo "(E) settings: '$ifce' does not exist."; exit; }
-        done
+        #for ifce in $all_ifs; do
+        #    ifconfig $ifce &> /dev/null
+        #    [ $? != 0 ] && { echo "(E) settings: '$ifce' does not exist."; exit; }
+        #done
 
         uci -q set freifunk.settings.mesh_interfaces="$mesh_ifs "
         uci -q set freifunk.settings.bat_interfaces="$bat_ifs "
