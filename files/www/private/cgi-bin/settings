@@ -3,9 +3,6 @@
 . /www/private/cgi-bin/shared.sh
 
 case $GET_func in
-    save_settings)
-        uci commit freifunk
-    ;;
     get_settings)
         export_json "freifunk" "settings"
     ;;
@@ -80,7 +77,8 @@ case $GET_func in
         uci -q set freifunk.settings.wan_interfaces="$wan_ifs "
         uci -q set freifunk.settings.lan_interfaces="$lan_ifs "
         
-        echo "(I) Settings: Settings set. Please reboot to apply changes."
+        uci commit freifunk
+        echo "(I) Settings: Settings saved. Please reboot to apply changes."
     ;;
     *)
         echo "(E) settings: Invalid command: '$GET_func'"

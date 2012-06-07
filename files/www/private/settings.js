@@ -22,13 +22,6 @@ function set_settings()
     );
 }
 
-function save_settings() {
-    send("/cgi-bin/settings", { func : "save_settings" }, function(data) {
-        if(data.length)
-            setText('msg', data);
-    });
-}
-
 function load_settings()
 {
     send("/cgi-bin/settings", { func : "get_settings" }, function(data) 
