@@ -8,6 +8,6 @@ config 'mesh' 'bat0'
 	option 'gw_mode'
 	option 'gw_sel_class'
 	option 'log_level'
-	option 'orig_interval'
+	option 'orig_interval' '3000'
 	option 'vis_mode'
 
