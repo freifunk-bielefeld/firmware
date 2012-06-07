@@ -108,8 +108,8 @@ else
 
     bat_client
 
-    is_running "n2n" || /etc/init.d/n2n stop
-    is_running "tinc" || /etc/init.d/tinc stop
+    is_running "n2n" && /etc/init.d/n2n stop
+    is_running "tinc" && /etc/init.d/tinc stop
 fi
 
 echo "(I) wan_watchdog: done"
