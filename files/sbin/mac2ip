@@ -7,6 +7,10 @@ ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
+[ -z "$mac" -o -z "$ff_subnet" -o  -z "$start_ip" -o -z "$end_ip" ] && {
+    echo "0.0.0.0"
+    exit 1
+}
 
 seed=0
 for x in $(echo $mac | tr ":" "\n"); do
