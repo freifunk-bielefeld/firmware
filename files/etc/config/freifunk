@@ -1,5 +1,6 @@
 
 config ff_settings 'settings'
+    option 'version' '0.1'
     option 'ap_ssid' 'www.freifunk-bielefeld.de'
     option 'ah_ssid' 'batman.freifunk-bielefeld.de'
     option 'ff_subnet' 29

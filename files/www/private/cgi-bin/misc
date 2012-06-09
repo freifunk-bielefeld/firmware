@@ -20,14 +20,15 @@ case $GET_func in
     is_gateway=`uci -q get batman-adv.bat0.gw_mode`
     node_count=`batctl o | grep -c "^[0-9a-f]\{2\}:"`
     neigh_count=`batctl o | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 4 | sort | uniq | wc -l`
+    firmware_version=`uci -q get freifunk.settings.version`
     tinc_version=`tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'`
     n2n_version=`edge --help 2>&1 | head -n1 | sed -n -r 's/.*(v[0-9\.]*).*/\1/p'`
     batman_version=`batctl -v 2>&1 | head -n1 | sed -n -r 's/.*batman-adv: ([0-9\.]*).*/\1/p'`
     
-    echo -n "{\"node_count\" : \"$node_count\", \"neigh_count\" : \"$neigh_count\","\
-"\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"is_gateway\" : \"$is_gateway\","\
-"\"tinc_version\" : \"$tinc_version\", \"n2n_version\" : \"$n2n_version\", \"load\" : \"$load\", "\
-"\"batman_version\" : \"$batman_version\", \"uname\" : \"$uname\", \"date\" : \"$date\"}"
+    echo -n "{\"node_count\" : \"$node_count\", \"neigh_count\" : \"$neigh_count\", "\
+"\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"is_gateway\" : \"$is_gateway\", "\
+"\"firmware_version\" : \"$firmware_version\", \"tinc_version\" : \"$tinc_version\", \"n2n_version\" : \"$n2n_version\", "\
+"\"load\" : \"$load\", \"batman_version\" : \"$batman_version\", \"uname\" : \"$uname\", \"date\" : \"$date\"}"
   ;;
   *)
   echo "(E) misc: Invalid command: '$GET_func'"
