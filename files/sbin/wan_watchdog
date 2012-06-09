@@ -20,6 +20,9 @@ echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
 mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
 
+n2n=`which edge`
+tinc=`which tincd`
+
 
 #todo: what if gw route to wan already exists - we don't want to delete it then
 has_internet()
@@ -100,16 +103,16 @@ if has_internet; then
     
     [ "$share_wan" = "yes" ] && bat_server || bat_client
     
-    is_running "n2n" || /etc/init.d/n2n start
-    is_running "tinc" || /etc/init.d/tinc start
+    is_running "$n2n" || /etc/init.d/n2n start
+    is_running "$tinc" || /etc/init.d/tinc start
 else
     # we have no internet
     /sbin/set_gateway "lan" ""
 
     bat_client
 
-    is_running "n2n" && /etc/init.d/n2n stop
-    is_running "tinc" && /etc/init.d/tinc stop
+    is_running "$n2n" && /etc/init.d/n2n stop
+    is_running "$tinc" && /etc/init.d/tinc stop
 fi
 
 echo "(I) wan_watchdog: done"
