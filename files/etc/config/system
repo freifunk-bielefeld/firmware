@@ -1,5 +1,5 @@
 config system
-	option hostname OpenWrt
+	option hostname Freifunk
 	option timezone CET
 
 config button
