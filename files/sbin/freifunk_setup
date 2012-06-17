@@ -112,7 +112,7 @@ if [ -n "$wifi_ap_interface" ]; then
 fi
 
 if [ -n "$lan_interface" ]; then
-    mesh_interfaces="$mesh_interfaces $lan_interface"
+    lan_interfaces="$lan_interfaces $lan_interface"
 fi
 
 #trim variables and remove double spaces
