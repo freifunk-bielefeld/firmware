@@ -4,6 +4,7 @@ config tinc-net tinc_bat
 	#option debug 3
     option generate_keys 1
 	list ConnectTo HSNode
+    option Cipher none
 	option DirectOnly 1
     option IndirectData 1
 	option Name OpenWRT

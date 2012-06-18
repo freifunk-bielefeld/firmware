@@ -16,24 +16,19 @@ echo "(I) Freifunk: start freifunk_first"
 
 
 mac=`uci get -q freifunk.settings.mac`
-echo "(I) Freifunk: mac: '$mac'"
-
 mesh_interfaces=`uci get -q freifunk.settings.mesh_interfaces`
-echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
-
 bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
-echo "(I) Freifunk: bat_interfaces: '$bat_interfaces'"
-
 lan_interfaces=`uci get -q freifunk.settings.lan_interfaces`
-echo "(I) Freifunk: lan_interfaces: '$lan_interfaces'"
-
 wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
-echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
-
 share_wan=`uci get -q freifunk.settings.share_wan`
+
+echo "(I) Freifunk: mac: '$mac'"
+echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
+echo "(I) Freifunk: bat_interfaces: '$bat_interfaces'"
+echo "(I) Freifunk: lan_interfaces: '$lan_interfaces'"
+echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
 echo "(I) Freifunk: share_wan: '$share_wan'"
 
-ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
 #Create dummy interfaces to be able to set the mac of
 #br-mesh and the mac for the OGMs of batman-adv freely.
@@ -51,220 +46,26 @@ echo "(I) Freifunk: Create dummy_lan interface."
 tunctl -t dummy_lan > /dev/null
 ifconfig dummy_lan hw ether $mac up
 
-mesh_interfaces="dummy_mesh bat0 $mesh_interfaces"
-bat_interfaces="dummy_bat $bat_interfaces"
-lan_interfaces="dummy_lan $lan_interfaces"
 
-uci -q delete network.lan
-uci -q delete dhcp.lan
-
-while uci -q delete firewall.@forwarding[0]; do :; done #remove lan forwarding
-while uci -q delete firewall.@zone[0]; do :; done #remove lan zone
-
-uci -q delete network.wan
-uci -q delete dhcp.wan
-while uci -q delete firewall.@rule[0]; do :; done
-
-# ------------------------------------- #
-# L A N  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Freifunk: Setup lan interfaces."
-
-uci set network.lan="interface"
-uci set network.lan.type="bridge"
-uci set network.lan.ifname="$lan_interfaces"
-uci set network.lan.ipaddr="192.168.1.1"
-uci set network.lan.proto=static
-uci set network.lan.netmask="255.255.255.0"
-
-uci add_list dhcp.@dnsmasq[0].interface="br-lan"
-uci set dhcp.lan=dhcp
-uci set dhcp.lan.interface=lan
-uci set dhcp.lan.start=100
-uci set dhcp.lan.limit=150
-uci set dhcp.lan.leasetime=12h
-uci set dhcp.lan.dhcp_option="3" #no gateway yet
-
-#forward from lan to mesh
-uci add firewall forwarding
-uci set firewall.@forwarding[-1]="forwarding"
-uci set firewall.@forwarding[-1].src="lan"
-uci set firewall.@forwarding[-1].dest="mesh"
-
-
-# ------------------------------------- #
-# M E S H  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Freifunk: Setup mesh interfaces."
-
-uci set network.mesh="interface"
-uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="$mesh_interfaces"
-uci set network.mesh.ipaddr="0.0.0.0"
-#uci set network.mesh.macaddr="$mac" #does not work
-uci set network.mesh.proto=static
-uci set network.mesh.netmask="255.0.0.0"
-
-
-# set (not so) magic numbers for start ip and address space
-# numbers are ip integer representation
-start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
-end_ip=$((255*255+253)) # -> 65278
-
-uci add_list dhcp.@dnsmasq[0].interface="br-mesh"
-uci set dhcp.mesh=dhcp
-uci set dhcp.mesh.interface=mesh
-uci set dhcp.mesh.start=$start_ip
-uci set dhcp.mesh.limit=$end_ip
-uci set dhcp.mesh.leasetime=2h #max time for address conflicts
-uci set dhcp.mesh.dhcp_option="3" #no gateway yet
-
-
-# ------------------------------------- #
-# B A T  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Freifunk: Setup bat interfaces."
-
-#make sure the interface is up and has mtu set for batman-adv
-#for if in $bat_interfaces; do
-#    #skip wlan devices, need to be done in /etc/config/wireless
-#    case $if in wlan*|ath*|wl*) continue;; esac
-#
-#    uci add network interface
-#    uci set network.@interface[-1].ifname=$if
-#    uci set network.@interface[-1].mtu=1528
-#    uci set network.@interface[-1].proto=none
-#    uci set network.@interface[-1].auto=1 #bring up the interface at startup
-#done
-
-uci add firewall zone
-uci set firewall.@zone[-1].name=mesh
-uci set firewall.@zone[-1].network=mesh
-uci set firewall.@zone[-1].input=ACCEPT
-uci set firewall.@zone[-1].output=ACCEPT
-uci set firewall.@zone[-1].forward=REJECT
-
-uci set batman-adv.bat0.interfaces="$bat_interfaces"
+uci set batman-adv.bat0.interfaces="dummy_bat $bat_interfaces"
 uci set batman-adv.bat0.gw_mode="client"
 
 
-# ------------------------------------- #
-# W A N  S E T U P #
-# ------------------------------------- # 
+echo "(I) Freifunk: Set MESH/LAN/WAN interfaces."
 
-echo "(I) Freifunk: Setup wan interfaces."
+uci set network.mesh.ifname="dummy_mesh bat0 $mesh_interfaces"
+uci set network.lan.ifname="dummy_lan $lan_interfaces"
+uci set network.wan.ifname="${wan_interfaces%% *}" #only use first item
 
-for if in $wan_interfaces; do
-    name=`echo -n "ff_$if" | tr -c a-z0-9_ _`
 
-    #these settings are based on the default
-    #openwrt configuration for the wan interface
-
-    uci set network.$name="interface"
-    uci set network.$name.ifname=$if
-    uci set network.$name.proto="dhcp"
-
-    uci set dhcp.$name=dhcp
-    uci set dhcp.$name.interface=$name
-    uci set dhcp.$name.ignore=1
-
-    #these sections were copied fom
-    #the openwrt default configuration
-
-    uci add firewall zone
-    uci set firewall.@zone[-1].name=$name
-    uci set firewall.@zone[-1].network=$name
-    uci set firewall.@zone[-1].input=REJECT
-    uci set firewall.@zone[-1].output=ACCEPT
-    uci set firewall.@zone[-1].forward=REJECT
-    uci set firewall.@zone[-1].masq=1
-    uci set firewall.@zone[-1].mtu_fix=1
-    
-    if [ "$share_wan" = "yes" ]; then
-        #forward from mesh to wan
-        uci add firewall forwarding
-        uci set firewall.@forwarding[-1]="forwarding"
-        uci set firewall.@forwarding[-1].src="mesh"
-        uci set firewall.@forwarding[-1].dest="$name"
-    fi
-    
-    #forward from lan to wan
+if [ "$share_wan" = "yes" ]; then
+    #forward from mesh to wan
     uci add firewall forwarding
     uci set firewall.@forwarding[-1]="forwarding"
-    uci set firewall.@forwarding[-1].src="lan"
-    uci set firewall.@forwarding[-1].dest="$name"
-    
-    # We need to accept udp packets on port 68,
-    # see https://dev.openwrt.org/ticket/4108
-    uci add firewall rule
-    uci set firewall.@rule[-1].name=Allow-DHCP-Renew
-    uci set firewall.@rule[-1].src=$name
-    uci set firewall.@rule[-1].proto=udp
-    uci set firewall.@rule[-1].dest_port=68
-    uci set firewall.@rule[-1].target=ACCEPT
-    uci set firewall.@rule[-1].family=ipv4
+    uci set firewall.@forwarding[-1].src="mesh"
+    uci set firewall.@forwarding[-1].dest="wan"
+fi
 
-    # Allow IPv4 ping
-    uci add firewall rule
-    uci set firewall.@rule[-1].name=Allow-Ping
-    uci set firewall.@rule[-1].src=$name
-    uci set firewall.@rule[-1].proto=icmp
-    uci set firewall.@rule[-1].icmp_type=echo-request
-    uci set firewall.@rule[-1].family=ipv4
-    uci set firewall.@rule[-1].target=ACCEPT
-
-    # Allow DHCPv6 replies
-    # see https://dev.openwrt.org/ticket/10381
-    uci add firewall rule
-    uci set firewall.@rule[-1].name=Allow-DHCPv6
-    uci set firewall.@rule[-1].src=$name
-    uci set firewall.@rule[-1].proto=udp
-    uci set firewall.@rule[-1].src_ip=fe80::/10
-    uci set firewall.@rule[-1].src_port=547
-    uci set firewall.@rule[-1].dest_ip=fe80::/10
-    uci set firewall.@rule[-1].dest_port=546
-    uci set firewall.@rule[-1].family=ipv6
-    uci set firewall.@rule[-1].target=ACCEPT
-
-    # Allow essential incoming IPv6 ICMP traffic
-    uci add firewall rule
-    uci set firewall.@rule[-1].name=Allow-ICMPv6-Input
-    uci set firewall.@rule[-1].src=$name
-    uci set firewall.@rule[-1].proto=icmp
-    uci add_list firewall.@rule[-1].icmp_type=echo-request
-    uci add_list firewall.@rule[-1].icmp_type=echo-reply
-    uci add_list firewall.@rule[-1].icmp_type=destination-unreachable
-    uci add_list firewall.@rule[-1].icmp_type=packet-too-big
-    uci add_list firewall.@rule[-1].icmp_type=time-exceeded
-    uci add_list firewall.@rule[-1].icmp_type=bad-header
-    uci add_list firewall.@rule[-1].icmp_type=unknown-header-type
-    uci add_list firewall.@rule[-1].icmp_type=router-solicitation
-    uci add_list firewall.@rule[-1].icmp_type=neighbour-solicitation
-    uci set firewall.@rule[-1].limit=1000/sec
-    uci set firewall.@rule[-1].family=ipv6
-    uci set firewall.@rule[-1].target=ACCEPT
-
-    # Allow essential forwarded IPv6 ICMP traffic
-    uci add firewall rule
-    uci set firewall.@rule[-1].name=Allow-ICMPv6-Forward
-    uci set firewall.@rule[-1].src=$name
-    uci set firewall.@rule[-1].dest=*
-    uci set firewall.@rule[-1].proto=icmp
-    uci add_list firewall.@rule[-1].icmp_type=echo-request
-    uci add_list firewall.@rule[-1].icmp_type=echo-reply
-    uci add_list firewall.@rule[-1].icmp_type=destination-unreachable
-    uci add_list firewall.@rule[-1].icmp_type=packet-too-big
-    uci add_list firewall.@rule[-1].icmp_type=time-exceeded
-    uci add_list firewall.@rule[-1].icmp_type=bad-header
-    uci add_list firewall.@rule[-1].icmp_type=unknown-header-type
-    uci set firewall.@rule[-1].limit=1000/sec
-    uci set firewall.@rule[-1].family=ipv6
-    uci set firewall.@rule[-1].target=ACCEPT
-
-done
 
 echo "(I) Freifunk: done freifunk_first"
 }

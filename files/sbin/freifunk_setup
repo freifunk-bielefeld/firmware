@@ -27,6 +27,7 @@ echo "(I) Freifunk: lan interface: '$lan_interface'"
 wifi_device=`uci -q get wireless.@wifi-iface[0].device`
 echo "(I) Freifunk: wifi device: '$wifi_device'"
 
+ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
 # ------------------------------------------- #
 # P R E C O N F I G U R I N G   W I R E L E S S #
@@ -136,12 +137,98 @@ fi
 mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
+
+# ------------------------------------- #
+# L A N  S E T U P #
+# ------------------------------------- #
+
+echo "(I) Freifunk: Setup LAN interfaces."
+
+uci -q delete network.lan
+uci -q delete dhcp.lan
+
+uci set network.lan="interface"
+uci set network.lan.type="bridge"
+uci set network.lan.ifname="$lan_interfaces"
+uci set network.lan.ipaddr="192.168.1.1"
+uci set network.lan.proto=static
+uci set network.lan.netmask="255.255.255.0"
+
+#uci add_list dhcp.@dnsmasq[0].interface="br-lan"
+uci set dhcp.lan=dhcp
+uci set dhcp.lan.interface=lan
+uci set dhcp.lan.start=100
+uci set dhcp.lan.limit=150
+uci set dhcp.lan.leasetime=12h
+uci set dhcp.lan.dhcp_option="3" #no gateway yet
+
+
+# ------------------------------------- #
+# M E S H  S E T U P #
+# ------------------------------------- # 
+
+echo "(I) Freifunk: Setup MESH interfaces."
+
+uci set network.mesh="interface"
+uci set network.mesh.type="bridge"
+uci set network.mesh.ifname="$mesh_interfaces"
+uci set network.mesh.ipaddr="0.0.0.0"
+#uci set network.mesh.macaddr="$mac" #does not work
+uci set network.mesh.proto=static
+uci set network.mesh.netmask="255.0.0.0"
+
+
+# set (not so) magic numbers for start ip and address space
+# numbers are ip integer representation
+start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
+end_ip=$((255*255+253)) # -> 65278
+
+#uci add_list dhcp.@dnsmasq[0].interface="br-mesh"
+uci set dhcp.mesh=dhcp
+uci set dhcp.mesh.interface=mesh
+uci set dhcp.mesh.start=$start_ip
+uci set dhcp.mesh.limit=$end_ip
+uci set dhcp.mesh.leasetime=2h #max time for address conflicts
+uci set dhcp.mesh.dhcp_option="3" #no gateway yet
+
+uci add firewall zone
+uci set firewall.@zone[-1].name=mesh
+uci set firewall.@zone[-1].network=mesh
+uci set firewall.@zone[-1].input=ACCEPT
+uci set firewall.@zone[-1].output=ACCEPT
+uci set firewall.@zone[-1].forward=REJECT
+
+#forward from lan to mesh
+uci add firewall forwarding
+uci set firewall.@forwarding[-1]="forwarding"
+uci set firewall.@forwarding[-1].src="lan"
+uci set firewall.@forwarding[-1].dest="mesh"
+
+
+# ------------------------------------- #
+# W A N  S E T U P #
+# ------------------------------------- # 
+
+echo "(I) Freifunk: Setup MESH interfaces."
+
+uci -q delete network.wan
+uci -q delete dhcp.wan
+
+uci set network.wan="interface"
+uci set network.wan.ifname="$wan_interface"
+uci set network.wan.proto="dhcp"
+
+uci set dhcp.wan=dhcp
+uci set dhcp.wan.interface=wan
+uci set dhcp.wan.ignore=1
+
+
 # ------------------------------------- #
 # S E T U P  T I N C  /  N 2 N #
 # ------------------------------------- # 
 
-bat_interfaces="$bat_interfaces tinc_bat n2n_bat"
 
+bat_interfaces="$bat_interfaces tinc_bat n2n_bat"
 
 uci set freifunk.settings.bat_interfaces="$bat_interfaces "
 uci set freifunk.settings.mesh_interfaces="$mesh_interfaces "
