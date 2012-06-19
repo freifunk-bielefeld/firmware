@@ -21,6 +21,7 @@ bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
 lan_interfaces=`uci get -q freifunk.settings.lan_interfaces`
 wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
 share_wan=`uci get -q freifunk.settings.share_wan`
+config_nets=`uci get -q freifunk.settings.config_nets`
 
 echo "(I) Freifunk: mac: '$mac'"
 echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
@@ -28,6 +29,7 @@ echo "(I) Freifunk: bat_interfaces: '$bat_interfaces'"
 echo "(I) Freifunk: lan_interfaces: '$lan_interfaces'"
 echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
 echo "(I) Freifunk: share_wan: '$share_wan'"
+echo "(I) Freifunk: config_nets: '$config_nets'"
 
 
 #Create dummy interfaces to be able to set the mac of
@@ -51,7 +53,7 @@ uci set batman-adv.bat0.interfaces="dummy_bat $bat_interfaces"
 uci set batman-adv.bat0.gw_mode="client"
 
 
-echo "(I) Freifunk: Set MESH/LAN/WAN interfaces."
+echo "(I) Freifunk: Assign MESH/LAN/WAN interfaces."
 
 uci set network.mesh.ifname="dummy_mesh bat0 $mesh_interfaces"
 uci set network.lan.ifname="dummy_lan $lan_interfaces"
@@ -65,6 +67,26 @@ if [ "$share_wan" = "yes" ]; then
     uci set firewall.@forwarding[-1].src="mesh"
     uci set firewall.@forwarding[-1].dest="wan"
 fi
+
+
+contains() {
+    for x in $2; do
+        [ "$x" = "$1" ] && return 0
+        done
+    return 1
+}
+
+#filter ssh/https ports
+for src in wan lan mesh; do
+  contains "$src" "$config_nets" && target=ACCEPT || target=REJECT
+  for port in 22 443; do
+    uci add firewall rule
+    uci set firewall.@rule[-1].src=$src
+    uci set firewall.@rule[-1].dest_port=$port
+    uci set firewall.@rule[-1].target=$target
+    uci set firewall.@rule[-1].proto=tcp
+  done
+done
 
 
 echo "(I) Freifunk: done freifunk_first"

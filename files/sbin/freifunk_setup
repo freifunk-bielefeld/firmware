@@ -209,7 +209,7 @@ uci set firewall.@forwarding[-1].dest="mesh"
 # W A N  S E T U P #
 # ------------------------------------- # 
 
-echo "(I) Freifunk: Setup MESH interfaces."
+echo "(I) Freifunk: Setup WAN interface."
 
 uci -q delete network.wan
 uci -q delete dhcp.wan

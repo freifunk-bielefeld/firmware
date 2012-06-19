@@ -10,3 +10,4 @@ config ff_settings 'settings'
     option 'mesh_interfaces' '' #for public network
     option 'lan_interfaces' '' #for private network
     option 'wan_interfaces' ''
+    option 'config_nets' 'lan'

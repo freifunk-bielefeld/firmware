@@ -15,6 +15,7 @@ case $GET_func in
         bat_ifs=$(ssort "$GET_bat_ifs")
         wan_ifs=$(ssort "$GET_wan_ifs")
         lan_ifs=$(ssort "$GET_lan_ifs")
+        config_nets=$(strip $GET_config_nets)
         
         if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
             if [ ${#ap_ssid} -gt 32 ]; then
@@ -54,6 +55,9 @@ case $GET_func in
 
             uci -q set freifunk.settings.mac="$mac"
         fi
+        
+        [ -z "$config_nets" ] && { echo "(E) Settings: config_nets is empty."; exit; }
+        uci -q set freifunk.settings.config_nets="$config_nets"
 
         if [ $(count $wan_ifs) -gt 1 ]; then
             echo "(E) Settings: Multi-WAN is not yet supported."
