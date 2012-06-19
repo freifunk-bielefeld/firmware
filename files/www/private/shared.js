@@ -141,7 +141,7 @@ function append_selection(type, parent, label_text, name, selected, choices)
     var p = create('div');
     var label = create('label');
     
-    p.className = type;
+    p.className = "radio";
     label.innerHTML = label_text + ":";
     p.appendChild(label);
     
