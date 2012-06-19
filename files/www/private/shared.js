@@ -82,6 +82,12 @@ function collect_inputs(p, obj)
     if(p.tagName == "INPUT")
         if(p.type == "text" || (p.type == "radio" && p.checked))
             obj[p.name] = p.value
+        else if(p.type == "checkbox" && p.checked)
+        {
+            var v = obj[p.name];
+            v = (typeof v == "undefined") ? p.value : (v + " " + p.value);
+            obj[p.name] = v;
+        }
     
     for(var i = 0; i < p.childNodes.length; ++i)
         collect_inputs(p.childNodes[i], obj);
@@ -98,7 +104,7 @@ function append_button(parent, text, onclick)
 }
 
 //append an input field
-//e.g. create_input("Name", "name_string", "MyName")
+//e.g. append_input(parent, "Name", "name_string", "MyName")
 function append_input(parent, label_text, name, value)
 {
     var div = create('div');
@@ -117,14 +123,24 @@ function append_input(parent, label_text, name, value)
     return input;
 }
 
-//append an radio field
-//e.g. create_choice("Enabled", "enabled", 0, { "Yes" : 1, "No" : 2})
-function append_radio(parent, label_text, name, selected, choices)
+//append a radio field
+//e.g. append_radio(parent, "Enabled", "enabled", 0, { "Yes" : 1, "No" : 0})
+function append_radio(parent, label_text, name, selected, choices) {
+    return append_selection("radio", parent, label_text, name, [selected], choices);
+}
+
+//append a checkbox field
+//e.g. append_check(parent, "Enabled", "enabled", ["grass"], { "Grass" : "grass", "Butter" : "butter"})
+function append_check(parent, label_text, name, selected, choices) {
+    return append_selection("checkbox", parent, label_text, name, selected, choices);
+}
+
+function append_selection(type, parent, label_text, name, selected, choices)
 {
     var p = create('div');
     var label = create('label');
-
-    p.className = "radio";
+    
+    p.className = type;
     label.innerHTML = label_text + ":";
     p.appendChild(label);
     
@@ -139,8 +155,8 @@ function append_radio(parent, label_text, name, selected, choices)
         
         input.name = name;
         input.value = choice_value;
-        input.type = "radio";
-        if(choice_value == selected)                                 
+        input.type = type;
+        if(inArray(choice_value, selected))
             input.checked = "checked"
         
         label.innerHTML = " " + choice_text;
