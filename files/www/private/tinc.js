@@ -90,7 +90,7 @@ function parse_list(data)
     function makeList(nn, host_list)
     {
         var ul = create('ul');
-        var hosts = host_list.split(" ");
+        var hosts = split(host_list);
         
         for(var i in hosts)
         {

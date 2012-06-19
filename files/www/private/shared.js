@@ -8,6 +8,7 @@ function hide(e) { e.style.display='none'; }
 function addClass(e, c) { e.classList.add(c); } //HTML5!
 function removeClass(e, c) { e.classList.remove(c); }
 function setText(id, txt) { get(id).innerHTML = txt; }
+function split(str) { return str.match(/[^ ]+/g); }
 
 function parseJSON(data)
 {
