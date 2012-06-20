@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Home</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="shared.js"></script>
+<script src="home.js"></script>
+</head>
+<body>
+
+<div id="home">
+    <img src='logo.gif' alt='freifunk_logo' style="position:absolute; right:1%; top:8%;" />
+
+    <fieldset>
+    <legend>Status</legend>
+    <div><label>Anzahl Nachbarn: </label><span id="neigh_count">?</span></div>
+    <div><label>Anzahl Knoten: </label><span id="node_count">?</span></div>
+    <div><label>Internet Vorhanden: </label><span id="has_internet">?</span></div>
+    <div><label>Gateway Modus: </label><span id="is_gateway">?</span></div>
+    <div><label>Uptime: </label><span id="uptime">?</span></div>
+    <div><label>Auslastung: </label><span id="load">?</span></div>
+    <div><label>System: </label><span id="uname">?</span></div>
+    <div><label>Uhrzeit: </label><span id="date">?</span></div>
+    </fieldset>
+
+    <fieldset>
+    <legend>Software</legend>
+    <div><label>Firmware Version: </label><span id="firmware_version">?</span></div>
+    <div><label>Batman-Adv Version: </label><span id="batman_version">?</span></div>
+    <div><label>Tinc Version: </label><span id="tinc_version">?</span></div>
+    <div><label>N2N Version: </label><span id="n2n_version">?</span></div>
+    </fieldset>
+</div>
+
+</body>
+</html>

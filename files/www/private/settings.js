@@ -58,11 +58,8 @@ function rebuild_interfaces(obj)
     function add_interfaces(ifs, selected) {
         if(typeof ifs == "undefined") return;
         var array = split(ifs);
-        for(var i = 0; i < array.length; ++i) {
-            if(array[i].length == 0)
-                continue;
+        for(var i = 0; i < array.length; ++i)
             append_radio(fieldset, array[i], array[i], selected, {"Mesh" :  "mesh_ifs", "Bat" : "bat_ifs", "Lan" : "lan_ifs", "Wan" : "wan_ifs"});
-        }
     }
     
     add_interfaces(obj.mesh_interfaces, "mesh_ifs");
