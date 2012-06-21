@@ -6,9 +6,12 @@ Content-type: text/html
 <title>Info</title>
 </head>
 <body>
-<a href="https://<% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ printf "%s", $1 }' %>">Login</a><br />
+<a href="#" id="link">Login</a><br />
+<script type="text/javascript">
+document.getElementById("link").href="https://"+location.host;
+</script>
 <br />
-<b>Eigene IP: </b>
+<b>Eigene Mesh IP: </b>
 <% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
 <br />
 <b>Andere Knoten im Netz: </b>
