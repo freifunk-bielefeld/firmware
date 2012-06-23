@@ -60,7 +60,7 @@ stop_instance() {
 start() {
 	config_load 'n2n'
 	config_foreach start_instance 'edge'
-	config_foreach start_instance 'superndoe'
+	config_foreach start_instance 'supernode'
 }
 
 stop() {
