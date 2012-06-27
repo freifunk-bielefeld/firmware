@@ -77,10 +77,10 @@ contains() {
 }
 
 #get target value for given zone name
-getDefaultInput() {
+getDefaultTarget() {
   local input name i=0
-  while uci -q get firewall.@zone[$i].name > /dev/null; do
-    name=`uci -q get firewall.@zone[$i].name`
+  while true; do
+    name=`uci -q get firewall.@zone[$i].name`; [ $? -ne 0 ] && return 0
     [ "$name"  = "$1" ] && { uci -q get firewall.@zone[$i].input; return 0; }
     i=$(($i + 1))
   done
@@ -88,7 +88,7 @@ getDefaultInput() {
 
 #filter ssh/https ports
 for src in wan lan mesh; do
-  default_target=`getDefaultInput $src` #uci get -q firewall.$src.input
+  default_target=`getDefaultTarget "$src"` #uci get -q firewall.$src.input
   contains "$src" "$config_nets" && target=ACCEPT || target=REJECT
   [ "$target" = "$default_target" ] && continue
   for port in 22 443; do
