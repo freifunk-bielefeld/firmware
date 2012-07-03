@@ -132,9 +132,17 @@ if [ -z "$bat_interfaces" ]; then
 fi
 
 #get a unique (but not just random) mac to identify the node
-[ -z "$mac_if" ] && mac_if=${bat_interfaces%% *}
-[ -z "$mac_if" ] && mac_if=${mesh_interfaces%% *}
-mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
+mesh_mac=`uci get -q wireless.radio0.macaddr`
+[ -z "$mesh_mac" -o "$mesh_mac" = "00:11:22:33:44:55" ] && {
+    local mac_if=${bat_interfaces%% *}
+    mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
+}
+#translate to globally administered mac address
+a=${mesh_mac%%:*} #cut out first hex
+a=$((0x$a | 2)) #set second bit to 1
+a=`printf '%02x\n' $a` #convert to hex
+mesh_mac="$a:${mesh_mac#*:}" #reassemble mac
+
 echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 
 
