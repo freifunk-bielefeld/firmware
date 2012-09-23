@@ -53,7 +53,10 @@ body {
     left: -11em;
 }
 
-.mac { color:#0033CC; }
+.mac {
+	color:#0033CC;
+	cursor: help;
+}
 
 
 /* forms */
