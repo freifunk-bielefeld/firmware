@@ -1,4 +1,6 @@
 #!/usr/bin/haserl --upload-dir=/tmp --upload-limit=6000
+content-type: text/plain
+
 <%
 path="$POST_firmware"
 keep_config="$POST_keep_config"

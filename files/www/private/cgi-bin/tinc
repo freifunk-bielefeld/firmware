@@ -1,4 +1,6 @@
 #!/usr/bin/haserl --upload-dir=/tmp --upload-limit=10
+content-type: text/plain
+
 <%
 . /www/private/cgi-bin/shared.sh
 

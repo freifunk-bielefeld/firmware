@@ -1,6 +1,7 @@
-#!/usr/bin/haserl 
-<%
+#!/usr/bin/haserl
+content-type: text/plain
 
+<%
 case $GET_func in
   get_originators)
     batctl o

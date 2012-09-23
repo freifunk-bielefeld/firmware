@@ -1,6 +1,7 @@
-#!/usr/bin/haserl 
-<%
+#!/usr/bin/haserl
+content-type: text/plain
 
+<%
 config="/etc/nodogsplash/nodogsplash.conf"
 reg="[ \t]*GatewayInterface[ \t]+([a-zA-Z0-9_\-]+).*"
 

@@ -1,6 +1,7 @@
 #!/usr/bin/haserl
-<%
+content-type: text/plain
 
+<%
 case $GET_func in
   reboot)
     reboot
