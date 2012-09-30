@@ -12,6 +12,8 @@ config zone
 	option input		ACCEPT 
 	option output		ACCEPT 
 	option forward		REJECT
+	option masq '1'
+	option mtu_fix '1'
 
 config zone
 	option name		wan
@@ -33,6 +35,7 @@ config zone
 config forwarding 
 	option src      	lan
 	option dest     	wan
+	option target 'ACCEPT'
 
 config forwarding
 	option src 'lan'
