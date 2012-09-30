@@ -1,0 +1,31 @@
+#!/bin/sh
+
+#count() { echo $#; }
+#strip() { echo "$@"; }
+#ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
+#ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
+
+contains() {
+    for x in $2; do
+        [ "$x" = "$1" ] && return 0
+        done
+    return 1
+}
+
+#query query_name match_value [get_other_value]
+query()
+{
+  local query=$1
+  local value=$2
+  local other=$3
+  local i=0
+  while true; do
+    local q=${query/\?/$i}
+    v=`$q 2> /dev/null`; [ $? -ne 0 ] && return 0
+    [ "$v"  = "$value" ] && {
+      [ -n "$other" ] && echo `${q%.*}.$other 2> /dev/null` || echo $i
+      return 0
+    }
+    i=$(($i + 1))
+  done
+}

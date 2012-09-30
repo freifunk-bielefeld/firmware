@@ -3,6 +3,7 @@
 #check system for initial Freifunk configuration
 
 exec >/root/freifunk_setup.log 2>&1
+. /sbin/freifunk_shared
 
 echo "(I) Freifunk: start freifunk_setup"
 
@@ -32,6 +33,7 @@ ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 # ------------------------------------------- #
 # P R E C O N F I G U R I N G   W I R E L E S S #
 # ------------------------------------------- # 
+
 
 #test if we can span both ad-hoc and access point interfaces
 if [ -n "$wifi_device" ]; then
@@ -73,11 +75,8 @@ if [ -n "$wifi_device" ]; then
     }
     
     record_wifi_interfaces() {
-      wifi_ap_interface=`iwconfig 2> /dev/null | awk "/$ap_ssid/ { print \\$1 }"`
-      if [ -z "$wifi_ap_interface" ]; then
-        wifi_ap_interface=`iwconfig 2> /dev/null | awk "/Mode:Master/ { print \\$1 }"`
-      fi
-        wifi_ah_interface=`iwconfig 2> /dev/null | awk "/$ah_ssid/ { print \\$1 }"`
+      wifi_ap_interface=`query "uci -P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
+      wifi_ah_interface=`query "uci -P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
     }
     
     clear_wifi_interfaces
