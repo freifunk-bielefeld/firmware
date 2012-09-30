@@ -198,19 +198,6 @@ uci set dhcp.mesh.limit=$end_ip
 uci set dhcp.mesh.leasetime=2h #max time for address conflicts
 uci set dhcp.mesh.dhcp_option="3" #no gateway yet
 
-uci add firewall zone
-uci set firewall.@zone[-1].name=mesh
-uci set firewall.@zone[-1].network=mesh
-uci set firewall.@zone[-1].input=ACCEPT
-uci set firewall.@zone[-1].output=ACCEPT
-uci set firewall.@zone[-1].forward=REJECT
-
-#forward from lan to mesh
-uci add firewall forwarding
-uci set firewall.@forwarding[-1]="forwarding"
-uci set firewall.@forwarding[-1].src="lan"
-uci set firewall.@forwarding[-1].dest="mesh"
-
 
 # ------------------------------------- #
 # W A N  S E T U P #
