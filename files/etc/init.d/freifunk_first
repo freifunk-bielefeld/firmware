@@ -6,6 +6,7 @@ START=19
 start () 
 {
 exec >/tmp/freifunk_first.log 2>&1
+. /sbin/freifunk_shared
 
 if [ -f /etc/rc.d/S50telnet ]; then
     echo "(I) Freifunk: skip and wait for setup to be run"
@@ -69,26 +70,9 @@ if [ "$share_wan" = "yes" ]; then
 fi
 
 
-contains() {
-    for x in $2; do
-        [ "$x" = "$1" ] && return 0
-        done
-    return 1
-}
-
-#get target value for given zone name
-getDefaultTarget() {
-  local input name i=0
-  while true; do
-    name=`uci -q get firewall.@zone[$i].name`; [ $? -ne 0 ] && return 0
-    [ "$name"  = "$1" ] && { uci -q get firewall.@zone[$i].input; return 0; }
-    i=$(($i + 1))
-  done
-}
-
 #filter ssh/https ports
 for src in wan lan mesh; do
-  default_target=`getDefaultTarget "$src"` #uci get -q firewall.$src.input
+  default_target=`query "uci -q get firewall.@zone[?].name" "$src" "input"`
   contains "$src" "$config_nets" && target=ACCEPT || target=REJECT
   [ "$target" = "$default_target" ] && continue
   for port in 22 443; do
