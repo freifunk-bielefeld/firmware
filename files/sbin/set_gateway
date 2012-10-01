@@ -50,31 +50,29 @@ echo "(I) set_gateway: mesh_gw: '$mesh_gw', local_gw: '$local_gw'"
 echo -n "$local_gw" > /tmp/ff_local_gw
 echo -n "$mesh_gw" > /tmp/ff_mesh_gw
 
-#set gw to annouce in lan and mesh
+#set gateway to annouce in lan and mesh
 share_wan=`uci get -q freifunk.settings.share_wan`
-if [ "$share_wan" = "yes" ]; then
-  if [ -n "$local_gw" ]; then
-    mesh_gw "$local_gw"
+if [ -n "$local_gw" ]; then
+  if [ "$share_wan" = "yes" ]; then
     lan_gw "$local_gw"
+    mesh_gw "$local_gw"
   else
+    lan_gw "$local_gw"
     mesh_gw "$mesh_gw"
-    lan_gw "$mesh_gw"
   fi
 else
-  if [ -n "$local_gw" ]; then
-    mesh_gw "$mesh_gw"
-    lan_gw "$local_gw"
-  else
-    mesh_gw "$mesh_gw"
+  if [ "$share_wan" = "yes" ]; then
     lan_gw "$mesh_gw"
+    mesh_gw "$mesh_gw"
+  else
+    lan_gw "$mesh_gw"
+    mesh_gw "$mesh_gw"
   fi
-
-  uci set dhcp.mesh.dhcp_option="$mesh_str"
-  uci set dhcp.lan.dhcp_option="$lan_str"
 fi
 
+uci set dhcp.mesh.dhcp_option="$mesh_str"
+uci set dhcp.lan.dhcp_option="$lan_str"
 
-#killall -HUP dnsmasq
 /etc/init.d/dnsmasq restart
 
 echo "(I) set_gateway: done"
