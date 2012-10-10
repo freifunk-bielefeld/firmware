@@ -51,7 +51,7 @@ echo -n "$local_gw" > /tmp/ff_local_gw
 echo -n "$mesh_gw" > /tmp/ff_mesh_gw
 
 #set gateway to annouce in lan and mesh
-share_wan=`uci get -q freifunk.settings.share_wan`
+share_wan=`uci get -q freifunk.settings.share_internet`
 if [ -n "$local_gw" ]; then
   if [ "$share_wan" = "yes" ]; then
     lan_gw "$local_gw"

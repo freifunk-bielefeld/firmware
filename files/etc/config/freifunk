@@ -2,11 +2,10 @@
 config ff_settings 'settings'
     option 'version' '0.1'
     option 'ap_ssid' 'www.freifunk-bielefeld.de'
-    option 'ah_ssid' 'batman.freifunk-bielefeld.de'
     option 'ff_subnet' 29
     option 'mac' ''
-    option 'share_wan' 'no' #for internet
-    option 'bat_interfaces' '' #for batman
+    option 'share_internet' 'no'
+    option 'bat_interfaces' '' #for batman network
     option 'mesh_interfaces' '' #for public network
     option 'lan_interfaces' '' #for private network
     option 'wan_interfaces' ''

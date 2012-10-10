@@ -21,7 +21,7 @@ mesh_interfaces=`uci get -q freifunk.settings.mesh_interfaces`
 bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
 lan_interfaces=`uci get -q freifunk.settings.lan_interfaces`
 wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
-share_wan=`uci get -q freifunk.settings.share_wan`
+share_wan=`uci get -q freifunk.settings.share_internet`
 config_nets=`uci get -q freifunk.settings.config_nets`
 
 echo "(I) Freifunk: mac: '$mac'"

@@ -15,8 +15,10 @@ echo "(I) Freifunk: start freifunk_setup"
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd
 
+#get default SSID
 ap_ssid=`uci get -q freifunk.settings.ap_ssid`
-ah_ssid=`uci get -q freifunk.settings.ah_ssid`
+#add batman version to the AdHoc interface SSID
+ah_ssid="batman_"`cat /sys/module/batman_adv/version 2> /dev/null`
 
 
 wan_interface=`uci -q get network.wan.ifname`
@@ -30,10 +32,10 @@ echo "(I) Freifunk: wifi device: '$wifi_device'"
 
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
-# ------------------------------------------- #
-# P R E C O N F I G U R I N G   W I R E L E S S #
-# ------------------------------------------- # 
 
+# ------------------------------------------- #
+# S E T U P  W I R E L E S S #
+# ------------------------------------------- # 
 
 #test if we can span both ad-hoc and access point interfaces
 if [ -n "$wifi_device" ]; then
@@ -70,8 +72,7 @@ if [ -n "$wifi_device" ]; then
 
     wifi_restart() {
       echo "(I) Freifunk: wireless down/up"
-      wifi down
-      wifi up
+      wifi
     }
     
     record_wifi_interfaces() {
@@ -161,7 +162,6 @@ uci set network.lan.ipaddr="192.168.1.1"
 uci set network.lan.proto=static
 uci set network.lan.netmask="255.255.255.0"
 
-#uci add_list dhcp.@dnsmasq[0].interface="br-lan"
 uci set dhcp.lan=dhcp
 uci set dhcp.lan.interface=lan
 uci set dhcp.lan.start=100
@@ -218,9 +218,8 @@ uci set dhcp.wan.ignore=1
 
 
 # ------------------------------------- #
-# S E T U P  T I N C  /  N 2 N #
+# F R E I F U N K  S E T U P #
 # ------------------------------------- # 
-
 
 bat_interfaces="$bat_interfaces tinc_bat n2n_bat"
 
@@ -230,6 +229,7 @@ uci set freifunk.settings.lan_interfaces="$lan_interfaces "
 uci set freifunk.settings.wan_interfaces="$wan_interface "
 uci set freifunk.settings.mac="$mesh_mac"
 
+#write everything to flash
 uci commit
 
 echo "(I) Freifunk: done freifunk_setup"
