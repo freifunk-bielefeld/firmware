@@ -7,7 +7,10 @@ case $GET_func in
     batctl o
     ;;
   get_transglobal)
-    batctl tg 
+    batctl tg
+    ;;
+  get_gateways)
+    batctl gwl
     ;;
   *)
     echo "(E) batman-adv: Invalid command: '$GET_func'"
