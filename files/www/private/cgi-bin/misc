@@ -20,12 +20,12 @@ case $GET_func in
     date=`date`
     has_internet=`cat /tmp/ff_has_internet 2> /dev/null`
     is_gateway=`uci -q get batman-adv.bat0.gw_mode`
-    node_count=`batctl o | grep -c "^[0-9a-f]\{2\}:"`
+    node_count=`batctl tg | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 7 | sort | uniq | wc -l`
     neigh_count=`batctl o | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 4 | sort | uniq | wc -l`
     firmware_version=`uci -q get freifunk.settings.version`
     tinc_version=`tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'`
     n2n_version=`edge --help 2>&1 | head -n1 | sed -n -r 's/.*(v[0-9\.]*).*/\1/p'`
-    batman_version=`batctl -v 2>&1 | head -n1 | sed -n -r 's/.*batman-adv: ([0-9\.]*).*/\1/p'`
+    batman_version=`cat /sys/module/batman_adv/version 2> /dev/null`
     
     echo -n "{\"ip\" : \"$ip\", \"node_count\" : \"$node_count\", \"neigh_count\" : \"$neigh_count\", "\
 "\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"is_gateway\" : \"$is_gateway\", "\

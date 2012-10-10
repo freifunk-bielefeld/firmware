@@ -35,8 +35,7 @@ function load_settings()
         fs.appendChild(legend);
         
         append_input(fs, "AccessPoint", "ap_ssid", obj.ap_ssid);
-        append_input(fs, "AdHoc", "ah_ssid", obj.ah_ssid).disabled="disabled";
-        append_radio(fs, "Internet Freigeben", "share_wan", obj.share_wan, {"Ja":"yes", "Nein":"no"});
+        append_radio(fs, "Internet Freigeben", "share_internet", obj.share_internet, {"Ja":"yes", "Nein":"no"});
         append_input(fs, "MAC-Adresse", "mac", obj.mac);
         append_check(fs, "SSH/HTTPS Freigeben", "config_nets", split(obj.config_nets), {"Wan":"wan", "Lan":"lan", "Mesh":"mesh"});
 

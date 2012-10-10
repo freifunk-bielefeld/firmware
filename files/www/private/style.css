@@ -78,6 +78,7 @@ label {
 	width:10em;
 	text-align:right;
 	margin-right:1em;
+	white-space:nowrap;
 }
 
 legend {
