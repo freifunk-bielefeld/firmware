@@ -6,8 +6,8 @@ case $GET_func in
   get_originators)
     batctl o
     ;;
-  get_gw_mode)
-    batctl gw
+  get_transglobal)
+    batctl tg 
     ;;
   *)
     echo "(E) batman-adv: Invalid command: '$GET_func'"
