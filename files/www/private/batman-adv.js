@@ -5,7 +5,7 @@ function getIP(span) {
 
 function update(name) {
     send("/cgi-bin/batman-adv", { func : name }, function(text) {
-        text = text.replace(mac_regex, '<span onclick="getIP(this)" class="mac">$1</
+        text = text.replace(mac_regex, '<span onclick="getIP(this)" class="mac">$1</span>');
         setText('output', text);
     });
 }
