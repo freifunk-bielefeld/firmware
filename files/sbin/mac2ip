@@ -7,7 +7,7 @@ ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
-[ -z "$mac" -o -z "$ff_subnet" -o  -z "$start_ip" -o -z "$end_ip" ] && {
+[ -z "$mac" -o -z "$ff_subnet" -o  -z "$start_ip" -o -z "$end_ip" -o ${#mac} -ne 17 ] && {
     echo "0.0.0.0"
     exit 1
 }
