@@ -15,10 +15,10 @@ document.getElementById("link").href="https://"+location.host;
 <% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
 <br />
 <b>Andere Knoten im Netz: </b>
-<% batctl tg | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 7 | sort | uniq | wc -l %>
+<% batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l %>
 <br />
 <b>Anzahl benachbarter Knoten: </b>
-<% batctl o | tail -n+3 | grep -v "^No" | tr -s ' ' | cut -d ' ' -f 4 | sort | uniq | wc -l %>
+<% batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l %>
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <%
