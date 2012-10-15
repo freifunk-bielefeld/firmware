@@ -76,8 +76,8 @@ if [ -n "$wifi_device" ]; then
     }
     
     record_wifi_interfaces() {
-      wifi_ap_interface=`query "uci -P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
-      wifi_ah_interface=`query "uci -P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
+      wifi_ap_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
+      wifi_ah_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
     }
     
     clear_wifi_interfaces

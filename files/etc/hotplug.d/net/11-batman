@@ -6,15 +6,15 @@ if [ "$ACTION" = "change" ]; then
   exec >/tmp/11-batman.log 2>&1
   date
 
-  if [ "$BATACTION" = "del" ]; then
-    /sbin/set_gateway "mesh" ""
-    exit 0
-  fi
+  echo "(I) 11-batman: BATACTION: '$BATACTION', BATDATA: '$BATDATA'"
 
-  if [ -n "$BATDATA" ]; then
-    echo "(I) 11-batman: received gateway MAC: '$BATDATA'"
-    GATE_IP=`mac2ip $BATDATA`
-    /sbin/set_gateway "mesh" "$GATE_IP"
-    exit 0
-  fi
+  [ -n "$BATDATA" ] && mesh_gw=`mac2ip $BATDATA`
+  [ "$BATACTION" = "del" ] && mesh_gw=""
+
+  #set gateway on change
+  prev_mesh_gw=`cat /tmp/ff_mesh_gw 2> /dev/null`
+  [ "$prev_mesh_gw" != "$mesh_gw" ] && {
+    echo -n "$mesh_gw" > /tmp/ff_mesh_gw
+    /sbin/set_gateway
+  }
 fi

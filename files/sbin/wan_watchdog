@@ -4,12 +4,13 @@
 #batman-adv between client und server mode accordingly.
 
 exec >/tmp/wan_watchdog.log 2>&1
+. /sbin/freifunk_shared
 date
 
 echo "(I) wan_watchdog: start"
 
-share_wan=`uci get freifunk.settings.share_internet`
-echo "(I) wan_watchdog: share internet: '$share_wan'"
+share_internet=`uci get freifunk.settings.share_internet`
+echo "(I) wan_watchdog: share internet: '$share_internet'"
 
 wan_interfaces=`uci -q get freifunk.settings.wan_interfaces`
 wan_interface=${wan_interfaces%% *} #get first interface
@@ -18,39 +19,31 @@ echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 bat_mode=`uci -q get batman-adv.bat0.gw_mode`
 echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
 
-mesh_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
-
 n2n=`which edge`
 tinc=`which tincd`
 
 
-has_internet()
+check_internet()
 {
-    echo -n "no" > /tmp/ff_has_internet
-
     [ -z "$wan_interface" ] && {
       echo "(I) wan_watchdog: No wan interfaces found."
       return 1
     }
 
-    [ -z "$mesh_ip" ] && {
-      echo "(I) wan_watchdog: No mesh ip set."
-      return 1
-    }
-
-    local wan_ip=`ifconfig $wan_interface | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
+    local wan_ip=`get_ip "$wan_interface"`
     [ -z "$wan_ip" ] && {
         echo "(I) wan_watchdog: No wan ip set."
         return 1
     }
 
+    #get current default gateway
     local gw=`route -n | sed  "/^0\.0\.0\.0.*$wan_interface$/!d" | awk '{ print $2; }'`
     [ -z "$gw" ] && {
         echo "(I) wan_watchdog: No gateway ip found."
         return 1
     }
-    
-    #various root servers
+
+    #check if any root server can be reached via default gateway and wan interface
     IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
     local r1 r2 ok
     for ip in $IPCHECK; do
@@ -59,9 +52,9 @@ has_internet()
         ping $ip -c 1 -I $wan_interface -q -W 1 > /dev/null; ok=$?;
         [ $r2 -eq 0 ] && route del -host $gw dev $wan_interface
         [ $r1 -eq 0 ] && route del -host $ip gw $gw
-        [ $ok -eq 0 ] && { echo -n "yes" > /tmp/ff_has_internet; return 0; }
+        [ $ok -eq 0 ] && { local_gw="$gw"; return 0; }
     done
-    echo "(E) wan_watchdog: Cannot reach any test IP."
+    echo "(E) wan_watchdog: Cannot reach any tested IP."
     return 1
 }
 
@@ -96,18 +89,24 @@ bat_server()
     fi
 }
 
-if has_internet; then
+check_internet; ok=$?
+
+#set gateway on change
+prev_local_gw=`cat /tmp/ff_local_gw 2> /dev/null`
+[ "$prev_local_gw" != "$local_gw" ] && {
+    echo -n "$local_gw" > /tmp/ff_local_gw
+    /sbin/set_gateway
+}
+
+if [ $ok -eq 0 ]
+then
     # we have internet
-    /sbin/set_gateway "lan" "$mesh_ip"
-    
-    [ "$share_wan" = "yes" ] && bat_server || bat_client
+    [ "$share_internet" = "yes" ] && bat_server || bat_client
     
     is_running "$n2n" || /etc/init.d/n2n start
     is_running "$tinc" || /etc/init.d/tinc start
 else
     # we have no internet
-    /sbin/set_gateway "lan" ""
-
     bat_client
 
     is_running "$n2n" && /etc/init.d/n2n stop

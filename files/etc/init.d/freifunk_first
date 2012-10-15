@@ -21,7 +21,7 @@ mesh_interfaces=`uci get -q freifunk.settings.mesh_interfaces`
 bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
 lan_interfaces=`uci get -q freifunk.settings.lan_interfaces`
 wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
-share_wan=`uci get -q freifunk.settings.share_internet`
+share_internet=`uci get -q freifunk.settings.share_internet`
 config_nets=`uci get -q freifunk.settings.config_nets`
 
 echo "(I) Freifunk: mac: '$mac'"
@@ -29,7 +29,7 @@ echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
 echo "(I) Freifunk: bat_interfaces: '$bat_interfaces'"
 echo "(I) Freifunk: lan_interfaces: '$lan_interfaces'"
 echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
-echo "(I) Freifunk: share_wan: '$share_wan'"
+echo "(I) Freifunk: share_internet: '$share_internet'"
 echo "(I) Freifunk: config_nets: '$config_nets'"
 
 
@@ -61,7 +61,7 @@ uci set network.lan.ifname="dummy_lan $lan_interfaces"
 uci set network.wan.ifname="${wan_interfaces%% *}" #only use first item
 
 
-if [ "$share_wan" = "yes" ]; then
+if [ "$share_internet" = "yes" ]; then
     #forward from mesh to wan
     uci add firewall forwarding
     uci set firewall.@forwarding[-1]="forwarding"
@@ -72,7 +72,7 @@ fi
 
 #filter ssh/https ports
 for src in wan lan mesh; do
-  default_target=`query "uci -q get firewall.@zone[?].name" "$src" "input"`
+  default_target=`uci_query "-q get firewall.@zone[?].name" "$src" "input"`
   contains "$src" "$config_nets" && target=ACCEPT || target=REJECT
   [ "$target" = "$default_target" ] && continue
   for port in 22 443; do

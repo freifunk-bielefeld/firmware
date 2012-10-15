@@ -1,77 +1,44 @@
 #!/bin/sh
 
-#set the gateway dnsmasq delivers via dhcp leases
+#set the gateway dnsmasq delivers via dhcp leases and local routes
 
 exec >/tmp/set_gateway.log 2>&1
+. /sbin/freifunk_shared
 date
 
 echo "(I) set_gateway: start set_gateway"
 
+local_gw=`cat /tmp/ff_local_gw 2> /dev/null`
+mesh_gw=`cat /tmp/ff_mesh_gw 2> /dev/null`
+own_mesh_ip=`get_ip br-mesh`
+own_lan_ip=`get_ip br-lan`
 
-arg_if="$1" #mesh or wan
-arg_gw="$2" #gateway ip
-
-pre_local_gw=`cat /tmp/ff_local_gw 2> /dev/null`
-pre_mesh_gw=`cat /tmp/ff_mesh_gw 2> /dev/null`
-
-echo "(I) set_gateway: arg_if: '$arg_if', arg_gw: '$arg_gw'"
+echo "(I) set_gateway: local_gw: '$local_gw', mesh_gw: '$mesh_gw'"
 
 
-#set gw value for lan setting
-lan_gw() {
-    lan_str="121,10.0.0.0/8,192.168.1.1"
-    [ -n "$1" ] && lan_str="$lan_str,0.0.0.0/0,$1"
-}
-
-#set gw value for mesh setting
-mesh_gw() {
-    [ -n "$1" ] && mesh_str="3,$1" ||  mesh_str="3"
-}
-
-
-if [ "$arg_if" = "mesh" ]
-then #called by /etc/hotplug.d/net/11-batman
-    mesh_gw="$arg_gw"
-    local_gw=$pre_local_gw
-else #called by /sbin/wan_watchdog
-    mesh_gw=$pre_mesh_gw
-    local_gw="$arg_gw"
-fi
-
-echo "(I) set_gateway: pre_mesh_gw: '$pre_mesh_gw', pre_local_gw: '$pre_local_gw'"
-
-[ "$pre_mesh_gw" == "$mesh_gw" -a "$pre_local_gw" == "$local_gw" ] && {
-  echo "(I) set_gateway: Nothing to change. - done"
-  exit 0
-}
-
-echo "(I) set_gateway: mesh_gw: '$mesh_gw', local_gw: '$local_gw'"
-
-echo -n "$local_gw" > /tmp/ff_local_gw
-echo -n "$mesh_gw" > /tmp/ff_mesh_gw
+[ -n "$mesh_gw" ] && mesh_str="121,0.0.0.0/0,$mesh_gw" || mesh_str="121,10.0.0.0/8,$own_mesh_ip"
 
 #set gateway to annouce in lan and mesh
-share_wan=`uci get -q freifunk.settings.share_internet`
+
 if [ -n "$local_gw" ]; then
-  if [ "$share_wan" = "yes" ]; then
-    lan_gw "$local_gw"
-    mesh_gw "$local_gw"
-  else
-    lan_gw "$local_gw"
-    mesh_gw "$mesh_gw"
-  fi
+  #we have internet
+
+  share_internet=`uci get -q freifunk.settings.share_internet`
+  [ "$share_internet" = "yes" ] && mesh_str="121,0.0.0.0/0,$own_mesh_ip"
 else
-  if [ "$share_wan" = "yes" ]; then
-    lan_gw "$mesh_gw"
-    mesh_gw "$mesh_gw"
-  else
-    lan_gw "$mesh_gw"
-    mesh_gw "$mesh_gw"
-  fi
+  #we have no internet
+
+  until_error "route del default"
+  echo "search lan" > /tmp/resolv.conf.auto
+
+  [ -n "$mesh_gw" ] && {
+    route add default gw $mesh_gw
+    echo "nameserver $mesh_gw" >> /tmp/resolv.conf.auto
+  }
 fi
 
 uci set dhcp.mesh.dhcp_option="$mesh_str"
-uci set dhcp.lan.dhcp_option="$lan_str"
+uci set dhcp.lan.dhcp_option="121,10.0.0.0/8,$own_lan_ip,0.0.0.0/0,$own_lan_ip"
 
 /etc/init.d/dnsmasq restart
 
