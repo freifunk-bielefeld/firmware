@@ -4,10 +4,14 @@ function getIP(span) {
 }
 
 function update(name) {
+    setText('msg', "");
     send("/cgi-bin/batman-adv", { func : name }, function(text) {
         text = text.replace(mac_regex, '<span onclick="getIP(this)" class="mac">$1</span>');
         setText('output', text);
     });
 }
 
-update("get_originators");
+function reload() {
+    var opt = get("load_options");
+    opt.options[opt.selectedIndex].onclick();
+}
