@@ -33,7 +33,6 @@ config zone
 config forwarding
 	option src 'lan'
 	option dest 'wan'
-	option target 'ACCEPT'
 
 config forwarding
 	option src 'lan'
