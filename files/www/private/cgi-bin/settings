@@ -19,7 +19,7 @@ case $GET_func in
         config_nets=$(strip $GET_config_nets)
         
         if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
-            if [ ${#ap_ssid} -gt 32 ]; then
+            if [ ${#ap_ssid} -lt 3 -o ${#ap_ssid} -gt 32 ]; then
                 echo "(E) Settings: Invalid Accesspoint name: '$ap_ssid'."
                 exit
             fi
