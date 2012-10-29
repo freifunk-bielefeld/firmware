@@ -1,7 +1,7 @@
 
 config ff_settings 'settings'
     option 'version' '0.1'
-    option 'ap_ssid' 'www.freifunk-bielefeld.de'
+    option 'ap_ssid' 'bielefeld.freifunk.net'
     option 'ff_subnet' 29
     option 'mac' ''
     option 'share_internet' 'no'
