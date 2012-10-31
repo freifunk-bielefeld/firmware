@@ -36,7 +36,7 @@ check_internet()
         return 1
     }
 
-    #get current default gateway
+    #check if any root server can be reached via default gateway and wan interface
     local gw=`route -n | sed  "/^0\.0\.0\.0.*$wan_interface$/!d" | awk '{ print $2; }'`
     [ -z "$gw" ] && {
         echo "(I) wan_watchdog: No gateway ip found."
