@@ -15,8 +15,9 @@ echo "(I) Freifunk: start freifunk_setup"
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd
 
-#get default SSID
-ap_ssid=`uci get -q freifunk.settings.ap_ssid`
+#default SSID
+ap_ssid="bielefeld.freifunk.net"
+
 #add batman version to the AdHoc interface SSID
 ah_ssid="batman_"`cat /sys/module/batman_adv/version 2> /dev/null`
 

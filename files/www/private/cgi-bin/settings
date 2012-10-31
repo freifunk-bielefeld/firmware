@@ -9,7 +9,7 @@ case $GET_func in
         export_json "freifunk" "settings"
     ;;
     set_settings)
-        ap_ssid="$GET_ap_ssid"
+        #ap_ssid="$GET_ap_ssid"
         mac="$GET_mac"
         share_internet="$GET_share_internet"
         mesh_ifs=$(ssort "$GET_mesh_ifs")
@@ -18,13 +18,13 @@ case $GET_func in
         lan_ifs=$(ssort "$GET_lan_ifs")
         config_nets=$(strip $GET_config_nets)
         
-        if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
-            if [ ${#ap_ssid} -lt 3 -o ${#ap_ssid} -gt 32 ]; then
-                echo "(E) Settings: Invalid Accesspoint name: '$ap_ssid'."
-                exit
-            fi
-            uci -q set freifunk.settings.ap_ssid=$ap_ssid
-        fi
+        #if [ `uci -q get freifunk.settings.ap_ssid` != $ap_ssid ]; then
+        #    if [ ${#ap_ssid} -lt 3 -o ${#ap_ssid} -gt 32 ]; then
+        #        echo "(E) Settings: Invalid Accesspoint name: '$ap_ssid'."
+        #        exit
+        #    fi
+        #   uci -q set freifunk.settings.ap_ssid=$ap_ssid
+        #fi
         
         if [ `uci -q get freifunk.settings.share_internet` != $share_internet ]; then
             if [ "$share_internet" != "yes" -a "$share_internet" != "no" ]; then
