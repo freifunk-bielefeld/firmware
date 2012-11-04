@@ -7,6 +7,9 @@
 <script type="text/javascript" src="shared.js"></script>
 
 <script type="text/javascript">
+var html_cache = {};
+var js_cache = {};
+
 function nav_onclick() 
 {
     setText('msg', "");
@@ -15,8 +18,7 @@ function nav_onclick()
     
     var id = url.substring(0, url.lastIndexOf('.'));
     
-    //load html file
-    jx.load(url, function(data) {
+    var process_html = function(data) {
         data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
         var div = create("div");
         div.innerHTML = data;
@@ -29,14 +31,28 @@ function nav_onclick()
         var c = get("content");
         removeChilds(c);
         c.appendChild(e);
-    },'text');
+        
+        html_cache[id] = data;
+    };
+    
+    //load html file
+    if(id in html_cache)
+        process_html(html_cache[id]);
+    else
+        jx.load(url, process_html, 'text');
+    
+    var process_js = function(data) {
+        (window.execScript || function(data) {
+            window["eval"].call(window, data);
+        })(data);
+        js_cache[id] = data;
+    };
     
     //load javascript file
-    jx.load(url.replace(".html", ".js"), function(data) {
-        (window.execScript || function(data) {
-            window[ "eval" ].call( window, data);
-        })(data);
-    },'text');
+    if(id in js_cache)
+        process_js(js_cache[id]);
+    else
+        jx.load(url.replace(".html", ".js"), process_js, 'text');
     
     onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
     onParents(this, 'UL', function(n) { show(n); });
