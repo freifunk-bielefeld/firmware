@@ -33,7 +33,6 @@ echo "(I) Freifunk: wifi device: '$wifi_device'"
 
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
-ifconfig -a
 
 # ------------------------------------------- #
 # S E T U P  W I R E L E S S #
