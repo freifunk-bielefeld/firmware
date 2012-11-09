@@ -3,9 +3,9 @@
 START=19
 
 
-start () 
+start()
 {
-exec >/tmp/freifunk_first.log 2>&1
+exec >/root/freifunk_first.log 2>&1
 . /sbin/freifunk_shared
 
 if [ -f /etc/rc.d/S50telnet ]; then
@@ -17,18 +17,10 @@ echo "(I) Freifunk: start freifunk_first"
 
 
 mac=`uci get -q freifunk.settings.mac`
-mesh_interfaces=`uci get -q freifunk.settings.mesh_interfaces`
-bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
-lan_interfaces=`uci get -q freifunk.settings.lan_interfaces`
-wan_interfaces=`uci get -q freifunk.settings.wan_interfaces`
 share_internet=`uci get -q freifunk.settings.share_internet`
 config_nets=`uci get -q freifunk.settings.config_nets`
 
 echo "(I) Freifunk: mac: '$mac'"
-echo "(I) Freifunk: mesh_interfaces: '$mesh_interfaces'"
-echo "(I) Freifunk: bat_interfaces: '$bat_interfaces'"
-echo "(I) Freifunk: lan_interfaces: '$lan_interfaces'"
-echo "(I) Freifunk: wan_interfaces: '$wan_interfaces'"
 echo "(I) Freifunk: share_internet: '$share_internet'"
 echo "(I) Freifunk: config_nets: '$config_nets'"
 
@@ -50,37 +42,25 @@ tunctl -t dummy_lan > /dev/null
 ifconfig dummy_lan hw ether $mac up
 
 
-uci set batman-adv.bat0.interfaces="dummy_bat $bat_interfaces"
-uci set batman-adv.bat0.gw_mode="client"
-
-
-echo "(I) Freifunk: Assign MESH/LAN/WAN interfaces."
-
-uci set network.mesh.ifname="dummy_mesh bat0 $mesh_interfaces"
-uci set network.lan.ifname="dummy_lan $lan_interfaces"
-uci set network.wan.ifname="${wan_interfaces%% *}" #only use first item
-
-
 if [ "$share_internet" = "yes" ]; then
     #forward from mesh to wan
-    uci add firewall forwarding
-    uci set firewall.@forwarding[-1]="forwarding"
-    uci set firewall.@forwarding[-1].src="mesh"
-    uci set firewall.@forwarding[-1].dest="wan"
+    s=firewall.`uci add firewall forwarding`
+    uci set $s.src="mesh"
+    uci set $s.dest="wan"
 fi
 
 
 #filter ssh/https ports
 for src in wan lan mesh; do
   default_target=`uci_query "-q get firewall.@zone[?].name" "$src" "input"`
-  contains "$src" "$config_nets" && target=ACCEPT || target=REJECT
+  ff_contains "$config_nets" "$src" && target=ACCEPT || target=REJECT
   [ "$target" = "$default_target" ] && continue
   for port in 22 443; do
-    uci add firewall rule
-    uci set firewall.@rule[-1].src=$src
-    uci set firewall.@rule[-1].dest_port=$port
-    uci set firewall.@rule[-1].target=$target
-    uci set firewall.@rule[-1].proto=tcp
+    s=firewall.`uci add firewall rule`
+    uci set $s.src=$src
+    uci set $s.dest_port=$port
+    uci set $s.target=$target
+    uci set $s.proto=tcp
   done
 done
 

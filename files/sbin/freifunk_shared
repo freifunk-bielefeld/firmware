@@ -11,9 +11,9 @@ get_ip() {
   ifconfig "$1" | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'
 }
 
-contains() {
-  for x in $2; do
-    [ "$x" = "$1" ] && return 0
+ff_contains() {
+  for x in $1; do
+    [ "$x" = "$2" ] && return 0
     done
   return 1
 }

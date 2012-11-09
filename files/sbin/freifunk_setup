@@ -33,6 +33,7 @@ echo "(I) Freifunk: wifi device: '$wifi_device'"
 
 ff_subnet=`uci get -q freifunk.settings.ff_subnet`
 
+ifconfig -a
 
 # ------------------------------------------- #
 # S E T U P  W I R E L E S S #
@@ -53,22 +54,22 @@ if [ -n "$wifi_device" ]; then
     
     #ad-hoc for batman
     add_ah_interface() {
-        uci add wireless wifi-iface
-        uci set wireless.@wifi-iface[-1].device="$wifi_device"
-        uci set wireless.@wifi-iface[-1].mode=adhoc
-        uci set wireless.@wifi-iface[-1].ssid="$ah_ssid"
-        uci set wireless.@wifi-iface[-1].bssid="12:CA:FF:EE:BA:BE"
-        uci set wireless.@wifi-iface[-1].hidden=1
+        local s=wireless.`uci add wireless wifi-iface`
+        uci set $s.device="$wifi_device"
+        uci set $s.mode=adhoc
+        uci set $s.ssid="$ah_ssid"
+        uci set $s.bssid="12:CA:FF:EE:BA:BE"
+        uci set $s.hidden=1
     }
     
     #access point for clients
     add_ap_interface() {
-        uci add wireless wifi-iface
-        uci set wireless.@wifi-iface[-1].device="$wifi_device"
-        uci set wireless.@wifi-iface[-1].mode=ap
-        uci set wireless.@wifi-iface[-1].network=mesh
-        uci set wireless.@wifi-iface[-1].ssid="$ap_ssid"
-        uci set wireless.@wifi-iface[-1].encryption="none"
+        local s=wireless.`uci add wireless wifi-iface`
+        uci set $s.device="$wifi_device"
+        uci set $s.mode=ap
+        uci set $s.network=mesh
+        uci set $s.ssid="$ap_ssid"
+        uci set $s.encryption="none"
     }
 
     wifi_restart() {
@@ -100,45 +101,12 @@ if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
 
-
-# ------------------------------------- #
-# A S S I G N  I N T E R F A C E S #
-# ------------------------------------- # 
-
-if [ -n "$wifi_ah_interface" ]; then
-    bat_interfaces="$bat_interfaces $wifi_ah_interface"
-fi
-
-if [ -n "$wifi_ap_interface" ]; then
-    mesh_interfaces="$mesh_interfaces $wifi_ap_interface"
-fi
-
-if [ -n "$lan_interface" ]; then
-    lan_interfaces="$lan_interfaces $lan_interface"
-fi
-
-#trim variables and remove double spaces
-strip() { echo "$@"; }
-bat_interfaces=$(strip $bat_interfaces)
-mesh_interfaces=$(strip $mesh_interfaces)
-
-echo "(I) Freifunk: bat interfaces: '$bat_interfaces'"
-echo "(I) Freifunk: mesh interfaces: '$mesh_interfaces'"
-echo "(I) Freifunk: lan interfaces: '$lan_interfaces'"
-echo "(I) Freifunk: wan interfaces: '$wan_interface'"
-
-if [ -z "$bat_interfaces" ]; then
-    echo "(E) Freifunk: No mesh interfaces found."
-    exit 1
-fi
-
 #get a unique (but not just random) mac to identify the node
-mesh_mac=`uci get -q wireless.radio0.macaddr`
+mesh_mac=`cat /sys/class/ieee80211/phy0/macaddress`
 [ -z "$mesh_mac" -o "$mesh_mac" = "00:11:22:33:44:55" ] && {
-    local mac_if=${bat_interfaces%% *}
-    mesh_mac=$(ifconfig $mac_if | grep HWaddr | awk '{print $5}')
+    mesh_mac=$(ifconfig $lan_interface | grep HWaddr | awk '{print $5}')
 }
-#translate to globally administered mac address
+#translate to local administered mac
 a=${mesh_mac%%:*} #cut out first hex
 a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
@@ -158,7 +126,7 @@ uci -q delete dhcp.lan
 
 uci set network.lan="interface"
 uci set network.lan.type="bridge"
-uci set network.lan.ifname="$lan_interfaces"
+uci set network.lan.ifname="dummy_lan $lan_interface"
 uci set network.lan.ipaddr="192.168.133.1"
 uci set network.lan.proto=static
 uci set network.lan.netmask="255.255.255.0"
@@ -179,7 +147,7 @@ echo "(I) Freifunk: Setup MESH interfaces."
 
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="$mesh_interfaces"
+uci set network.mesh.ifname="dummy_mesh bat0 $wifi_ap_interface"
 uci set network.mesh.ipaddr="0.0.0.0"
 #uci set network.mesh.macaddr="$mac" #does not work
 uci set network.mesh.proto=static
@@ -219,16 +187,19 @@ uci set dhcp.wan.ignore=1
 
 
 # ------------------------------------- #
+# B A T M A N  S E T U P #
+# ------------------------------------- # 
+
+uci set batman-adv.bat0.interfaces="dummy_bat n2n_bat tinc_bat $wifi_ah_interface"
+uci set batman-adv.bat0.gw_mode="client"
+
+
+# ------------------------------------- #
 # F R E I F U N K  S E T U P #
 # ------------------------------------- # 
 
-bat_interfaces="$bat_interfaces tinc_bat n2n_bat"
-
-uci set freifunk.settings.bat_interfaces="$bat_interfaces "
-uci set freifunk.settings.mesh_interfaces="$mesh_interfaces "
-uci set freifunk.settings.lan_interfaces="$lan_interfaces "
-uci set freifunk.settings.wan_interfaces="$wan_interface "
 uci set freifunk.settings.mac="$mesh_mac"
+
 
 #write everything to flash
 uci commit

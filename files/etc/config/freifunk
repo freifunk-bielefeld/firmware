@@ -4,8 +4,4 @@ config ff_settings 'settings'
     option 'ff_subnet' 29
     option 'mac' ''
     option 'share_internet' 'no'
-    option 'bat_interfaces' '' #for batman network
-    option 'mesh_interfaces' '' #for public network
-    option 'lan_interfaces' '' #for private network
-    option 'wan_interfaces' ''
     option 'config_nets' 'lan'

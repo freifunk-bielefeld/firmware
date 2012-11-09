@@ -6,7 +6,9 @@ START=96
 start ()
 {
 #write everything from stdout and stderr to a log file
-exec >/tmp/freifunk_last.log 2>&1
+exec >/root/freifunk_last.log 2>&1
+. /etc/functions.sh
+. /sbin/freifunk_shared
 
 echo "(I) Freifunk: start freifunk_last"
 
@@ -18,8 +20,8 @@ if [ -f /etc/rc.d/S50telnet ]; then
   reboot #todo: work without reboot here
 fi
 
-bat_interfaces=`uci get -q freifunk.settings.bat_interfaces`
-for if in $bat_interfaces; do
+
+for if in `uci get -q batman-adv.bat0.interfaces`; do
     ifconfig $if mtu 1528 up &> /dev/null
 done
 
