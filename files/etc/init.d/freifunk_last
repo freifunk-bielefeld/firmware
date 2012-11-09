@@ -6,7 +6,7 @@ START=96
 start ()
 {
 #write everything from stdout and stderr to a log file
-exec >/root/freifunk_last.log 2>&1
+exec >/tmp/freifunk_last.log 2>&1
 . /etc/functions.sh
 . /sbin/freifunk_shared
 
