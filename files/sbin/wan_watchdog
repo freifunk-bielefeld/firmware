@@ -9,7 +9,7 @@ date
 
 echo "(I) wan_watchdog: start"
 
-share_internet=`uci get freifunk.settings.share_internet`
+share_internet=`uci get freifunk.@settings[0].share_internet`
 echo "(I) wan_watchdog: share internet: '$share_internet'"
 
 wan_interfaces=`uci -q get network.wan.ifname`

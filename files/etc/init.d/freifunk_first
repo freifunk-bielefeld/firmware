@@ -16,9 +16,9 @@ fi
 echo "(I) Freifunk: start freifunk_first"
 
 
-mac=`uci get -q freifunk.settings.mac`
-share_internet=`uci get -q freifunk.settings.share_internet`
-config_nets=`uci get -q freifunk.settings.config_nets`
+mac=`uci get -q freifunk.@settings[0].mac`
+share_internet=`uci get -q freifunk.@settings[0].share_internet`
+config_nets=`uci get -q freifunk.@settings[0].config_nets`
 
 echo "(I) Freifunk: mac: '$mac'"
 echo "(I) Freifunk: share_internet: '$share_internet'"

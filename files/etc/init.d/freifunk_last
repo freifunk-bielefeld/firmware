@@ -27,7 +27,7 @@ done
 
 #Set the mac of br-mesh explicitly so it is fixed.
 #A bridge may change to the lowest may mac otherwise.
-mesh_mac=`uci get freifunk.settings.mac`
+mesh_mac=`uci get freifunk.@settings[0].mac`
 echo "(I) Freifunk: set MAC of br-mesh to '$mesh_mac'"
 ifconfig br-mesh hw ether $mesh_mac
 

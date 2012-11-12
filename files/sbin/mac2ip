@@ -3,7 +3,7 @@
 #Get the IP of a node by MAC.
 
 mac=$1
-ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 

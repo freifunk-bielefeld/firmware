@@ -3,7 +3,6 @@
 #set the gateway dnsmasq delivers via dhcp leases and local routes
 
 exec >/tmp/set_gateway.log 2>&1
-. /sbin/freifunk_shared
 date
 
 echo "(I) set_gateway: start set_gateway"
@@ -23,12 +22,13 @@ echo "(I) set_gateway: local_gw: '$local_gw', mesh_gw: '$mesh_gw'"
 if [ -n "$local_gw" ]; then
   #we have internet
 
-  share_internet=`uci get -q freifunk.settings.share_internet`
+  share_internet=`uci get -q freifunk.@settings[0].share_internet`
   [ "$share_internet" = "yes" ] && mesh_str="121,0.0.0.0/0,$own_mesh_ip"
 else
   #we have no internet
 
-  until_error "route del default"
+  #delete all default routes
+  while `route del default > /dev/null 2>&1`; do true; done
   echo "search lan" > /tmp/resolv.conf.auto
 
   [ -n "$mesh_gw" ] && {

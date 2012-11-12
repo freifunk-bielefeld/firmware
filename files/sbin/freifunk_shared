@@ -1,11 +1,5 @@
 #!/bin/sh
 
-until_error() {
-  while true; do
-    $1 > /dev/null 2>&1
-    [ $? -ne 0 ] && break
-  done
-}
 
 get_ip() {
   ifconfig "$1" | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'

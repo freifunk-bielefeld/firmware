@@ -16,11 +16,13 @@ echo "(I) Freifunk: start freifunk_setup"
 (echo ""; sleep 1; echo "") | passwd
 
 #default SSID
-ap_ssid="bielefeld.freifunk.net"
+ap_ssid=`uci -q get freifunk.@settings[0].default_ap_ssid`
 
 #add batman version to the AdHoc interface SSID
 ah_ssid="batman_"`cat /sys/module/batman_adv/version 2> /dev/null`
 
+#default BSSID
+ah_bssid=`uci -q get freifunk.@settings[0].default_ah_bssid`
 
 wan_interface=`uci -q get network.wan.ifname`
 echo "(I) Freifunk: wan interface: '$wan_interface'"
@@ -31,7 +33,7 @@ echo "(I) Freifunk: lan interface: '$lan_interface'"
 wifi_device=`uci -q get wireless.@wifi-iface[0].device`
 echo "(I) Freifunk: wifi device: '$wifi_device'"
 
-ff_subnet=`uci get -q freifunk.settings.ff_subnet`
+ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 
 
 # ------------------------------------------- #
@@ -57,7 +59,7 @@ if [ -n "$wifi_device" ]; then
         uci set $s.device="$wifi_device"
         uci set $s.mode=adhoc
         uci set $s.ssid="$ah_ssid"
-        uci set $s.bssid="12:CA:FF:EE:BA:BE"
+        uci set $s.bssid="$ah_bssid"
         uci set $s.hidden=1
     }
     
@@ -197,7 +199,8 @@ uci set batman-adv.bat0.gw_mode="client"
 # F R E I F U N K  S E T U P #
 # ------------------------------------- # 
 
-uci set freifunk.settings.mac="$mesh_mac"
+uci set freifunk.@settings[0].mac="$mesh_mac"
+uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 
 #write everything to flash
