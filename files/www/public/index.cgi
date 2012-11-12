@@ -11,31 +11,46 @@ Content-type: text/html
 document.getElementById("link").href="https://"+location.host;
 </script>
 <br />
-<b>Eigene Mesh IP: </b>
+<b>Eigene IP-Adresse: </b>
 <% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
 <br />
-<b>Andere Knoten im Netz: </b>
-<% batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l %>
+<b>Anzahl aller Knoten: </b>
+<% echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)) %>
 <br />
 <b>Anzahl benachbarter Knoten: </b>
 <% batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l %>
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <%
-gw_ip=`cat /tmp/ff_mesh_gw 2> /dev/null`
+
+own_mac=`cat /sys/class/net/br-mesh/address 2> /dev/null`
+own_status=`batctl gw 2>&1`
+
+[ "${own_status:0:6}" = "server" ] && {
+    gw_macs="$own_mac"
+    gw_mac="$own_mac"
+}
+
 IFS="
 "
+for line in `batctl gwl | tail -n+2`; do
+    local mac="${line:3:17}"
+    [ -z "$gw_mac" -a "${line:0:2}" = "=>" ] && gw_mac="$mac"
+    gw_macs="$gw_macs $mac"
+done
+
 echo "<ul>"
-for line in `batctl gwl`; do
-    mac=`echo "$line" | grep -o -E -m 1 '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'`
+IFS=" "
+for mac in $gw_macs; do
     ip=`mac2ip $mac`
-    if [ "$ip" = "$gw_ip" ]; then
+    if [ "$mac" = "$gw_mac" ]; then
         echo "<li>$ip (aktueller default)</li>"
     else
         echo "<li>$ip</li>"
     fi
 done
 echo "</ul>"
+
 %>
 </body>
 </html>
