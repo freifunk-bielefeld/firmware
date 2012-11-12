@@ -3,6 +3,7 @@
 #set the gateway dnsmasq delivers via dhcp leases and local routes
 
 exec >/tmp/set_gateway.log 2>&1
+. /sbin/freifunk_shared
 date
 
 echo "(I) set_gateway: start set_gateway"
