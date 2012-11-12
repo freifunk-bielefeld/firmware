@@ -28,18 +28,12 @@ function nav_onclick()
             e = d; return false;
         });
         
-        var c = get("content");
+        var c = get("body");
         removeChilds(c);
         c.appendChild(e);
         
         html_cache[id] = data;
     };
-    
-    //load html file
-    if(id in html_cache)
-        process_html(html_cache[id]);
-    else
-        jx.load(url, process_html, 'text');
     
     var process_js = function(data) {
         (window.execScript || function(data) {
@@ -47,6 +41,12 @@ function nav_onclick()
         })(data);
         js_cache[id] = data;
     };
+    
+    //load html file
+    if(id in html_cache)
+        process_html(html_cache[id]);
+    else
+        jx.load(url, process_html, 'text');
     
     //load javascript file
     if(id in js_cache)
@@ -103,7 +103,7 @@ function logout() {
 <br>
 <pre id="msg"></pre>
 
-<div id="content"></div>
+<div id="body"></div>
 
 <div id="footer"></div>
 

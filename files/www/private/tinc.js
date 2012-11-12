@@ -69,7 +69,7 @@ function appendSettings(parent, n, obj)
         var value = obj[setting];
         var name = n+"_"+setting;
         if(inArray(setting, ["enabled", "generate_keys", "DirectOnly", "IndirectData"])) {
-            append_radio(parent, label, name, value, {"Ja":1, "Nein":0});
+            append_radio(parent, label, name, value, [["Ja", 1], ["Nein", 0]]);
         } else {
             append_input(parent, label, name, value);
         }

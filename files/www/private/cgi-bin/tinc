@@ -89,7 +89,7 @@ case $func in
         if [ "$key_name" = `uci get -q tinc.$net_name.Name` ]; then
             #key_name is a net entry
             ifce=`uci get -q tinc.$key_name.BindToInterface`
-            [ -z "$ifce" ] && ifce=`uci get -q freifunk.settings.wan_interfaces`
+            [ -z "$ifce" ] && ifce=`uci get -q network.wan.ifname`
             addr=`get_ip "${ifce%% *}"`
         else
             #key_name is a host entry
@@ -158,11 +158,10 @@ case $func in
         uci set -q tinc.$net_name.enabled=1
         uci set -q tinc.$net_name.generate_keys=1
         uci set -q tinc.$net_name.Name="$net_name"
+        uci set -q tinc.$net_name.ffmode="mesh"
         
         mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
         uci commit tinc 2> /dev/null
-
-        add_ff_interface $net_name
 
         echo "(I) tinc: Net '$net_name' was added. Please reboot for the keys to be generated."
     ;;
@@ -190,8 +189,6 @@ case $func in
         uci delete -q tinc.$net_name
         rm -rf /etc/tinc/$net_name 2> /dev/null
         uci commit tinc 2> /dev/null
-        
-        del_ff_interface "$net_name"
         
         echo "(I) tinc: Net '$host_name' has been removed. Please reboot."
     ;;

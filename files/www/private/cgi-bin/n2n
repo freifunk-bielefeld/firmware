@@ -4,26 +4,9 @@ content-type: text/plain
 <%
 . /www/private/cgi-bin/shared.sh
 
-collect_netnames()
-{
-    for line in `uci show n2n`; do
-        net=`echo "$line" | sed -n -r 's/^n2n\.(.*)\=edge$/\1/p'`
-        [ -n "$net" ] && nets="$nets $net"
-    done
-    strip "$nets"
-}
-
 case $GET_func in
     get_configs)
-        echo -n "{ "
-        c=0
-        for name in `collect_netnames`; do
-            [ $c -eq 1 ] && echo ", "
-            c=1
-            echo -n "\"$name\" : "
-            export_json "n2n" "$name"
-        done
-        echo -n " }"
+        uci -X -P /var/state show n2n
     ;;
     del_config)
         name="$GET_name"
@@ -37,7 +20,7 @@ case $GET_func in
         valid_name "$name"
 
         [ `uci get -q n2n.$name` = "edge" ] && { echo "(E) n2n: A conflicting net entry named '$name' already exists."; exit; }
-
+        
         uci set -q n2n.$name=edge
         uci set -q n2n.$name.enabled=0
         uci set -q n2n.$name.ipaddr="0.0.0.0"
@@ -49,8 +32,6 @@ case $GET_func in
         uci set -q n2n.$name.mtu=1528
 
         echo "(I) n2n: Section '$name' added."
-
-        add_ff_interface "$name"
     ;;
     set_config)
         name="$GET_name"

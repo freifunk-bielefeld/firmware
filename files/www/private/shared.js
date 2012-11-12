@@ -8,12 +8,54 @@ function hide(e) { e.style.display='none'; }
 function addClass(e, c) { e.classList.add(c); } //HTML5!
 function removeClass(e, c) { e.classList.remove(c); }
 function setText(id, txt) { get(id).innerHTML = txt; }
-function split(str) { return str.match(/[^ ]+/g); }
+function inArray(item, array) { return array.indexOf(item) != -1; }
+
+function split(str)
+{
+    if(typeof str != 'string')
+        return [];
+    var a = str.match(/[^\s]+/g);                                 
+    return (a ? a : []);
+}
 
 function parseJSON(data)
 {
     data = data.replace(/[\n\r]/g, ""); //for IE
     return eval("("+data+")");
+}
+
+function parseUCI(str)
+{
+    var obj = {};
+    function add(pkg, sec, opt, val)
+    {
+        if(!(pkg in obj)) obj[pkg] = {};
+        if(!(sec in obj[pkg])) obj[pkg][sec] = {};
+        obj[pkg][sec][opt] = val;
+    };
+    
+    var lines = str.split("\n");
+    for(var i = 0; i < lines.length; ++i)
+    {
+        var line = lines[i];
+        var pos = line.indexOf('=');
+        if(pos < 1) continue;
+        var path=line.substring(0, pos);
+        var value = line.substring(pos + 1);
+        var parts = path.split('.');
+        add(parts[0], parts[1], (parts.length == 3) ? parts[2] : "stype", value);
+    }
+    return obj;
+}
+
+function config_foreach(objs, stype, func)
+{
+    for(var key in objs)
+    {
+        var obj = objs[key];
+        if(obj["stype"] == stype)
+            func(key, obj);
+    }
 }
 
 function params(obj)
@@ -64,12 +106,6 @@ function removeChilds(p)
         p.removeChild(p.firstChild);
 }
 
-function inArray(item, array) {
-    for(var i = 0; i < array.length; i++)
-        if(array[i] == item) return true;
-    return false;
-}
-
 function show_error(data)
 {
     var is_error = (data.substr(0, 3) == "(E)");
@@ -80,6 +116,8 @@ function show_error(data)
 
 function collect_inputs(p, obj)
 {
+    if(p.tagName == "SELECT")
+        obj[p.name] = p.value;
     if(p.tagName == "INPUT")
         if(p.type == "text" || (p.type == "radio" && p.checked))
             obj[p.name] = p.value
@@ -94,6 +132,23 @@ function collect_inputs(p, obj)
         collect_inputs(p.childNodes[i], obj);
 }
 
+function append(parent, tag)
+{
+    var e = create(tag);
+    parent.appendChild(e);
+    return e;
+}
+
+function append_section(parent, title, id)
+{
+    var fs = append(parent, "fieldset");
+    var lg = create("legend");
+    lg.innerHTML = title;
+    if(id) fs.id = id;
+    fs.appendChild(lg);
+    return fs;
+}
+
 function append_button(parent, text, onclick)
 {
     var button = create('button');
@@ -104,15 +159,58 @@ function append_button(parent, text, onclick)
     return button;
 }
 
+function append_label(parent, title, value)
+{
+    var div = append(parent, 'div');
+    var label = create('label');
+    var span = create('span');
+
+    label.innerHTML = title + ":";
+    span.innerHTML = value;
+
+    div.appendChild(label);
+    div.appendChild(span);
+
+    return div;
+}
+
+function append_selection(parent, title, name, selected, choices)
+{
+    var p = append(parent, 'div');
+    var label = create('label');
+    var select = create('select');
+
+    select.style.minWidth = "5em"; 
+    select.name = name;
+    p.className = "radio";
+    label.innerHTML = title + ":";
+    p.appendChild(label);
+    p.appendChild(select);
+
+    for(var i in choices)
+    {
+        var s = (typeof choices[i] != 'object');
+        var choice_text = " " + (s ? choices[i] : choices[i][0]);
+        var choice_value = (s ? choices[i] : choices[i][1]);
+
+        var option = create('option');
+        option.value = choice_value;
+        option.selected = (choice_value == selected) ? "selected" : "";
+        option.innerHTML= choice_text;
+        select.appendChild(option);
+    }
+    return p;
+}
+
 //append an input field
 //e.g. append_input(parent, "Name", "name_string", "MyName")
-function append_input(parent, label_text, name, value)
+function append_input(parent, title, name, value)
 {
-    var div = create('div');
+    var div = append(parent, 'div');
     var label = create('label');
     var input = create('input');
   
-    label.innerHTML = label_text + ":";
+    label.innerHTML = title + ":";
     input.value = (typeof value == "undefined") ? "" : value;
     input.name = name;
     input.type = "text";
@@ -120,37 +218,37 @@ function append_input(parent, label_text, name, value)
     div.appendChild(label);
     div.appendChild(input);
     
-    parent.appendChild(div);
-    return input;
+    return div;
 }
 
 //append a radio field
-//e.g. append_radio(parent, "Enabled", "enabled", 0, { "Yes" : 1, "No" : 0})
-function append_radio(parent, label_text, name, selected, choices) {
-    return append_selection("radio", parent, label_text, name, [selected], choices);
+//e.g. append_radio(parent, "Enabled", "enabled", 0, [["Yes", 1], ["No", 0])
+function append_radio(parent, title, name, selected, choices) {
+    return _selection("radio", parent, title, name, [selected], choices);
 }
 
 //append a checkbox field
-//e.g. append_check(parent, "Enabled", "enabled", ["grass"], { "Grass" : "grass", "Butter" : "butter"})
-function append_check(parent, label_text, name, selected, choices) {
-    return append_selection("checkbox", parent, label_text, name, selected, choices);
+//e.g. append_check(parent, "Enabled", "enabled", ["grass"], [["Grass", "grass"], ["Butter", "butter"]])
+function append_check(parent, title, name, selected, choices) {
+    return _selection("checkbox", parent, title, name, selected, choices);
 }
 
-function append_selection(type, parent, label_text, name, selected, choices)
+function _selection(type, parent, title, name, selected, choices)
 {
-    var p = create('div');
+    var p = append(parent, 'div');
     var label = create('label');
     
     p.className = "radio";
-    label.innerHTML = label_text + ":";
+    label.innerHTML = title + ":";
     p.appendChild(label);
     
-    for (var id in choices)
+    for (var i in choices)
     {
-        var choice_text = " " + id;
-        var choice_value = choices[id];
+        var s = (typeof choices[i] == 'string');
+        var choice_text = " " + (s ? choices[i] : choices[i][0]);
+        var choice_value = (s ? choices[i] : choices[i][1]);
         
-        var div = create('div');
+        var div = append(p, 'div');
         var input = create('input');
         var label = create('label');
         
@@ -164,10 +262,7 @@ function append_selection(type, parent, label_text, name, selected, choices)
         
         div.appendChild(input);
         div.appendChild(label);
-        p.appendChild(div);
     }
-    
-    parent.appendChild(p);
     return p;
 }
 

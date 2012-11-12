@@ -89,18 +89,3 @@ uci_add_to_list() {
     [ -z "$tmp" ] && tmp=" "
     uci set -q $1="$tmp"
 }
-
-add_ff_interface() {
-    #add to freifunk mesh interfaces by default
-    uci_add_to_list "freifunk.settings.mesh_interfaces" $1
-    uci commit freifunk 2> /dev/null
-}
-
-del_ff_interface() {
-   #remove net from internal FF interface lists
-    uci_del_from_list "freifunk.settings.mesh_interfaces" "$1"
-    uci_del_from_list "freifunk.settings.lan_interfaces" "$1"
-    uci_del_from_list "freifunk.settings.wan_interfaces" "$1"
-    uci_del_from_list "freifunk.settings.bat_interfaces" "$1"
-    uci commit freifunk 2> /dev/null
-}

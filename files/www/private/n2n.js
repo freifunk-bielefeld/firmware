@@ -16,7 +16,7 @@ function createDelAction(n) {
     return function() {
         if(confirm("Eintrag wirklich L\xF6schen?"))
             mysend_rebuild({ func : "del_config", name : n });
-    }
+    };
 }
 
 function createSetAction(fieldset, n) {
@@ -24,7 +24,7 @@ function createSetAction(fieldset, n) {
         var obj = { func : "set_config", name : n };
         collect_inputs(fieldset, obj);
         mysend(obj);
-    }
+    };
 }
 
 function appendSettings(parent, n, obj)
@@ -33,9 +33,9 @@ function appendSettings(parent, n, obj)
     {
         var label = setting;
         var value = obj[setting];
-        var name = n+"_"+setting;
+        var name = n+"#"+setting;
         if(inArray(setting, ["enabled"])) {
-            append_radio(parent, label, name, value, {"Ja":1, "Nein":0});
+            append_radio(parent, label, name, value, [["Ja", 1], ["Nein", 0]]);
         } else {
             append_input(parent, label, name, value);
         }
@@ -44,22 +44,16 @@ function appendSettings(parent, n, obj)
 
 function parse_config(data)
 {
-    var objs = parseJSON(data);
+    var objs = parseUCI(data);
     var p = get('data');
-    
     removeChilds(p);
     
-    for (var name in objs)
+    for (var name in objs.n2n)
     {
-        var obj = objs[name];
+        var obj = objs.n2n[name];
+        if(obj.stype != "edge") continue;
         
-        var fieldset = create('fieldset');
-        var legend = create('legend');
-        var span = create('span');
-        
-        span.innerHTML = "Verbindung: '" + name + "'";
-        legend.appendChild(span);
-        fieldset.appendChild(legend);
+        var fieldset = append_section(p, "Verbindung: '" + name + "'");
         
         appendSettings(fieldset, name, obj);
 
