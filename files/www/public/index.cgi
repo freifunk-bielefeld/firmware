@@ -22,29 +22,20 @@ document.getElementById("link").href="https://"+location.host;
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <%
-gw_macs=`batctl gwl | grep "^=>" | awk '{ print $2 }'`
-if [ `batctl gw | grep -c -o -m 1 "^server"` -eq 1 ]; then
-  own_ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'`
-fi
-
-if [ ! -z "$gw_macs" ]; then
-  echo "<ul>"
-  if [ -n "$own_ip" ]; then
-    echo "<li>$own_ip (dieser Knoten)</li>"
-  fi
-  for mac in "$gw_macs"; do
-    [ -n "$mac" ] && echo "<li>" `mac2ip "$mac"` "</li>"
-  done
-  echo "</ul>"
-else
-  if [ -n "$own_ip" ]; then
-    echo "<ul>"
-    echo "<li>$own_ip (dieser Knoten)</li>"
-    echo "</ul>"
-  else
-    echo "Keine"
-  fi
-fi
+gw_ip=`cat /tmp/ff_mesh_gw 2> /dev/null`
+IFS="
+"
+echo "<ul>"
+for line in `batctl gwl`; do
+    mac=`echo "$line" | grep -o -E -m 1 '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'`
+    ip=`mac2ip $mac`
+    if [ "$ip" = "$gw_ip" ]; then
+        echo "<li>$ip (aktueller default)</li>"
+    else
+        echo "<li>$ip</li>"
+    fi
+done
+echo "</ul>"
 %>
 </body>
 </html>
