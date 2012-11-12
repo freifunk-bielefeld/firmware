@@ -235,9 +235,11 @@ function apply_port_action(entries, checks)
 function addVLAN(entries, vid, vobj, info)
 {
     var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
-   var entry = append(entries, 'div');
+    var entry = append(entries, 'div');
+    entry.id = vid;
     
     var checks = append_check(entry, ifname+" ports", "network#"+vid+"#ports", split(vobj.ports), info.all_ports);
+    checks.id = "network#"+vid+"#ports";
     for(var okey in vobj)
         if(okey != "ports")
             appendSetting(entry, "network#"+vid, okey, vobj[okey], "");
@@ -253,27 +255,45 @@ function append_vlan_buttons(parent, entries, info)
 {
     var buttons = append(parent, 'div');
     
-    append_button(buttons, "Neu", function() {
+    append_button(buttons, "Neu", function()
+    {
         var vlan = entries.childNodes.length + 1;
         if(vlan <= (info.all_ports.length - (info.tagged_port.length ? 1 : 0)))
         {
             var defaults = { vlan : vlan, device : info.switch_device, ports : info.tagged_port, stype : "switch_vlan"};
-            addVLAN(entries, "new_"+vlan, defaults, info);
+            addVLAN(entries, "new_vlan_"+vlan, defaults, info);
         };
     });
     
     append_button(buttons, "Loeschen", function() {
-        if(entries.childNodes.length > 1)
+        if(entries.childNodes.length < 2)
+            return setText('msg', "(W) Mindestens ein VLAN wird ben\xF6tigt.");
+        
+        var id = entries.lastChild.id;
+        var all_unchecked = true;
+        var checks = get("network#"+id+"#ports");
+        onDesc(checks, "INPUT", function(e) 
+        {
+            if(isNaN(e.value) || !e.checked) //ignore tagged and unchecked port
+                return;
+            all_unchecked = false;
+            return false;
+        });
+        
+        if(all_unchecked)
             entries.removeChild(entries.lastChild);
+        else
+            setText('msg', "(W) Vor dem L\xF6schen eines VLANs m\xFCssen alle Ports entfernt werden.");
     });
     
-    append_button(buttons, "Speichern", function() {
+    append_button(buttons, "Speichern", function()
+    {
       var obj = { func : "set_network" };
       collect_inputs(parent, obj);
       for(var key in obj)
         if(obj[key] == info.tagged_port)
         {
-          setText('msg', "Please select at least one port for every VLAN.");
+          setText('msg', "(W) Jedem VLAN mu\xDF mindestens ein Port zugeordnet werden.");
           return false;
         }
         alert(obj.toSource());
@@ -297,7 +317,7 @@ function collect_switch_info(sobj)
         for(var i in ports)
         {
             var port = ports[i];
-            if(port[port.length-1] == 't')
+            if(isNaN(port))
                 tagged_port = port;
             else
                 all_ports.push(port);
