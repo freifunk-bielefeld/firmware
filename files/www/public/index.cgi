@@ -24,7 +24,7 @@ document.getElementById("link").href="https://"+location.host;
 <%
 
 own_mac=`cat /sys/class/net/br-mesh/address 2> /dev/null`
-own_status=`batctl gw 2>&1`
+own_status=`batctl gw 2> /dev/null`
 
 [ "${own_status:0:6}" = "server" ] && {
     gw_macs="$own_mac"
@@ -35,6 +35,7 @@ IFS="
 "
 for line in `batctl gwl | tail -n+2`; do
     local mac="${line:3:17}"
+    [ "$mac" = "gateways in range" ] && continue
     [ -z "$gw_mac" -a "${line:0:2}" = "=>" ] && gw_mac="$mac"
     gw_macs="$gw_macs $mac"
 done
