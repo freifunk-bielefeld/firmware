@@ -42,7 +42,7 @@ function appendSetting(p, prefix, name, value, value2)
         e = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","lan"], ["Public","mesh"]]);
         break;
     case "ports":
-        e = append_check(entry, value2.ifname+" ports", id, split(value), value2.all_ports);
+        e = append_check(p, value2.ifname+" ports", id, split(value), value2.all_ports);
         if(value2.tagged_port.length)
             hide(e.lastChild); //hide tagged port from de-selection
         break;
