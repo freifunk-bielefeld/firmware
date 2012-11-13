@@ -10,42 +10,48 @@ var public_ifs = [];
 var mesh_ifs = [];
 
 
-function appendSetting(p, prefix, name, value, mode)
+function appendSetting(p, prefix, name, value, value2)
 {
-  if(inArray(name, ["ifname", "up", "type", "macaddr"]))
-    return;
-
+    if(inArray(name, ["ifname", "up", "type", "macaddr"]))
+        return;
+    var id = prefix+"#"+name;
+    var e;
   switch(name)
   {
     case "channel":
-      append_selection(p, "Kanal", prefix+"#"+name, value, [1,2,3,4,5,6,7,8,9,10,11,12]);
+      e = append_selection(p, "Kanal", id, value, [1,2,3,4,5,6,7,8,9,10,11,12]);
       break;
     case "encryption":
-      append_selection(p, "Verschl\xFCsselung", prefix+"#"+name, value, ["none", "psk2"]);
+      e = append_selection(p, "Verschl\xFCsselung", id, value, ["none", "psk2"]);
       break;
     case  "key":
-      append_input(p, "Passwort", prefix+"#"+name, value);
+      e = append_input(p, "Passwort", id, value);
       break;
     case "hwmode": case "htmode": case "ht_capab":
       //display, read only, no send back to router
-      append_label(p, name, value);
+      e = append_label(p, name, value);
       break;
     case "ssid":
-      if(mode == "private")
-        append_input(p, "SSID", prefix+"#ssid", value);
-      else //display, send back to router
-        append_input(p, "SSID", prefix+"#ssid", value).disabled="disabled";
+        e = append_input(p, "SSID", id, value);
+        e.lastChild.disabled = (value2 == "private") ? "" : "disabled";
       break;
     case "share_internet":
-        append_radio(p, "Internet Freigeben", prefix+"#share_internet", value, [["Ja", "yes"], ["Nein", "no"]]);
+        e = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
         break;
     case "config_nets":
-        append_check(p, "SSH/HTTPS Freigeben", prefix+"#config_nets", split(value), [["WAN","wan"], ["Private","lan"], ["Public","mesh"]]);
+        e = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","lan"], ["Public","mesh"]]);
+        break;
+    case "ports":
+        e = append_check(entry, value2.ifname+" ports", id, split(value), value2.all_ports);
+        if(value2.tagged_port.length)
+            hide(e.lastChild); //hide tagged port from de-selection
         break;
     default:
       //no display, send back to router
-      hide(append_input(p, name, prefix+"#"+name, value));
+      e = append_input(p, name, id, value);
+      hide(e);
   }
+    e.id = id;
 }
 
 function append_save_button(parent, _root, func)
@@ -233,21 +239,15 @@ function apply_port_action(entries, checks)
 
 function addVLAN(entries, vid, vobj, info)
 {
-    var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
+    info["ifname"] = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
     var entry = append(entries, 'div');
     entry.id = vid;
     
-    var checks = append_check(entry, ifname+" ports", "network#"+vid+"#ports", split(vobj.ports), info.all_ports);
-    checks.id = "network#"+vid+"#ports";
     for(var okey in vobj)
-        if(okey != "ports")
-            appendSetting(entry, "network#"+vid, okey, vobj[okey], "");
+        appendSetting(entry, "network#"+vid, okey, vobj[okey], info);
     
-  //hide tagged port from de-selection
-  if(info.tagged_port.length)
-    hide(checks.lastChild);
-    
-    apply_port_action(entries, checks); //get("network#"+vid+"#ports");
+    var checks = get("network#"+vid+"#ports");
+    apply_port_action(entries, checks);
 }
 
 function append_vlan_buttons(parent, entries, info)
