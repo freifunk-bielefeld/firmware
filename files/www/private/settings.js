@@ -56,7 +56,6 @@ function append_save_button(parent, _root, func)
   {
     var obj = { func : func };
     collect_inputs(root, obj);
-    alert(obj.toSource());
     send("/cgi-bin/settings", obj, function(data) { setText('msg', data); });
   });
 }
@@ -265,7 +264,7 @@ function append_vlan_buttons(parent, entries, info)
         };
     });
     
-    append_button(buttons, "Loeschen", function() {
+    append_button(buttons, "L\xF6schen", function() {
         if(entries.childNodes.length < 2)
             return setText('msg', "(W) Mindestens ein VLAN wird ben\xF6tigt.");
         
@@ -296,7 +295,6 @@ function append_vlan_buttons(parent, entries, info)
           setText('msg', "(W) Jedem VLAN mu\xDF mindestens ein Port zugeordnet werden.");
           return false;
         }
-        alert(obj.toSource());
         send("/cgi-bin/settings", obj, function(data) { setText('msg', data); });
     });
 }
