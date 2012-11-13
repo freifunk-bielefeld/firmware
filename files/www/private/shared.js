@@ -246,7 +246,7 @@ function _selection(type, parent, title, name, selected, choices)
     {
         var s = (typeof choices[i] == 'string');
         var choice_text = " " + (s ? choices[i] : choices[i][0]);
-        var choice_value = (s ? choices[i] : choices[i][1]);
+        var choice_value = "" + (s ? choices[i] : choices[i][1]);
         
         var div = append(p, 'div');
         var input = create('input');
