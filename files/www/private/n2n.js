@@ -34,7 +34,7 @@ function appendSettings(parent, n, obj)
         var label = setting;
         var value = obj[setting];
         var name = n+"#"+setting;
-        if(inArray(setting, ["enabled"])) {
+        if(inArray(setting, ["enabled", "route"])) {
             append_radio(parent, label, name, value, [["Ja", 1], ["Nein", 0]]);
         } else {
             append_input(parent, label, name, value);
