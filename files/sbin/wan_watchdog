@@ -16,9 +16,9 @@ wan_interfaces=`uci -q get network.wan.ifname`
 wan_interface=${wan_interfaces%% *} #get first interface
 echo "(I) wan_watchdog: wan interface: '$wan_interface'"
 
-bat_mode=`batctl gw 2> /dev/null`
-bat_mode=${bat_mode:0:6}
-echo "(I) wan_watchdog: current batman mode: '$bat_mode'"
+gw_mode=`batctl gw 2> /dev/null`
+gw_mode=${gw_mode:0:6}
+echo "(I) wan_watchdog: current batman mode: '$gw_mode'"
 
 n2n=`which edge`
 tinc=`which tincd`
@@ -66,9 +66,8 @@ is_running() {
 #switch to client
 bat_client()
 {
-    if [ "$bat_mode" != "client" ]; then
+    if [ "$gw_mode" != "client" ]; then
         echo "(I) wan_watchdog: Switch to client mode."
-        uci set batman-adv.bat0.gw_mode="client"
         batctl gw client
         /etc/init.d/nodogsplash stop > /dev/null
     else
@@ -79,10 +78,9 @@ bat_client()
 #switch to server
 bat_server()
 {
-    if [ "$bat_mode" != "server" ]; then
+    if [ "$gw_mode" != "server" ]; then
         echo "(I) wan_watchdog: Switch to gateway mode."
         /etc/init.d/nodogsplash start > /dev/null
-        uci set batman-adv.bat0.gw_mode="server"
         batctl gw server
     else
         echo "(I) wan_watchdog: Already in gateway mode."

@@ -192,7 +192,6 @@ uci set dhcp.wan.ignore=1
 # ------------------------------------- # 
 
 uci set batman-adv.bat0.interfaces="dummy_bat n2n_bat tinc_bat $wifi_ah_interface"
-uci set batman-adv.bat0.gw_mode="client"
 
 
 # ------------------------------------- #

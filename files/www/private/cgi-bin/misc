@@ -19,7 +19,7 @@ case $GET_func in
     uname=`uname -s -m -r`
     date=`date`
     has_internet="no" && [ -s "/tmp/ff_local_gw" ]  && has_internet="yes"
-    is_gateway=`uci -q get batman-adv.bat0.gw_mode`
+    gw_mode=`batctl gw 2>&1`; gw_mode="${gw_mode:0:6}";
     node_count=$((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
     neigh_count=`batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
     firmware_version=`uci -q get freifunk.@settings[0].version`
@@ -28,7 +28,7 @@ case $GET_func in
     batman_version=`cat /sys/module/batman_adv/version 2> /dev/null`
     
     echo -n "{\"ip\" : \"$ip\", \"node_count\" : \"$node_count\", \"neigh_count\" : \"$neigh_count\", "\
-"\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"is_gateway\" : \"$is_gateway\", "\
+"\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"gw_mode\" : \"$gw_mode\", "\
 "\"firmware_version\" : \"$firmware_version\", \"tinc_version\" : \"$tinc_version\", \"n2n_version\" : \"$n2n_version\", "\
 "\"load\" : \"$load\", \"batman_version\" : \"$batman_version\", \"uname\" : \"$uname\", \"date\" : \"$date\"}"
   ;;
