@@ -19,7 +19,7 @@ case $GET_func in
     uname=`uname -s -m -r`
     date=`date`
     has_internet="no" && [ -s "/tmp/ff_local_gw" ]  && has_internet="yes"
-    gw_mode=`batctl gw 2>&1`; gw_mode="${gw_mode:0:6}";
+    gw_mode=`batctl gw 2> /dev/null`; gw_mode="${gw_mode:0:6}";
     node_count=$((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
     neigh_count=`batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
     firmware_version=`uci -q get freifunk.@settings[0].version`
