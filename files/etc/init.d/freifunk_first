@@ -6,6 +6,7 @@ START=19
 start()
 {
 exec >/tmp/freifunk_first.log 2>&1
+. /etc/functions.sh
 . /sbin/freifunk_shared
 
 if [ -f /etc/rc.d/S50telnet ]; then
@@ -53,7 +54,7 @@ fi
 #filter ssh/https ports
 for src in wan lan mesh; do
   default_target=`uci_query "-q get firewall.@zone[?].name" "$src" "input"`
-  ff_contains "$config_nets" "$src" && target=ACCEPT || target=REJECT
+  list_contains config_nets "$src" && target=ACCEPT || target=REJECT
   [ "$target" = "$default_target" ] && continue
   for port in 22 443; do
     s=firewall.`uci add firewall rule`
