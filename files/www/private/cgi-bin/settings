@@ -58,13 +58,14 @@ apply()
         [ -z "$sec" ] && sec="$2"
         uci set -q $1.$sec.$3="$4"
         [ $? -ne 0 ] && {
-            echo "(E) settings: Error detected - settings not stored - please reboot."
+            echo "(E) Beim Speichern ist ein Fehler aufgetreten. - Bitte Neustarten."
             exit
         }
     }
     env_foreach $1 set_options
 
     uci commit $pkg
+    echo "(I) Die Einstellungen wurden erfolgreich gespeichert."
 }
 
 case "$GET_func" in
