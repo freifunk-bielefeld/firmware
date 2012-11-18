@@ -18,6 +18,13 @@ function split(str)
     return (a ? a : []);
 }
 
+function uniq(arr)
+{
+  var obj = {};
+  for(var i in arr) obj[arr[i]] = 0;
+  return Object.keys(obj);
+}
+
 function parseJSON(data)
 {
     data = data.replace(/[\n\r]/g, ""); //for IE
@@ -151,11 +158,10 @@ function append_section(parent, title, id)
 
 function append_button(parent, text, onclick)
 {
-    var button = create('button');
+    var button = append(parent, 'button');
     button.type = 'button';
     button.innerHTML = text;
     button.onclick = onclick;
-    parent.appendChild(button);
     return button;
 }
 
@@ -191,13 +197,12 @@ function append_selection(parent, title, name, selected, choices)
     {
         var s = (typeof choices[i] != 'object');
         var choice_text = " " + (s ? choices[i] : choices[i][0]);
-        var choice_value = (s ? choices[i] : choices[i][1]);
+        var choice_value = "" + (s ? choices[i] : choices[i][1]);
 
-        var option = create('option');
+        var option = append(select, 'option');
         option.value = choice_value;
         option.selected = (choice_value == selected) ? "selected" : "";
         option.innerHTML= choice_text;
-        select.appendChild(option);
     }
     return p;
 }

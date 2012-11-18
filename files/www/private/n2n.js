@@ -57,11 +57,10 @@ function parse_config(data)
         
         appendSettings(fieldset, name, obj);
 
-        var div = create('div');
+        var div = append(fieldset, 'div');
         append_button(div, 'L\xF6schen', createDelAction(name));
         append_button(div, 'Speichern', createSetAction(fieldset, name));
         
-        fieldset.appendChild(div);
         p.appendChild(fieldset);
     }
 }

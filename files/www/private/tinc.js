@@ -3,13 +3,15 @@ var nn = "";
 var hn = "";
 
 
-function mysend(obj) {
+function mysend(obj)
+{
     send("/cgi-bin/tinc", obj, function(data) {
         setText("msg", data);
     });
 }
 
-function get_onclick(net_name, host_name) {
+function get_onclick(net_name, host_name)
+{
     return function() {
         setText("msg", "");
         
@@ -76,7 +78,8 @@ function appendSettings(parent, n, obj)
     }
 }
 
-function rebuild_list() {
+function rebuild_list()
+{
     hide(get("entry").parentNode);
     send("/cgi-bin/tinc", { func: "get_net_list" }, parse_list);
 }
@@ -87,8 +90,7 @@ function parse_list(data)
     var ul = get('data');
     removeChilds(ul);
     
-    function makeList(nn, host_list)
-    {
+    function makeList(nn, host_list) {
         var ul = create('ul');
         var hosts = split(host_list);
         

@@ -4,7 +4,7 @@ content-type: text/plain
 <%
 . /etc/functions.sh
 
-myforeach()                          
+env_foreach()
 {
     local pkg sec opt key val old="$IFS"
     split() { pkg=${1:4}; sec=$2; opt=$3; }
@@ -22,38 +22,50 @@ myforeach()
 apply()
 {
     local pkg=$1 stype=$2
-    
-    #remove all section of type $stype
-    delete_sections() { uci -q delete $pkg.$1; }
+    local old="" new=""
+
+    #collect old sections
+    collect_old() { append old "$1"; }
     config_load "$pkg"
-    config_foreach delete_sections "$stype"
-    
-    #create new sections as needed
-    add_sections()
-    {
-        [ "$3" != "stype" ] && return
-        msec=`uci -q add $1 $4`
-        eval "section_${1}_${2}=\"$msec\""
+    config_foreach collect_old $stype
+
+    #collect new sections
+    collect_new() {
+        [ "$3" = "stype" -a "$4" = "$stype" ] && append new "$2"
     }
-    myforeach $1 add_sections
-    
-    #fill new sections with options
-    add_options()
+    env_foreach $1 collect_new
+
+    #add new sections
+    for sec in $new; do
+        list_contains old "$sec" || {
+            local nsec=`uci -q add $pkg $stype`
+            eval "section_${sec}=\"$nsec\""
+        }
+    done
+
+    #delete old sections
+    for sec in $old; do
+        list_contains new "$sec" || {
+            uci -q delete $pkg.$sec
+        }
+    done
+
+    #set options
+    set_options()
     {
-        [ "$3" == "stype" ] && return
-        eval "msec=\"\$section_${1}_${2}\""
-        uci set -q $1.$msec.$3="$val"
+        [ "$3" = "stype" ] && return
+        eval "local sec=\"\$section_${2}\""
+        [ -z "$sec" ] && sec="$2"
+        uci set -q $1.$sec.$3="$4"
         [ $? -ne 0 ] && {
-            echo "(E) settings: Error detected - settings not stored - please reboot to restore."
+            echo "(E) settings: Error detected - settings not stored - please reboot."
             exit
         }
     }
-    myforeach $1 add_options
-    
-    uci commit "$1"
-    echo "(I) settings: Settings for '$1' successfully applied - please reboot to restore."
-}
+    env_foreach $1 set_options
 
+    uci commit $pkg
+}
 
 case "$GET_func" in
     get_settings)
@@ -62,7 +74,7 @@ case "$GET_func" in
         uci -X -P /var/state -q show wireless 
         uci -X -P /var/state -q show network
         #hack to get most existing interfaces
-        ifnames=`ifconfig -a | grep "^[[:alpha:]]" | cut -d " " -f 1 | tr '\n' ' '`
+        ifnames=`ls /sys/class/net/ | tr '\n' ' '`
         echo "ifconfig.all.interfaces=$ifnames"
         ;;
     set_wireless)
@@ -76,8 +88,8 @@ case "$GET_func" in
     ;;
     set_assignment)
         add() { eval "append ${4}_ifs \"$3\""; }
-        myforeach "set_mode" add
-        
+        env_foreach "set_mode" add
+
         uci -q set uci set batman-adv.bat0.interfaces="$mesh_ifs"
         uci -q set network.mesh.ifname="$public_ifs"
         uci -q set network.lan.ifname="$private_ifs"
