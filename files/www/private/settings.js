@@ -109,7 +109,7 @@ function show_assignment()
   config_foreach(all.network, "switch", function(sid, sobj) {
     var info = collect_switch_info(sobj);
     if(info.switch_ifname.length)
-      ignore.push(switch_ifname);
+      ignore.push(info.switch_ifname);
     config_foreach(all.network, "switch_vlan", function(vid, vobj) {
       var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
       ifnames.push(ifname);
