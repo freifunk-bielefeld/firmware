@@ -53,8 +53,7 @@ function appendSetting(p, prefix, name, value, value2)
 function append_save_button(parent, _root, func)
 {
   var root = _root;
-  append_button(parent, "Speichern", function()
-  {
+  append_button(parent, "Speichern", function() {
     var obj = { func : func };
     collect_inputs(root, obj);
     send("/cgi-bin/settings", obj, function(data) { setText('msg', data); });
@@ -116,6 +115,11 @@ function show_assignment()
     });
   });
 
+  //predict tinc/n2n interfaces
+  config_foreach(all.tinc, "tinc-net", function(id, obj) { ifnames.push(id); });
+  config_foreach(all.n2n, "edge", function(id, obj) { ifnames.push(id); });
+
+  ifnames = uniq(ifnames);
   ifnames.sort();
   for(var i in ifnames)
   {
@@ -171,8 +175,7 @@ function getWifiDefaults(dev, mode)
 function collect_wifi_info(device)
 {
   var modes = [];
-  config_foreach(all.wireless, "wifi-iface", function(wid, wobj)
-  {
+  config_foreach(all.wireless, "wifi-iface", function(wid, wobj) {
     if(device == wobj.device)
       modes.push(getMode(wobj.ifname));
   });
@@ -224,8 +227,7 @@ function show_wifi()
   removeChilds(root);
   
   //print wireless sections
-  config_foreach(all.wireless, "wifi-device", function(id, obj) 
- {
+  config_foreach(all.wireless, "wifi-device", function(id, obj) {
   var fs = append_section(root, "Wireless '"+id+"'", id);
 
   for(var sid in obj)
@@ -236,8 +238,7 @@ function show_wifi()
   entries.id = "wireless_"+id+"_wifis";
 
   //print wireless interfaces
-  config_foreach(all.wireless, "wifi-iface", function(wid, wobj)
-  {
+  config_foreach(all.wireless, "wifi-iface", function(wid, wobj) {
     var mode = getMode(wobj["ifname"]);
     addWifi(mode, wid, id, wobj);
   });
@@ -282,8 +283,7 @@ function append_vlan_buttons(parent, entries, info)
 {
   var buttons = append(parent, 'div');
 
-  append_button(buttons, "Speichern", function()
-  {
+  append_button(buttons, "Speichern", function() {
     var obj = { func : "set_network" };
     collect_inputs(parent, obj);
     for(var key in obj)
@@ -293,8 +293,7 @@ function append_vlan_buttons(parent, entries, info)
     send("/cgi-bin/settings", obj, function(data) { setText('msg', data); });
   });
 
-  append_button(buttons, "Neu", function()
-  {
+  append_button(buttons, "Neu", function() {
     var vlan = entries.childNodes.length + 1;
     if(vlan <= (info.all_ports.length - (info.tagged_port.length ? 1 : 0)))
     {
@@ -310,8 +309,7 @@ function append_vlan_buttons(parent, entries, info)
     var id = entries.lastChild.id;
     var all_unchecked = true;
     var checks = get("network#"+id+"#ports");
-    onDesc(checks, "INPUT", function(e)
-    {
+    onDesc(checks, "INPUT", function(e) {
       if(isNaN(e.value) || !e.checked) //ignore tagged and unchecked port
         return;
       all_unchecked = false;
@@ -332,8 +330,7 @@ function collect_switch_info(sobj)
   var tagged_port = "";
   var device = sobj.name;
 
-  config_foreach(all.network, "switch_vlan", function(vid, vobj)
-  {
+  config_foreach(all.network, "switch_vlan", function(vid, vobj) {
     if(vobj["device"] != device)
       return;
 
