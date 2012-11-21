@@ -97,7 +97,7 @@ case "$GET_func" in
         add() { eval "append ${4}_ifs \"$3\""; }
         env_foreach "set_mode" add
 
-        uci -q set uci set batman-adv.bat0.interfaces="$mesh_ifs"
+        uci -q set batman-adv.bat0.interfaces="$mesh_ifs"
         uci -q set network.mesh.ifname="$public_ifs"
         uci -q set network.lan.ifname="$private_ifs"
         uci -q set network.wan.ifname="${wan_ifs%% *}"
