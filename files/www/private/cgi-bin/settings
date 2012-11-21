@@ -19,6 +19,10 @@ env_foreach()
     IFS="$old"
 }
 
+ok_msg() {
+    echo "(I) Die Einstellungen wurden erfolgreich gespeichert. Bitte Neustarten um die Einstellungen zu &uuml;bernehmen."
+}
+
 apply()
 {
     local pkg=$1 stype=$2
@@ -58,21 +62,21 @@ apply()
         [ -z "$sec" ] && sec="$2"
         uci set -q $1.$sec.$3="$4"
         [ $? -ne 0 ] && {
-            echo "(E) Beim Speichern ist ein Fehler aufgetreten. - Bitte Neustarten."
+            echo "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
             exit
         }
     }
     env_foreach $1 set_options
 
     uci commit $pkg
-    echo "(I) Die Einstellungen wurden erfolgreich gespeichert."
+    ok_msg
 }
 
 case "$GET_func" in
     get_settings)
         uci -X -P /var/state -q show batman-adv
         uci -X -P /var/state -q show freifunk
-        uci -X -P /var/state -q show wireless 
+        uci -X -P /var/state -q show wireless
         uci -X -P /var/state -q show network
         uci -X -P /var/state -q show tinc
         uci -X -P /var/state -q show n2n
@@ -97,9 +101,11 @@ case "$GET_func" in
         uci -q set network.mesh.ifname="$public_ifs"
         uci -q set network.lan.ifname="$private_ifs"
         uci -q set network.wan.ifname="${wan_ifs%% *}"
-        
+
         uci commit batman-adv
         uci commit network
+
+        ok_msg
     ;;
     *)
         echo "(E) settings: Invalid command: '$GET_func'"

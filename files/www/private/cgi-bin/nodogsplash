@@ -5,14 +5,20 @@ content-type: text/plain
 config="/etc/nodogsplash/nodogsplash.conf"
 reg="[ \t]*GatewayInterface[ \t]+([a-zA-Z0-9_\-]+).*"
 
+
+ndsctl status > /dev/null 2>&1
+[ $? -eq 1 ] && {
+    echo "(W) Die Splash-Seite ist nicht aktiv."
+    exit
+}
+
+
 case $GET_func in
   get_status)
     ndsctl status 2> /dev/null
-    [ $? -eq 1 ] && echo "(W) Splash page is not running."
     ;;
   get_clients)
     ntsctl clients 2> /dev/null
-    [ $? -eq 1 ] && echo "(W) Splash page is not running."
     ;;
   auth|deauth|block|unblock|allow|unallow|trust|untrust)
     func="$GET_func"
@@ -20,7 +26,7 @@ case $GET_func in
     fail=0
     for mac in $macs; do
       if [ `echo "$mac" | grep -c -E '^[[:xdigit:]]{1,2}(:[[:xdigit:]]{1,2}){5}$'` -eq 0 ]; then
-        echo "(E) nodogsplash: Invalid MAC: '$mac'."
+        echo "(E) Ung&uuml;ltige MAC-Adresse: '$mac'."
         exit
       fi
       

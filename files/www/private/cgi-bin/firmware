@@ -6,7 +6,7 @@ path="$POST_firmware"
 keep_config="$POST_keep_config"
 
 if [ -e "$path" ]; then
-    echo "(I) Start sysupgrade..."
+    echo "(I) Starte sysupgrade..."
     if [ "$keep_config" = "yes" ]; then
         args="-c"
     else
@@ -14,6 +14,7 @@ if [ -e "$path" ]; then
     fi
     sysupgrade $args $path || rm -f "$path"
 else
-    echo "(E) firmware: Cannot find file '$path'."
+    #Firmware has not been found.
+    echo "(E) Firmware '$path' wurde nicht gefunden."
 fi
 %>

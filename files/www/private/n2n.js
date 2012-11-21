@@ -29,15 +29,20 @@ function createSetAction(fieldset, n) {
 
 function appendSettings(parent, n, obj)
 {
-    for(var setting in obj)
+    for(var name in obj)
     {
-        var label = setting;
-        var value = obj[setting];
-        var name = n+"#"+setting;
-        if(inArray(setting, ["enabled", "route"])) {
-            append_radio(parent, label, name, value, [["Ja", 1], ["Nein", 0]]);
+        if(name == "stype")
+            continue;
+
+        var value = obj[name];
+        var id = n+"#"+name;
+        if(inArray(name, ["enabled", "route"])) {
+            append_radio(parent, name, id, value, [["Ja", 1], ["Nein", 0]]);
+        } else if(name == "mtu" || name == "port") {
+            var e = append_input(parent, name, id, value).lastChild;
+            addInputCheck(e, /^[1-9]\d*$/, name + " muss eine Nummer sein.");
         } else {
-            append_input(parent, label, name, value);
+            append_input(parent, name, id, value);
         }
     }
 }
@@ -77,5 +82,7 @@ function save_config() {
 function rebuild_config() {
     send("/cgi-bin/n2n", { func: "get_configs" }, parse_config);
 }
+
+addInputCheck(get('new_name'), /[a-z]\w+/, "Der Verbindungsname ist ungültig.");
 
 rebuild_config();

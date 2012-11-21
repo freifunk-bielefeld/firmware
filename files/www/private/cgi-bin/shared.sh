@@ -50,7 +50,7 @@ import_settings()
 valid_name() {
     local tmp=`echo -n "$1" | grep -c '^[0-9a-zA-Z_]*$'`
     [ $tmp -ne 1 ] && {
-        echo "(E) Name '$1' is invalid."
+        echo "(E) Name '$1' ist invalid."
         exit 1
     }
 }
@@ -58,7 +58,8 @@ valid_name() {
 valid_entry() {
     local tmp=`uci get -q $1`
     [ "$tmp" != "$2" -o -z $1 ] && {
-        echo "(E) Entry '$1' does not exist."
+        #Entry does not exists
+        echo "(E) Eintrag '$1' existiert nicht."
         exit 1
     }
 }

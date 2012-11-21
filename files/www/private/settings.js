@@ -100,7 +100,7 @@ function show_assignment()
   var root = get("assignment");
   removeChilds(root);
 
-  var fs = append_section(root, "Verwendung");
+  var fs = append_section(root, "Verwendungszweck");
   var ifnames = split(all.ifconfig.all.interfaces);
   var ignore = ["lo", "br-mesh", "br-lan"];
 

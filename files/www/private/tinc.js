@@ -41,13 +41,34 @@ function appendHeader(fs, text)
     fs.appendChild(legend);
 }
 
+function appendSetting(parent, prefix,  name, value)
+{
+    if(name == "stype")
+        return;
+
+    var id = prefix+"_"+name;
+    if(inArray(name, ["enabled", "generate_keys", "DirectOnly", "IndirectData"])) {
+        append_radio(parent, name, id, value, [["Ja", 1], ["Nein", 0]]);
+    } else if(name == "Mode") {
+        append_radio(parent, name, id, value, ["router", "switch", "hub"]);
+    } else if(name == "DeviceType") {
+        append_radio(parent, name, id, value, ["dummy", "tun", "tap"]);
+    } else if(name == "PingTimeout" || name == "Hostnames" || name == "Port") {
+        var e = append_input(parent, name, id, value).lastChild;
+        addInputCheck(e, /^[1-9]\d*$/, name + " muss eine Nummer sein.");
+    } else {
+        append_input(parent, name, id, value);
+    }
+}
+
 function update_net(fs)
 {
     send("/cgi-bin/tinc", { func: "get_net", net_name : nn }, function(data) {
         if(show_error(data)) return;
         var obj = parseJSON(data);
         appendHeader(fs, "Netz: '"+nn+"'");
-        appendSettings(fs, nn, obj);
+        for(var name in obj)
+            appendSetting(fs, nn, name, obj[name]);
         show(fs.parentNode);
     });
 }
@@ -58,24 +79,10 @@ function update_host(fs)
         if(show_error(data)) return;
         var obj = parseJSON(data);
         appendHeader(fs, "Host: '"+hn+"'");
-        appendSettings(fs, hn, obj);
+        for(var name in obj)
+            appendSetting(fs, hn, name, obj[name]);
         show(fs.parentNode);
     });
-}
-
-function appendSettings(parent, n, obj)
-{
-    for(var setting in obj)
-    {
-        var label = setting;
-        var value = obj[setting];
-        var name = n+"_"+setting;
-        if(inArray(setting, ["enabled", "generate_keys", "DirectOnly", "IndirectData"])) {
-            append_radio(parent, label, name, value, [["Ja", 1], ["Nein", 0]]);
-        } else {
-            append_input(parent, label, name, value);
-        }
-    }
 }
 
 function rebuild_list()

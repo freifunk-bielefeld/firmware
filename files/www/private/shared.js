@@ -121,6 +121,17 @@ function show_error(data)
     return is_error;
 }
 
+function addInputCheck(input, regex, msg)
+{
+    var value = input.value;
+    input.onchange = function(e) {
+        var src = (e.target || e.srcElement);
+        if(regex.test(src.value)) return;
+        alert(msg);
+        src.value = value;
+    }
+}
+
 function collect_inputs(p, obj)
 {
     if(p.tagName == "SELECT")

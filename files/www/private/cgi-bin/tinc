@@ -50,7 +50,7 @@ case $func in
         dst_path="/etc/tinc/$net_name/hosts/$key_name"
         
         #[ -f $dst_path ] && { echo "(E) Key file already exists."; exit; }
-        [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) A conflicting net entry named '$key_name' already exists."; exit; }
+        [ `uci get -q tinc.$key_name` = "tinc-net" ] && { echo "(E) Ein Eintrag mit dem Namen '$key_name' existiert bereits."; exit; }
         
         addr=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Address[ \t]*=[ \t]*(.*)$/\1/pI'`
         port=`cat $src_path | head -n3 | sed -n -r 's/^[ \t]*Port[ \t]*=[ \t]*([0-9]*)$/\1/pI'`
@@ -71,7 +71,8 @@ case $func in
         uci set -q tinc.$key_name.Port="$port"
         
         uci commit tinc 2> /dev/null
-        echo "(I) tinc: Added host '$key_name' to net '$net_name'."
+        #Settings for host in network has been set. Please reboot.
+        echo "(I) Einstellungen f\xFCr host '$key_name' in Netzwerk '$net_name' wurden gespeichert. Bitte Neustarten."
     ;;
     export_key)
         net_name="$POST_net_name"
@@ -82,7 +83,8 @@ case $func in
         
         path="/etc/tinc/$net_name/hosts/$key_name"
         [ ! -f $path ] && {
-            echo "(E) tinc: Key file not found: '$path'."
+            #Key file not found.
+            echo "(E) Schl\xFCsseldatei '$path' wurde nicht gefunden."
             exit
         }
 
@@ -132,7 +134,8 @@ case $func in
         env_str=`env`
         import_settings "tinc" "$net_name" "$env_str"
         uci commit tinc 2> /dev/null
-        echo "(I) tinc: Settings set for net '$net_name'."
+        #Settings for network has been set. Please reboot.
+        echo "(I) Einstellungen f\xFC das Netzwerk '$net_name' wurden gespeichert. Bitte Neustarten."
     ;;
     set_host)
         host_name="$GET_host_name"
@@ -142,7 +145,8 @@ case $func in
         env_str=`env`
         import_settings "tinc" "$host_name" "$env_str"
         uci commit tinc 2> /dev/null
-        echo "(I) tinc: Settings set for host '$host_name'."
+        #Settings for host has been been stored. Please reboot.
+        echo "(I) Einstellungen f\xFC host '$host_name' wurden gespeichert. Bitte Neustarten."
     ;;
     add_net)
         net_name="$GET_net_name"
@@ -150,7 +154,8 @@ case $func in
         valid_name "$net_name"
         
         if uci get -q tinc.$net_name > /dev/null 2>&1; then
-            echo "(E) An entry 'net_name' already exists."
+            #The entry already exists.
+            echo "(E) Ein Eintrag mit dem Namen 'net_name' existiert bereits."
             exit
         fi
         
@@ -162,8 +167,8 @@ case $func in
         
         mkdir -p /etc/tinc/$net_name/hosts 2> /dev/null
         uci commit tinc 2> /dev/null
-
-        echo "(I) tinc: Net '$net_name' was added. Please reboot for the keys to be generated."
+        #Network was added. Please reboot.
+        echo "(I) Netzwerk '$net_name' wurde hinzugef\xFCgt. Bitte Neustarten."
     ;;
     del_host)
         net_name="$GET_net_name"
@@ -173,13 +178,14 @@ case $func in
         valid_host "$host_name"
         
         #only delete uci entry if there exist no key file of that name in any net folder
-        for nn in tinc_lan tinc_bat; do
-            [ "$net_name" != "$nn" -a -f /etc/tinc/$nn/hosts/$host_name ] && { more_uses=1; break; }
+        for nn in `ls /etc/tinc`; do
+            [ -d "/etc/tinc/$nn" -a "$net_name" != "$nn" -a -f /etc/tinc/$nn/hosts/$host_name ] && { more_uses=1; break; }
         done
         [ $more_uses -eq 0 ] && { uci delete -q tinc.$host_name; uci commit tinc 2> /dev/null; }
         
         rm -f /etc/tinc/$net_name/hosts/$host_name 2> /dev/null
-        echo "(I) tinc: Host '$host_name' has been removed. Please reboot."
+        #Host was added. Please reboot.
+        echo "(I) Host '$host_name' wurde gel\xF6scht. Bitte Neustarten."
     ;;
     del_net)
         net_name="$GET_net_name"
@@ -190,7 +196,8 @@ case $func in
         rm -rf /etc/tinc/$net_name 2> /dev/null
         uci commit tinc 2> /dev/null
         
-        echo "(I) tinc: Net '$host_name' has been removed. Please reboot."
+        #Net was removed. Please reboot.
+        echo "(I) Netwerk '$net_name' wurde gel\xF6scht. Bitte Neustarten."
     ;;
     *)
         echo "(E) tinc: '$func' not implemented."
