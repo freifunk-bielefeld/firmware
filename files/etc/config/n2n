@@ -1,5 +1,5 @@
 
-config 'edge' 'n2n_bat'
+config 'edge' 'n2n_mesh'
 	option 'enabled' 1
 	option 'ipaddr' '0.0.0.0'
 	option 'supernode' 'hsb.schadco.de'

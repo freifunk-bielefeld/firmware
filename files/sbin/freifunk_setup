@@ -7,10 +7,6 @@ exec >/root/freifunk_setup.log 2>&1
 
 echo "(I) Freifunk: start freifunk_setup"
 
-/etc/init.d/telnet disable
-/etc/init.d/nodogsplash disable
-/etc/init.d/n2n disable
-/etc/init.d/tinc disable
 
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd
@@ -193,7 +189,7 @@ uci set dhcp.wan.ignore=1
 # B A T M A N  S E T U P #
 # ------------------------------------- # 
 
-uci set batman-adv.bat0.interfaces="dummy_bat n2n_bat tinc_bat $wifi_ah_interface"
+uci set batman-adv.bat0.interfaces="dummy_bat n2n_mesh tinc_mesh $wifi_ah_interface"
 
 
 # ------------------------------------- #
@@ -204,7 +200,14 @@ uci set freifunk.@settings[0].mac="$mesh_mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 
+
+/etc/init.d/nodogsplash disable
+/etc/init.d/n2n disable
+/etc/init.d/tinc disable
+/etc/init.d/telnet disable
+
 #write everything to flash
 uci commit
+
 
 echo "(I) Freifunk: done freifunk_setup"

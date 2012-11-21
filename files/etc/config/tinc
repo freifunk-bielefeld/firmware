@@ -1,4 +1,4 @@
-config tinc-net tinc_bat
+config tinc-net tinc_mesh
 	option enabled 0
 	#option log /tmp/log/tinc.NETNAME.log
 	#option debug 3
@@ -15,6 +15,6 @@ config tinc-net tinc_bat
 
 config tinc-host HSNode
 	option enabled 1
-	option net tinc_bat
+	option net tinc_mesh
 	list Address hsb.schadco.de
     option Port 60655
