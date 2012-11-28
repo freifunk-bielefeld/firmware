@@ -2,6 +2,8 @@
 content-type: text/plain
 
 <%
+. /www/private/cgi-bin/shared.sh
+
 case $GET_func in
   reboot)
     reboot
@@ -11,27 +13,28 @@ case $GET_func in
     /sbin/mac2ip "$GET_mac"
   ;;
   status)
-    ip=`ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' `
+    print() { echo "status.data.$1=$2"; }
+    print 'ip' `get_ip br-mesh`
     up=`uptime`
-    load=${up##*:}
-    uptime=${up%%,*}
-    uptime=${uptime##*up}
-    uname=`uname -s -m -r`
-    date=`date`
+    print 'load' "${up##*:}"
+    uptime="${up%%,*}"
+    print 'uptime' "${uptime##*up}"
+    print 'uname' "`uname -s -m -r`"
+    print 'date' "`date`"
     [ -s "/tmp/ff_local_gw" ]  && has_internet="Ja" || has_internet="Nein"
+    print 'has_internet' $has_internet
+    share=`uci -q get freifunk.@settings[0].share_internet`
+    [ "$share" = "yes"] && share="Ja" || share="Nein"
+    print 'share_internet' "$share"
     gw_mode=`batctl gw 2> /dev/null`
     [ "${gw_mode:0:6}" = "server" ] && is_gw="Ja" || is_gw="Nein"
-    node_count=$((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
-    neigh_count=`batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
-    firmware_version=`uci -q get freifunk.@settings[0].version`
-    tinc_version=`tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'`
-    n2n_version=`edge --help 2>&1 | head -n1 | sed -n -r 's/.*(v[0-9\.]*).*/\1/p'`
-    batman_version=`cat /sys/module/batman_adv/version 2> /dev/null`
-    
-    echo -n "{\"ip\" : \"$ip\", \"node_count\" : \"$node_count\", \"neigh_count\" : \"$neigh_count\", "\
-"\"uptime\" : \"$uptime\", \"has_internet\" : \"$has_internet\", \"is_gw\" : \"$is_gw\", "\
-"\"firmware_version\" : \"$firmware_version\", \"tinc_version\" : \"$tinc_version\", \"n2n_version\" : \"$n2n_version\", "\
-"\"load\" : \"$load\", \"batman_version\" : \"$batman_version\", \"uname\" : \"$uname\", \"date\" : \"$date\"}"
+    print 'is_gw' $is_gw
+    print 'node_count' $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
+    print 'neigh_count' `batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
+    print 'firmware_version' "`uci -q get freifunk.@settings[0].version`"
+    print 'tinc_version' "`tincd --version 2>&1 | head -n1 | sed -n -r 's/.* ([0-9]*\.[0-9\.]*) .*/\1/p'`"
+    print 'n2n_version' "`edge --help 2>&1 | head -n1 | sed -n -r 's/.*(v[0-9\.]*).*/\1/p'`"
+    print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
   ;;
   *)
   echo "(E) misc: Invalid command: '$GET_func'"

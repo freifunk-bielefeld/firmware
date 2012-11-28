@@ -126,7 +126,6 @@ function parse_list(data)
         
         var li = create('li');
         var a = create('a');
-        var div = create('div');
         
         a.innerHTML="Netz: '"+nn+"'";
         a.onclick = get_onclick(nn, "");

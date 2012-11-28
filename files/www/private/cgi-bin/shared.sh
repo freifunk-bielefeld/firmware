@@ -5,6 +5,10 @@ strip() { echo "$@"; }
 ssort() { strip `echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '`; }
 ssort_uniq() { strip `echo "$@" | tr ' ' '\n' | sort | uniq | tr '\n' ' '`; }
 
+get_ip() {
+  ifconfig "$1" 2> /dev/null | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'
+}
+
 #get JSON representation of a settings item
 export_json()
 {

@@ -150,9 +150,10 @@ function collect_inputs(p, obj)
         collect_inputs(p.childNodes[i], obj);
 }
 
-function append(parent, tag)
+function append(parent, tag, id)
 {
     var e = create(tag);
+    if(id) e.id = id;
     parent.appendChild(e);
     return e;
 }

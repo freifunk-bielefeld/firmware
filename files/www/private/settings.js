@@ -18,7 +18,7 @@ function appendSetting(p, prefix, name, value, value2)
       e = append_selection(p, "Kanal", id, value, [1,2,3,4,5,6,7,8,9,10,11,12]);
       break;
     case "encryption":
-      e = append_selection(p, "Verschl\xFCsselung", id, value, ["none", "psk2"]);
+      e = append_selection(p, "Verschl&uuml;sselung", id, value, ["none", "psk2"]);
       break;
     case  "key":
       e = append_input(p, "Passwort", id, value);
@@ -30,6 +30,7 @@ function appendSetting(p, prefix, name, value, value2)
     case "ssid":
         e = append_input(p, "SSID", id, value);
         e.lastChild.disabled = (value2 == "private") ? "" : "disabled";
+        addInputCheck(e.lastChild, /^\w{3,30}$/, name + " ist ung&uuml;ltig.");
       break;
     case "share_internet":
         e = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
@@ -130,7 +131,7 @@ function show_assignment()
 
     var mode = getMode(ifname);
     var options = isWLAN(ifname) ? wifi_options : net_options;
-    var radio = append_radio(fs, ifname, "set_mode##"+ifname, mode, options);
+    var radio = append_selection(fs, ifname, "set_mode##"+ifname, mode, options);
 
     if(inArray(ifname, ["dummy_mesh", "dummy_lan", "dummy_bat", "bat0"]))
       hide(radio);
@@ -193,7 +194,7 @@ function addWifi(mode, wid, dev, wobj)
   for(var okey in wobj)
     appendSetting(sfs, "wireless#"+wid, okey, wobj[okey], mode);
 
-  append_button(sfs, "L\xF6schen", function() {
+  append_button(sfs, "L&ouml;schen", function() {
     parent.removeChild(sfs);
   });
 }
@@ -204,19 +205,19 @@ function append_wifi_buttons(fs, dev)
 
   append_button(fs, "Mesh", function() {
     if(get("wireless_"+dev+"_public"))
-      return alert("Es gibt bereits ein Mesh Wifi Interface f\xFCr '"+dev+"'.");
+      return alert("Es gibt bereits ein Mesh Wifi Interface f&uuml;r '"+dev+"'.");
     addWifi("mesh", ++guid, dev, null);
   });
 
   append_button(fs, "Public", function() {
     if(get("wireless_"+dev+"_public"))
-      return alert("Es gibt bereits ein Public Wifi Interface f\xFCr '"+dev+"'.");
+      return alert("Es gibt bereits ein Public Wifi Interface f&uuml;r '"+dev+"'.");
     addWifi("public", ++guid, dev, null);
   });
 
   append_button(fs, "Private", function() {
     if(get("wireless_"+dev+"_private"))
-      return alert("Es gibt bereits ein Private Wifi Interface f\xFCr '"+dev+"'.");
+      return alert("Es gibt bereits ein Private Wifi Interface f&uuml;r '"+dev+"'.");
     addWifi("private", ++guid, dev, null);
   });
 }
@@ -302,9 +303,9 @@ function append_vlan_buttons(parent, entries, info)
     };
   });
 
-  append_button(buttons, "L\xF6schen", function() {
+  append_button(buttons, "L&ouml;schen", function() {
     if(entries.childNodes.length < 2)
-      return alert("Mindestens ein VLAN wird ben\xF6tigt.");
+      return alert("Mindestens ein VLAN wird ben&ouml;tigt.");
 
     var id = entries.lastChild.id;
     var all_unchecked = true;
@@ -319,7 +320,7 @@ function append_vlan_buttons(parent, entries, info)
     if(all_unchecked)
       entries.removeChild(entries.lastChild);
     else
-      alert("Vor dem L\xF6schen eines VLANs m\xFCssen alle Ports entfernt werden.");
+      alert("Vor dem L&ouml;schen eines VLANs m&uuml;ssen alle Ports entfernt werden.");
   });
 }
 

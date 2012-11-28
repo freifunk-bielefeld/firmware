@@ -39,8 +39,8 @@ function appendSettings(parent, n, obj)
         if(inArray(name, ["enabled", "route"])) {
             append_radio(parent, name, id, value, [["Ja", 1], ["Nein", 0]]);
         } else if(name == "mtu" || name == "port") {
-            var e = append_input(parent, name, id, value).lastChild;
-            addInputCheck(e, /^[1-9]\d*$/, name + " muss eine Nummer sein.");
+            var e = append_input(parent, name, id, value);
+            addInputCheck(e.lastChild, /^[1-9]\d*$/, name + " muss eine Nummer sein.");
         } else {
             append_input(parent, name, id, value);
         }
