@@ -2,19 +2,19 @@ config tinc-net tinc_mesh
 	option enabled 0
 	#option log /tmp/log/tinc.NETNAME.log
 	#option debug 3
-    option generate_keys 1
+	option generate_keys 1
 	list ConnectTo HSNode
-    option Cipher none
+	option Cipher none
 	option DirectOnly 1
-    option IndirectData 1
-	option Name OpenWRT
-    option DeviceType tap
+	option IndirectData 1
+	option Name tinc_mesh
+	option DeviceType tap
 	option Mode switch
-    option Hostnames 1
-    option PingTimeout 30
+	option Hostnames 1
+	option PingTimeout 30
 
 config tinc-host HSNode
 	option enabled 1
 	option net tinc_mesh
 	list Address hsb.schadco.de
-    option Port 60655
+	option Port 60655
