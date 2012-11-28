@@ -21,10 +21,12 @@ case $GET_func in
     print 'uptime' "${uptime##*up}"
     print 'uname' "`uname -s -m -r`"
     print 'date' "`date`"
-    [ -s "/tmp/ff_local_gw" ]  && has_internet="Ja" || has_internet="Nein"
-    print 'has_internet' $has_internet
+    wan_interfaces=`uci -q get network.wan.ifname`
+    wan_interface=${wan_interfaces%% *} #get first interface
+    [ -n "`get_ip $wan_interface`" ] && has_internet="Ja" || has_internet="Nein"   
+    print 'has_internet' "$has_internet"
     share=`uci -q get freifunk.@settings[0].share_internet`
-    [ "$share" = "yes"] && share="Ja" || share="Nein"
+    [ "$share" = "yes" ] && share="Ja" || share="Nein"
     print 'share_internet' "$share"
     gw_mode=`batctl gw 2> /dev/null`
     [ "${gw_mode:0:6}" = "server" ] && is_gw="Ja" || is_gw="Nein"
