@@ -12,9 +12,9 @@ if [ "$ACTION" = "change" ]; then
   [ "$BATACTION" = "del" ] && mesh_gw=""
 
   #set gateway on change
-  prev_mesh_gw=`cat /tmp/ff_mesh_gw 2> /dev/null`
+  prev_mesh_gw=`cat /tmp/freifunk_mesh_gw_ip 2> /dev/null`
   [ "$prev_mesh_gw" != "$mesh_gw" ] && {
-    echo -n "$mesh_gw" > /tmp/ff_mesh_gw
-    /sbin/set_gateway
+    echo -n "$mesh_gw" > /tmp/freifunk_mesh_gw_ip
+    /sbin/freifunk_watchdog
   }
 fi

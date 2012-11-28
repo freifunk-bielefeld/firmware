@@ -1,0 +1,188 @@
+#!/bin/sh
+
+#Check for Internet access on the WAN port and switch
+#batman-adv between client und server mode accordingly.
+#This script is called by cron every 5min and by /etc/hotplug.d/net/11-batman.
+
+#prevent script from being called simultaneously
+lock_dir=/var/lock/freifunk_watchdog.lock
+mkdir $lock_dir || exit
+
+exec >/tmp/freifunk_watchdog.log 2>&1
+. /sbin/freifunk_shared
+
+echo "(I) start at: `date`"
+
+[ "`uci get -q firewall.freifunk_share`" = "forwarding" ] && \
+share_internet="yes" || share_internet="no"
+echo "(I) share internet: '$share_internet'"
+
+wan_interfaces=`uci -q get network.wan.ifname`
+wan_interface=${wan_interfaces%% *} #get first interface
+echo "(I) wan interface: '$wan_interface'"
+
+gw_mode=`batctl gw 2> /dev/null`
+gw_mode=${gw_mode:0:6}
+echo "(I) gateway mode: '$gw_mode'"
+
+own_mesh_ip=`get_ip br-mesh`
+own_lan_ip=`get_ip br-lan`
+mesh_gw_ip=`cat /tmp/freifunk_mesh_gw_ip 2> /dev/null`
+
+echo "(I) own mesh ip: '$own_mesh_ip'"
+echo "(I) own lan ip: '$own_lan_ip'"
+echo "(I) mesh gateway ip: '$mesh_gw_ip'"
+
+n2n=`which edge`
+tinc=`which tincd`
+
+
+check_wan()
+{
+    local wan="$1"
+    echo "(I) Check if internet is accessible on '$wan'."
+
+    [ -z "$wan" ] && {
+        echo "(I) No wan interfaces found."
+        return 1
+    }
+
+    #shuffle list and pick n entries
+    pick()
+    {
+        local n=$1; shift;
+        local s=`echo "$@" | tr ' ' '\n' | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2- | tr '\n' ' '`
+        get() { shift $(($#-$1)); echo "$@"; }
+        get $n $s
+    }
+
+    ping_servers()
+    {
+        echo "(I) Try to ping root servers."
+        #check if any root server can be reached via default gateway and wan interface
+        IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
+        for ip in `pick 3 $IPCHECK`; do
+            echo -n "(I) Ping '$ip' "
+            if ping $ip -c 1 -I $wan -q -W 1 > /dev/null 2>&1; then
+                echo "- success."
+                return 0
+            else
+                echo "- failed."
+            fi
+        done
+        echo "(W) Cannot reach any tested IP."
+        return 1
+    }
+
+    ping_servers
+    [ $? -eq 0 ] && return 0
+
+    #try to aquire new lease
+    local pid=`cat /var/run/udhcpc-$wan.pid`
+    kill -s SIGUSR2 $pid #release lease
+    kill -s SIGUSR1 $pid #get new lease
+
+    ping_servers
+    [ $? -eq 0 ] && return 0
+
+    echo "(W) No internet detected."
+    ifconfig $wan 0.0.0.0
+    return 1
+}
+
+is_running() {
+  ps | grep -v grep | grep "$1" > /dev/null
+}
+
+#switch to client
+bat_client()
+{
+    if [ "$gw_mode" != "client" ]; then
+        echo "(I) Switch to client mode."
+        batctl gw client
+        /etc/init.d/nodogsplash stop > /dev/null
+    else
+        echo "(I) Already in client mode."
+    fi
+}
+
+#switch to server
+bat_server()
+{
+    if [ "$gw_mode" != "server" ]; then
+        echo "(I) Switch to gateway mode."
+        /etc/init.d/nodogsplash start > /dev/null
+        batctl gw server
+    else
+        echo "(I) Already in gateway mode."
+    fi
+}
+
+check_routes()
+{
+    local has_internet="$1"
+    local mesh_str="3"
+    local lan_str="121,10.0.0.0/8,$own_lan_ip,0.0.0.0/0,$own_lan_ip"
+
+    echo "(I) start check_routes"
+    [ -n "$mesh_gw_ip" ] && mesh_str="121,0.0.0.0/0,$mesh_gw_ip"
+    
+    if [ "$has_internet" = "yes" ]; then
+        if [ "$share_internet" = "yes" ]; then
+            mesh_str="121,0.0.0.0/0,$own_mesh_ip"
+        fi
+    else
+        if [ -z "$mesh_gw_ip" ]; then
+            lan_str="121,10.0.0.0/8,$own_lan_ip"
+        fi
+
+        echo "(I) Clear default routes and nameserver list."
+        while `route del default > /dev/null 2>&1`; do true; done
+        echo -e "nameserver 127.0.0.1" > /tmp/resolv.conf.auto
+
+        [ -n "$mesh_gw_ip" ] && {
+            echo "(I) Set default route and nameserver to '$mesh_gw_ip'."
+            route add default gw $mesh_gw_ip
+            echo "nameserver $mesh_gw_ip" >> /tmp/resolv.conf.auto
+        }
+    fi
+    
+    local pre_mesh_str="`uci get dhcp.mesh.dhcp_option`"
+    local pre_lan_str="`uci get dhcp.lan.dhcp_option`"
+    
+    if [ "$mesh_str" != "$pre_mesh_str" -o "$lan_str" != "$pre_lan_str" ]
+    then
+        uci set dhcp.mesh.dhcp_option="$mesh_str"
+        uci set dhcp.lan.dhcp_option="$lan_str"
+        
+        echo "(I) DHCP settings were changed => restart dnsmasq."
+        /etc/init.d/dnsmasq restart
+    else
+        echo "(I) No change of DHCP settings."
+    fi
+    
+    echo "(I) lan_str: '$lan_str'"
+    echo "(I) mesh_str: '$mesh_str'"
+}
+
+if check_wan "$wan_interface"; then
+    #we have internet
+    check_routes "yes"
+    
+    is_running "$n2n" || /etc/init.d/n2n start
+    is_running "$tinc" || /etc/init.d/tinc start
+
+    [ "$share_internet" = "yes" ] && bat_server || bat_client
+else
+    check_routes "no"
+
+    #we have no internet
+    is_running "$n2n" && /etc/init.d/n2n stop
+    is_running "$tinc" && /etc/init.d/tinc stop
+
+    bat_client
+fi
+
+
+rmdir /var/lock/freifunk_watchdog.lock
+echo "(I) done"
