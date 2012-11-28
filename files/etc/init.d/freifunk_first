@@ -45,9 +45,9 @@ ifconfig dummy_lan hw ether $mac up
 
 if [ "$share_internet" = "yes" ]; then
     #forward from mesh to wan
-    s=firewall.`uci add firewall forwarding`
-    uci set $s.src="mesh"
-    uci set $s.dest="wan"
+    uci set firewall.freifunk_share="forwarding"
+    uci set firewall.freifunk_share.src="mesh"
+    uci set firewall.freifunk_share.dest="wan"
 fi
 
 
