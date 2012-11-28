@@ -37,6 +37,7 @@ n2n=`which edge`
 tinc=`which tincd`
 
 
+#check/establish internet on wan
 check_wan()
 {
     local wan="$1"
@@ -74,16 +75,14 @@ check_wan()
         return 1
     }
 
-    ping_servers
-    [ $? -eq 0 ] && return 0
+    ping_servers && return 0
 
     #try to aquire new lease
     local pid=`cat /var/run/udhcpc-$wan.pid`
     kill -s SIGUSR2 $pid #release lease
     kill -s SIGUSR1 $pid #get new lease
 
-    ping_servers
-    [ $? -eq 0 ] && return 0
+    ping_servers && return 0
 
     echo "(W) No internet detected."
     ifconfig $wan 0.0.0.0
@@ -165,8 +164,10 @@ check_routes()
     echo "(I) mesh_str: '$mesh_str'"
 }
 
-if check_wan "$wan_interface"; then
-    #we have internet
+
+if check_wan "$wan_interface"
+then
+    echo "(I) We have local internet."
     check_routes "yes"
     
     is_running "$n2n" || /etc/init.d/n2n start
@@ -174,9 +175,9 @@ if check_wan "$wan_interface"; then
 
     [ "$share_internet" = "yes" ] && bat_server || bat_client
 else
+    echo "(I) We do not have local internet."
     check_routes "no"
 
-    #we have no internet
     is_running "$n2n" && /etc/init.d/n2n stop
     is_running "$tinc" && /etc/init.d/tinc stop
 
