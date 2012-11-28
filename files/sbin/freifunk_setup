@@ -159,6 +159,10 @@ start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
 end_ip=$((255*255+253)) # -> 65278
 
 #uci add_list dhcp.@dnsmasq[0].interface="br-mesh"
+uci delete dhcp.@dnsmasq[0].local
+uci delete dhcp.@dnsmasq[0].domain
+#uci set dhcp.@dnsmasq[0].authoritative=0
+
 uci set dhcp.mesh=dhcp
 uci set dhcp.mesh.interface=mesh
 uci set dhcp.mesh.start=$start_ip
