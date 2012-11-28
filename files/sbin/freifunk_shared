@@ -2,7 +2,7 @@
 
 
 get_ip() {
-  ifconfig "$1" | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'
+  ifconfig "$1" 2> /dev/null | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'
 }
 
 #query query_name match_value [get_other_value]
@@ -14,10 +14,11 @@ uci_query()
   local i=0
   while true; do
     local q=${query/\?/$i}
-    v=`uci $q 2> /dev/null`; [ $? -ne 0 ] && return 0
+    v=`uci $q 2> /dev/null`
+    [ $? -ne 0 ] && return
     [ "$v"  = "$value" ] && {
       [ -n "$other" ] && echo `uci ${q%.*}.$other 2> /dev/null` || echo $i
-      return 0
+      return
     }
     i=$(($i + 1))
   done
