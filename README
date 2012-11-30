@@ -6,9 +6,9 @@ cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone https://github.com/freifunk-bielefeld/firmware.git
-mv freifunk-bielefeld/package/* package/
-mv freifunk-bielefeld/files .
-rm -rf freifunk-bielefeld
+mv firmware/package/* package/
+mv firmware/files .
+rm -rf firmware
 make defconfig
 make menuconfig
 
