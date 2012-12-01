@@ -43,13 +43,23 @@ tunctl -t dummy_lan > /dev/null
 ifconfig dummy_lan hw ether $mac up
 
 
+echo "(I)Add network sections to trigger batman-adv and set mtu."
+for if in `uci get -q batman-adv.bat0.interfaces`; do
+    local n=`echo -n $if | tr -c a-z0-9_ _`
+    uci set network.$n="interface"
+    uci set network.$n.proto="none"
+    uci set network.$n.ifname=$if
+    uci set network.$n.mtu=1528
+    uci set network.$n.auto=1
+done
+
+
 if [ "$share_internet" = "yes" ]; then
     #forward from mesh to wan
     uci set firewall.freifunk_share="forwarding"
     uci set firewall.freifunk_share.src="mesh"
     uci set firewall.freifunk_share.dest="wan"
 fi
-
 
 #filter ssh/https ports
 for src in wan lan mesh; do
