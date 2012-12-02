@@ -14,7 +14,7 @@ document.getElementById("link").href="https://"+location.host;
 <b>Eigene IP-Adresse: </b>
 <% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
 <br />
-<b>Anzahl aller Knoten: </b>
+<b>Anzahl bekannter Knoten: </b>
 <% echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)) %>
 <br />
 <b>Anzahl benachbarter Knoten: </b>
@@ -46,7 +46,7 @@ for mac in $gw_macs; do
     ip=`mac2ip $mac`
     if [ "$mac" = "$gw_mac" ]; then
         echo "<li>$ip (aktueller default)</li>"
-    else
+    elif [ -n "$ip" -a "$ip" != "0.0.0.0" ]; then
         echo "<li>$ip</li>"
     fi
 done
