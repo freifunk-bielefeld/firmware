@@ -54,6 +54,7 @@ for if in `uci get -q batman-adv.bat0.interfaces`; do
 done
 
 
+uci delete -q firewall.freifunk_share
 if [ "$share_internet" = "yes" ]; then
     #forward from mesh to wan
     uci set firewall.freifunk_share="forwarding"
