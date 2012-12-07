@@ -36,10 +36,11 @@ ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 # S E T U P  W I R E L E S S #
 # ------------------------------------------- # 
 
-#test if we can span both ad-hoc and access point interfaces
+#test if we can span both ad-hoc and access point interfaces, set tx-power to 20dBm (100mW)
 if [ -n "$wifi_device" ]; then
     echo "(I) Freifunk: setup /etc/config/wireless"
     uci set wireless.$wifi_device.channel=1
+    uci set wireless.$wifi_device.txpower=20
 
     #wireless is disabled by default
     uci -q delete wireless.@wifi-device[0].disabled
