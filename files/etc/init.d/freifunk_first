@@ -52,6 +52,8 @@ for if in `uci get -q batman-adv.bat0.interfaces`; do
 	uci set network.$n.auto=1
 done
 
+#add first interface to set originator mac
+batctl if add dummy_bat
 
 uci delete -q firewall.freifunk_share
 if [ "$share_internet" = "yes" ]; then
