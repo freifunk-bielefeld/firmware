@@ -63,16 +63,16 @@ fi
 
 #filter ssh/https ports
 for src in wan lan mesh; do
-  default_target=`uci_query "-q get firewall.@zone[?].name" "$src" "input"`
-  list_contains config_nets "$src" && target=ACCEPT || target=REJECT
-  [ "$target" = "$default_target" ] && continue
-  for port in 22 443; do
-	s=firewall.`uci add firewall rule`
-	uci set $s.src=$src
-	uci set $s.dest_port=$port
-	uci set $s.target=$target
-	uci set $s.proto=tcp
-  done
+	default_target=`uci_query "-q get firewall.@zone[?].name" "$src" "input"`
+	list_contains config_nets "$src" && target=ACCEPT || target=REJECT
+	[ "$target" = "$default_target" ] && continue
+	for port in 22 443; do
+		s=firewall.`uci add firewall rule`
+		uci set $s.src=$src
+		uci set $s.dest_port=$port
+		uci set $s.target=$target
+		uci set $s.proto=tcp
+	done
 done
 
 
