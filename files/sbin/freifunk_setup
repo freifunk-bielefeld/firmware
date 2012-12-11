@@ -38,73 +38,73 @@ ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 
 #test if we can span both ad-hoc and access point interfaces, set tx-power to 20dBm (100mW)
 if [ -n "$wifi_device" ]; then
-    echo "(I) Freifunk: setup /etc/config/wireless"
-    uci set wireless.$wifi_device.channel=1
-    uci set wireless.$wifi_device.txpower=20
+	echo "(I) Freifunk: setup /etc/config/wireless"
+	uci set wireless.$wifi_device.channel=1
+	uci set wireless.$wifi_device.txpower=20
 
-    #wireless is disabled by default
-    uci -q delete wireless.@wifi-device[0].disabled
+	#wireless is disabled by default
+	uci -q delete wireless.@wifi-device[0].disabled
 
-    #remove all wifi interface entries
-    clear_wifi_interfaces() {
-        while uci -q delete wireless.@wifi-iface[0]; do :; done
-    }
-    
-    #ad-hoc for batman
-    add_ah_interface() {
-        local s=wireless.`uci add wireless wifi-iface`
-        uci set $s.device="$wifi_device"
-        uci set $s.mode=adhoc
-        uci set $s.ssid="$ah_ssid"
-        uci set $s.bssid="$ah_bssid"
-        uci set $s.hidden=1
-    }
-    
-    #access point for clients
-    add_ap_interface() {
-        local s=wireless.`uci add wireless wifi-iface`
-        uci set $s.device="$wifi_device"
-        uci set $s.mode=ap
-        uci set $s.network=mesh
-        uci set $s.ssid="$ap_ssid"
-        uci set $s.encryption="none"
-    }
+	#remove all wifi interface entries
+	clear_wifi_interfaces() {
+		while uci -q delete wireless.@wifi-iface[0]; do :; done
+	}
 
-    wifi_restart() {
-      echo "(I) Freifunk: wireless down/up"
-      wifi
-    }
-    
-    record_wifi_interfaces() {
-      wifi_ap_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
-      [ -n "$wifi_ap_interface" -a `ifconfig | grep "$wifi_ap_interface " -c` -eq 0 ] && wifi_ap_interface=""
-      wifi_ah_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
-      [ -n "$wifi_ah_interface" -a `ifconfig | grep "$wifi_ah_interface " -c` -eq 0 ] && wifi_ah_interface=""
-    }
-    
-    clear_wifi_interfaces
-    add_ah_interface
-    add_ap_interface
-    wifi_restart
-    record_wifi_interfaces
-    
-    #if not both interfaces work; try only ad-hoc
-    if [ -z "$wifi_ap_interface" -o -z "$wifi_ah_interface" ]; then
-      echo "(I) Freifunk: Cannot start ad-hoc and AP mode at the same time - try ad-hoc only now."
-      clear_wifi_interfaces
-      add_ah_interface
-      wifi_restart
-      record_wifi_interfaces
-    fi
-    
-    echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"
-    echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
+	#ad-hoc for batman
+	add_ah_interface() {
+		local s=wireless.`uci add wireless wifi-iface`
+		uci set $s.device="$wifi_device"
+		uci set $s.mode=adhoc
+		uci set $s.ssid="$ah_ssid"
+		uci set $s.bssid="$ah_bssid"
+		uci set $s.hidden=1
+	}
+
+	#access point for clients
+	add_ap_interface() {
+		local s=wireless.`uci add wireless wifi-iface`
+		uci set $s.device="$wifi_device"
+		uci set $s.mode=ap
+		uci set $s.network=mesh
+		uci set $s.ssid="$ap_ssid"
+		uci set $s.encryption="none"
+	}
+
+	wifi_restart() {
+	  echo "(I) Freifunk: wireless down/up"
+	  wifi
+	}
+
+	record_wifi_interfaces() {
+	  wifi_ap_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
+	  [ -n "$wifi_ap_interface" -a `ifconfig | grep "$wifi_ap_interface " -c` -eq 0 ] && wifi_ap_interface=""
+	  wifi_ah_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
+	  [ -n "$wifi_ah_interface" -a `ifconfig | grep "$wifi_ah_interface " -c` -eq 0 ] && wifi_ah_interface=""
+	}
+
+	clear_wifi_interfaces
+	add_ah_interface
+	add_ap_interface
+	wifi_restart
+	record_wifi_interfaces
+
+	#if not both interfaces work; try only ad-hoc
+	if [ -z "$wifi_ap_interface" -o -z "$wifi_ah_interface" ]; then
+	  echo "(I) Freifunk: Cannot start ad-hoc and AP mode at the same time - try ad-hoc only now."
+	  clear_wifi_interfaces
+	  add_ah_interface
+	  wifi_restart
+	  record_wifi_interfaces
+	fi
+
+	echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"
+	echo "(I) Freifunk: wifi ad-hoc interface: '$wifi_ah_interface'"
 fi
 
 #get a unique (but not just random) mac to identify the node
 mesh_mac=`cat /sys/class/ieee80211/phy0/macaddress`
 [ -z "$mesh_mac" -o "$mesh_mac" = "00:11:22:33:44:55" ] && {
-    mesh_mac=$(ifconfig $lan_interface | grep HWaddr | awk '{print $5}')
+	mesh_mac=$(ifconfig $lan_interface | grep HWaddr | awk '{print $5}')
 }
 #translate to local administered mac
 a=${mesh_mac%%:*} #cut out first hex
@@ -122,8 +122,6 @@ echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
 echo "(I) Freifunk: Setup LAN interfaces."
 
 uci -q delete network.lan
-uci -q delete dhcp.lan
-
 uci set network.lan="interface"
 uci set network.lan.type="bridge"
 uci set network.lan.ifname="dummy_lan $lan_interface"
@@ -131,6 +129,7 @@ uci set network.lan.ipaddr="192.168.133.1"
 uci set network.lan.proto=static
 uci set network.lan.netmask="255.255.255.0"
 
+uci -q delete dhcp.lan
 uci set dhcp.lan=dhcp
 uci set dhcp.lan.interface=lan
 uci set dhcp.lan.start=100
@@ -160,8 +159,8 @@ start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
 end_ip=$((255*255+253)) # -> 65278
 
 #uci add_list dhcp.@dnsmasq[0].interface="br-mesh"
-uci delete -q dhcp.@dnsmasq[0].local
-uci delete -q dhcp.@dnsmasq[0].domain
+uci -q delete dhcp.@dnsmasq[0].local
+uci -q delete dhcp.@dnsmasq[0].domain
 #uci set dhcp.@dnsmasq[0].authoritative=0
 
 uci set dhcp.mesh=dhcp
@@ -179,12 +178,11 @@ uci set dhcp.mesh.dhcp_option="3" #no gateway yet
 echo "(I) Freifunk: Setup WAN interface."
 
 uci -q delete network.wan
-uci -q delete dhcp.wan
-
 uci set network.wan="interface"
 uci set network.wan.ifname="$wan_interface"
 uci set network.wan.proto="dhcp"
 
+uci -q delete dhcp.wan
 uci set dhcp.wan=dhcp
 uci set dhcp.wan.interface=wan
 uci set dhcp.wan.ignore=1

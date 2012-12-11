@@ -8,13 +8,13 @@ start_ip=`uci get dhcp.mesh.start`
 end_ip=`uci get dhcp.mesh.limit`
 
 [ -z "$mac" -o -z "$ff_subnet" -o  -z "$start_ip" -o -z "$end_ip" -o ${#mac} -ne 17 ] && {
-    echo "0.0.0.0"
-    exit 1
+	echo "0.0.0.0"
+	exit 1
 }
 
 seed=0
 for x in $(echo $mac | tr ":" "\n"); do
-    seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
+	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
 done
 
 addr_t=$((start_ip + (seed % end_ip)))
