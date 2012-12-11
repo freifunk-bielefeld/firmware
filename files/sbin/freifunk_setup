@@ -71,15 +71,15 @@ if [ -n "$wifi_device" ]; then
 	}
 
 	wifi_restart() {
-	  echo "(I) Freifunk: wireless down/up"
-	  wifi
+		echo "(I) Freifunk: wireless down/up"
+		wifi
 	}
 
 	record_wifi_interfaces() {
-	  wifi_ap_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
-	  [ -n "$wifi_ap_interface" -a `ifconfig | grep "$wifi_ap_interface " -c` -eq 0 ] && wifi_ap_interface=""
-	  wifi_ah_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
-	  [ -n "$wifi_ah_interface" -a `ifconfig | grep "$wifi_ah_interface " -c` -eq 0 ] && wifi_ah_interface=""
+		wifi_ap_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ap_ssid" "ifname"`
+		[ -n "$wifi_ap_interface" -a `ifconfig | grep "$wifi_ap_interface " -c` -eq 0 ] && wifi_ap_interface=""
+		wifi_ah_interface=`uci_query "-P /var/state get wireless.@wifi-iface[?].ssid" "$ah_ssid" "ifname"`
+		[ -n "$wifi_ah_interface" -a `ifconfig | grep "$wifi_ah_interface " -c` -eq 0 ] && wifi_ah_interface=""
 	}
 
 	clear_wifi_interfaces
@@ -90,11 +90,11 @@ if [ -n "$wifi_device" ]; then
 
 	#if not both interfaces work; try only ad-hoc
 	if [ -z "$wifi_ap_interface" -o -z "$wifi_ah_interface" ]; then
-	  echo "(I) Freifunk: Cannot start ad-hoc and AP mode at the same time - try ad-hoc only now."
-	  clear_wifi_interfaces
-	  add_ah_interface
-	  wifi_restart
-	  record_wifi_interfaces
+		echo "(I) Freifunk: Cannot start ad-hoc and AP mode at the same time - try ad-hoc only now."
+		clear_wifi_interfaces
+		add_ah_interface
+		wifi_restart
+		record_wifi_interfaces
 	fi
 
 	echo "(I) Freifunk: wifi access point interface: '$wifi_ap_interface'"

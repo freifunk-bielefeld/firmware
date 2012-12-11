@@ -10,8 +10,8 @@ exec >/tmp/freifunk_first.log 2>&1
 . /sbin/freifunk_shared
 
 if [ -f /etc/rc.d/S50telnet ]; then
-    echo "(I) Freifunk: skip and wait for setup to be run"
-    exit
+	echo "(I) Freifunk: skip and wait for setup to be run"
+	exit
 fi
 
 echo "(I) Freifunk: start freifunk_first"
@@ -42,24 +42,23 @@ echo "(I) Freifunk: Create dummy_lan interface."
 tunctl -t dummy_lan > /dev/null
 ifconfig dummy_lan hw ether $mac up
 
-
-echo "(I)Add network sections to trigger batman-adv and set mtu."
+echo "(I) Add network sections to trigger batman-adv and set mtu."
 for if in `uci get -q batman-adv.bat0.interfaces`; do
-    local n=`echo -n $if | tr -c a-z0-9_ _`
-    uci set network.$n="interface"
-    uci set network.$n.proto="none"
-    uci set network.$n.ifname=$if
-    uci set network.$n.mtu=1528
-    uci set network.$n.auto=1
+	local n=`echo -n $if | tr -c a-z0-9_ _`
+	uci set network.$n="interface"
+	uci set network.$n.proto="none"
+	uci set network.$n.ifname=$if
+	uci set network.$n.mtu=1528
+	uci set network.$n.auto=1
 done
 
 
 uci delete -q firewall.freifunk_share
 if [ "$share_internet" = "yes" ]; then
-    #forward from mesh to wan
-    uci set firewall.freifunk_share="forwarding"
-    uci set firewall.freifunk_share.src="mesh"
-    uci set firewall.freifunk_share.dest="wan"
+	#forward from mesh to wan
+	uci set firewall.freifunk_share="forwarding"
+	uci set firewall.freifunk_share.src="mesh"
+	uci set firewall.freifunk_share.dest="wan"
 fi
 
 #filter ssh/https ports
@@ -68,11 +67,11 @@ for src in wan lan mesh; do
   list_contains config_nets "$src" && target=ACCEPT || target=REJECT
   [ "$target" = "$default_target" ] && continue
   for port in 22 443; do
-    s=firewall.`uci add firewall rule`
-    uci set $s.src=$src
-    uci set $s.dest_port=$port
-    uci set $s.target=$target
-    uci set $s.proto=tcp
+	s=firewall.`uci add firewall rule`
+	uci set $s.src=$src
+	uci set $s.dest_port=$port
+	uci set $s.target=$target
+	uci set $s.proto=tcp
   done
 done
 

@@ -14,10 +14,10 @@ echo "(I) Freifunk: start freifunk_last"
 
 
 if [ -f /etc/rc.d/S50telnet ]; then
-  echo "(I) Freifunk: setup start"
-  /sbin/freifunk_setup
-  echo "(I) Freifunk: setup end"
-  reboot #todo: work without reboot here
+	echo "(I) Freifunk: setup start"
+	/sbin/freifunk_setup
+	echo "(I) Freifunk: setup end"
+	reboot #todo: work without reboot here
 fi
 
 
