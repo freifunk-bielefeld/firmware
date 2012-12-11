@@ -1,17 +1,17 @@
 config system
-	option hostname	Freifunk
-	option timezone	CET
+	option hostname Freifunk
+	option timezone CET
 
 config button
-	option button	reset
-	option action	released
-	option handler	"logger reboot"
-	option min		0
-	option max		4
+	option button reset
+	option action released
+	option handler "logger reboot"
+	option min 0
+	option max 4
 
 config button
-	option button	reset
-	option action	released
-	option handler	"logger factory default"
-	option min		5
-	option max		30
+	option button reset
+	option action released
+	option handler "logger factory default"
+	option min 5
+	option max 30
