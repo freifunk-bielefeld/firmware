@@ -1,6 +1,6 @@
 config system
-	option hostname Freifunk
-	option timezone CET
+	option hostname	Freifunk
+	option timezone	CET
 
 config button
 	option button	reset
