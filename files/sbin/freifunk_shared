@@ -2,7 +2,7 @@
 
 
 get_ip() {
-	ifconfig "$1" 2> /dev/null | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }'
+	ifconfig "$1" 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}'
 }
 
 #query query_name match_value [get_other_value]
