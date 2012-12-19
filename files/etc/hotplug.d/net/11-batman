@@ -1,20 +1,19 @@
 #this script receives the mac of the best gateway in reach
 #from batman-adv and sets the routing table accordingly
 
-if [ "$ACTION" = "change" ]; then
+[ "$ACTION" != "change" ] && exit
 
-  exec >/tmp/11-batman.log 2>&1
-  date
+exec >/tmp/11-batman.log 2>&1
+date
 
-  echo "(I) 11-batman: BATACTION: '$BATACTION', BATDATA: '$BATDATA'"
+echo "(I) 11-batman: BATACTION: '$BATACTION', BATDATA: '$BATDATA'"
 
-  [ -n "$BATDATA" ] && mesh_gw=`mac2ip $BATDATA`
-  [ "$BATACTION" = "del" ] && mesh_gw=""
+[ -n "$BATDATA" ] && mesh_gw=`mac2ip $BATDATA`
+[ "$BATACTION" = "del" ] && mesh_gw=""
 
-  #set gateway on change
-  prev_mesh_gw=`cat /tmp/freifunk_mesh_gw_ip 2> /dev/null`
-  [ "$prev_mesh_gw" != "$mesh_gw" ] && {
-    echo -n "$mesh_gw" > /tmp/freifunk_mesh_gw_ip
-    /sbin/freifunk_watchdog
-  }
-fi
+#set gateway on change
+prev_mesh_gw=`cat /tmp/freifunk_mesh_gw_ip 2> /dev/null`
+[ "$prev_mesh_gw" != "$mesh_gw" ] && {
+	echo -n "$mesh_gw" > /tmp/freifunk_mesh_gw_ip
+	/sbin/freifunk_watchdog
+}
