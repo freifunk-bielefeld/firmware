@@ -21,14 +21,9 @@ if [ -f /etc/rc.d/S50telnet ]; then
 fi
 
 
-#Set the mac of br-mesh explicitly so it is fixed.
-#A bridge may change to the lowest may mac otherwise.
-mesh_mac=`uci get freifunk.@settings[0].mac`
-echo "(I) Freifunk: set MAC of br-mesh to '$mesh_mac'"
-ifconfig br-mesh hw ether $mesh_mac
-
 #Set the ip based on mac address.
 #We do it here to make it possible to change the mac and hence ip
+mesh_mac=`uci get freifunk.@settings[0].mac`
 mesh_ip=`mac2ip $mesh_mac`
 echo "(I) Freifunk: set IP for br-mesh to '$mesh_ip'"
 uci set network.mesh.ipaddr="$mesh_ip"

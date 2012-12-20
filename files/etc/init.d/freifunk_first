@@ -32,15 +32,18 @@ echo "(I) Freifunk: config_nets: '$config_nets'"
 
 echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null
-ifconfig dummy_mesh hw ether $mac up
-
-echo "(I) Freifunk: Create dummy_bat interface."
-tunctl -t dummy_bat > /dev/null
-ifconfig dummy_bat hw ether $mac up
 
 echo "(I) Freifunk: Create dummy_lan interface."
 tunctl -t dummy_lan > /dev/null
-ifconfig dummy_lan hw ether $mac up
+
+echo "(I) Freifunk: Create dummy_bat interface."
+tunctl -t dummy_bat > /dev/null
+
+
+#add first interface to set originator mac
+ifconfig dummy_bat hw ether $mac up
+batctl if add dummy_bat
+
 
 echo "(I) Add network sections to trigger batman-adv and set mtu."
 for if in `uci get -q batman-adv.bat0.interfaces`; do
@@ -52,8 +55,6 @@ for if in `uci get -q batman-adv.bat0.interfaces`; do
 	uci set network.$n.auto=1
 done
 
-#add first interface to set originator mac
-batctl if add dummy_bat
 
 uci delete -q firewall.freifunk_share
 if [ "$share_internet" = "yes" ]; then
