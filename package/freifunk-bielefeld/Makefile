@@ -25,23 +25,13 @@ define Package/freifunk-bielefeld-basic/install
   #nothing to do here
 endef
 
-define Package/freifunk-bielefeld-basic-ath9k
+define Package/freifunk-bielefeld-debug
   SECTION:=base
   CATEGORY:=Config
   DEFAULT:=n
-  TITLE:=Freifunk-Bielefeld Basic Ath9k
-  URL:=http://freifunk-bielefeld.de
-  DEPENDS:= +freifunk-bielefeld-basic +hostapd +kmod-ath9k
-endef
-
-define Package/freifunk-bielefeld-OpenRD-max
-  SECTION:=base
-  CATEGORY:=Config
-  DEFAULT:=n
-  TITLE:=Freifunk-Bielefeld OpenRD-Base max-features (without Basic)
-  DEPENDS:= +nano +htop
+  TITLE:=Freifunk-Bielefeld with debug tools
+  DEPENDS:= +nano +htop +tcpdump
 endef
 
 $(eval $(call BuildPackage,freifunk-bielefeld-basic))
-$(eval $(call BuildPackage,freifunk-bielefeld-basic-ath9k))
-$(eval $(call BuildPackage,freifunk-bielefeld-OpenRD-max))
+$(eval $(call BuildPackage,freifunk-bielefeld-debug))
