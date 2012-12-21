@@ -12,76 +12,76 @@ var js_cache = {};
 
 function nav_onclick() 
 {
-    setText('msg', "");
-    var url = this.getAttribute("href");
-    if(url == '#') return false;
-    
-    var id = url.substring(0, url.lastIndexOf('.'));
-    
-    var process_html = function(data) {
-        data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-        var div = create("div");
-        div.innerHTML = data;
-        var e;
-        onDesc(div, 'DIV', function(d) {
-            if(d.id != id) return;
-            e = d; return false;
-        });
-        
-        var c = get("body");
-        removeChilds(c);
-        c.appendChild(e);
-        
-        html_cache[id] = data;
-    };
-    
-    var process_js = function(data) {
-        (window.execScript || function(data) {
-            window["eval"].call(window, data);
-        })(data);
-        js_cache[id] = data;
-    };
-    
-    //load html file
-    if(id in html_cache)
-        process_html(html_cache[id]);
-    else
-        jx.load(url, process_html, 'text');
-    
-    //load javascript file
-    if(id in js_cache)
-        process_js(js_cache[id]);
-    else
-        jx.load(url.replace(".html", ".js"), process_js, 'text');
-    
-    onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
-    onParents(this, 'UL', function(n) { show(n); });
-    onChilds(this.parentNode, 'UL', function(n) { show(n); });
-    
-    onDesc(get("globalnav"), 'A', function(n) { removeClass(n, "here"); });
-    onParents(this, 'LI', function(n) { addClass(n.firstChild, "here"); });
+	setText('msg', "");
+	var url = this.getAttribute("href");
+	if(url == '#') return false;
 
-    return false;
+	var id = url.substring(0, url.lastIndexOf('.'));
+
+	var process_html = function(data) {
+		data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+		var div = create("div");
+		div.innerHTML = data;
+		var e;
+		onDesc(div, 'DIV', function(d) {
+			if(d.id != id) return;
+			e = d; return false;
+		});
+
+		var c = get("body");
+		removeChilds(c);
+		c.appendChild(e);
+
+		html_cache[id] = data;
+	};
+
+	var process_js = function(data) {
+		(window.execScript || function(data) {
+			window["eval"].call(window, data);
+		})(data);
+		js_cache[id] = data;
+	};
+
+	//load html file
+	if(id in html_cache)
+		process_html(html_cache[id]);
+	else
+		jx.load(url, process_html, 'text');
+
+	//load javascript file
+	if(id in js_cache)
+		process_js(js_cache[id]);
+	else
+		jx.load(url.replace(".html", ".js"), process_js, 'text');
+
+	onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
+	onParents(this, 'UL', function(n) { show(n); });
+	onChilds(this.parentNode, 'UL', function(n) { show(n); });
+
+	onDesc(get("globalnav"), 'A', function(n) { removeClass(n, "here"); });
+	onParents(this, 'LI', function(n) { addClass(n.firstChild, "here"); });
+
+	return false;
 }
 
 function init() {
-    onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
-    onDesc(get("globalnav"), 'A', function(n) {
-        if(n.getAttribute("href") != '#')
-            n.onclick = nav_onclick;
-    });
-    get("first").onclick();
+	onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
+	onDesc(get("globalnav"), 'A', function(n) {
+		if(n.getAttribute("href") != '#')
+			n.onclick = nav_onclick;
+	});
+	get("first").onclick();
 }
 
 function reboot() {
-    if(!confirm("Reboot durchf\xFChren?")) return;
-    send("/cgi-bin/misc", { func : "reboot" }, function(data) {
-        setText('msg', data);
-    });
+	if(!confirm("Reboot durchf\xFChren?")) return;
+	send("/cgi-bin/misc", { func : "reboot" }, function(data) {
+		setText('msg', data);
+	});
 }
 
 function logout() {
-    window.location="https://none@" + window.location.host;
+	window.location="https://none@" + window.location.host;
 }
 </script>
 
@@ -89,16 +89,16 @@ function logout() {
 <body onload="init();">
 
 <ul id="globalnav">
-    <li><a href="home.html" id="first">Home</a></li>
-    <li><a href="nodogsplash.html">Splash Page</a></li>
-    <li><a href="settings.html">Einstellungen</a></li>
-    <li><a href="batman-adv.html">Batman-adv</a></li>
-    <li><a href="n2n.html">N2N</a></li>
-    <li><a href="tinc.html">Tinc-VPN</a></li>
-    <li><a href="firmware.html">Firmware</a></li>
-    <li><a href="password.html">Password</a></li>
-    <li><a href="#" onclick="reboot()">Reboot</a></li>
-    <li><a href="#" onclick="logout()">Logout</a></li>
+	<li><a href="home.html" id="first">Home</a></li>
+	<li><a href="nodogsplash.html">Splash Page</a></li>
+	<li><a href="settings.html">Einstellungen</a></li>
+	<li><a href="batman-adv.html">Batman-adv</a></li>
+	<li><a href="n2n.html">N2N</a></li>
+	<li><a href="tinc.html">Tinc-VPN</a></li>
+	<li><a href="firmware.html">Firmware</a></li>
+	<li><a href="password.html">Password</a></li>
+	<li><a href="#" onclick="reboot()">Reboot</a></li>
+	<li><a href="#" onclick="logout()">Logout</a></li>
 </ul>
 <br>
 <pre id="msg"></pre>

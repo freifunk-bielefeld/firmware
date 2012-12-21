@@ -4,62 +4,49 @@ content-type: text/plain
 <%
 . /www/private/cgi-bin/shared.sh
 
+set_settings() {
+	uci set -q $1.$sec.$3="$4" || send "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
+}
+
 case $GET_func in
-    get_configs)
-        uci -X -P /var/state show n2n
-    ;;
-    del_config)
-        name="$GET_name"
-        valid_name "$name"
+	get_settings)
+		uci -X -P /var/state show n2n
+	;;
+	save_settings)
+		env_foreach 'n2n' set_settings
+		uci -q commit n2n
+		send "(I) Einstellungen wurden gespeichert. Bitte Neustarten."
+	;;
+	del_entry)
+		name="$GET_name"
 
-        uci delete -q n2n.$name
-        #Entry deleted.
-        echo "(I) Eintrag '$name' wurde gel&ouml;scht."
-    ;;
-    add_config)
-        name="$GET_name"
-        valid_name "$name"
+		uci delete -q n2n.$name
+		#Entry deleted.
+		echo "(I) Eintrag '$name' wurde gel&ouml;scht."
+	;;
+	add_entry)
+		name="$GET_name"
 
-        [ `uci get -q n2n.$name` = "edge" ] && {
-            #A conflicting entry already exists.
-            echo "(E) Ein Netz mit dem Namen '$name' existiert bereits."
-            exit
-        }
+		[ `uci get -q n2n.$name` = "edge" ] && {
+			#A conflicting entry already exists.
+			echo "(E) Ein Netz mit dem Namen '$name' existiert bereits."
+			exit
+		}
 
-        uci set -q n2n.$name=edge
-        uci set -q n2n.$name.enabled=0
-        uci set -q n2n.$name.ipaddr="0.0.0.0"
-        uci set -q n2n.$name.supernode=" "
-        uci set -q n2n.$name.port=" "
-        uci set -q n2n.$name.community=" "
-        uci set -q n2n.$name.key=" "
-        uci set -q n2n.$name.route=" "
-        uci set -q n2n.$name.mtu=1528
+		uci set -q n2n.$name=edge
+		uci set -q n2n.$name.enabled=0
+		uci set -q n2n.$name.ipaddr="0.0.0.0"
+		uci set -q n2n.$name.supernode=" "
+		uci set -q n2n.$name.port=" "
+		uci set -q n2n.$name.community=" "
+		uci set -q n2n.$name.key=" "
+		uci set -q n2n.$name.route=0
+		uci set -q n2n.$name.mtu=1528
 
-        echo "(I) Eintrag '$name' wurde erstellt."
-    ;;
-    set_config)
-        name="$GET_name"
-        valid_name "$name"
-
-        [ `uci get -q n2n.$name` != "edge" ] && {
-            #An Entry alread exists.
-            echo "(E) Ein Eintrag mit dem Namen '$name' existiert bereits."
-            exit
-        }
-
-        env_str=`env`
-        import_settings "n2n" "$name" "$env_str"
-        #Settings stored. Please reboot.
-        echo "(I) Einstellungen f&uuml;r '$name' wurden gespeichert. Bitte Neustarten."
-    ;;
-    save_config)
-        uci -q commit n2n 2> /dev/null
-        #All settings stored. Please reboot.
-        echo "(I) Alle Einstellungen wurden gespeichert. Bitte Neustarten."
-    ;;
-    *)
-      echo "(E) N2N: '$GET_func' not implemented."
-    ;;
+		echo "(I) Eintrag '$name' wurde erstellt."
+	;;
+	*)
+	  echo "(E) N2N: '$GET_func' not implemented."
+	;;
 esac
 %>

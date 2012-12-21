@@ -3,17 +3,17 @@ content-type: text/plain
 
 <%
 case $GET_func in
-  get_originators)
-    batctl o
+	get_originators)
+		batctl o
     ;;
-  get_transglobal)
-    batctl tg
+	get_transglobal)
+		batctl tg
     ;;
-  get_gateways)
-    batctl gwl
+	get_gateways)
+		batctl gwl
     ;;
-  *)
-    echo "(E) batman-adv: Invalid command: '$GET_func'"
+	*)
+		echo "(E) batman-adv: Invalid command: '$GET_func'"
     ;;
 esac
 %>

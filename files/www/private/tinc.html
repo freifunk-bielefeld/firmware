@@ -11,36 +11,34 @@
 
 <div id="tinc">
 <div style="width: 20em;">
-    <ul id="data"></ul>
-    <br />
-    <input type="text" id="new_net_name" value="" style="width: 10em;">
-    <button type="button" onclick="add_net()">Neues Netz</button>
-    <br />
-    <form id="uf" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post">
-        <div style="position: relative">
-            <input type="file" name="public_key_file" class="file" onchange="get('fake_input').value = this.value" onmouseout="get('fake_input').value = this.value">
-            <div class="fakefile">
-                <input  type="text" name="_" value="" style="width: 10em;" id="fake_input" />
-                <button type="button" onclick="import_key()">Neuer Host</button>
-            </div>
-        </div>
-        <input type="hidden" name="func" value="import_key">
-        <input type="hidden" name="net_name" value="" id="uf_net_name">
-    </form>
+	<ul id="list"></ul>
+	<br />
+	<button type="button" onclick="save_entries('')">Alles Speichern</button>
+	<br />
+	<input type="text" id="new_net_name" value="" style="width: 10em;">
+	<button type="button" onclick="add_net_by_name()">Neues Netz</button>
+	<br />
+	<form id="uf1" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post" class="advanced">
+		<div style="position: relative">
+			<input type="file" name="key_file" class="file" onchange="get('fake_input1').value = this.value" onmouseout="get('fake_input1').value = this.value" id="new_net_file">
+			<div class="fakefile">
+				<input  type="text" name="_" value="" style="width: 10em;" id="fake_input1" />
+				<button type="button" onclick="add_net_by_file()">Add Net by Private Key</button>
+			</div>
+		</div>
+		<input type="hidden" name="func" value="add_net_by_file">
+	</form>
 </div>
 
-<div>
-    <fieldset id="entry"></fieldset>
-    <button type="button" onclick="save_entry()">Speichern</button>
-    <button type="button" onclick="delete_entry()">L&ouml;schen</button>
-    <button type="button" onclick="export_key()">Export Key</button>
-</div>
+<div id="entries"></div>
+
+<div class="radio"><input type="checkbox" name="_" value="" onchange="adv_mode()" id="adv_mode"><label>Advanced Mode</label></div>
 
 <form id="df" action="/cgi-bin/tinc" enctype="multipart/form-data" method="post" target="dframe" style="display:none">
-    <input type="hidden" name="func" value="export_key">
-    <input type="hidden" name="net_name" value="" id="df_net_name">
-    <input type="hidden" name="key_name" value="" id="df_key_name">
-    <frame id="dframe" style="display:none"></frame>
+	<input type="hidden" name="func" value="" id="df_func">
+	<input type="hidden" name="net_name" value="" id="df_net_name">
+	<input type="hidden" name="key_name" value="" id="df_key_name">
+	<frame id="dframe" style="display:none"></frame>
 </form>
 
 </div>
