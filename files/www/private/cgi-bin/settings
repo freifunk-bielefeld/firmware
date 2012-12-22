@@ -2,7 +2,7 @@
 content-type: text/plain
 
 <%
-. /etc/functions.sh
+. /lib/functions.sh
 . /www/private/cgi-bin/shared.sh
 
 ok_msg() {

@@ -6,7 +6,7 @@ START=19
 start()
 {
 exec >/tmp/freifunk_first.log 2>&1
-. /etc/functions.sh
+. /lib/functions.sh
 . /sbin/freifunk_shared
 
 if [ -f /etc/rc.d/S50telnet ]; then

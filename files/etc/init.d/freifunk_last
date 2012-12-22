@@ -7,7 +7,7 @@ start ()
 {
 #write everything from stdout and stderr to a log file
 exec >/tmp/freifunk_last.log 2>&1
-. /etc/functions.sh
+. /lib/functions.sh
 . /sbin/freifunk_shared
 
 echo "(I) Freifunk: start freifunk_last"
