@@ -23,7 +23,7 @@ document.getElementById("link").href="https://"+location.host;
 <b>Liste bekannter Gateways: </b>
 <%
 
-own_mac=`cat /sys/class/net/br-mesh/address 2> /dev/null`
+own_mac=`cat /sys/class/net/dummy_bat/address 2> /dev/null`
 own_status=`batctl gw 2> /dev/null`
 
 [ "${own_status:0:6}" = "server" ] && {
