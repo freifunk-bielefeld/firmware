@@ -29,7 +29,7 @@ html, body {
 <body>
 <div id="header">
 <b>Eigene IP-Adresse: </b>
-<% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
+<% ifconfig br-mesh 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}' %>
 <br />
 <b>Anzahl bekannter Knoten: </b>
 <% echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)) %>
