@@ -4,13 +4,30 @@ Content-type: text/html
 <html>
 <head>
 <title>Info</title>
+<style type="text/css">
+* {
+    margin: 0;
+}
+
+html, body {
+    height: 98%;
+}
+
+#header {
+	margin:1%;
+}
+
+#footer {
+    position: absolute;
+    bottom: 1%;
+    left: 1%;
+    right: 1%;
+    width: 98%;
+}
+</style>
 </head>
 <body>
-<a href="#" id="link">Login</a><br />
-<script type="text/javascript">
-document.getElementById("link").href="https://"+location.host;
-</script>
-<br />
+<div id="header">
 <b>Eigene IP-Adresse: </b>
 <% ifconfig br-mesh | grep "inet addr" | awk 'BEGIN { FS=":" } { print $2 }'| awk '{ print $1 }' %>
 <br />
@@ -53,5 +70,16 @@ done
 echo "</ul>"
 
 %>
+</div>
+
+<div id="footer">
+    <span style="float: left;"><a href="#" id="link">Login</a></span>
+    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">Version</a> 0.1</span>
+</div>
+
+<script type="text/javascript">
+document.getElementById("link").href="https://"+location.host;
+</script>
+
 </body>
 </html>
