@@ -64,7 +64,6 @@ case "$GET_func" in
 		uci -X -P /var/state -q show freifunk
 		uci -X -P /var/state -q show wireless
 		uci -X -P /var/state -q show network
-		uci -X -P /var/state -q show tinc
 		uci -X -P /var/state -q show n2n
 		#hack to get most existing interfaces
 		ifnames=`ls /sys/class/net/ | tr '\n' ' '`

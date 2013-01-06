@@ -116,8 +116,7 @@ function show_assignment()
 		});
 	});
 
-	//predict tinc/n2n interfaces
-	config_foreach(all.tinc, "tinc-net", function(id, obj) { ifnames.push(id); });
+	//predict n2n interfaces
 	config_foreach(all.n2n, "edge", function(id, obj) { ifnames.push(id); });
 
 	ifnames = uniq(ifnames);

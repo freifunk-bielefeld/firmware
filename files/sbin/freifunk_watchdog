@@ -34,7 +34,6 @@ echo "(I) own lan ip: '$own_lan_ip'"
 echo "(I) mesh gateway ip: '$mesh_gw_ip'"
 
 n2n=`which edge`
-tinc=`which tincd`
 
 
 #check/establish internet on wan
@@ -171,7 +170,6 @@ then
 	check_routes "yes"
 
 	is_running "$n2n" || /etc/init.d/n2n start
-	is_running "$tinc" || /etc/init.d/tinc start
 
 	[ "$share_internet" = "yes" ] && bat_server || bat_client
 else
@@ -179,7 +177,6 @@ else
 	check_routes "no"
 
 	is_running "$n2n" && /etc/init.d/n2n stop
-	is_running "$tinc" && /etc/init.d/tinc stop
 
 	bat_client
 fi
