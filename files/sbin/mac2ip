@@ -4,10 +4,8 @@
 
 mac=$1
 ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
-start_ip=`uci get dhcp.mesh.start`
-end_ip=`uci get dhcp.mesh.limit`
 
-[ -z "$mac" -o -z "$ff_subnet" -o  -z "$start_ip" -o -z "$end_ip" -o ${#mac} -ne 17 ] && {
+[ -z "$mac" -o -z "$ff_subnet" -o ${#mac} -ne 17 ] && {
 	echo "0.0.0.0"
 	exit 1
 }
@@ -17,7 +15,7 @@ for x in $(echo $mac | tr ":" "\n"); do
 	seed=$((seed + 0x$x + (0x$x << 8) + (0x$x << 16)))
 done
 
-addr_t=$((start_ip + (seed % end_ip)))
+addr_t=$((1900545 + (seed % 65278)))
 addr_c=$(((addr_t & 0xff00) >> 8))
 addr_d=$(((addr_t & 0x00ff) >> 0))
 
