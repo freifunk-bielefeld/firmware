@@ -6,4 +6,3 @@ config 'edge' 'n2n_mesh'
 	option 'port' '60211'
 	option 'community' 'ffb1'
 	option 'mtu' '1528'
-	option 'route' 1
