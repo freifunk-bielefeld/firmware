@@ -1,7 +1,7 @@
 
 Build Instructions:
 
-svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment
+svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment openwrt
 cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -17,8 +17,9 @@ make menuconfig
 #  Target System => Atheros AR7xxx/AR9xxx
 #  Target Profile => TP-LINK TL-WR841ND
 # For the DIR-300:
-#  Target System => Atheros AR231x
-#  Target Profile => Default
+# Target System => <*> AR231x/AR5312
+# Target Profile => <*> Default
+
 # Many other routers have not been tested yet
 # but may work. Give it a try! :-)
 
