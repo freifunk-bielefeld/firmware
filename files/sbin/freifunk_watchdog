@@ -11,7 +11,7 @@ mkdir $lock_dir || exit
 exec >/tmp/freifunk_watchdog.log 2>&1
 . /sbin/freifunk_shared
 
-echo "(I) start at: `date`"
+echo "(I) Start: `date`"
 
 [ "`uci get -q firewall.freifunk_share`" = "forwarding" ] && \
 share_internet="yes" || share_internet="no"
@@ -19,19 +19,19 @@ echo "(I) share internet: '$share_internet'"
 
 wan_interfaces=`uci -q get network.wan.ifname`
 wan_interface=${wan_interfaces%% *} #get first interface
-echo "(I) wan interface: '$wan_interface'"
+echo "(I) wan_interface: '$wan_interface'"
 
 gw_mode=`batctl gw 2> /dev/null`
 gw_mode=${gw_mode:0:6}
-echo "(I) gateway mode: '$gw_mode'"
+echo "(I) gw_mode: '$gw_mode'"
 
 own_mesh_ip=`get_ip br-mesh`
 own_lan_ip=`get_ip br-lan`
 mesh_gw_ip=`cat /tmp/freifunk_mesh_gw_ip 2> /dev/null`
 
-echo "(I) own mesh ip: '$own_mesh_ip'"
-echo "(I) own lan ip: '$own_lan_ip'"
-echo "(I) mesh gateway ip: '$mesh_gw_ip'"
+echo "(I) Own mesh IP address: '$own_mesh_ip'"
+echo "(I) Own lan IP address: '$own_lan_ip'"
+echo "(I) Mesh gateway IP address: '$mesh_gw_ip'"
 
 n2n=`which edge`
 
@@ -58,7 +58,7 @@ check_wan()
 
 	ping_servers()
 	{
-		echo "(I) Try to ping root servers."
+		echo "(I) Try to ping root servers:"
 		#check if any root server can be reached via default gateway and wan interface
 		IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 		for ip in `pick 3 $IPCHECK`; do
@@ -116,13 +116,14 @@ bat_server()
 	fi
 }
 
-check_routes()
+#Configure the DHCP server and routing table.
+set_routes()
 {
 	local has_internet="$1"
 	local mesh_str="3"
 	local lan_str="121,10.0.0.0/8,$own_lan_ip,0.0.0.0/0,$own_lan_ip"
 
-	echo "(I) start check_routes"
+	echo "(I) Start setting routes:"
 	[ -n "$mesh_gw_ip" ] && mesh_str="121,0.0.0.0/0,$mesh_gw_ip"
 
 	if [ "$has_internet" = "yes" ]; then
@@ -159,22 +160,22 @@ check_routes()
 		echo "(I) No change of DHCP settings."
 	fi
 
-	echo "(I) lan_str: '$lan_str'"
-	echo "(I) mesh_str: '$mesh_str'"
+	echo "(I) DHCP lan options: '$lan_str'"
+	echo "(I) DHCP mesh option: '$mesh_str'"
 }
 
 
 if check_wan "$wan_interface"
 then
 	echo "(I) We have local internet."
-	check_routes "yes"
+	set_routes "yes"
 
 	is_running "$n2n" || /etc/init.d/n2n start
 
 	[ "$share_internet" = "yes" ] && bat_server || bat_client
 else
 	echo "(I) We do not have local internet."
-	check_routes "no"
+	set_routes "no"
 
 	is_running "$n2n" && /etc/init.d/n2n stop
 
@@ -183,4 +184,4 @@ fi
 
 
 rmdir /var/lock/freifunk_watchdog.lock
-echo "(I) done"
+echo "(I) Done."
