@@ -1,7 +1,7 @@
 
 Build Instructions:
 
-svn co svn://svn.openwrt.org/openwrt/trunk/ openwrt
+svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment
 cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
