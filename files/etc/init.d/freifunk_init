@@ -5,16 +5,16 @@ START=19
 
 start()
 {
-exec >/tmp/freifunk_first.log 2>&1
+exec >/tmp/freifunk_init.log 2>&1
 . /lib/functions.sh
-. /sbin/freifunk_shared
 
-if [ -f /etc/rc.d/S50telnet ]; then
-	echo "(I) Freifunk: skip and wait for setup to be run"
+
+if [ -f /etc/init.d/freifunk_setup ]; then
+	echo "(I) Freifunk: Skip and wait for /etc/init.d/freifunk_setup to be run."
 	exit
 fi
 
-echo "(I) Freifunk: start freifunk_first"
+echo "(I) Freifunk: start freifunk_init"
 
 
 mac=`uci get -q freifunk.@settings[0].mac`
@@ -45,15 +45,9 @@ ifconfig dummy_bat hw ether $mac mtu 1528 up
 batctl if add dummy_bat
 
 
-echo "(I) Add network sections to trigger batman-adv and set mtu."
-for if in `uci get -q batman-adv.bat0.interfaces`; do
-	local n=`echo -n $if | tr -c a-z0-9_ _`
-	uci set network.$n="interface"
-	uci set network.$n.proto="none"
-	uci set network.$n.ifname=$if
-	uci set network.$n.mtu=1528
-	uci set network.$n.auto=1
-done
+ip=`mac2ip $mac`
+echo "(I) Freifunk: Set IP for br-mesh to '$ip'."
+uci set network.mesh.ipaddr="$ip"
 
 
 uci delete -q firewall.freifunk_share
@@ -63,6 +57,25 @@ if [ "$share_internet" = "yes" ]; then
 	uci set firewall.freifunk_share.src="mesh"
 	uci set firewall.freifunk_share.dest="wan"
 fi
+
+#query query_name match_value [get_other_value]
+uci_query()
+{
+	local query=$1
+	local value=$2
+	local other=$3
+	local i=0
+	while true; do
+		local q=${query/\?/$i}
+		v=`uci $q 2> /dev/null`
+		[ $? -ne 0 ] && return
+		[ "$v"	= "$value" ] && {
+			[ -n "$other" ] && echo `uci ${q%.*}.$other 2> /dev/null` || echo $i
+			return
+		}
+		i=$(($i + 1))
+	done
+}
 
 #filter ssh/https ports
 for src in wan lan mesh; do
@@ -79,5 +92,5 @@ for src in wan lan mesh; do
 done
 
 
-echo "(I) Freifunk: done freifunk_first"
+echo "(I) Freifunk: done freifunk_init"
 }

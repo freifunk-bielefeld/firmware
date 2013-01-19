@@ -15,5 +15,5 @@ echo "(I) 11-batman: BATACTION: '$BATACTION', BATDATA: '$BATDATA'"
 prev_mesh_gw=`cat /tmp/freifunk_mesh_gw_ip 2> /dev/null`
 [ "$prev_mesh_gw" != "$mesh_gw" ] && {
 	echo -n "$mesh_gw" > /tmp/freifunk_mesh_gw_ip
-	/sbin/freifunk_watchdog
+	/etc/init.d/freifunk_watchdog start
 }

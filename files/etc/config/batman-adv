@@ -1,5 +1,4 @@
 
 config 'mesh' 'bat0'
-	option 'interfaces' ''
 	option 'orig_interval' '3000'
 	option 'bridge_loop_avoidance' '1'
