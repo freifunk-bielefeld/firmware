@@ -1,14 +1,16 @@
 
-Build Instructions:
+Build Commands:
 
 svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment openwrt
 cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
+svn co svn://svn.openwrt.org/openwrt/packages/net/batman-adv package/batman-adv
 git clone https://github.com/freifunk-bielefeld/firmware.git
 mv firmware/package/* package/
 mv firmware/files ./
 rm -rf firmware
+
 make defconfig
 make menuconfig
 
