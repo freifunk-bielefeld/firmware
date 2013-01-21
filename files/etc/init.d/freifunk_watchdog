@@ -20,7 +20,7 @@ exec >/tmp/freifunk_watchdog.log 2>&1
 
 echo "(I) Start: `date`"
 
-[ "`uci get -q firewall.freifunk_share`" = "forwarding" ] && \
+[ "`uci get -q firewall.share_internet`" = "forwarding" ] && \
 	share_internet="yes" || share_internet="no"
 echo "(I) share internet: '$share_internet'"
 

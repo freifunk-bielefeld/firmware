@@ -50,12 +50,12 @@ echo "(I) Freifunk: Set IP for br-mesh to '$ip'."
 uci set network.mesh.ipaddr="$ip"
 
 
-uci delete -q firewall.freifunk_share
+uci delete -q firewall.share_internet
 if [ "$share_internet" = "yes" ]; then
 	#forward from mesh to wan
-	uci set firewall.freifunk_share="forwarding"
-	uci set firewall.freifunk_share.src="mesh"
-	uci set firewall.freifunk_share.dest="wan"
+	uci set firewall.share_internet="forwarding"
+	uci set firewall.share_internet.src="mesh"
+	uci set firewall.share_internet.dest="wan"
 fi
 
 #query query_name match_value [get_other_value]
