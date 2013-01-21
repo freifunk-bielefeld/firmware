@@ -5,10 +5,7 @@
 mac=$1
 ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 
-[ -z "$mac" -o -z "$ff_subnet" -o ${#mac} -ne 17 ] && {
-	echo "0.0.0.0"
-	exit 1
-}
+[ -z "$mac" -o -z "$ff_subnet" -o ${#mac} -ne 17 ] && exit 1
 
 seed=0
 for x in $(echo $mac | tr ":" "\n"); do
