@@ -38,7 +38,7 @@ get_ip() {
 
 own_mesh_ip=`get_ip br-mesh`
 own_lan_ip=`get_ip br-lan`
-mesh_gw_ip=$(mac2ip `batctl gwl 2> /dev/null | awk '/^=>/{ print $2}'`)
+mesh_gw_ip=$(mac2ip `batctl gwl 2> /dev/null | awk '/^=>/{ printf $2 }'`)
 
 echo "(I) Own mesh IP address: '$own_mesh_ip'"
 echo "(I) Own lan IP address: '$own_lan_ip'"
