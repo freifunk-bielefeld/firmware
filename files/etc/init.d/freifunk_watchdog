@@ -132,20 +132,17 @@ set_routes()
 {
 	local has_internet="$1"
 	local mesh_str="3"
-	local lan_str="121,10.0.0.0/8,$own_lan_ip,0.0.0.0/0,$own_lan_ip"
+	local lan_str="3,$own_lan_ip"
 
 	echo "(I) Start setting routes:"
-	[ -n "$mesh_gw_ip" ] && mesh_str="121,0.0.0.0/0,$mesh_gw_ip"
+	[ "$share_internet" = "yes" ] && mesh_str="3,$own_mesh_ip"
+	[ -n "$mesh_gw_ip" ] && mesh_str="3,$mesh_gw_ip"
 
 	if [ "$has_internet" = "yes" ]; then
 		if [ "$share_internet" = "yes" ]; then
-			mesh_str="121,0.0.0.0/0,$own_mesh_ip"
+			mesh_str="3,$own_mesh_ip"
 		fi
 	else
-		if [ -z "$mesh_gw_ip" ]; then
-			lan_str="121,10.0.0.0/8,$own_lan_ip"
-		fi
-
 		echo "(I) Clear default routes and nameserver list."
 		while `route del default > /dev/null 2>&1`; do true; done
 		echo -e "nameserver 127.0.0.1" > /tmp/resolv.conf.auto
