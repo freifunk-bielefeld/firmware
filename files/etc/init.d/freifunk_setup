@@ -11,6 +11,7 @@ start()
 #This script is only run once and deletes itself.
 
 exec >/root/freifunk_setup.log 2>&1
+. /lib/functions.sh
 
 echo "(I) Freifunk: start freifunk_setup"
 
@@ -33,9 +34,6 @@ echo "(I) Freifunk: wan interface: '$wan_interface'"
 lan_interface=`uci -q get network.lan.ifname`
 echo "(I) Freifunk: lan interface: '$lan_interface'"
 
-wifi_device=`uci -q get wireless.@wifi-iface[0].device`
-echo "(I) Freifunk: wifi device: '$wifi_device'"
-
 ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 
 
@@ -43,39 +41,57 @@ ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 # S E T U P  W I R E L E S S #
 # ------------------------------------------- # 
 
-#test if we can span both ad-hoc and access point interfaces
-if [ -n "$wifi_device" ]; then
-	echo "(I) Freifunk: setup /etc/config/wireless"
-	uci set wireless.$wifi_device.channel=1
-	uci set wireless.$wifi_device.country=DE
+echo "(I) Freifunk: setup /etc/config/wireless"
 
-	#wireless is disabled by default
-	uci -q delete wireless.@wifi-device[0].disabled
+while uci -q delete wireless.@wifi-iface[0]; do :; done
 
-	#remove all wifi interface entries
+#test if we can span both Ad-Hoc and Access Point interfaces
+config_wifi() {
+	local ds="$1" #device section
+	local ah_ok=0 ap_ok=0 #interface status
+	local wifi_device=`uci get -q wireless.$ds.device`
+
+	#config_get wifi_device "$ds" device
+	[ -z "$wifi_device" ] && wifi_device="$ds"
+
+	echo "(I) Freifunk: configure wifi device: '$wifi_device'"
+
+	if [ `uci get -q wireless.$ds.channel` -gt 35 ]; then
+		ssid_suffix="_5GHz"
+		uci set wireless.$ds.channel=36
+	else
+		ssid_suffix=""
+		uci set wireless.$ds.channel=1
+	fi
+
+	uci set wireless.$ds.country=DE
+	uci set wireless.$ds.disabled=0
+
+	#remove ap/ah wifi interface entries
 	clear_wifi_interfaces() {
-		while uci -q delete wireless.@wifi-iface[0]; do :; done
+		uci -q delete wireless.@wifi-iface[-1]
+		uci -q delete wireless.@wifi-iface[-1]
 	}
 
-	#ad-hoc for batman
+	#Ad-Hoc for batman
 	add_ah_interface() {
 		local s=wireless.`uci add wireless wifi-iface`
 		uci set $s.device="$wifi_device"
 		uci set $s.ifname="${wifi_device}_bat"
 		uci set $s.mode=adhoc
-		uci set $s.ssid="$ah_ssid"
+		uci set $s.ssid="$ah_ssid$ssid_suffix"
 		uci set $s.bssid="$ah_bssid"
 		uci set $s.hidden=1
 	}
 
-	#access point for clients
+	#Access Point for clients
 	add_ap_interface() {
 		local s=wireless.`uci add wireless wifi-iface`
 		uci set $s.device="$wifi_device"
 		uci set $s.ifname="${wifi_device}_mesh"
 		uci set $s.mode=ap
 		uci set $s.network=mesh
-		uci set $s.ssid="$ap_ssid"
+		uci set $s.ssid="$ap_ssid$ssid_suffix"
 		uci set $s.encryption="none"
 	}
 
@@ -89,27 +105,30 @@ if [ -n "$wifi_device" ]; then
 		ifconfig "${wifi_device}_mesh" &> /dev/null && ap_ok=1 || ap_ok=0
 	}
 
-	clear_wifi_interfaces
 	add_ah_interface
 	add_ap_interface
 	wifi_restart
 	check_wifi_interfaces
 
-	#if not both interfaces work; try only ad-hoc
+	#if not both interfaces work; try only Ad-Hoc
 	if [ $ah_ok -eq 0 -o $ap_ok -eq 0 ]; then
-		echo "(I) Freifunk: Cannot start ad-hoc and AP mode at the same time - try ad-hoc only now."
+		echo "(I) Freifunk: Cannot start Ad-Hoc and Access Point mode at the same time - try AdHoc only now."
 		clear_wifi_interfaces
 		add_ah_interface
 		wifi_restart
 		check_wifi_interfaces
 	fi
 
-	[ $ah_ok -eq 1 ] && wifi_bat_interfaces="${wifi_device}_bat"
-	[ $ap_ok -eq 1 ] && wifi_mesh_interfaces="${wifi_device}_mesh"
+	[ $ah_ok -eq 1 ] && append wifi_bat_interfaces "${wifi_device}_bat"
+	[ $ap_ok -eq 1 ] && append wifi_mesh_interfaces "${wifi_device}_mesh"
+}
 
-	echo "(I) Freifunk: wifi access point interfaces: '$wifi_mesh_interfaces'"
-	echo "(I) Freifunk: wifi ad-hoc interfaces: '$wifi_bat_interfaces'"
-fi
+config_load wireless
+config_foreach config_wifi wifi-device
+
+echo "(I) Freifunk: wifi access point interfaces: '$wifi_mesh_interfaces'"
+echo "(I) Freifunk: wifi ad-hoc interfaces: '$wifi_bat_interfaces'"
+
 
 #get a unique (but not just random) mac to identify the node
 mesh_mac=`cat /sys/class/ieee80211/phy0/macaddress`
