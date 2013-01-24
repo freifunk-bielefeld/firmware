@@ -23,7 +23,7 @@ echo "(I) Freifunk: start freifunk_setup"
 ap_ssid=`uci -q get freifunk.@settings[0].default_ap_ssid`
 
 #add batman version to the AdHoc interface SSID
-ah_ssid="mesh_"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 
 #default BSSID
 ah_bssid=`uci -q get freifunk.@settings[0].default_ah_bssid`
