@@ -58,28 +58,18 @@ if [ "$share_internet" = "yes" ]; then
 	uci set firewall.share_internet.dest="wan"
 fi
 
-#query query_name match_value [get_other_value]
-uci_query()
-{
-	local query=$1
-	local value=$2
-	local other=$3
-	local i=0
-	while true; do
-		local q=${query/\?/$i}
-		v=`uci $q 2> /dev/null`
-		[ $? -ne 0 ] && return
-		[ "$v"	= "$value" ] && {
-			[ -n "$other" ] && echo `uci ${q%.*}.$other 2> /dev/null` || echo $i
-			return
-		}
-		i=$(($i + 1))
-	done
+
+find_default_target() {
+	local s="$1" src="$2" n=""
+	config_get n "$s" name
+	[ "$src" == "$n" ] && { config_get default_target "$s" input; return 1; }
 }
 
 #filter ssh/https ports
+config_load firewall
 for src in wan lan mesh; do
-	default_target=`uci_query "-q get firewall.@zone[?].name" "$src" "input"`
+	default_target=""
+	config_foreach find_default_target zone $src
 	list_contains config_nets "$src" && target=ACCEPT || target=REJECT
 	[ "$target" = "$default_target" ] && continue
 	for port in 22 443; do
