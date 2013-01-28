@@ -87,7 +87,7 @@ check_wan()
 
 	ping_servers && return 0
 
-	#try to aquire new lease
+	echo "(I) Trying to aquire new DHCP lease."
 	local pid=`cat /var/run/udhcpc-$wan.pid`
 	kill -s SIGUSR2 $pid #release lease
 	kill -s SIGUSR1 $pid #get new lease
