@@ -28,6 +28,9 @@ html, body {
 </head>
 <body>
 <div id="header">
+<b>Name der Node: </b>
+<% uci get system.@system[0].hostname %>
+<br />
 <b>Eigene IP-Adresse: </b>
 <% ifconfig br-mesh 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}' %>
 <br />
