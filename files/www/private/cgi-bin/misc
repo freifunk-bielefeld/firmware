@@ -14,7 +14,8 @@ case $GET_func in
 	;;
 	status)
 		print() { echo "status.data.$1=$2"; }
-		print 'ip' `get_ip br-mesh`
+		print 'mesh_ip' `get_ip br-mesh`
+		print 'lan_ip' `get_ip br-lan`
 		up=`uptime`
 		print 'load' "${up##*:}"
 		uptime="${up%%,*}"
