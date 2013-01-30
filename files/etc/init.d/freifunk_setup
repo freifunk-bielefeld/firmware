@@ -140,8 +140,9 @@ a=${mesh_mac%%:*} #cut out first hex
 a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
 mesh_mac="$a:${mesh_mac#*:}" #reassemble mac
-
-echo "(I) Freifunk: mac for mesh: '$mesh_mac'"
+mesh_ip=`mac2ip $mesh_mac`
+echo "(I) Freifunk: MAC for mesh: '$mesh_mac'"
+echo "(I) Freifunk: IP for mesh: '$mesh_ip'"
 
 
 # ------------------------------------- #
@@ -242,6 +243,11 @@ uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 #prevent own hostname as DNS entry
 uci set dhcp.@dnsmasq[0].add_local_domain='0'
 uci set dhcp.@dnsmasq[0].add_local_hostname='0'
+
+#make "node" resolve to the node a client is connected to
+echo "192.168.133.1 node" >> /etc/hosts
+echo "$mesh_ip node" >> /etc/hosts
+
 
 /etc/init.d/nodogsplash disable
 /etc/init.d/n2n disable
