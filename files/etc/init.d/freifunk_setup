@@ -239,6 +239,10 @@ done
 uci set freifunk.@settings[0].mac="$mesh_mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
+#prevent own hostname as DNS entry
+uci set dhcp.@dnsmasq[0].add_local_domain='0'
+uci set dhcp.@dnsmasq[0].add_local_hostname='0'
+
 /etc/init.d/nodogsplash disable
 /etc/init.d/n2n disable
 /etc/init.d/telnet disable
