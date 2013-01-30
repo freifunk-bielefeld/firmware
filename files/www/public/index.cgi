@@ -41,6 +41,7 @@ html, body {
 <% batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l %>
 <br /><br />
 <b>Liste bekannter Gateways: </b>
+<br /><br />
 <%
 
 own_mac=`cat /sys/class/net/dummy_bat/address 2> /dev/null`
