@@ -6,7 +6,7 @@ The GUI code displayes and manipulated this variable.
 var uci = {};
 
 var suffix_map = { "public" : "mesh", "private" : "lan", "mesh" : "bat"};
-
+var gid = 0;
 
 //to config file syntax
 function toUCI(pkg_obj)
@@ -258,7 +258,7 @@ function capitalise(string) {
 function addNetSection(ifname, mode)
 {
 	var n = uci.network;
-	var sid = ifname.replace(".", "_");
+	var sid = "cfg"+(++gid);
 
 	switch(mode)
 	{
@@ -274,7 +274,7 @@ function addNetSection(ifname, mode)
 		n.mesh.ifname = n.mesh.ifname+" "+ifname;
 		break;
 	case "wan":
-		n[sid]={"stype":"interface","ifname":ifname,"proto":"dhcp"};
+		n['wan']={"stype":"interface","ifname":ifname,"proto":"dhcp"};
 		break;
 	default:
 		alert("mode error '"+mode+"' "+ifname);
@@ -432,7 +432,7 @@ function build_vlan(switch_root, id, obj, info, ifname)
 
 function addVlanSection(device, vlan, ports)
 {
-	uci.network["vlan_"+device+"_"+vlan] = { "stype" : "switch_vlan", "device" : device, "vlan" : ""+vlan, "ports" : ports };
+	uci.network["cfg"+(++gid)] = { "stype" : "switch_vlan", "device" : device, "vlan" : ""+vlan, "ports" : ports };
 }
 
 function delVlanSection(vlan)
@@ -551,7 +551,7 @@ function rebuild_switches()
 			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
 			var mode = getMode(ifname);
 			//delNetSection(ifname);
-			//addNetSection(ifname, mode); //make sure entry exists
+			//addNetSection(ifname, mode); //makes sure entry exists
 			build_vlan(switch_root, vid, vobj, info, ifname);
 		}
 
