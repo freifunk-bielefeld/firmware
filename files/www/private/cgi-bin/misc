@@ -2,7 +2,9 @@
 content-type: text/plain
 
 <%
-. /www/private/cgi-bin/shared.sh
+get_ip() {
+	ifconfig "$1" 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}'
+}
 
 case $GET_func in
 	reboot)

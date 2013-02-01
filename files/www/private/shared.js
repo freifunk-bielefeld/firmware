@@ -129,26 +129,16 @@ function checkName(name)
 	return false;
 }
 
-function chainOnchange(input, func)
-{
-	var old_func = input.onchange;
-	input.onchange = function(e) {
-		if((typeof old_func == 'function') && !old_func(e))
-			return false;
-		return func(e);
-	}
-}
-
 function addInputCheck(input, regex, msg)
 {
-	var value = input.value;
-	chainOnchange(input, function(e) {
-		var src = (e.target || e.srcElement);
-		if(regex.test(src.value)) return true;
+	var prev_value = input.value;
+	input.onchange = function(e) {
+		if(regex.test(input.value))
+			return;
 		alert(msg);
-		src.value = value;
-		return false;
-	});
+		input.value = prev_value;
+		e.stopPropagation();
+	};
 }
 
 function collect_inputs(p, obj)
@@ -211,19 +201,11 @@ function append_label(parent, title, value)
 	return div;
 }
 
-function append_selection(parent, title, name, selected, choices)
+function append_options(parent, name, selected, choices)
 {
-	var p = append(parent, 'div');
-	var label = create('label');
 	var select = create('select');
-
 	select.style.minWidth = "5em";
 	select.name = name;
-	p.className = "radio";
-	label.innerHTML = title + ":";
-	p.appendChild(label);
-	p.appendChild(select);
-
 	for(var i in choices)
 	{
 		var s = (typeof choices[i] != 'object');
@@ -235,6 +217,19 @@ function append_selection(parent, title, name, selected, choices)
 		option.selected = (choice_value == selected) ? "selected" : "";
 		option.innerHTML= choice_text;
 	}
+	parent.appendChild(select);
+}
+
+function append_selection(parent, title, name, selected, choices)
+{
+	var p = append(parent, 'div');
+	var label = create('label');
+
+	p.className = "radio";
+	label.innerHTML = title + ":";
+	p.appendChild(label);
+
+	append_options(p, name, selected, choices);
 	return p;
 }
 

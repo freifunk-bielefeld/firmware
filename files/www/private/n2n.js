@@ -15,14 +15,6 @@ function createDelAction(n) {
 	};
 }
 
-function addChangeLog(e)
-{
-	var src = (e.target || e.srcElement);
-	collect_inputs(src, changes);
-	return true;
-}
-
-
 function createSetAction(fieldset, n) {
 	return function() {
 		save_config(n);
@@ -35,23 +27,25 @@ function appendSettings(parent, n, obj)
 	{
 		var value = obj[name];
 		var id = n+"#"+name;
-		var e;
+		var b;
 		switch(name)
 		{
 		case "stype":
 			continue;
 		case "enabled": case "route":
-			e = append_radio(parent, name, id, value, [["Ja", 1], ["Nein", 0]]);
+			b = append_radio(parent, name, id, value, [["Ja", 1], ["Nein", 0]]);
 			break;
 		case "mtu": case "port":
-			e = append_input(parent, name, id, value);
-			addInputCheck(e.lastChild, /^[1-9]\d*$/, name + " muss eine Nummer sein.");
+			b = append_input(parent, name, id, value);
+			addInputCheck(b.lastChild, /^[1-9]\d*$/, name + " muss eine Nummer sein.");
 			break;
 		default:
-			e = append_input(parent, name, id, value);
+			b = append_input(parent, name, id, value);
 		}
-		e.id = id;
-		chainOnchange(e, addChangeLog);
+		b.id = id;
+		b.onchange = function() {
+			collect_inputs(b, changes);
+		};
 	}
 }
 

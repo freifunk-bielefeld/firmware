@@ -1,340 +1,506 @@
 
-var wifi_options = [["Mesh", "mesh"], ["Public", "public"], ["Private", "private"]];
-var net_options = [["Mesh", "mesh"], ["Public", "public"], ["Private", "private"], ["WAN", "wan"]];
+/*
+All required uci packages are stored variable uci.
+The GUI code displayes and manipulated this variable.
+*/
+var uci = {};
 
-var all = {}; //all uci settings we have got
-var guid = 0;
+var suffix_map = { "public" : "mesh", "private" : "lan", "mesh" : "bat"};
 
 
-function appendSetting(p, prefix, name, value, value2)
+//to config file syntax
+function toUCI(pkg_obj)
 {
-	if(inArray(name, ["ifname", "up", "type", "macaddr"]))
-		return;
-	var id = prefix+"#"+name;
-	var e;
-	switch(name)
+	var str = "\n";
+	for(var sid in pkg_obj)
 	{
-	case "channel":
-		e = append_selection(p, "Kanal", id, value, [1,2,3,4,5,6,7,8,9,10,11,12]);
-		break;
-	case "encryption":
-		e = append_selection(p, "Verschl&uuml;sselung", id, value, ["none", "psk2"]);
-		break;
-	case	"key":
-		e = append_input(p, "Passwort", id, value);
-		break;
-	case "hwmode": case "htmode": case "ht_capab":
-		//display, read only, no send back to router
-		e = append_label(p, name, value);
-		break;
-	case "ssid":
-		e = append_input(p, "SSID", id, value);
-		e.lastChild.disabled = (value2 == "private") ? "" : "disabled";
-		addInputCheck(e.lastChild, /^\w{3,30}$/, name + " ist ung&uuml;ltig.");
-		break;
-	case "share_internet":
-		e = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
-		break;
-	case "config_nets":
-		e = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","lan"], ["Public","mesh"]]);
-		break;
-	case "ports":
-		e = append_check(p, value2.ifname+" ports", id, split(value), value2.all_ports);
-		if(value2.tagged_port.length)
-			hide(e.lastChild); //hide tagged port from de-selection
-		break;
-	default:
-		//no display, send back to router
-		e = append_input(p, name, id, value);
-		hide(e);
+		if(sid == "pchanged")
+			continue;
+
+		var options = pkg_obj[sid];
+		var sname = (sid.substring(0, 3) != "cfg") ? (" '"+sid+"'") : "";
+		str += "config "+options.stype+sname+"\n";
+		for(var oname in options)
+		{
+			if(oname == "stype")
+				continue;
+			var value = options[oname];
+			if(typeof value == 'object')
+			{
+				for(var i in value)
+					str += "	list "+oname+" '"+value[i]+"'\n";
+			}
+			else
+				str += "	option "+oname+" '"+value+"'\n";
+		}
+		str += "\n";
 	}
-	e.id = id;
+	return str;
 }
 
-function append_save_button(parent, _root, func)
+//from (uci export foo && uci export bar)
+function fromUCI(pkgs_str)
 {
-	var root = _root;
-	append_button(parent, "Speichern", function() {
-		var obj = { func : func };
-		collect_inputs(root, obj);
-		send("/cgi-bin/settings", obj, function(data) { setText('msg', data); });
-	});
+	var pkg_objs = {};
+	var pkg;
+	var cfg;
+
+	var lines = pkgs_str.split("\n");
+	for(var i = 0; i < lines.length; ++i)
+	{
+		var line = lines[i];
+		var items = split(line);
+		if(items.length < 2) continue;
+		switch(items[0])
+		{
+			case 'package':
+				pkg = { pchanged : false };
+				pkg_objs[items[1]] = pkg;
+				break;
+			case 'config':
+				var val = (items.length == 3) ? line.match(/'(.*)'/)[1] : ("cfg"+(++gid));
+				cfg = { stype : items[1] };
+				pkg[val] = cfg;
+				break;
+			case 'option':
+				var val = line.match(/'(.*)'/)[1];
+				cfg[items[1]] = val;
+				break;
+			case 'list':
+				var val = line.match(/'(.*)'/)[1];
+				if(!(items[1] in cfg)) cfg[items[1]] = [];
+				cfg[items[1]].push(val);
+				break;
+		}
+	}
+	return pkg_objs;
+}
+
+function updateFrom(src)
+{
+	var obj = {};
+	collect_inputs(src, obj);
+	for(var name in obj)
+	{
+		var value = obj[name];
+		var path = name.split('#');
+		//alert("update '"+name+" ''"+value+"'");
+
+		var pkg = path[0];
+		var sec = path[1];
+		var opt = path[2];
+
+		uci[pkg].pchanged = true;
+		uci[pkg][sec][opt] = value
+	}
+}
+
+function appendSetting(p, path, value)
+{
+	var id = path.join('#');
+	var b;
+	var name = path[path.length-1];
+	switch(name)
+	{
+	case "hostname":
+		b = append_input(p, "Hostname", id, value);
+		addInputCheck(b.lastChild, /^[\w]{3,30}$/, name + " ist ung\xfcltig.");
+		break;
+	case "channel":
+		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
+		if(value > 35) channels = [36,40,42,44,48,50,52,56,58,60,64,149,152,153,157,160,161,165];
+		b = append_selection(p, "Kanal", id, value, channels);
+		break;
+	case "encryption":
+		b = append_selection(p, "Verschl\xfcsselung", id, value, ["none", "psk2"]);
+		break;
+	case "key":
+		b = append_input(p, "Passwort", id, value);
+		break;
+	case "hwmode": case "htmode": case "ht_capab":
+		b = append_label(p, name, value);
+		break;
+	case "ssid":
+		b = append_input(p, "SSID", id, value);
+		addInputCheck(b.lastChild, /^[\w.]{3,30}$/, "SSID ist ung\xfcltig.");
+		break;
+	case "share_internet":
+		b = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
+		break;
+	case "config_nets":
+		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","lan"], ["Public","mesh"]]);
+		break;
+	case "disabled":
+		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
+		break;
+	case "ports":
+		b = append_check(p, value.title, id, split(value.ports), value.all_ports);
+		if(value.tagged_port.length)
+			hide(b.lastChild); //hide tagged port from de-selection
+		break;
+	default:
+		return;
+	}
+
+	b.id = id; //needed for updateFrom
+	b.onchange = function() {
+		updateFrom(b);
+	};
+
+	return b;
+}
+
+function firstSectionID(obj, stype)
+{
+	for(var id in obj)
+		if(obj[id].stype == stype)
+			return id;
+}
+
+function rebuild_general()
+{
+	var root = get("general");
+	removeChilds(root);
+	removeChilds(root);
+
+	var fs = append_section(root, "Allgemeine Einstellungen:");
+
+	var s = uci.system;
+	var j = firstSectionID(s, "system");
+	appendSetting(fs, ["system", j, "hostname"], s[j]["hostname"]);
+
+	var f = uci.freifunk;
+	var i = firstSectionID(f, "settings");
+	for(var opt in f[i])
+		appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+
+	var div = append(fs, "div");
 }
 
 function getMode(ifname)
 {
-	var mesh_ifs = split(all["batman-adv"].bat0.interfaces);
-	if(inArray(ifname, mesh_ifs)) return "mesh";
+	var n = uci.network;
+	for(var id in n)
+		if(n[id].ifname == ifname && n[id].proto == "batadv")
+			return "mesh";
 
-	var public_ifs = split(all.network.mesh.device);
-	if(inArray(ifname, public_ifs)) return "public";
+	if(inArray(ifname, split(n.mesh.ifname)))
+		return "public";
 
-	var private_ifs = split(all.network.lan.device);
-	if(inArray(ifname, private_ifs)) return "private";
+	if(inArray(ifname, split(n.lan.ifname)))
+		return "private";
 
-	var wan_ifs = split(all.network.wan.ifname);
-	if(inArray(ifname, wan_ifs)) return "wan";
+	for(var id in n)
+		if(n[id].ifname == ifname && n[id].proto == "dhcp")
+			return "wan";
 
 	return "none";
 }
 
-//e.g. get ethX when there is ethX.Y
-function getSwitchDevice()
+function isWlanIF(ifname)
 {
-	var ifnames = split(all.ifconfig.all.interfaces);
-	for(var i in ifnames)
-	{
-		var n = ifnames[i];
-		var p = n.indexOf('.');
-		if(p != -1)
-			return n.substring(0,p);
-	}
-	return "";
+    var w = uci.wireless;
+    for(var id in w)
+        if(w[id].stype == "wifi-iface" && w[id].ifname == ifname)
+            return true;
+    return false;
 }
 
-function isWLAN(ifname) {
-	return /^(wlan|ath|wl)\d[\-\d]*$/.test(ifname);
-}
-
-function show_assignment()
+function rebuild_assignment()
 {
 	var root = get("assignment");
 	removeChilds(root);
 
-	var fs = append_section(root, "Verwendungszweck");
-	var ifnames = split(all.ifconfig.all.interfaces);
-	var ignore = ["lo", "br-mesh", "br-lan"];
+	var fs = append_section(root, "Anschl\xcfsse");
+	var net_options = [["Mesh", "mesh"], ["Public", "public"], ["Private", "private"], ["WAN", "wan"]];
+	var ignore = ["dummy_mesh", "dummy_lan", "dummy_bat", "bat0", "lo"];
+	var ifnames = [];
 
-	//predict switch interfaces
-	config_foreach(all.network, "switch", function(sid, sobj) {
-		var info = collect_switch_info(sobj);
-		if(info.switch_ifname.length)
-			ignore.push(info.switch_ifname);
-		config_foreach(all.network, "switch_vlan", function(vid, vobj) {
-			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
-			ifnames.push(ifname);
-		});
+	config_foreach(uci.network, "interface", function(sid, sobj) {
+		var ifname = sobj.ifname;
+		if(sobj.type == "bridge" || isWlanIF(ifname) || inArray(ifname, ignore))
+			return;
+		ifnames.push(ifname);
 	});
-
-	//predict n2n interfaces
-	config_foreach(all.n2n, "edge", function(id, obj) { ifnames.push(id); });
 
 	ifnames = uniq(ifnames);
 	ifnames.sort();
 	for(var i in ifnames)
 	{
 		var ifname = ifnames[i];
-		//some interfaces need to be ignored
-		if(inArray(ifname, ignore))
-			continue;
-
 		var mode = getMode(ifname);
-		var options = isWLAN(ifname) ? wifi_options : net_options;
-		var radio = append_selection(fs, ifname, "set_mode##"+ifname, mode, options);
+		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
 
-		if(inArray(ifname, ["dummy_mesh", "dummy_lan", "dummy_bat", "bat0"]))
-			hide(radio);
+		entry.onchange = function(e) {
+			var src = (e.target || e.srcElement);
+			var mode = src.value;
+			delNetSection(ifname);
+			addNetSection(ifname, mode);
+		};
 	}
-
 	var div = append(fs, "div");
-	append_save_button(div, fs, "set_assignment");
-}
-
-//print freifunk config
-function show_general()
-{
-	var root = get("general");
-	removeChilds(root);
-
-	var fs = append_section(root, "Allgemeine Einstellungen:");
-
-	for(var id in all.freifunk) break;
-	var ff = all.freifunk[id];
-
-	for(var opt in ff)
-		appendSetting(fs, "freifunk#"+id, opt, ff[opt], "");
-
-	var div = append(fs, "div");
-	append_save_button(div, fs, "set_freifunk");
-}
-
-function getWifiDefaults(dev, mode)
-{
-	for(var id in all.freifunk) break;
-	var ff = all.freifunk[id];
-
-	if(mode == "mesh")
-		return {"device":dev,"stype":"wifi-iface","mode":"adhoc","ssid":ff.default_ah_ssid,"bssid":ff.default_ah_bssid,"hidden":1};
-	if(mode == "public")
-		return {"device":dev,"stype":"wifi-iface","mode":"ap","ssid":ff.default_ap_ssid,"network":"mesh"};
-	if(mode == "private")
-		return {"device":dev,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":"","encryption":"none"};
-	alert("internal error");
 }
 
 function collect_wifi_info(device)
 {
 	var modes = [];
-	config_foreach(all.wireless, "wifi-iface", function(wid, wobj) {
-		if(device == wobj.device)
-			modes.push(getMode(wobj.ifname));
+	config_foreach(uci.wireless, "wifi-iface", function(id, obj) {
+		if(device == obj.device)
+			modes.push(getMode(obj.ifname));
 	});
 	return {"modes" : modes};
 }
 
-function addWifi(mode, wid, dev, wobj)
-{
-	wobj = wobj ? wobj : getWifiDefaults(dev, mode);
-
-	var parent = get("wireless_"+dev+"_wifis");
-	var ifname = ("ifname" in wobj) ? wobj.ifname : "???";
-	var sfs = append_section(parent, mode+": '"+ifname+"'", "wireless_"+dev+"_"+mode);
-
-	for(var okey in wobj)
-		appendSetting(sfs, "wireless#"+wid, okey, wobj[okey], mode);
-
-	append_button(sfs, "L&ouml;schen", function() {
-		parent.removeChild(sfs);
-	});
+function capitalise(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function append_wifi_buttons(fs, dev)
+function addNetSection(ifname, mode)
 {
-	append_save_button(fs, fs, "set_wireless");
+	var n = uci.network;
+	var sid = ifname.replace(".", "_");
 
-	append_button(fs, "Mesh", function() {
-		if(get("wireless_"+dev+"_public"))
-			return alert("Es gibt bereits ein Mesh Wifi Interface f&uuml;r '"+dev+"'.");
-		addWifi("mesh", ++guid, dev, null);
-	});
-
-	append_button(fs, "Public", function() {
-		if(get("wireless_"+dev+"_public"))
-			return alert("Es gibt bereits ein Public Wifi Interface f&uuml;r '"+dev+"'.");
-		addWifi("public", ++guid, dev, null);
-	});
-
-	append_button(fs, "Private", function() {
-		if(get("wireless_"+dev+"_private"))
-			return alert("Es gibt bereits ein Private Wifi Interface f&uuml;r '"+dev+"'.");
-		addWifi("private", ++guid, dev, null);
-	});
+	switch(mode)
+	{
+	case "mesh":
+		n[sid]={"stype":"interface","ifname":ifname,"mtu":"1528","auto":"1","proto":"batadv","mesh":"bat0"};
+		break;
+	case "private":
+		n[sid]={"stype":"interface","ifname":ifname,"auto":"1"};
+		n.lan.ifname = n.lan.ifname+" "+ifname;
+		break;
+	case "public":
+		n[sid]={"stype":"interface","ifname":ifname,"auto":"1"};
+		n.mesh.ifname = n.mesh.ifname+" "+ifname;
+		break;
+	case "wan":
+		n[sid]={"stype":"interface","ifname":ifname,"proto":"dhcp"};
+		break;
+	default:
+		alert("mode error '"+mode+"' "+ifname);
+	}
+	n.pchanged = true;
 }
 
-function show_wifi()
+//remove an item from a string list
+function removeItem(str, item)
+{
+	return str.replace(item, "").replace(/\s+/g, ' ').replace(/^\s*|\s*$/g, '');
+}
+
+function delNetSection(ifname)
+{
+	var n = uci.network;
+	config_foreach(n, "interface", function(id, obj) {
+		if(obj.ifname == ifname && obj.type != "bridge")
+			delete n[id];
+	});
+
+	n.lan.ifname = removeItem(n.lan.ifname, ifname);
+	n.mesh.ifname = removeItem(n.mesh.ifname, ifname);
+	n.pchanged = true;
+}
+
+function addWifiSection(device, mode)
+{
+	var f = uci.freifunk;
+	var w = uci.wireless;
+	var i = firstSectionID(f, "settings");
+	var ifname = device+"_"+suffix_map[mode];
+
+	switch(mode)
+	{
+	case "mesh":
+		w[ifname] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1};
+		break;
+	case "public":
+		w[ifname] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"mesh"};
+		break;
+	case "private":
+		w[ifname] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":"","encryption":"none"};
+		break;
+	default:
+		alert("mode error '"+mode+"' "+device);
+	}
+	w.pchanged = true;
+}
+
+function delWifiSection(ifname)
+{
+	var w = uci.wireless;
+	config_foreach(w, "wifi-iface", function(id, obj) {
+		if(obj.ifname == ifname)
+			delete w[id];
+	});
+	w.pchanged = true;
+}
+
+function rebuild_wifi()
 {
 	var root = get("wireless");
 	removeChilds(root);
 
 	//print wireless sections
-	config_foreach(all.wireless, "wifi-device", function(id, obj) {
-		var fs = append_section(root, "Wireless '"+id+"'", id);
+	config_foreach(uci.wireless, "wifi-device", function(dev, obj) {
+		var fs = append_section(root, "Wireless '"+dev+"'", dev);
+		var info = collect_wifi_info(dev);
 
 		for(var sid in obj)
-			appendSetting(fs, "wireless#"+id, sid, obj[sid], "_");
+			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
 
-		var info = collect_wifi_info(id);
-		var entries = append(fs, "div");
-		entries.id = "wireless_"+id+"_wifis";
+		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["Private","private"], ["Public","public"], ["Mesh", "mesh"]]);
+		var parent = append(fs, "div");
 
 		//print wireless interfaces
-		config_foreach(all.wireless, "wifi-iface", function(wid, wobj) {
-			var mode = getMode(wobj["ifname"]);
-			addWifi(mode, wid, id, wobj);
+		config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
+			var mode = getMode(wobj.ifname);
+			var title = (mode == "none") ? "'"+wobj.ifname+"'" : capitalise(mode);
+			var entry = append_section(parent, title, "wireless_"+dev+"_"+mode);
+
+			for(var opt in wobj)
+			{
+				var e = appendSetting(entry, ["wireless", wid, opt], wobj[opt]);
+				if(opt == "ssid" && (mode == "mesh" || mode == "public"))
+					e.lastChild.disabled = "disabled";
+			}
+
+			if(mode == "none")
+			{
+				append_button(entry, "L\xf6schen", function() {
+					delWifiSection(ifname);
+					rebuild_wifi();
+				});
+			}
 		});
 
-		append_wifi_buttons(fs, id);
+		onDesc(mode_checks, "INPUT", function(e) {
+			e.onclick = function(e) {
+				var src = (e.target || e.srcElement);
+				var mode = src.value;
+				var ifname = dev+"_"+suffix_map[mode];
+
+				if(src.checked) {
+					delNetSection(ifname);
+					addNetSection(ifname, mode);
+					addWifiSection(dev, mode);
+				} else {
+					delNetSection(ifname);
+					delWifiSection(ifname);
+				}
+				rebuild_wifi();
+			};
+		});
 	});
 }
 
-function apply_port_action(entries, checks)
+function apply_port_action(switch_root)
 {
-	onDesc(checks, "INPUT", function(e){
-		var port = e.value;
-		var dst = e;
-		e.onclick = function(e) {
+	onDesc(switch_root, "INPUT", function(input) {
+		var port = input.value;
+		var dst = input;
+		input.onclick = function(e) {
 			var src = (e.target || e.srcElement);
+			//ignore unchecking
 			if(!src.checked)
 				return (src.checked = true);
 
-			onDesc(entries, "INPUT", function(e) {
-			var src = (e.target || e.srcElement);
-			if(e.value == port && e != dst)
-				e.checked = false;
+			//uncheck all in same column
+			onDesc(switch_root, "INPUT", function(e) {
+				var src = (e.target || e.srcElement);
+				if(e.value == port && e != dst)
+					e.checked = false;
 			});
+
+			updateFrom(switch_root);
 		};
 	});
 }
 
-function addVLAN(entries, vid, vobj, info)
+function build_vlan(switch_root, id, obj, info, ifname)
 {
-	info["ifname"] = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
-	var entry = append(entries, 'div');
-	entry.id = vid;
+	var vlan_root = append(switch_root, 'div');
+	vlan_root.id = id;
 
-	for(var okey in vobj)
-		appendSetting(entry, "network#"+vid, okey, vobj[okey], info);
-
-	var checks = get("network#"+vid+"#ports");
-	apply_port_action(entries, checks);
+	for(var k in obj)
+	{
+		if(k == "ports")
+			appendSetting(vlan_root, ["network", id, k], {"title": ifname, "ports":obj[k], "all_ports":info.all_ports, "tagged_port":info.tagged_port});
+		else
+			appendSetting(vlan_root, ["network", id, k], obj[k]);
+	}
 }
 
-function append_vlan_buttons(parent, entries, info)
+function addVlanSection(device, vlan, ports)
+{
+	uci.network["vlan_"+device+"_"+vlan] = { "stype" : "switch_vlan", "device" : device, "vlan" : ""+vlan, "ports" : ports };
+}
+
+function delVlanSection(vlan)
+{
+	var n = uci.network;
+	config_foreach(n, "switch_vlan", function(id, obj) {
+		if(obj.vlan == vlan)
+			delete n[id];
+	});
+}
+
+function append_vlan_buttons(parent, switch_root, info)
 {
 	var buttons = append(parent, 'div');
 
-	append_button(buttons, "Speichern", function() {
-		var obj = { func : "set_network" };
-		collect_inputs(parent, obj);
-		for(var key in obj)
-			if(obj[key] == info.tagged_port)
-				return alert("Jedem VLAN mu\xDF mindestens ein Port zugeordnet werden.");
-
-		send("/cgi-bin/settings", obj, function(data) { setText('msg', data); });
-	});
-
 	append_button(buttons, "Neu", function() {
-		var vlan = entries.childNodes.length + 1;
+		var vlan = switch_root.childNodes.length + 1;
 		if(vlan <= (info.all_ports.length - (info.tagged_port.length ? 1 : 0)))
 		{
-			var defaults = { vlan : vlan, device : info.switch_device, ports : info.tagged_port, stype : "switch_vlan"};
-			addVLAN(entries, ++guid, defaults, info);
+			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vlan) : ("eth"+vlan);
+			delNetSection(ifname);
+			addNetSection(ifname, "private");
+			addVlanSection(info.switch_device, vlan, info.tagged_port);
+			rebuild_switches();
+			rebuild_assignment();
 		};
 	});
 
-	append_button(buttons, "L&ouml;schen", function() {
-		if(entries.childNodes.length < 2)
-			return alert("Mindestens ein VLAN wird ben&ouml;tigt.");
+	append_button(buttons, "L\xf6schen", function() {
+		var vlan = switch_root.childNodes.length;
+		var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vlan) : ("eth"+vlan);
 
-		var id = entries.lastChild.id;
+		if(vlan <= 1)
+			return alert("Mindestens ein VLAN wird ben\xf6tigt.");
+
+		//check if all ports of the last vlan are unchecked
 		var all_unchecked = true;
-		var checks = get("network#"+id+"#ports");
-		onDesc(checks, "INPUT", function(e) {
+		var vlan_root = get("network#"+switch_root.lastChild.id+"#ports");
+		onDesc(vlan_root, "INPUT", function(e) {
 			if(isNaN(e.value) || !e.checked) //ignore tagged and unchecked port
 				return;
 			all_unchecked = false;
 			return false;
 		});
 
-		if(all_unchecked)
-			entries.removeChild(entries.lastChild);
-		else
-			alert("Vor dem L&ouml;schen eines VLANs m&uuml;ssen alle Ports entfernt werden.");
+		if(all_unchecked) {
+			delVlanSection(vlan);
+			delNetSection(ifname);
+			rebuild_switches();
+		} else {
+			alert("Vor dem L\xf6schen des VLANs m\xfcssen alle Ports entfernt werden.");
+		}
 	});
 }
 
 function collect_switch_info(sobj)
 {
-	var all_vids = [];
+	var vlan_sids = [];
 	var all_ports = [];
 	var tagged_port = "";
+	var switch_ifname = "";
 	var device = sobj.name;
 
-	config_foreach(all.network, "switch_vlan", function(vid, vobj) {
-		if(vobj["device"] != device)
+	config_foreach(uci.network, "switch_vlan", function(id, obj) {
+		if(obj["device"] != device)
 			return;
 
-		var ports = split(vobj.ports);
+		var ports = split(obj.ports);
 		for(var i in ports)
 		{
 			var port = ports[i];
@@ -343,49 +509,78 @@ function collect_switch_info(sobj)
 			else
 				all_ports.push(port);
 		}
-		all_vids.push(vid);
+		vlan_sids.push(id);
 	});
 
+	all_ports = uniq(all_ports);
 	all_ports.sort();
+
 	if(tagged_port.length)
 		all_ports.push(tagged_port);
 
-	var sdev = getSwitchDevice();
-	return {all_vids : all_vids, all_ports : all_ports, tagged_port : tagged_port, switch_device : device, switch_ifname : sdev};
+	//e.g. get ethX when there is ethX.Y - not yet multi-switch ready
+	config_foreach(uci.network, "interface", function(id, obj) {
+		var p = obj.ifname.indexOf('.');
+		if(p != -1)
+		{
+			switch_ifname = obj.ifname.substring(0,p);
+			return false;
+		}
+	});
+
+	return {vlan_sids : vlan_sids, all_ports : all_ports, tagged_port : tagged_port, switch_device : device, switch_ifname : switch_ifname};
 }
 
-function show_switches()
+function rebuild_switches()
 {
 	var root = get("switches");
 	removeChilds(root);
 
 	//print switch sections
-	config_foreach(all.network, "switch", function(sid, sobj) {
+	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var info = collect_switch_info(sobj);
+
 		var sfs = append_section(root, "Switch '"+info.switch_ifname+"'", sid);
-		var entries = append(sfs, 'div');
+		var switch_root = append(sfs, 'div');
 
 		//print vlan sections
-		for(var i in info.all_vids)
+		for(var vlan_sid in info.vlan_sids)
 		{
-			var vid = info.all_vids[i];
-			var vobj = all.network[vid];
-			addVLAN(entries, vid, vobj, info);
+			var vid = info.vlan_sids[vlan_sid];
+			var vobj = uci.network[vid];
+			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
+			var mode = getMode(ifname);
+			//delNetSection(ifname);
+			//addNetSection(ifname, mode); //make sure entry exists
+			build_vlan(switch_root, vid, vobj, info, ifname);
 		}
 
-		append_vlan_buttons(sfs, entries, info);
+		append_vlan_buttons(sfs, switch_root, info);
+		apply_port_action(switch_root);
 	});
+	rebuild_assignment();
+}
+
+function save_data()
+{
+	for(var name in uci)
+	{
+		var obj = uci[name];
+		if(!obj.pchanged)
+			continue;
+		var data = toUCI(obj);
+		send("/cgi-bin/settings", { func : "set_file", name : name, data : data }, function(data) { setText('msg', data); reload(); });
+	}
 }
 
 function reload()
 {
 	send("/cgi-bin/settings", { func : "get_settings" }, function(data) {
-	all = parseUCI(data);
-
-	show_general();
-	show_assignment();
-	show_wifi();
-	show_switches();
+		uci = fromUCI(data);
+		rebuild_general();
+		rebuild_assignment();
+		rebuild_wifi();
+		rebuild_switches();
 	});
 }
 

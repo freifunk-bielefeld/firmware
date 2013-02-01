@@ -3,94 +3,19 @@ content-type: text/plain
 
 <%
 . /lib/functions.sh
-. /www/private/cgi-bin/shared.sh
-
-ok_msg() {
-	echo "(I) Die Einstellungen wurden erfolgreich gespeichert. Bitte Neustarten um die Einstellungen zu &uuml;bernehmen."
-}
-
-apply()
-{
-	local pkg=$1 stype=$2
-	local old="" new=""
-
-	#collect old sections
-	collect_old() { append old "$1"; }
-	config_load "$pkg"
-	config_foreach collect_old $stype
-
-	#collect new sections
-	collect_new() {
-		[ "$3" = "stype" -a "$4" = "$stype" ] && append new "$2"
-	}
-	env_foreach $1 collect_new
-
-	#add new sections
-	for sec in $new; do
-		list_contains old "$sec" || {
-			local nsec=`uci -q add $pkg $stype`
-			eval "section_${sec}=\"$nsec\""
-		}
-	done
-
-	#delete old sections
-	for sec in $old; do
-		list_contains new "$sec" || {
-			uci -q delete $pkg.$sec
-		}
-	done
-
-	#set options
-	set_options()
-	{
-		[ "$3" = "stype" ] && return
-		eval "local sec=\"\$section_${2}\""
-		[ -z "$sec" ] && sec="$2"
-		uci set -q $1.$sec.$3="$4"
-		[ $? -ne 0 ] && {
-			echo "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
-			exit
-		}
-	}
-	env_foreach $1 set_options
-
-	uci commit $pkg
-	ok_msg
-}
 
 case "$GET_func" in
 	get_settings)
-		uci -X -P /var/state -q show batman-adv
-		uci -X -P /var/state -q show freifunk
-		uci -X -P /var/state -q show wireless
-		uci -X -P /var/state -q show network
-		uci -X -P /var/state -q show n2n
-		#hack to get most existing interfaces
-		ifnames=`ls /sys/class/net/ | tr '\n' ' '`
-		echo "ifconfig.all.interfaces=$ifnames"
-		;;
-	set_wireless)
-		apply "wireless" "wifi-iface"
+		uci export -qn freifunk
+		uci export -qn system
+		uci export -qn wireless
+		uci export -qn network
 	;;
-	set_freifunk)
-		apply "freifunk" "settings"
-	;;
-	set_network)
-		apply "network" "switch_vlan"
-	;;
-	set_assignment)
-		add() { eval "append ${4}_ifs \"$3\""; }
-		env_foreach "set_mode" add
-
-		uci -q set batman-adv.bat0.interfaces="$mesh_ifs"
-		uci -q set network.mesh.ifname="$public_ifs"
-		uci -q set network.lan.ifname="$private_ifs"
-		uci -q set network.wan.ifname="${wan_ifs%% *}"
-
-		uci commit batman-adv
-		uci commit network
-
-		ok_msg
+	set_file)
+		file_name="$GET_name"
+		file_data="$GET_data"
+		[ ! -f "/etc/config/$file_name" ] && exit 1
+		echo "$file_data" > "/etc/config/$file_name"
 	;;
 	*)
 		echo "(E) settings: Invalid command: '$GET_func'"
