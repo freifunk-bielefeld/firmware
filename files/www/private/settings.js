@@ -550,8 +550,8 @@ function rebuild_switches()
 			var vobj = uci.network[vid];
 			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
 			var mode = getMode(ifname);
-			//delNetSection(ifname);
-			//addNetSection(ifname, mode); //makes sure entry exists
+			delNetSection(ifname);
+			addNetSection(ifname, mode); //makes sure entry exists
 			build_vlan(switch_root, vid, vobj, info, ifname);
 		}
 
