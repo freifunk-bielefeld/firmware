@@ -18,7 +18,7 @@ env_foreach()
 }
 
 set_settings() {
-	uci set -q $1.$sec.$3="$4" || send "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
+	uci set -q $1.$sec.$3="$4" || { echo "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."; exit 1; }
 }
 
 case $GET_func in
@@ -28,7 +28,7 @@ case $GET_func in
 	save_settings)
 		env_foreach 'n2n' set_settings
 		uci -q commit n2n
-		send "(I) Einstellungen wurden gespeichert. Bitte Neustarten."
+		echo "(I) Einstellungen wurden gespeichert. Bitte Neustarten."
 	;;
 	del_entry)
 		name="$GET_name"
