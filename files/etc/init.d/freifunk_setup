@@ -36,6 +36,8 @@ echo "(I) Freifunk: lan interface: '$lan_interface'"
 
 ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
 
+lan_ip="192.168.133.1"
+
 
 # ------------------------------------------- #
 # S E T U P  W I R E L E S S #
@@ -141,6 +143,7 @@ a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
 mesh_mac="$a:${mesh_mac#*:}" #reassemble mac
 mesh_ip=`mac2ip $mesh_mac`
+
 echo "(I) Freifunk: MAC for mesh: '$mesh_mac'"
 echo "(I) Freifunk: IP for mesh: '$mesh_ip'"
 
@@ -155,7 +158,7 @@ uci -q delete network.lan
 uci set network.lan="interface"
 uci set network.lan.type="bridge"
 uci set network.lan.ifname="dummy_lan $lan_interface"
-uci set network.lan.ipaddr="192.168.133.1"
+uci set network.lan.ipaddr="$lan_ip"
 uci set network.lan.proto=static
 uci set network.lan.netmask="255.255.255.0"
 
@@ -177,8 +180,8 @@ echo "(I) Freifunk: Setup MESH interfaces."
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="dummy_mesh bat0 $wifi_mesh_interfaces"
-uci set network.mesh.ipaddr="0.0.0.0"
-#uci set network.mesh.macaddr="$mac" #does not work
+uci set network.mesh.ipaddr="$mesh_ip"
+uci set network.mesh.macaddr="$mesh_mac"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
 
@@ -237,7 +240,6 @@ done
 # F R E I F U N K  S E T U P #
 # ------------------------------------- #
 
-uci set freifunk.@settings[0].mac="$mesh_mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 #prevent own hostname as DNS entry
@@ -245,7 +247,7 @@ uci set dhcp.@dnsmasq[0].add_local_domain='0'
 uci set dhcp.@dnsmasq[0].add_local_hostname='0'
 
 #make "node" resolve to the node a client is connected to
-echo "192.168.133.1 node" >> /etc/hosts
+echo "$lan_ip node" >> /etc/hosts
 echo "$mesh_ip node" >> /etc/hosts
 
 

@@ -17,11 +17,11 @@ fi
 echo "(I) Freifunk: start freifunk_init"
 
 
-mac=`uci get -q freifunk.@settings[0].mac`
+mesh_mac=`uci get -q network.mesh.macaddr`
 share_internet=`uci get -q freifunk.@settings[0].share_internet`
 config_nets=`uci get -q freifunk.@settings[0].config_nets`
 
-echo "(I) Freifunk: mac: '$mac'"
+echo "(I) Freifunk: mesh_mac: '$mesh_mac'"
 echo "(I) Freifunk: share_internet: '$share_internet'"
 echo "(I) Freifunk: config_nets: '$config_nets'"
 
@@ -41,13 +41,8 @@ tunctl -t dummy_bat > /dev/null
 
 
 #add first interface to set originator mac
-ifconfig dummy_bat hw ether $mac mtu 1528 up
+ifconfig dummy_bat hw ether $mesh_mac mtu 1528 up
 batctl if add dummy_bat
-
-
-ip=`mac2ip $mac`
-echo "(I) Freifunk: Set IP for br-mesh to '$ip'."
-uci set network.mesh.ipaddr="$ip"
 
 
 uci delete -q firewall.share_internet
