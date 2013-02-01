@@ -181,7 +181,6 @@ uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="dummy_mesh bat0 $wifi_mesh_interfaces"
 uci set network.mesh.ipaddr="$mesh_ip"
-uci set network.mesh.macaddr="$mesh_mac"
 uci set network.mesh.proto=static
 uci set network.mesh.netmask="255.0.0.0"
 
@@ -240,6 +239,7 @@ done
 # F R E I F U N K  S E T U P #
 # ------------------------------------- #
 
+uci set freifunk.@settings[0].mac="$mesh_mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 #prevent own hostname as DNS entry

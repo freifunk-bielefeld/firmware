@@ -17,7 +17,7 @@ fi
 echo "(I) Freifunk: start freifunk_init"
 
 
-mesh_mac=`uci get -q network.mesh.macaddr`
+mesh_mac=`uci get -q freifunk.@settings[0].mac`
 share_internet=`uci get -q freifunk.@settings[0].share_internet`
 config_nets=`uci get -q freifunk.@settings[0].config_nets`
 
