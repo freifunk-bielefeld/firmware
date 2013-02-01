@@ -223,6 +223,16 @@ function rebuild_assignment()
 		ifnames.push(ifname);
 	});
 
+	function getChangeAction(ifname)
+	{
+		return function(e) {
+			var src = (e.target || e.srcElement);
+			var mode = src.value;
+			delNetSection(ifname);
+			addNetSection(ifname, mode);
+		};
+	}
+
 	ifnames = uniq(ifnames);
 	ifnames.sort();
 	for(var i in ifnames)
@@ -230,13 +240,7 @@ function rebuild_assignment()
 		var ifname = ifnames[i];
 		var mode = getMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
-
-		entry.onchange = function(e) {
-			var src = (e.target || e.srcElement);
-			var mode = src.value;
-			delNetSection(ifname);
-			addNetSection(ifname, mode);
-		};
+		entry.onchange = getChangeAction(ifname);
 	}
 	var div = append(fs, "div");
 }
