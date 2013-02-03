@@ -62,7 +62,7 @@ check_wan()
 	pick()
 	{
 		local n=$1; shift;
-		local s=`echo "$@" | tr ' ' '\n' | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2- | tr '\n' ' '`
+		local s="`echo \"$@\" | tr ' ' '\n' | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2- | tr '\n' ' '`"
 		get() { shift $(($#-$1)); echo "$@"; }
 		get $n $s
 	}
