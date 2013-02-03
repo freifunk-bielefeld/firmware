@@ -5,7 +5,7 @@ The GUI code displayes and manipulated this variable.
 */
 var uci = {};
 
-var suffix_map = { "public" : "mesh", "private" : "lan", "mesh" : "bat"};
+var suffix_map = { "public" : "mesh", "private" : "lan", "mesh" : "bat" };
 var gid = 0;
 
 //to config file syntax
@@ -95,7 +95,7 @@ function updateFrom(src)
 	}
 }
 
-function appendSetting(p, path, value)
+function appendSetting(p, path, value, mode)
 {
 	var id = path.join('#');
 	var b;
@@ -112,6 +112,8 @@ function appendSetting(p, path, value)
 		b = append_selection(p, "Kanal", id, value, channels);
 		break;
 	case "encryption":
+		if(mode == "public" || mode == "mesh")
+			return
 		b = append_selection(p, "Verschl\xfcsselung", id, value, ["none", "psk2"]);
 		break;
 	case "key":
@@ -122,6 +124,8 @@ function appendSetting(p, path, value)
 		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
+		if(mode == "mesh" || mode == "public")
+			b.lastChild.disabled = "disabled";
 		addInputCheck(b.lastChild, /^[\w.]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "share_internet":
@@ -362,11 +366,7 @@ function rebuild_wifi()
 			var entry = append_section(parent, title, "wireless_"+dev+"_"+mode);
 
 			for(var opt in wobj)
-			{
-				var e = appendSetting(entry, ["wireless", wid, opt], wobj[opt]);
-				if(opt == "ssid" && (mode == "mesh" || mode == "public"))
-					e.lastChild.disabled = "disabled";
-			}
+				appendSetting(entry, ["wireless", wid, opt], wobj[opt], mode);
 
 			if(mode == "none")
 			{
