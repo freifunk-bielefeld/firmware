@@ -8,73 +8,6 @@ var uci = {};
 var suffix_map = { "public" : "mesh", "private" : "lan", "mesh" : "bat" };
 var gid = 0;
 
-//to config file syntax
-function toUCI(pkg_obj)
-{
-	var str = "\n";
-	for(var sid in pkg_obj)
-	{
-		if(sid == "pchanged")
-			continue;
-
-		var options = pkg_obj[sid];
-		var sname = (sid.substring(0, 3) != "cfg") ? (" '"+sid+"'") : "";
-		str += "config "+options.stype+sname+"\n";
-		for(var oname in options)
-		{
-			if(oname == "stype")
-				continue;
-			var value = options[oname];
-			if(typeof value == 'object')
-			{
-				for(var i in value)
-					str += "	list "+oname+" '"+value[i]+"'\n";
-			}
-			else
-				str += "	option "+oname+" '"+value+"'\n";
-		}
-		str += "\n";
-	}
-	return str;
-}
-
-//from (uci export foo && uci export bar)
-function fromUCI(pkgs_str)
-{
-	var pkg_objs = {};
-	var pkg;
-	var cfg;
-
-	var lines = pkgs_str.split("\n");
-	for(var i = 0; i < lines.length; ++i)
-	{
-		var line = lines[i];
-		var items = split(line);
-		if(items.length < 2) continue;
-		switch(items[0])
-		{
-			case 'package':
-				pkg = { pchanged : false };
-				pkg_objs[items[1]] = pkg;
-				break;
-			case 'config':
-				var val = (items.length == 3) ? line.match(/'(.*)'/)[1] : ("cfg"+(++gid));
-				cfg = { stype : items[1] };
-				pkg[val] = cfg;
-				break;
-			case 'option':
-				var val = line.match(/'(.*)'/)[1];
-				cfg[items[1]] = val;
-				break;
-			case 'list':
-				var val = line.match(/'(.*)'/)[1];
-				if(!(items[1] in cfg)) cfg[items[1]] = [];
-				cfg[items[1]].push(val);
-				break;
-		}
-	}
-	return pkg_objs;
-}
 
 function updateFrom(src)
 {
@@ -152,13 +85,6 @@ function appendSetting(p, path, value, mode)
 	};
 
 	return b;
-}
-
-function firstSectionID(obj, stype)
-{
-	for(var id in obj)
-		if(obj[id].stype == stype)
-			return id;
 }
 
 function rebuild_general()

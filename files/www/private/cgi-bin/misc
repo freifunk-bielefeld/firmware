@@ -15,7 +15,9 @@ case $GET_func in
 		/sbin/mac2ip "$GET_mac"
 	;;
 	status)
-		print() { echo "status.data.$1=$2"; }
+		echo "package misc"
+		echo "config data 'data'"
+		print() { echo "	option $1 '$2'"; }
 		print 'mesh_ip' `get_ip br-mesh`
 		print 'lan_ip' `get_ip br-lan`
 		up=`uptime`

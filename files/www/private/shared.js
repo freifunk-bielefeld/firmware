@@ -31,28 +31,79 @@ function parseJSON(data)
 	return eval("("+data+")");
 }
 
-function parseUCI(str)
+//to config file syntax
+function toUCI(pkg_obj)
 {
-	var obj = {};
-	function add(pkg, sec, opt, val)
+	var str = "\n";
+	for(var sid in pkg_obj)
 	{
-		if(!(pkg in obj)) obj[pkg] = {};
-		if(!(sec in obj[pkg])) obj[pkg][sec] = {};
-		obj[pkg][sec][opt] = val;
-	};
+		if(sid == "pchanged")
+			continue;
 
-	var lines = str.split("\n");
+		var options = pkg_obj[sid];
+		var sname = (sid.substring(0, 3) != "cfg") ? (" '"+sid+"'") : "";
+		str += "config "+options.stype+sname+"\n";
+		for(var oname in options)
+		{
+			if(oname == "stype")
+				continue;
+			var value = options[oname];
+			if(typeof value == 'object')
+			{
+				for(var i in value)
+					str += "	list "+oname+" '"+value[i]+"'\n";
+			}
+			else
+				str += "	option "+oname+" '"+value+"'\n";
+		}
+		str += "\n";
+	}
+	return str;
+}
+
+//from (uci export foo && uci export bar)
+function fromUCI(pkgs_str)
+{
+	var pkg_objs = {};
+	var pkg;
+	var cfg;
+
+	var lines = pkgs_str.split("\n");
 	for(var i = 0; i < lines.length; ++i)
 	{
 		var line = lines[i];
-		var pos = line.indexOf('=');
-		if(pos < 1) continue;
-		var path=line.substring(0, pos);
-		var value = line.substring(pos + 1);
-		var parts = path.split('.');
-		add(parts[0], parts[1], (parts.length == 3) ? parts[2] : "stype", value);
+		var items = split(line);
+		if(items.length < 2) continue;
+		switch(items[0])
+		{
+			case 'package':
+				pkg = { pchanged : false };
+				pkg_objs[items[1]] = pkg;
+				break;
+			case 'config':
+				var val = (items.length == 3) ? line.match(/'(.*)'/)[1] : ("cfg"+(++gid));
+				cfg = { stype : items[1] };
+				pkg[val] = cfg;
+				break;
+			case 'option':
+				var val = line.match(/'(.*)'/)[1];
+				cfg[items[1]] = val;
+				break;
+			case 'list':
+				var val = line.match(/'(.*)'/)[1];
+				if(!(items[1] in cfg)) cfg[items[1]] = [];
+				cfg[items[1]].push(val);
+				break;
+		}
 	}
-	return obj;
+	return pkg_objs;
+}
+
+function firstSectionID(obj, stype)
+{
+	for(var id in obj)
+		if(obj[id].stype == stype)
+			return id;
 }
 
 function config_foreach(objs, stype, func)
