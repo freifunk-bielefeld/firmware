@@ -274,11 +274,11 @@ function addNetSection(ifname, mode)
 		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1528","auto":"1","proto":"batadv","mesh":"bat0"};
 		break;
 	case "private":
-		n[sid] = {"stype":"interface","ifname":ifname,"auto":"1"};
+		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
 		n.lan.ifname = n.lan.ifname+" "+ifname;
 		break;
 	case "public":
-		n[sid] = {"stype":"interface","ifname":ifname,"auto":"1"};
+		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
 		n.mesh.ifname = n.mesh.ifname+" "+ifname;
 		break;
 	case "wan":
