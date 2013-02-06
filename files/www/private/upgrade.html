@@ -2,15 +2,15 @@
 
 <html>
 <head>
-<title>Firmware</title>
+<title>Upgrade</title>
 <link rel="stylesheet" type="text/css" href="style.css">
 <script src="shared.js"></script>
-<script src="firmware.js"></script>
+<script src="upgrade.js"></script>
 </head>
 <body>
 
-<div id="firmware">
-	<form action="/cgi-bin/firmware" enctype="multipart/form-data" method="post">
+<div id="upgrade">
+	<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 	<input id="file" type="file" name="firmware" size="40"><br />
 	<button type="submit" id="send_button">Senden</button>
 	<input type="checkbox" name="keep_config" value="yes" /> Konfiguration erhalten<br />
