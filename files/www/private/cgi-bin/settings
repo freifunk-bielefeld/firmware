@@ -10,6 +10,12 @@ case "$GET_func" in
 		uci export -qn system
 		uci export -qn wireless
 		uci export -qn network
+
+		#get the tagged port of the switch
+		echo "package misc"
+		echo "config data 'data'"
+		port=`swconfig dev switch0 help 2> /dev/null | sed -rn 's/.*\(cpu @ ([0-9])\).*/\1/p'`
+		echo "	option tagged_port '$port'"
 	;;
 	set_file)
 		file_name="$GET_name"

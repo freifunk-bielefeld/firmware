@@ -23,10 +23,33 @@ function uniq(arr)
   return Object.keys(obj);
 }
 
-function parseJSON(data)
+//remove an item from a string list
+function removeItem(str, item)
 {
-	data = data.replace(/[\n\r]/g, ""); //for IE
-	return eval("("+data+")");
+	var array = split(str);
+	for(var i in array)
+		if(array[i] == item)
+			array.splice(i, 1);
+	return array.join(' ');
+}
+
+function addItem(str, item)
+{
+	var array = split(str);
+	for(var i in array)
+		if(array[i] == item)
+			return str;
+	array.push(item);
+	return array.join(' ');
+}
+
+function replaceItem(str, old_item, new_item)
+{
+	var array = split(str);
+	for(var i in array)
+		if(array[i] == old_item)
+			array[i] = new_item;
+	return array.join(' ');
 }
 
 //to config file syntax

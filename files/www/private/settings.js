@@ -17,7 +17,6 @@ function updateFrom(src)
 	{
 		var value = obj[name];
 		var path = name.split('#');
-		//alert("update '"+name+" ''"+value+"'");
 
 		var pkg = path[0];
 		var sec = path[1];
@@ -71,9 +70,13 @@ function appendSetting(p, path, value, mode)
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		break;
 	case "ports":
-		b = append_check(p, value.title, id, split(value.ports), value.all_ports);
-		if(value.tagged_port.length)
-			hide(b.lastChild); //hide tagged port from de-selection
+		b = append_check(p, value.title, id, split(value.ports), split(value.all_ports));
+		//hide tagged port
+		var tp = uci.misc.data.tagged_port;
+		onDesc(b, "INPUT", function(e) {
+			if(e.value == tp || e.value == tp+"t")
+				hide(e.parentNode);
+		});
 		break;
 	default:
 		return;
@@ -110,9 +113,6 @@ function rebuild_general()
 function getMode(ifname)
 {
 	var n = uci.network;
-	for(var id in n)
-		if(n[id].ifname == ifname && n[id].proto == "batadv")
-			return "mesh";
 
 	if(inArray(ifname, split(n.mesh.ifname)))
 		return "public";
@@ -121,8 +121,11 @@ function getMode(ifname)
 		return "private";
 
 	for(var id in n)
-		if(n[id].ifname == ifname && n[id].proto == "dhcp")
-			return "wan";
+	{
+		if(n[id].ifname != ifname) continue;
+		if(n[id].proto == "batadv") return "mesh";
+		if(n[id].proto == "dhcp") return "wan";
+	}
 
 	return "none";
 }
@@ -196,30 +199,25 @@ function addNetSection(ifname, mode)
 
 	switch(mode)
 	{
+	case "wan":
+		n['wan'] = {"stype":"interface","ifname":ifname,"proto":"dhcp"};
+		break;
 	case "mesh":
 		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1528","auto":"1","proto":"batadv","mesh":"bat0"};
 		break;
 	case "private":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
-		n.lan.ifname = n.lan.ifname+" "+ifname;
+		n.lan.ifname = addItem(n.lan.ifname, ifname);
 		break;
 	case "public":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
-		n.mesh.ifname = n.mesh.ifname+" "+ifname;
+		n.mesh.ifname = addItem(n.mesh.ifname, ifname);
 		break;
-	case "wan":
-		n['wan'] = {"stype":"interface","ifname":ifname,"proto":"dhcp"};
-		break;
+	case "none":
+		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
 	default:
-		alert("mode error '"+mode+"' "+ifname);
 	}
 	n.pchanged = true;
-}
-
-//remove an item from a string list
-function removeItem(str, item)
-{
-	return str.replace(item, "").replace(/\s+/g, ' ').replace(/^\s*|\s*$/g, '');
 }
 
 function delNetSection(ifname)
@@ -346,7 +344,7 @@ function apply_port_action(switch_root)
 	});
 }
 
-function build_vlan(switch_root, id, obj, info, ifname)
+function build_vlan(switch_root, id, obj, swinfo, ifname)
 {
 	var vlan_root = append(switch_root, 'div');
 	vlan_root.id = id;
@@ -354,7 +352,7 @@ function build_vlan(switch_root, id, obj, info, ifname)
 	for(var k in obj)
 	{
 		if(k == "ports")
-			appendSetting(vlan_root, ["network", id, k], {"title": ifname, "ports":obj[k], "all_ports":info.all_ports, "tagged_port":info.tagged_port});
+			appendSetting(vlan_root, ["network", id, k], {"title": ifname, "ports":obj[k], "all_ports":swinfo.ports, "tagged_port":swinfo.tagged_port});
 		else
 			appendSetting(vlan_root, ["network", id, k], obj[k]);
 	}
@@ -369,34 +367,43 @@ function delVlanSection(vlan)
 {
 	var n = uci.network;
 	config_foreach(n, "switch_vlan", function(id, obj) {
-		if(obj.vlan == vlan)
+		if(vlan < 0 || obj.vlan == vlan)
 			delete n[id];
 	});
 }
 
-function append_vlan_buttons(parent, switch_root, info)
+function append_vlan_buttons(parent, switch_root, switch_device)
 {
 	var buttons = append(parent, 'div');
 
 	append_button(buttons, "Neu", function() {
-		var vlan = switch_root.childNodes.length + 1;
-		if(vlan <= (info.all_ports.length - (info.tagged_port.length ? 1 : 0)))
+		var swinfo = collect_switch_info(switch_device);
+		var new_vlan = switch_root.childNodes.length + 1;
+
+		if(new_vlan >= split(swinfo.ports).length)
+			return alert("Mehr VLANs sind nicht m\xf6glich.");
+
+		if(new_vlan == 2)
 		{
-			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vlan) : ("eth"+vlan);
-			delNetSection(ifname);
-			addNetSection(ifname, "private");
-			addVlanSection(info.switch_device, vlan, info.tagged_port);
-			rebuild_switches();
-			rebuild_assignment();
-		};
+			enableSwitchTagging(swinfo);
+			swinfo = collect_switch_info(switch_device);
+		}
+
+		var ifname = (new_vlan > 1) ? (swinfo.ifname+"."+new_vlan) : swinfo.ifname;
+		delNetSection(ifname);
+		addNetSection(ifname, "private");
+		addVlanSection(swinfo.device, new_vlan, uci.misc.data.tagged_port+"t");
+		rebuild_switches();
+		rebuild_assignment();
 	});
 
 	append_button(buttons, "L\xf6schen", function() {
-		var vlan = switch_root.childNodes.length;
-		var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vlan) : ("eth"+vlan);
+		var swinfo = collect_switch_info(switch_device);
+		var del_vlan = switch_root.childNodes.length;
+		var ifname = (del_vlan > 1) ? (swinfo.ifname+"."+del_vlan) : swinfo.ifname;
 
-		if(vlan <= 1)
-			return alert("Mindestens ein VLAN wird ben\xf6tigt.");
+		if(del_vlan <= 1)
+			return alert("Mindestens ein VLAN muss erhalten bleiben.");
 
 		//check if all ports of the last vlan are unchecked
 		var all_unchecked = true;
@@ -408,57 +415,72 @@ function append_vlan_buttons(parent, switch_root, info)
 			return false;
 		});
 
-		if(all_unchecked) {
-			delVlanSection(vlan);
-			delNetSection(ifname);
-			rebuild_switches();
-		} else {
-			alert("Vor dem L\xf6schen des VLANs m\xfcssen alle Ports entfernt werden.");
-		}
+		if(!all_unchecked)
+			return alert("Die Ports des letzten VLANs m\xfcssen zuerst deselektiert werden.");
+
+		delVlanSection(del_vlan);
+		delNetSection(ifname);
+		if(del_vlan == 2)
+			disableSwitchTagging(swinfo);
+
+		rebuild_switches();
 	});
 }
 
-function collect_switch_info(sobj)
+function collect_switch_info(device)
 {
-	var vlan_sids = [];
-	var all_ports = [];
-	var tagged_port = "";
-	var switch_ifname = "";
-	var device = sobj.name;
+	var ports = "";
+	var ifname = "eth0"; //hack
 
 	config_foreach(uci.network, "switch_vlan", function(id, obj) {
-		if(obj["device"] != device)
-			return;
-
-		var ports = split(obj.ports);
-		for(var i in ports)
-		{
-			var port = ports[i];
-			if(isNaN(port))
-				tagged_port = port;
-			else
-				all_ports.push(port);
-		}
-		vlan_sids.push(id);
+		if(obj.device != device) return;
+		ports += " "+obj.ports;
 	});
 
-	all_ports = uniq(all_ports);
-	all_ports.sort();
+	ports = uniq(split(ports));
+	ports.sort();
 
-	if(tagged_port.length)
-		all_ports.push(tagged_port);
+	return {ports : ports.join(' '), device : device, ifname : ifname};
+}
 
-	//e.g. get ethX when there is ethX.Y - not yet multi-switch ready
-	config_foreach(uci.network, "interface", function(id, obj) {
-		var p = obj.ifname.indexOf('.');
-		if(p != -1)
-		{
-			switch_ifname = obj.ifname.substring(0,p);
-			return false;
-		}
-	});
+function enableSwitchTagging(swinfo)
+{
+	//rename eth0 to eth0.1
+	var n = uci.network;
+	for(var id in n)
+		if(n[id].ifname)
+			n[id].ifname = replaceItem(n[id].ifname, swinfo.ifname, swinfo.ifname+".1");
 
-	return {vlan_sids : vlan_sids, all_ports : all_ports, tagged_port : tagged_port, switch_device : device, switch_ifname : switch_ifname};
+	//make ports tagged
+	var tp = uci.misc.data.tagged_port;
+	var ports = addItem(removeItem(swinfo.ports, tp), tp+"t");
+
+	//remove all switch_vlan sections
+	delVlanSection(-1);
+	//add a single switch_vlan for eth0.1
+	addVlanSection(swinfo.device, 1, ports);
+
+	n.pchanged = true;
+}
+
+function disableSwitchTagging(swinfo)
+{
+	//rename eth0.1 to eth0
+	var n = uci.network;
+	for(var id in n)
+		if(n[id].ifname)
+			n[id].ifname = replaceItem(n[id].ifname, swinfo.ifname+".1", swinfo.ifname);
+
+	//make ports untagged
+	var tp = uci.misc.data.tagged_port;
+	var ports = addItem(removeItem(swinfo.ports, tp+"t"), tp);
+
+	//remove all switch_vlan sections
+	delVlanSection(-1);
+	//add a single switch_vlan for eth0
+	addVlanSection(swinfo.device, 1, ports);
+
+	n.pchanged = true;
 }
 
 function rebuild_switches()
@@ -468,24 +490,22 @@ function rebuild_switches()
 
 	//print switch sections
 	config_foreach(uci.network, "switch", function(sid, sobj) {
-		var info = collect_switch_info(sobj);
-
-		var sfs = append_section(root, "Switch '"+info.switch_ifname+"'", sid);
+		var swinfo = collect_switch_info(sobj.name);
+		var sfs = append_section(root, "Switch '"+swinfo.ifname+"'", sid);
 		var switch_root = append(sfs, 'div');
+		var use_tagged = (swinfo.ports.indexOf('t') != -1);
 
 		//print vlan sections
-		for(var vlan_sid in info.vlan_sids)
-		{
-			var vid = info.vlan_sids[vlan_sid];
-			var vobj = uci.network[vid];
-			var ifname = info.tagged_port.length ? (info.switch_ifname+"."+vobj.vlan) : ("eth"+vobj.vlan);
+		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
+			if(vobj.device != swinfo.device) return;
+			var ifname = use_tagged ? (swinfo.ifname+"."+vobj.vlan) : swinfo.ifname;
 			var mode = getMode(ifname);
 			delNetSection(ifname);
 			addNetSection(ifname, mode); //makes sure entry exists
-			build_vlan(switch_root, vid, vobj, info, ifname);
-		}
+			build_vlan(switch_root, vid, vobj, swinfo, ifname);
+		});
 
-		append_vlan_buttons(sfs, switch_root, info);
+		append_vlan_buttons(sfs, switch_root, swinfo.device);
 		apply_port_action(switch_root);
 	});
 	rebuild_assignment();
