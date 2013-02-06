@@ -1,4 +1,6 @@
 
+var mac_regex = /([0-9a-f]{1,2}(:[0-9a-f]{1,2}){5})/gi;
+
 function addIP(span)
 {
 	var mac = span.innerHTML;
