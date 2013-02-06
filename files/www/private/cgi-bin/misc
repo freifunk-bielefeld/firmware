@@ -33,9 +33,6 @@ case $GET_func in
 		share=`uci -q get freifunk.@settings[0].share_internet`
 		[ "$share" = "yes" ] && share="Ja" || share="Nein"
 		print 'share_internet' "$share"
-		gw_mode=`batctl gw 2> /dev/null`
-		[ "${gw_mode:0:6}" = "server" ] && is_gw="Ja" || is_gw="Nein"
-		print 'is_gw' $is_gw
 		print 'node_count' $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
 		print 'neigh_count' `batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
 		print 'firmware_version' "`uci -q get freifunk.@settings[0].version`"
