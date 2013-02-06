@@ -261,15 +261,25 @@ function append_button(parent, text, onclick)
 function append_label(parent, title, value)
 {
 	var div = append(parent, 'div');
-	var label = create('label');
-	var span = create('span');
-
+	var label = append(div, 'label');
 	label.innerHTML = title + ":";
-	span.innerHTML = value;
 
-	div.appendChild(label);
-	div.appendChild(span);
-
+	if(typeof value == 'string')
+	{
+		var span = append(div, 'span');
+		span.innerHTML = value;
+	}
+	else
+	{
+		var ul = append(div, 'ul');
+		ul.style.cssFloat = "left";
+		ul.style.listStyle = "none";
+		for(var i in value)
+		{
+			var li = append(ul, 'li');
+			li.innerHTML = value[i];
+		}
+	}
 	return div;
 }
 
