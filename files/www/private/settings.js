@@ -239,17 +239,18 @@ function addWifiSection(device, mode)
 	var w = uci.wireless;
 	var i = firstSectionID(f, "settings");
 	var ifname = device+"_"+suffix_map[mode];
+	var id = "cfg"+(++gid);
 
 	switch(mode)
 	{
 	case "mesh":
-		w[ifname] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1};
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1};
 		break;
 	case "public":
-		w[ifname] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"mesh"};
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"mesh"};
 		break;
 	case "private":
-		w[ifname] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":"","encryption":"none"};
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":"","encryption":"none"};
 		break;
 	default:
 		alert("mode error '"+mode+"' "+device);
