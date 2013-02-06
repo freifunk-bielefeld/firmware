@@ -46,10 +46,11 @@ function appendSetting(p, path, value, mode)
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
 			return
-		b = append_selection(p, "Verschl\xfcsselung", id, value, ["none", "psk2"]);
+		b = append_selection(p, "Verschl\xfcsselung", id, value, ["none", "psk", "psk2"]);
 		break;
 	case "key":
 		b = append_input(p, "Passwort", id, value);
+		addInputCheck(b.lastChild, /^[a-z0-9]{8,64}$/i, "Bitte ein Passwort aus mindestens acht Buchstaben und Nummern verwenden");
 		break;
 	case "hwmode": case "htmode": case "ht_capab":
 		b = append_label(p, name, value);
@@ -233,6 +234,16 @@ function delNetSection(ifname)
 	n.pchanged = true;
 }
 
+function randomString(length) {
+	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+	var str = '';
+	for (var i=0; i<length; i++) {
+		var rnum = Math.floor(Math.random() * chars.length);
+		str += chars.substring(rnum,rnum+1);
+	}
+	return str;
+}
+
 function addWifiSection(device, mode)
 {
 	var f = uci.freifunk;
@@ -250,7 +261,7 @@ function addWifiSection(device, mode)
 		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"mesh"};
 		break;
 	case "private":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":"","encryption":"none"};
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":randomString(16),"encryption":"psk2"};
 		break;
 	default:
 		alert("mode error '"+mode+"' "+device);
