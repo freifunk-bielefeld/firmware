@@ -297,6 +297,8 @@ function rebuild_wifi()
 
 		//print wireless interfaces
 		config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
+			if(wobj.device != dev) return;
+
 			var mode = getMode(wobj.ifname);
 			var title = (mode == "none") ? "'"+wobj.ifname+"'" : capitalise(mode);
 			var entry = append_section(parent, title, "wireless_"+dev+"_"+mode);
