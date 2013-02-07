@@ -264,7 +264,7 @@ function addWifiSection(device, mode)
 		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":randomString(16),"encryption":"psk2"};
 		break;
 	default:
-		alert("mode error '"+mode+"' "+device);
+		return alert("mode error '"+mode+"' "+device);
 	}
 	w.pchanged = true;
 }
