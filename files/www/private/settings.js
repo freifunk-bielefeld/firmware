@@ -152,7 +152,7 @@ function rebuild_assignment()
 
 	config_foreach(uci.network, "interface", function(sid, sobj) {
 		var ifname = sobj.ifname;
-		if(sobj.type == "bridge" || isWlanIF(ifname) || inArray(ifname, ignore))
+		if(!ifname || sobj.type == "bridge" || isWlanIF(ifname) || inArray(ifname, ignore))
 			return;
 		ifnames.push(ifname);
 	});
