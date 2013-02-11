@@ -224,7 +224,7 @@ uci set dhcp.wan.ignore=1
 # ------------------------------------- #
 
 echo "(I) Add network sections to trigger batman-adv and set mtu."
-for if in dummy_bat n2n_mesh $wifi_bat_interfaces; do
+for if in dummy_bat n2n_bat $wifi_bat_interfaces; do
 	local n=`echo -n $if | tr -c a-z0-9_ _`
 	uci set network.$n="interface"
 	uci set network.$n.ifname=$if

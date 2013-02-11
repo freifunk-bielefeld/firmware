@@ -1,5 +1,5 @@
 
-config 'edge' 'n2n_mesh'
+config 'edge' 'n2n_bat'
 	option 'enabled' 1
 	option 'ipaddr' '0.0.0.0'
 	option 'supernode' '46.19.92.49'
