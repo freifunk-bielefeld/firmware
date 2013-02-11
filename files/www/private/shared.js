@@ -26,7 +26,7 @@ function uniq(arr)
 //remove an item from a string list
 function removeItem(str, item)
 {
-	var array = split(str);
+	var array = str ? split(str) : [];
 	for(var i in array)
 		if(array[i] == item)
 			array.splice(i, 1);
@@ -35,7 +35,7 @@ function removeItem(str, item)
 
 function addItem(str, item)
 {
-	var array = split(str);
+	var array = str ? split(str) : [];
 	for(var i in array)
 		if(array[i] == item)
 			return str;
@@ -45,7 +45,7 @@ function addItem(str, item)
 
 function replaceItem(str, old_item, new_item)
 {
-	var array = split(str);
+	var array = str ? split(str) : "";
 	for(var i in array)
 		if(array[i] == old_item)
 			array[i] = new_item;
