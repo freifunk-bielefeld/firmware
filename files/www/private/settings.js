@@ -59,7 +59,7 @@ function appendSetting(p, path, value, mode)
 		b = append_input(p, "SSID", id, value);
 		if(mode == "public" || mode == "mesh")
 			b.lastChild.disabled = "disabled";
-		addInputCheck(b.lastChild, /^[\w.]{3,30}$/, "SSID ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^\w[\w\. ]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "share_internet":
 		b = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
