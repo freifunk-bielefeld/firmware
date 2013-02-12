@@ -31,4 +31,6 @@ make menuconfig
 
 make
 
-#the firmware images are now in the bin folder
+# The firmware images are now in the "bin"-folder.
+# Use "openwrt-[chip]-[model]-squashfs-firmware.bin" for the initial flash.
+# Use "openwrt-[chip]-[model]-squashfs-sysupgrade.bin" for futher updates.
