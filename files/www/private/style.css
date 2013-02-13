@@ -33,6 +33,10 @@ fieldset {
 	width: 30em;
 }
 
+fieldset fieldset {
+	width: auto;
+}
+
 fieldset div {
   margin:0.3em 0;
   clear:both;
