@@ -14,8 +14,12 @@ case "$GET_func" in
 		#get the tagged port of the switch
 		echo "package misc"
 		echo "config data 'data'"
+
 		port=`swconfig dev switch0 help 2> /dev/null | sed -rn 's/.*\(cpu @ ([0-9])\).*/\1/p'`
 		echo "	option tagged_port '$port'"
+
+		board=`cat /proc/cmdline | sed -rn  's/.*board=([^ ]*).*/\1/p' 2> /dev/null`
+		echo "	option board '$board'"
 	;;
 	set_file)
 		file_name="$GET_name"

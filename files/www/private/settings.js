@@ -446,18 +446,25 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 
 function collect_switch_info(device)
 {
-	var ports = "";
-	var ifname = "eth0"; //hack
+	var obj = {device : device, ifname : "eth0", ports : ""};
+	switch(uci.misc.data.board)
+	{
+		case "TL-WR841N-v8":
+			obj.ifname = "eth1";
+			break;
+	}
 
+	var str = "";
 	config_foreach(uci.network, "switch_vlan", function(id, obj) {
 		if(obj.device != device) return;
-		ports += " "+obj.ports;
+		str += " "+obj.ports;
 	});
 
-	ports = uniq(split(ports));
-	ports.sort();
+	str = uniq(split(str));
+	str.sort();
+	obj.ports = str.join(' ');
 
-	return {ports : ports.join(' '), device : device, ifname : ifname};
+	return obj;
 }
 
 function enableSwitchTagging(swinfo)
