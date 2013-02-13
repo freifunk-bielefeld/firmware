@@ -150,11 +150,9 @@ function rebuild_assignment()
 	var ignore = ["dummy_mesh", "dummy_lan", "dummy_bat", "bat0", "lo"];
 	var ifnames = [];
 
+	//collect all interfaces
 	config_foreach(uci.network, "interface", function(sid, sobj) {
-		var ifname = sobj.ifname;
-		if(!ifname || sobj.type == "bridge" || isWlanIF(ifname) || inArray(ifname, ignore))
-			return;
-		ifnames.push(ifname);
+		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
 	});
 
 	function getChangeAction(ifname)
@@ -172,6 +170,8 @@ function rebuild_assignment()
 	for(var i in ifnames)
 	{
 		var ifname = ifnames[i];
+		if(isWlanIF(ifname) || inArray(ifname, ignore))
+			continue;
 		var mode = getMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
 		entry.onchange = getChangeAction(ifname);
