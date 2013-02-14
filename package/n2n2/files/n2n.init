@@ -27,10 +27,16 @@ start_instance() {
 
 		config_get mtu "$cfg" 'mtu'
 		[ -n "$mtu" ] && args="$args -M $mtu "
-		
-		config_get_bool route "$cfg" 'route' '0'
-		[ "$route" = "1" ] && args="$args -r "
-		
+
+		config_get_bool route "$cfg" 'enable_packet_forwarding' '0'
+		[ "$enable_packet_forwarding" = "1" ] && args="$args -r "
+
+		config_get_bool  "$cfg" 'accept_multicast_mac' '0'
+		[ "$accept_multicast_mac" = "1" ] && args="$args -E "
+
+		config_get_bool  "$cfg" 'periodic_resolve_ip' '0'
+		[ "$periodic_resolve_ip" = "1" ] && args="$args -b "
+
 		echo "service_start /usr/sbin/edge -f $args -d $cfg -a $ipaddr -c $community -l ${supernode}:${port}"
 		service_start /usr/sbin/edge $args -d $cfg -a $ipaddr -c $community -l ${supernode}:${port}
 		;;
