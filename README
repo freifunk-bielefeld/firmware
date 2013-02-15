@@ -11,8 +11,8 @@ cd openwrt
 svn co svn://svn.openwrt.org/openwrt/packages/net/batman-adv package/batman-adv
 
 git clone https://github.com/freifunk-bielefeld/firmware.git
-mv firmware/package/* package/
-mv firmware/files ./
+cp -rf firmware/package/* package/
+cp -rf firmware/files ./
 rm -rf firmware
 
 make defconfig
