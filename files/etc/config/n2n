@@ -2,7 +2,7 @@
 config 'edge' 'n2n_bat'
 	option 'enabled' 1
 	option 'ipaddr' '0.0.0.0'
-	option 'supernode' '46.19.92.49'
+	option 'supernode' 'vpn1.freifunk-bielefeld.de'
 	option 'port' '60211'
 	option 'community' 'ffb1'
 	option 'mtu' '1528'
