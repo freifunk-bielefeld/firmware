@@ -146,7 +146,7 @@ function rebuild_assignment()
 	removeChilds(root);
 
 	var fs = append_section(root, "Anschl\xfcsse");
-	var net_options = [["Mesh", "mesh"], ["Public", "public"], ["Private", "private"], ["WAN", "wan"]];
+	var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
 	var ignore = ["dummy_mesh", "dummy_lan", "dummy_bat", "bat0", "lo"];
 	var ifnames = [];
 
