@@ -65,11 +65,8 @@ echo "<ul>"
 IFS=" "
 for mac in $gw_macs; do
 	ip=`mac2ip $mac`
-	if [ "$mac" = "$gw_mac" ]; then
-		echo "<li>$ip (aktueller default)</li>"
-	elif [ -n "$ip" -a "$ip" != "0.0.0.0" ]; then
-		echo "<li>$ip</li>"
-	fi
+	[ "$mac" = "$gw_mac" ] && ext=" (aktueller default)" || ext=""
+	[ -n "$ip" ] && echo "<li><a href='http://$ip'>$ip</a>$ext</li>"
 done
 echo "</ul>"
 
