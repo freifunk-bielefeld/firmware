@@ -30,7 +30,7 @@ fieldset {
 	border:1px solid #ddd;
 	padding: 0.5em;
 	margin: 0.5em;
-	width: 30em;
+	width: 34em;
 }
 
 fieldset fieldset {
@@ -44,7 +44,7 @@ fieldset div {
 
 label {
 	float:left;
-	width:10em;
+	width:12em;
 	text-align:right;
 	margin-right:1em;
 	white-space:nowrap;
