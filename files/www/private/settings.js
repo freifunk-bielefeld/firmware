@@ -147,7 +147,7 @@ function rebuild_assignment()
 
 	var fs = append_section(root, "Anschl\xfcsse");
 	var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
-	var ignore = ["dummy_mesh", "dummy_lan", "dummy_bat", "bat0", "lo"];
+	var ignore = ["dummy_mesh", "dummy_lan", "dummy_bat", "n2n_bat", "bat0", "lo"];
 	var ifnames = [];
 
 	//collect all interfaces
