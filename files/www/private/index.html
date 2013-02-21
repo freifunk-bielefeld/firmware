@@ -74,7 +74,7 @@ function init() {
 }
 
 function reboot() {
-	if(!confirm("Reboot durchf\xFChren?")) return;
+	if(!confirm("Neustart durchf\xFChren?")) return;
 	send("/cgi-bin/misc", { func : "reboot" }, function(data) {
 		setText('msg', data);
 	});
