@@ -36,18 +36,15 @@ case $func in
     src="$POST_file"
 	dst="$splash_dir/$POST_file_name"
 
-    if cp "$src" "$dst" &> /dev/null; then
-      send "(I) Die Datei wurde erfolgreich hochgeladen."
-    else
-      send "(I) Es ist eine Fehler aufgetreten."
-    fi
+    cp "$src" "$dst" &> /dev/null || send "(I) Es ist ein Fehler aufgetreten."
+	send "(I) Die Datei wurde erfolgreich hochgeladen."
   ;;
   list_files)
     send "`ls -l $splash_dir | grep ^- | awk '{print $9}'`"
   ;;
   delete_file)
 	filename="$FORM_filename"
-	rm "$splash_dir/$filename" &> /dev/null || send "(E) Es ist eine Fehler aufgetreten."
+	rm "$splash_dir/$filename" &> /dev/null || send "(E) Es ist ein Fehler aufgetreten."
 	send "(I) Datei gel&ouml;scht: '$filename'"
   ;;
   get_status)
