@@ -23,6 +23,13 @@ body {
 	cursor: help;
 }
 
+#nds_files label {
+  width: 18em;
+}
+
+#nds_macs {
+  margin-bottom: 2em;
+}
 
 /* forms */
 

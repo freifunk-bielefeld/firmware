@@ -10,6 +10,21 @@
 <body>
 <div id="nodogsplash">
 
+<fieldset>
+<legend>Splash-Seite</legend>
+<div id="splash_manager" style="display: block;">
+	<form action="/cgi-bin/nodogsplash" enctype="multipart/form-data" method="post">
+		<input name="func" value="upload_file" type="hidden">
+		<button id="send_button" type="submit" >Hochladen</button>
+		<input name="file" size="20" type="file">
+	</form>
+</div>
+<div id="nds_files"></div>
+</fieldset>
+
+<fieldset id="nds_selected">
+<legend>Aktionen</legend>
+<div id="nds_macs"></div>
 <div>
 	<button type="text" onclick="button_action('auth')">Autorisieren</button>
 	<button type="text" onclick="button_action('deauth')">Autorisierung Aufheben</button>
@@ -20,10 +35,12 @@
 	<button type="text" onclick="button_action('trust')">Vertrauen</button>
 	<button type="text" onclick="button_action('untrust')">Vertrauen Aufheben</button>
 </div>
-<br /><br />
-<ul id="mac_list"><ul>
-<br /><br />
-<pre id="nds_status"></pre>
+</fieldset>
+
+<fieldset>
+<legend>Status</legend>
+<div><pre id="nds_status"></pre></div>
+</fieldset>
 
 </div>
 </body>
