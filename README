@@ -4,8 +4,6 @@ Build Commands:
 svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment openwrt
 cd openwrt
 
-echo "src-git fastd git://git.metameute.de/lff/pkg_fastd" >> feeds.conf.default
-
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
