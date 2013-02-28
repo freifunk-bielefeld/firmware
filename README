@@ -4,6 +4,8 @@ Build Commands:
 svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment openwrt
 cd openwrt
 
+echo "src-git fastd git://git.metameute.de/lff/pkg_fastd" >> feeds.conf.default
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
@@ -14,7 +16,6 @@ git clone https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/package/* package/
 cp -rf firmware/files ./
 rm -rf firmware
-echo "src-git fastd git://git.metameute.de/lff/pkg_fastd" >> feeds.conf.default
 
 make defconfig
 make menuconfig
