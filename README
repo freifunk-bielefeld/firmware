@@ -14,6 +14,7 @@ git clone https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/package/* package/
 cp -rf firmware/files ./
 rm -rf firmware
+echo "src-git fastd git://git.metameute.de/lff/pkg_fastd" >> feeds.conf.default
 
 make defconfig
 make menuconfig

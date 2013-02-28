@@ -1,0 +1,20 @@
+
+config fastd config
+	option enabled 1
+	option syslog_level 'info'
+	list bind 'any:1234' #TODO: disable until we need it
+	list method 'xsalsa20-poly1305'
+	option mode 'tap'
+	option interface 'fastd_bat'
+	option mtu 1426
+	option forward 0
+	option secret '' #set by /etc/init.d/freifunk_setup
+
+config peer
+	option enabled 1
+	option net 'config'
+	option key 'd7822baec77e7f6572ae9298b5506191e00f9eeaac1db4aba6e3c280678cac3c'
+	option hostname 'vpn1.freifunk-bielefeld.de'
+	option address_family 'ipv4'
+	option port 1234
+	option float 0

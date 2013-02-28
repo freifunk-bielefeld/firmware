@@ -224,7 +224,7 @@ uci set dhcp.wan.ignore=1
 # ------------------------------------- #
 
 echo "(I) Add network sections to trigger batman-adv and set mtu."
-for if in dummy_bat n2n_bat $wifi_bat_interfaces; do
+for if in dummy_bat fastd_bat $wifi_bat_interfaces; do
 	local n=`echo -n $if | tr -c a-z0-9_ _`
 	uci set network.$n="interface"
 	uci set network.$n.ifname=$if
@@ -252,8 +252,12 @@ echo "$mesh_ip node" >> /etc/hosts
 
 
 /etc/init.d/nodogsplash disable
-/etc/init.d/n2n disable
+/etc/init.d/fastd disable
 /etc/init.d/telnet disable
+
+#set a private for fastd
+secret=`fastd --generate-key --machine-readable`
+uci -q set fastd.config.secret="$secret"
 
 #write everything to flash
 uci commit

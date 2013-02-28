@@ -44,7 +44,7 @@ echo "(I) Own mesh IP address: '$own_mesh_ip'"
 echo "(I) Own lan IP address: '$own_lan_ip'"
 echo "(I) Mesh gateway IP address: '$mesh_gw_ip'"
 
-n2n=`which edge`
+fastd=`which fastd`
 
 
 #check/establish internet on wan
@@ -178,14 +178,14 @@ then
 	echo "(I) We have local internet."
 	set_routes "yes"
 
-	is_running "$n2n" || /etc/init.d/n2n start
+	is_running "$fastd" || /etc/init.d/fastd start
 
 	[ "$share_internet" = "yes" ] && bat_server || bat_client
 else
 	echo "(I) We do not have local internet."
 	set_routes "no"
 
-	is_running "$n2n" && /etc/init.d/n2n stop
+	is_running "$fastd" && /etc/init.d/fastd stop
 
 	bat_client
 fi
