@@ -97,7 +97,7 @@ function rebuild_general()
 	removeChilds(root);
 	removeChilds(root);
 
-	var fs = append_section(root, "Allgemeine Einstellungen:");
+	var fs = append_section(root, "Allgemeine Einstellungen");
 
 	var s = uci.system;
 	var j = firstSectionID(s, "system");
