@@ -28,7 +28,7 @@ html, body {
 </head>
 <body>
 <div id="header">
-<b>Name der Node: </b>
+<b>Name des Knoten: </b>
 <% uci get system.@system[0].hostname %>
 <br />
 <b>Eigene IP-Adresse: </b>
