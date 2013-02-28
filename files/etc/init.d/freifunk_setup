@@ -255,7 +255,7 @@ echo "$mesh_ip node" >> /etc/hosts
 /etc/init.d/fastd disable
 /etc/init.d/telnet disable
 
-#set a private for fastd
+#generate a private key for fastd
 secret=`fastd --generate-key --machine-readable`
 uci -q set fastd.config.secret="$secret"
 
