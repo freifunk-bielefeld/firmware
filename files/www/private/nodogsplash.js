@@ -19,6 +19,7 @@ function addIP(span)
 function addDeleteButton(div, filename)
 {
 	append_button(div, "L&ouml;schen", function() {
+		if(!confirm("Datei '"+filename+"' wirklich l\xF6schen?")) return;
 		send("/cgi-bin/nodogsplash", { func: "delete_file", filename : filename }, function(data) {
 			setText('msg', data);
 			reload();
