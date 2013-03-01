@@ -201,7 +201,7 @@ function addNetSection(ifname, mode)
 	switch(mode)
 	{
 	case "wan":
-		n['wan'] = {"stype":"interface","ifname":ifname,"proto":"dhcp"};
+		n[sid] = {"stype":"interface","ifname":ifname,"proto":"dhcp"};
 		break;
 	case "mesh":
 		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1528","auto":"1","proto":"batadv","mesh":"bat0"};
@@ -537,6 +537,25 @@ function rebuild_switches()
 
 function save_data()
 {
+	//make sure we only have at most one wan section
+	var n = uci.network;
+	var wan_id;
+	for(var id in n)
+	{
+		var obj = n[id];
+		if(obj.stype != 'interface' || !obj.ifname || obj.type == "bridge" || getMode(obj.ifname) != 'wan')
+			continue;
+		if(wan_id)
+			return alert("Es kann nur ein Anschluss als Internetzugang (WAN) definiert werden. Bitte zuerst \xE4ndern.");
+		wan_id = id;
+	}
+
+	//rename section to 'wan'
+	if(wan_id) {
+		n['wan'] = n[id];
+		delete n[id];
+	}
+
 	for(var name in uci)
 	{
 		var obj = uci[name];
