@@ -99,8 +99,10 @@ config rule
 config include
 	option path /etc/firewall.user
 
-
+#
 #additional rules to the OpenWRT default firewall entries above
+#
+
 config zone
 	option name		mesh
 	option network		mesh
