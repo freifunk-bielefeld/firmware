@@ -22,3 +22,19 @@ config peer 'vpn1'
 	option hostname 'vpn1.freifunk-bielefeld.de'
 	option port 1234
 	option float 0
+
+config peer 'vpn2'
+	option enabled 1
+	option net 'backbone'
+	option key '5369f843d41a89c107fe1839b1683e14869046252bb7af734f7d67b2711dd9cc'
+	option hostname 'vpn2.freifunk-bielefeld.de'
+	option port 1234
+	option float 0
+
+config peer 'vpn3'
+	option enabled 1
+	option net 'backbone'
+	option key 'c1f20f98bf22860aac43796c70387651c832c8e7c067761b262850567deab06e'
+	option hostname 'vpn3.freifunk-bielefeld.de'
+	option port 1234
+	option float 0
