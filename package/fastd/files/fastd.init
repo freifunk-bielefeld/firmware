@@ -54,6 +54,34 @@ error() {
 	echo "${initscript}:" "$@" 1>&2
 }
 
+create_group_config() {
+	local s="$2"; local group="$1"
+
+	config_get net "$group" net
+	[ "$net" == "$s" ] || return 0
+
+	section_enabled "$group" || return 0
+
+	config_get limit "$group" limit
+
+	if [ -z "$limit" ]; then
+		error "group $group: limit is not set"
+		return 1
+	fi
+
+	cat > "$TMP_FASTD/fastd.$s.conf" <<EOF
+peer group "$group" {
+	peer limit $limit;
+	include peers from "$TMP_FASTD/fastd.$group.peers";
+}
+EOF
+
+	rm -rf "$TMP_FASTD/fastd.$group.peers"
+	mkdir -p "$TMP_FASTD/fastd.$group.peers"
+
+	config_foreach create_peer_config 'peer' "$group"
+}
+
 create_peer_config() {
 	local s="$2"; local peer="$1"
 
@@ -116,6 +144,7 @@ update_peers_instance() {
 	mkdir -p "$TMP_FASTD/fastd.$s.peers"
 
 	config_foreach create_peer_config 'peer' "$s"
+	config_foreach create_group_config 'group' "$s"
 }
 
 get_key_instance() {
@@ -189,9 +218,8 @@ start_instance() {
 
 	update_peers_instance "$s"
 
-	eval service_start "'$FASTD_COMMAND'" --daemon --pid-file "'$SERVICE_PID_FILE'" --syslog-level info $OPTS --config-peer-dir "$TMP_FASTD/fastd.$s.peers" --config - <<EOF
-secret "$secret";
-EOF
+	echo "secret \"$secret\";" >> "$TMP_FASTD/fastd.$s.conf"
+	eval service_start "'$FASTD_COMMAND'" --daemon --pid-file "'$SERVICE_PID_FILE'" --syslog-level info $OPTS --config-peer-dir "$TMP_FASTD/fastd.$s.peers" --config "$TMP_FASTD/fastd.$s.conf"
 
 	if ! ifconfig "$interface" >/dev/null 2>&1; then
 		error "$s: startup failed"
@@ -225,6 +253,7 @@ stop_instance() {
 
 	service_stop "$FASTD_COMMAND"
 
+	rm -f "$TMP_FASTD/fastd.$s.conf"
 	rm -rf "$TMP_FASTD/fastd.$s.peers"
 }
 
