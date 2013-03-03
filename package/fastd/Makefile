@@ -110,9 +110,6 @@ define Package/fastd/install
 	$(INSTALL_BIN) files/fastd.init $(1)/etc/init.d/fastd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) files/fastd.config $(1)/etc/config/fastd
-	$(INSTALL_DIR) $(1)/etc/fastd
-	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
-	$(INSTALL_DATA) files/fastd.upgrade $(1)/lib/upgrade/keep.d/fastd
 endef
 
 $(eval $(call BuildPackage,fastd))
