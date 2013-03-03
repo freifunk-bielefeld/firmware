@@ -20,6 +20,5 @@ config peer 'vpn1'
 	option net 'backbone'
 	option key 'd7822baec77e7f6572ae9298b5506191e00f9eeaac1db4aba6e3c280678cac3c'
 	option hostname 'vpn1.freifunk-bielefeld.de'
-	option address_family 'ipv4'
 	option port 1234
 	option float 0
