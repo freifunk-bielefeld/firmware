@@ -258,14 +258,14 @@ stop_instance() {
 }
 
 reload_instance() {
-        local s="$1"
+	local s="$1"
 
-        section_enabled "$s" || return 1
+	section_enabled "$s" || return 1
 
 	update_peers_instance "$s"
 
-        SERVICE_PID_FILE="/var/run/fastd.$s.pid"
-        service_reload "$FASTD_COMMAND"
+	SERVICE_PID_FILE="/var/run/fastd.$s.pid"
+	service_reload "$FASTD_COMMAND"
 }
 
 start() {
