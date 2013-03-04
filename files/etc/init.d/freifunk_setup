@@ -51,7 +51,7 @@ while uci -q delete wireless.@wifi-iface[0]; do :; done
 config_wifi() {
 	local ds="$1" #device section
 	local ah_ok=0 ap_ok=0 #interface status
-	local wifi_device=`uci get wireless.$ds.device`
+	local wifi_device=`uci get -q wireless.$ds.device`
 
 	#config_get wifi_device "$ds" device
 	[ -z "$wifi_device" ] && wifi_device="$ds"
