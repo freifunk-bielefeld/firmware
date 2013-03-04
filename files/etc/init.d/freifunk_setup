@@ -20,21 +20,21 @@ echo "(I) Freifunk: start freifunk_setup"
 (echo ""; sleep 1; echo "") | passwd
 
 #default SSID
-ap_ssid=`uci -q get freifunk.@settings[0].default_ap_ssid`
+ap_ssid=`uci  get freifunk.@settings[0].default_ap_ssid`
 
 #add batman version to the AdHoc interface SSID
 ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 
 #default BSSID
-ah_bssid=`uci -q get freifunk.@settings[0].default_ah_bssid`
+ah_bssid=`uci  get freifunk.@settings[0].default_ah_bssid`
 
-wan_interface=`uci -q get network.wan.ifname`
+wan_interface=`uci  get network.wan.ifname`
 echo "(I) Freifunk: wan interface: '$wan_interface'"
 
-lan_interface=`uci -q get network.lan.ifname`
+lan_interface=`uci  get network.lan.ifname`
 echo "(I) Freifunk: lan interface: '$lan_interface'"
 
-ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
+ff_subnet=`uci get  freifunk.@settings[0].ff_subnet`
 
 lan_ip="192.168.133.1"
 
@@ -51,14 +51,14 @@ while uci -q delete wireless.@wifi-iface[0]; do :; done
 config_wifi() {
 	local ds="$1" #device section
 	local ah_ok=0 ap_ok=0 #interface status
-	local wifi_device=`uci get -q wireless.$ds.device`
+	local wifi_device=`uci get  wireless.$ds.device`
 
 	#config_get wifi_device "$ds" device
 	[ -z "$wifi_device" ] && wifi_device="$ds"
 
 	echo "(I) Freifunk: configure wifi device: '$wifi_device'"
 
-	if [ `uci get -q wireless.$ds.channel` -gt 35 ]; then
+	if [ `uci get  wireless.$ds.channel` -gt 35 ]; then
 		ssid_suffix="_5GHz"
 		uci set wireless.$ds.channel=36
 	else
@@ -257,7 +257,7 @@ echo "$mesh_ip node" >> /etc/hosts
 
 #generate a private key for fastd
 secret=`fastd --generate-key --machine-readable`
-uci -q set fastd.default.secret="$secret"
+uci  set fastd.default.secret="$secret"
 
 #write everything to flash
 uci commit
