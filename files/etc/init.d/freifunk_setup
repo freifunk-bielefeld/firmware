@@ -257,7 +257,7 @@ echo "$mesh_ip node" >> /etc/hosts
 
 #generate a private key for fastd
 secret=`fastd --generate-key --machine-readable`
-uci -q set fastd.config.secret="$secret"
+uci -q set fastd.default.secret="$secret"
 
 #write everything to flash
 uci commit
