@@ -13,28 +13,28 @@ start()
 exec >/root/freifunk_setup.log 2>&1
 . /lib/functions.sh
 
-echo "(I) Freifunk: start freifunk_setup"
+echo "(I) start freifunk_setup"
 
 
 #set empty password for root
 (echo ""; sleep 1; echo "") | passwd
 
 #default SSID
-ap_ssid=`uci  get freifunk.@settings[0].default_ap_ssid`
+ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
 
 #add batman version to the AdHoc interface SSID
 ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 
 #default BSSID
-ah_bssid=`uci  get freifunk.@settings[0].default_ah_bssid`
+ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 
-wan_interface=`uci  get network.wan.ifname`
-echo "(I) Freifunk: wan interface: '$wan_interface'"
+wan_interface=`uci get network.wan.ifname`
+echo "(I) wan interface: '$wan_interface'"
 
-lan_interface=`uci  get network.lan.ifname`
-echo "(I) Freifunk: lan interface: '$lan_interface'"
+lan_interface=`uci get network.lan.ifname`
+echo "(I) lan interface: '$lan_interface'"
 
-ff_subnet=`uci get  freifunk.@settings[0].ff_subnet`
+ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 
 lan_ip="192.168.133.1"
 
@@ -43,7 +43,7 @@ lan_ip="192.168.133.1"
 # S E T U P  W I R E L E S S #
 # ------------------------------------------- # 
 
-echo "(I) Freifunk: setup /etc/config/wireless"
+echo "(I) setup /etc/config/wireless"
 
 while uci -q delete wireless.@wifi-iface[0]; do :; done
 
@@ -51,14 +51,14 @@ while uci -q delete wireless.@wifi-iface[0]; do :; done
 config_wifi() {
 	local ds="$1" #device section
 	local ah_ok=0 ap_ok=0 #interface status
-	local wifi_device=`uci get  wireless.$ds.device`
+	local wifi_device=`uci get wireless.$ds.device`
 
 	#config_get wifi_device "$ds" device
 	[ -z "$wifi_device" ] && wifi_device="$ds"
 
-	echo "(I) Freifunk: configure wifi device: '$wifi_device'"
+	echo "(I) configure wifi device: '$wifi_device'"
 
-	if [ `uci get  wireless.$ds.channel` -gt 35 ]; then
+	if [ `uci get wireless.$ds.channel` -gt 35 ]; then
 		ssid_suffix="_5GHz"
 		uci set wireless.$ds.channel=36
 	else
@@ -98,7 +98,7 @@ config_wifi() {
 	}
 
 	wifi_restart() {
-		echo "(I) Freifunk: wireless down/up"
+		echo "(I) wireless down/up"
 		wifi
 	}
 
@@ -114,7 +114,7 @@ config_wifi() {
 
 	#if not both interfaces work; try only Ad-Hoc
 	if [ $ah_ok -eq 0 -o $ap_ok -eq 0 ]; then
-		echo "(I) Freifunk: Cannot start Ad-Hoc and Access Point mode at the same time - try AdHoc only now."
+		echo "(I) Cannot start Ad-Hoc and Access Point mode at the same time - try AdHoc only now."
 		clear_wifi_interfaces
 		add_ah_interface
 		wifi_restart
@@ -128,8 +128,8 @@ config_wifi() {
 config_load wireless
 config_foreach config_wifi wifi-device
 
-echo "(I) Freifunk: wifi access point interfaces: '$wifi_mesh_interfaces'"
-echo "(I) Freifunk: wifi ad-hoc interfaces: '$wifi_bat_interfaces'"
+echo "(I) wifi access point interfaces: '$wifi_mesh_interfaces'"
+echo "(I) wifi ad-hoc interfaces: '$wifi_bat_interfaces'"
 
 
 #get a unique (but not just random) mac to identify the node
@@ -144,15 +144,15 @@ a=`printf '%02x\n' $a` #convert to hex
 mesh_mac="$a:${mesh_mac#*:}" #reassemble mac
 mesh_ip=`mac2ip $mesh_mac`
 
-echo "(I) Freifunk: MAC for mesh: '$mesh_mac'"
-echo "(I) Freifunk: IP for mesh: '$mesh_ip'"
+echo "(I) MAC for mesh: '$mesh_mac'"
+echo "(I) IP for mesh: '$mesh_ip'"
 
 
 # ------------------------------------- #
 # L A N  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Freifunk: Setup LAN interfaces."
+echo "(I) Setup LAN interfaces."
 
 uci -q delete network.lan
 uci set network.lan="interface"
@@ -175,7 +175,7 @@ uci set dhcp.lan.dhcp_option="3" #no gateway yet
 # M E S H  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Freifunk: Setup MESH interfaces."
+echo "(I) Setup MESH interfaces."
 
 uci set network.mesh="interface"
 uci set network.mesh.type="bridge"
@@ -206,7 +206,7 @@ uci set dhcp.mesh.dhcp_option="3" #no gateway yet
 # W A N  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Freifunk: Setup WAN interface."
+echo "(I) Setup WAN interface."
 
 uci -q delete network.wan
 uci set network.wan="interface"
@@ -262,7 +262,7 @@ uci  set fastd.default.secret="$secret"
 #write everything to flash
 uci commit
 
-echo "(I) Freifunk: done freifunk_setup - rebooting now."
+echo "(I) done freifunk_setup - rebooting now."
 
 rm /etc/init.d/freifunk_setup
 reboot
