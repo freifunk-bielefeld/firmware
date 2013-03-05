@@ -547,7 +547,8 @@ function save_data()
 			continue;
 		if(wan_id)
 			return alert("Es kann nur ein Anschluss als Internetzugang (WAN) definiert werden. Bitte zuerst \xE4ndern.");
-		wan_id = id;
+		if(id != 'wan')
+			wan_id = id;
 	}
 
 	//rename section to 'wan'
