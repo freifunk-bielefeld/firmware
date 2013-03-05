@@ -41,7 +41,7 @@ tunctl -t dummy_bat > /dev/null
 
 
 #add first interface to set originator mac
-ifconfig dummy_bat hw ether $mesh_mac mtu 1528 up
+ifconfig dummy_bat hw ether $mesh_mac mtu 1426 up
 batctl if add dummy_bat
 
 

@@ -204,7 +204,7 @@ function addNetSection(ifname, mode)
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"dhcp"};
 		break;
 	case "mesh":
-		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1528","auto":"1","proto":"batadv","mesh":"bat0"};
+		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1426","auto":"1","proto":"batadv","mesh":"bat0"};
 		break;
 	case "private":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
