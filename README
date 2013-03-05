@@ -8,7 +8,6 @@ cd openwrt
 ./scripts/feeds install -a
 
 ./scripts/feeds uninstall kmod-batman-adv
-svn co svn://svn.openwrt.org/openwrt/packages/net/batman-adv package/batman-adv
 
 git clone https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/package/* package/
