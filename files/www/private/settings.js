@@ -535,10 +535,23 @@ function rebuild_switches()
 	rebuild_assignment();
 }
 
-function save_data()
+/*
+Our scripts use "uci get network.wan.ifname" to get the WAN interface.
+Therefore, this script makes sure the intended section is called 'wan',
+and checks if there are multiple sections for WAN defined.
+*/
+function select_wan()
 {
-	//make sure we only have at most one wan section
 	var n = uci.network;
+
+	//rename section from 'wan'
+	if('wan' in n)
+	{
+		n["cfg"+(++gid)] = n['wan'];
+		delete n['wan'];
+	}
+
+	//make sure we only have at most one section for WAN
 	var wan_id;
 	for(var id in n)
 	{
@@ -553,10 +566,14 @@ function save_data()
 
 	//rename section to 'wan'
 	if(wan_id) {
-		n['wan'] = n[id];
-		delete n[id];
+		n['wan'] = n[wan_id];
+		delete n[wan_id];
 	}
+}
 
+function save_data()
+{
+	select_wan();
 	for(var name in uci)
 	{
 		var obj = uci[name];
