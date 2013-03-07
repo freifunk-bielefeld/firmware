@@ -59,10 +59,8 @@ config_wifi() {
 	echo "(I) configure wifi device: '$wifi_device'"
 
 	if [ `uci get wireless.$ds.channel` -gt 35 ]; then
-		ssid_suffix="_5GHz"
 		uci set wireless.$ds.channel=36
 	else
-		ssid_suffix=""
 		uci set wireless.$ds.channel=1
 	fi
 
@@ -81,7 +79,7 @@ config_wifi() {
 		uci set $s.device="$wifi_device"
 		uci set $s.ifname="${wifi_device}_bat"
 		uci set $s.mode=adhoc
-		uci set $s.ssid="$ah_ssid$ssid_suffix"
+		uci set $s.ssid="$ah_ssid"
 		uci set $s.bssid="$ah_bssid"
 		uci set $s.hidden=1
 	}
@@ -93,7 +91,7 @@ config_wifi() {
 		uci set $s.ifname="${wifi_device}_mesh"
 		uci set $s.mode=ap
 		uci set $s.network=mesh
-		uci set $s.ssid="$ap_ssid$ssid_suffix"
+		uci set $s.ssid="$ap_ssid"
 		uci set $s.encryption="none"
 	}
 
