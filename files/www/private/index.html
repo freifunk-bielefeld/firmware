@@ -83,6 +83,11 @@ function reboot() {
 function logout() {
 	window.location="https://none@" + window.location.host;
 }
+
+function adv_mode() {
+	var e = get("adv_mode");
+	e.checked = !e.checked;
+}
 </script>
 
 </head>
@@ -97,6 +102,7 @@ function logout() {
 	<li><a href="password.html">Password</a></li>
 	<li><a href="#" onclick="reboot()">Reboot</a></li>
 	<li><a href="#" onclick="logout()">Logout</a></li>
+	<li><a href="#" onclick="adv_mode()">Erweitert <input type="checkbox" style="margin: 0; width: 1em;" disabled="disabled" id="adv_mode"></a></li>
 </ul>
 <br>
 <pre id="msg"></pre>

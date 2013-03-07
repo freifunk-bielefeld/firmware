@@ -58,7 +58,8 @@ function appendSetting(p, path, value, mode)
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
 		if(mode == "public" || mode == "mesh")
-			b.lastChild.disabled = "disabled";
+			if(!get("adv_mode").checked)
+				b.lastChild.disabled = "disabled";
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "share_internet":
