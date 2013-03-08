@@ -9,6 +9,7 @@
 <script type="text/javascript">
 var html_cache = {};
 var js_cache = {};
+var adv_mode = false;
 
 function nav_onclick() 
 {
@@ -84,9 +85,10 @@ function logout() {
 	window.location="https://none@" + window.location.host;
 }
 
-function adv_mode() {
-	var e = get("adv_mode");
-	e.checked = !e.checked;
+function toggle_adv_mode(e)
+{
+	adv_mode = !adv_mode;
+	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
 }
 </script>
 
@@ -102,7 +104,7 @@ function adv_mode() {
 	<li><a href="password.html">Password</a></li>
 	<li><a href="#" onclick="reboot()">Reboot</a></li>
 	<li><a href="#" onclick="logout()">Logout</a></li>
-	<li><a href="#" onclick="adv_mode()">Erweitert <input type="checkbox" style="margin: 0; width: 1em;" disabled="disabled" id="adv_mode"></a></li>
+	<li><a href="#" onclick="toggle_adv_mode(this)">Erweitert: Aus</a></li>
 </ul>
 <br>
 <pre id="msg"></pre>
