@@ -1,6 +1,6 @@
 
 config settings
-	option 'version' '0.1 dev'
+	option 'version' '0.2-dev'
 	option 'ff_subnet' 29
 	option 'mac' ''
 	option 'share_internet' 'no'
