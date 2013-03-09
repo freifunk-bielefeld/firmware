@@ -180,7 +180,7 @@ uci set network.mesh.type="bridge"
 uci set network.mesh.ifname="dummy_mesh bat0 $wifi_mesh_interfaces"
 uci set network.mesh.ipaddr="$mesh_ip"
 uci set network.mesh.proto=static
-uci set network.mesh.netmask="255.0.0.0"
+uci set network.mesh.netmask="255.255.0.0"
 
 
 # set (not so) magic numbers for start ip and address space
