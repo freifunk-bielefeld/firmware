@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fastd
-PKG_VERSION:=7
+PKG_VERSION:=8
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/43
-PKG_MD5SUM:=17dd6049d072f24dba9d959ac9edbc16
+PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/46
+PKG_MD5SUM:=44957c7c656c7123813c01b8f52aaf3b
 
 PKG_CONFIG_DEPENDS:=\
 	CONFIG_FASTD_ENABLE_METHOD_XSALSA20_POLY1305 \
@@ -110,6 +110,9 @@ define Package/fastd/install
 	$(INSTALL_BIN) files/fastd.init $(1)/etc/init.d/fastd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) files/fastd.config $(1)/etc/config/fastd
+	$(INSTALL_DIR) $(1)/etc/fastd
+	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
+	$(INSTALL_DATA) files/fastd.upgrade $(1)/lib/upgrade/keep.d/fastd
 endef
 
 $(eval $(call BuildPackage,fastd))
