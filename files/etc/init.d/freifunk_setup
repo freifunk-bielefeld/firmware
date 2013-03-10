@@ -244,9 +244,9 @@ uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 uci set dhcp.@dnsmasq[0].add_local_domain='0'
 uci set dhcp.@dnsmasq[0].add_local_hostname='0'
 
-#make "node" resolve to the node a client is connected to
-echo "$lan_ip node" >> /etc/hosts
-echo "$mesh_ip node" >> /etc/hosts
+#make "node" and "freifunk" resolve to the node a client is connected to
+echo "$lan_ip node freifunk" >> /etc/hosts
+echo "$mesh_ip node freifunk" >> /etc/hosts
 
 
 /etc/init.d/nodogsplash disable
