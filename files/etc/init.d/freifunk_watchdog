@@ -173,7 +173,12 @@ set_routes()
 }
 
 
-if check_wan "$wan_interface"
+check_wan "$wan_interface" && has_internet="yes" || has_internet="no"
+
+#log internet status for the web-gui
+echo -n "$has_internet" > /tmp/has_internet
+
+if [ "$has_internet" = "yes" ]
 then
 	echo "(I) We have local internet."
 	set_routes "yes"

@@ -30,7 +30,8 @@ case $GET_func in
 		wan_interface=${wan_interfaces%% *} #get first interface
 		wan_ip=`get_ip $wan_interface`
 		[ -n "$wan_ip" ] && print 'wan_ip' "$wan_ip" || print 'wan_ip' '-'
-		[ -n "$wan_ip" ] && print 'has_internet' 'Ja' || print 'has_internet' 'Nein'
+		has_internet=`cat /tmp/has_internet 2> /dev/null`
+		[ "$has_internet" = "yes" ] && print 'has_internet' 'Ja' || print 'has_internet' 'Nein'
 		share=`uci -q get freifunk.@settings[0].share_internet`
 		[ "$share" = "yes" ] && print 'share_internet' 'Ja' || print 'share_internet' 'Nein'
 		print 'node_count' $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
