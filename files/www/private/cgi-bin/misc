@@ -29,12 +29,10 @@ case $GET_func in
 		wan_interfaces=`uci -q get network.wan.ifname`
 		wan_interface=${wan_interfaces%% *} #get first interface
 		wan_ip=`get_ip $wan_interface`
-		[ -n "$wan_ip" ] && print 'wan_ip' "$wan_ip" || print 'wan_ip' "?"
-		[ -n "$wan_ip" ] && has_internet="Ja" || has_internet="Nein"
-		print 'has_internet' "$has_internet"
+		[ -n "$wan_ip" ] && print 'wan_ip' "$wan_ip" || print 'wan_ip' '?'
+		[ -n "$wan_ip" ] && print 'has_internet' 'Ja' || print 'has_internet' 'Nein'
 		share=`uci -q get freifunk.@settings[0].share_internet`
-		[ "$share" = "yes" ] && share="Ja" || share="Nein"
-		print 'share_internet' "$share"
+		[ "$share" = "yes" ] && print 'share_internet' 'Ja' || print 'share_internet' 'Nein'
 		print 'node_count' $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
 		print 'neigh_count' `batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
 		print 'firmware_version' "`uci -q get freifunk.@settings[0].version`"
