@@ -29,7 +29,7 @@ case $GET_func in
 		wan_interfaces=`uci -q get network.wan.ifname`
 		wan_interface=${wan_interfaces%% *} #get first interface
 		wan_ip=`get_ip $wan_interface`
-		[ -n "$wan_ip" ] && print 'wan_ip' "$wan_ip" || print 'wan_ip' '?'
+		[ -n "$wan_ip" ] && print 'wan_ip' "$wan_ip" || print 'wan_ip' '-'
 		[ -n "$wan_ip" ] && print 'has_internet' 'Ja' || print 'has_internet' 'Nein'
 		share=`uci -q get freifunk.@settings[0].share_internet`
 		[ "$share" = "yes" ] && print 'share_internet' 'Ja' || print 'share_internet' 'Nein'
