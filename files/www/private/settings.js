@@ -46,7 +46,7 @@ function appendSetting(p, path, value, mode)
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
 			return
-		b = append_selection(p, "Verschl\xfcsselung", id, value, ["none", "psk", "psk2"]);
+		b = append_selection(p, "Verschl\xfcsselung", id, value, [["Keine", "none"],["WPA", "psk"], ["WPA2", "psk2"]]);
 		break;
 	case "key":
 		b = append_input(p, "Passwort", id, value);
