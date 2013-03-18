@@ -41,6 +41,16 @@ case $GET_func in
 		print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
 		print 'hostname' `uci get system.@system[0].hostname`
 	;;
+	set_config_file)
+		file_name="$GET_name"
+		file_data="$GET_data"
+
+		if echo "$file_data" > "/etc/config/$file_name" 2> /dev/null; then
+			echo "(I) Einstellungen wurden gespeichert. Bitte Neustarten."
+		else
+			echo "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
+		fi
+	;;
 	*)
 		echo "(E) misc: Invalid command: '$GET_func'"
 	;;

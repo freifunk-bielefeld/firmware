@@ -253,9 +253,11 @@ echo "$mesh_ip node freifunk" >> /etc/hosts
 /etc/init.d/fastd disable
 /etc/init.d/telnet disable
 
-#generate a private key for fastd
+#generate a public/private key for fastd
 secret=`fastd --generate-key --machine-readable`
-uci  set fastd.default.secret="$secret"
+uci set fastd.default.secret="$secret"
+key=`/etc/init.d/fastd show_key 'default'`
+uci set fastd.default.key="$key"
 
 #write everything to flash
 uci commit
