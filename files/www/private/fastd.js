@@ -215,7 +215,7 @@ function importFile(file_handle)
 			}
 		}
 		rebuildList();
-    };
+	};
 	reader.readAsText(file_handle);
 }
 
@@ -226,14 +226,7 @@ function exportFile(file_name, file_data)
 	var a = get('export_file');
 	a.href = "data:application/octet-stream;charset=utf-8," + escape(file_data);
 	a.click();
-	/*
-	get("df_func").value = "send_back_as_file_download";
-	get("df_name").value = file_name;
-	get("df_data").value = file_data;
-	get("df").submit();
-	*/
 }
-
 
 function selectItem(id)
 {
