@@ -581,7 +581,7 @@ function save_data()
 		if(!obj.pchanged)
 			continue;
 		var data = toUCI(obj);
-		send("/cgi-bin/settings", { func : "set_file", name : name, data : data }, function(data) { setText('msg', data); reload(); });
+		send("/cgi-bin/misc", { func : "set_file", name : name, data : data }, function(data) { setText('msg', data); reload(); });
 	}
 }
 

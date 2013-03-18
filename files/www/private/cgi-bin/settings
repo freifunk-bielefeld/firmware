@@ -21,17 +21,6 @@ case "$GET_func" in
 		board=`cat /proc/cmdline | sed -rn  's/.*board=([^ ]*).*/\1/p' 2> /dev/null`
 		echo "	option board '$board'"
 	;;
-	set_file)
-		file_name="$GET_name"
-		file_data="$GET_data"
-		[ ! -f "/etc/config/$file_name" ] && exit 1
-		echo "$file_data" > "/etc/config/$file_name" 2> /dev/null
-		if [ $? -eq 0 ]; then
-			echo "(I) Einstellungen wurden gespeichert. Bitte Neustarten."
-		else
-			echo "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
-		fi
-	;;
 	*)
 		echo "(E) settings: Invalid command: '$GET_func'"
 	;;
