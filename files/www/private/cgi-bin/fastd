@@ -20,16 +20,6 @@ case "$func" in
 		echo "	option wan_ip '$wan_ip'"
 		echo "	option hostname '$hostname'"
 	;;
-#	send_back_as_file_download)
-#		name="$POST_name"
-#		data="$POST_data"
-#
-#		#echo 'X-Download-Options: noopen'
-#		echo 'Content-Type: text/plain; authoritative=true;'
-#		echo 'Content-Disposition: attachment; filename="'$name'"'
-#		echo
-#		echo -n "$data"
-#	;;
 	*)
 		send "(E) fastd: Invalid command: '$GET_func'"
 	;;
