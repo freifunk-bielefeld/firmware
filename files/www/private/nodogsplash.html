@@ -17,7 +17,7 @@
 		<input name="func" value="upload_file" type="hidden">
 		<input id="file" name="file" type="file" onchange="if(this.value != '') { get('upload_form').submit(); reload(); }" style="visibility:hidden;position:absolute;top:-50;left:-50">    
 	</form>
-	<iframe src="#" id="upload_iframe" style="display:none;">
+	<iframe src="#" id="upload_iframe" style="display:none;"></iframe>
 	<button onclick="get('file').click();">Datei Hochladen</button>
 </div>
 <div id="nds_files"></div>
