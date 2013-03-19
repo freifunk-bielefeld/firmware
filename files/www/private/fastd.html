@@ -10,16 +10,20 @@
 <body>
 <div id="fastd">
 <input type="file" id="import_file" onchange="importFile(this.files[0]);" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
-<a href="#"  id="export_file" style="display:none;"></a>
+<a href="#" id="export_file" style="display:none;"></a>
 
-<div style="width: 20em;">
-	<ul id="list"></ul>
-	<br />
-	<button type="button" onclick="saveData()">Speichern</button>
-	<button type="button" onclick="exportAll()">Alles Exportieren</button>
-	<br />
-	<button type="button" onclick="get('import_file').click()">Eintr&auml;ge Importieren</button>
-</div>
+<fieldset style="width: 20em; float: left;">
+	<legend>&Uuml;bersicht</legend>
+	<div>
+		<ul id="list"></ul>
+	</div>
+	<div>
+		<button type="button" onclick="saveData()">Speichern</button>
+		<button type="button" onclick="exportAll()">Alles Exportieren</button>
+		<br />
+		<button type="button" onclick="get('import_file').click()">Eintr&auml;ge Importieren</button>
+	</div>
+</fieldset>
 
 <div id="entries"></div>
 
