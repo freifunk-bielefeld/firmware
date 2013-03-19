@@ -13,11 +13,12 @@
 <fieldset>
 <legend>Splash-Seite</legend>
 <div id="splash_manager" style="display: block;">
-	<form action="/cgi-bin/nodogsplash" enctype="multipart/form-data" method="post">
+	<form id="upload_form" action="/cgi-bin/nodogsplash" enctype="multipart/form-data" method="post">                                                                              
 		<input name="func" value="upload_file" type="hidden">
-		<button id="send_button" type="submit" >Hochladen</button>
-		<input name="file" size="20" type="file">
+		<input id="file" name="file" type="file" onchange="if(this.value != '') { get('upload_form').submit(); reload(); }" style="visibility:hidden;position:absolute;top:-50;left:-50">    
 	</form>
+	<iframe src="#" id="upload_iframe" style="display:none;">
+	<button onclick="get('file').click();">Datei Hochladen</button>
 </div>
 <div id="nds_files"></div>
 </fieldset>
