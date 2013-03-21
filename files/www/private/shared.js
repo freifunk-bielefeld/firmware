@@ -266,18 +266,18 @@ function append_label(parent, title, value)
 
 	if(typeof value == 'string')
 	{
+		//div.className = "label_option";
 		var span = append(div, 'span');
 		span.innerHTML = value;
 	}
 	else
 	{
-		var ul = append(div, 'ul');
-		ul.style.cssFloat = "left";
-		ul.style.listStyle = "none";
+		div.className = "list_option";
+		var span = append(div, 'span');
 		for(var i in value)
 		{
-			var li = append(ul, 'li');
-			li.innerHTML = value[i];
+			var d = append(span, 'div');
+			d.innerHTML = value[i];
 		}
 	}
 	return div;
@@ -285,7 +285,7 @@ function append_label(parent, title, value)
 
 function append_options(parent, name, selected, choices)
 {
-	var select = create('select');
+	var select = append(parent, 'select');
 	select.style.minWidth = "5em";
 	select.name = name;
 	for(var i in choices)
@@ -299,17 +299,15 @@ function append_options(parent, name, selected, choices)
 		option.selected = (choice_value == selected) ? "selected" : "";
 		option.innerHTML= choice_text;
 	}
-	parent.appendChild(select);
 }
 
 function append_selection(parent, title, name, selected, choices)
 {
 	var p = append(parent, 'div');
-	var label = create('label');
+	var label = append(p, 'label');
 
-	p.className = "radio";
+	p.className = "select_option";
 	label.innerHTML = title + ":";
-	p.appendChild(label);
 
 	append_options(p, name, selected, choices);
 	return p;
@@ -349,11 +347,11 @@ function append_check(parent, title, name, selected, choices) {
 function _selection(type, parent, title, name, selected, choices)
 {
 	var p = append(parent, 'div');
-	var label = create('label');
+	var label = append(p, 'label');
+	var span = append(p, 'span');
 
-	p.className = "radio";
+	p.className = "radio_option";
 	label.innerHTML = title + ":";
-	p.appendChild(label);
 
 	for (var i in choices)
 	{
@@ -361,9 +359,9 @@ function _selection(type, parent, title, name, selected, choices)
 		var choice_text = " " + (s ? choices[i] : choices[i][0]);
 		var choice_value = "" + (s ? choices[i] : choices[i][1]);
 
-		var div = append(p, 'div');
-		var input = create('input');
-		var label = create('label');
+		var div = append(span, 'div');
+		var input = append(div, 'input');
+		var label = append(div, 'label');
 
 		input.name = name;
 		input.value = choice_value;
@@ -372,9 +370,6 @@ function _selection(type, parent, title, name, selected, choices)
 			input.checked = "checked"
 
 		label.innerHTML = " " + choice_text;
-
-		div.appendChild(input);
-		div.appendChild(label);
 	}
 	return p;
 }

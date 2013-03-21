@@ -50,6 +50,19 @@ body {
 
 /* forms */
 
+legend {
+	color:#0b77b7;
+	font-size:1.2em;
+}
+
+label {
+	float:left;
+	width:12em;
+	text-align:right;
+	margin-right:1em;
+	white-space:nowrap;
+}
+
 fieldset {
 	border:1px solid #ddd;
 	padding: 0.5em;
@@ -61,27 +74,14 @@ fieldset fieldset {
 	width: auto;
 }
 
-fieldset div {
+fieldset > * {
   margin:0.3em 0;
   clear:both;
 }
 
-label {
-	float:left;
-	width:12em;
-	text-align:right;
-	margin-right:1em;
-	white-space:nowrap;
-}
-
-legend {
-	color:#0b77b7;
-	font-size:1.2em;
-}
-
-legend span {
-	width:10em;
-	text-align:right;
+fieldset div > * {
+	display:inline-block;
+	vertical-align:middle;
 }
 
 input {
@@ -97,14 +97,15 @@ input {
 input:hover, input:focus {
 	border-color:#c5c5c5;
 	background:#f6f6f6;
-} 
-
-.radio label {
-	font-size:1em;
-	color:#000;
 }
 
-.radio div label, .radio div input {
+.radio_option div {
+	float:left;
+	white-space:nowrap;
+	clear:none;
+}
+
+.radio_option div label, .radio_option div input {
 	vertical-align:middle;
 	display:inline;
 	float:none;
@@ -113,14 +114,17 @@ input:hover, input:focus {
 	border:none;
 }
 
-.radio div {
-	float:left;
-	white-space:nowrap;
-	clear:none;
+.select_option label {
+	font-size:1em;
+	color:#000;
 }
 
-input.default {
-	color:#bbb;
+.list_option div {
+	clear: left;
+	margin:0;
+	padding:0;
+	float: left;
+	list-style: none;
 }
 
 
