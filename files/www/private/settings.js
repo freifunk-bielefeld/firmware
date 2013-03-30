@@ -72,13 +72,18 @@ function appendSetting(p, path, value, mode)
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		break;
 	case "ports":
-		b = append_check(p, value.title, id, split(value.ports), split(value.all_ports));
-		//hide tagged port
-		var tp = uci.misc.data.tagged_port;
-		onDesc(b, "INPUT", function(e) {
-			if(e.value == tp || e.value == tp+"t")
-				hide(e.parentNode);
-		});
+		var map = [];
+		var tp = value.swinfo.tagged_port;
+		var pm = value.swinfo.port_map;
+		var v = (countVLANs(value.swinfo.device) > 1);
+		for(var i in pm)
+		{
+			if(pm[i][0] == '_')
+				map.push(['_', (v ? (tp+'t' ) : tp)]);
+			else
+				map.push(pm[i]);
+		}
+		b = append_check(p, value.title, id, split(value.ports), map);
 		break;
 	default:
 		return;
@@ -370,7 +375,7 @@ function build_vlan(switch_root, id, obj, swinfo, ifname)
 	for(var k in obj)
 	{
 		if(k == "ports")
-			appendSetting(vlan_root, ["network", id, k], {"title": ifname, "ports":obj[k], "all_ports":swinfo.ports, "tagged_port":swinfo.tagged_port});
+			appendSetting(vlan_root, ["network", id, k], {"title":ifname, "ports":obj[k], "swinfo":swinfo});
 		else
 			appendSetting(vlan_root, ["network", id, k], obj[k]);
 	}
@@ -390,37 +395,125 @@ function delVlanSection(vlan)
 	});
 }
 
+function renameIfname(old_if, new_if)
+{
+	var n = uci.network;
+	for(var id in n)
+		if(n[id].ifname)
+			n[id].ifname = replaceItem(n[id].ifname, old_if, new_if);
+	n.pchanged = true;
+}
+
+function countVLANs(device)
+{
+	var c = 0;
+	var n = uci.network;
+	for(var id in n)
+	{
+		if(n[id].stype == "switch_vlan" && n[id].device == device)
+			c++;
+	}
+	return c;
+}
+
+function collect_switch_info(device)
+{
+	var obj = {
+		device : device,
+		ifname : 'eth0', //base interface
+		vlan_start : 1, //first vlan device is eth0.1
+		tagged_port : uci.misc.data.tagged_port, //port number, no suffix
+	};
+
+	//board specific settings
+	switch(uci.misc.data.board)
+	{
+		case 'TL-WR1043ND':
+			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', '5']];
+			break;
+		case 'TL-WR841N-v8':
+			obj.ifname = 'eth1';
+			break;
+	}
+
+	//create generic ports string
+	if(!obj.ports)
+	{
+		//create a generic port map
+		var all = "";
+		config_foreach(uci.network, 'switch_vlan', function(id, obj) {
+			if(obj.device != device) return;
+			all += " "+obj.ports;
+		});
+
+		var ports_array = uniq(split(all.replace(/t/g, '')));
+		ports_array.sort();
+		obj.ports = ports_array.join(' ');
+	}
+
+	//create generic port mapping
+	if(!obj.port_map)
+	{
+		var ps = split(obj.ports);
+		obj.port_map = [];
+		for(var i in ps)
+		{
+			var p = ps[i];
+			if(p == obj.tagged_port)
+				obj.port_map.push(['_',p]);
+			else
+				obj.port_map.push([p+"?",p]);
+		}
+	}
+
+	return obj;
+}
+
 function append_vlan_buttons(parent, switch_root, switch_device)
 {
 	var buttons = append(parent, 'div');
 
 	append_button(buttons, "Neu", function() {
 		var swinfo = collect_switch_info(switch_device);
-		var new_vlan = switch_root.childNodes.length + 1;
+		var vlans = countVLANs(switch_device);
 
-		if(new_vlan >= split(swinfo.ports).length)
+		if(vlans >= swinfo.port_map.length)
 			return alert("Mehr VLANs sind nicht m\xf6glich.");
 
-		if(new_vlan == 2)
+		var tp = swinfo.tagged_port;
+		if(vlans <= 1)
 		{
-			enableSwitchTagging(swinfo);
+			//remove all switch_vlan sections
+			delVlanSection(-1);
+
+			//rename eth0 to eth0.1
+			var v = swinfo.vlan_start;
+			var i = swinfo.ifname;
+			renameIfname(i, i+"."+v);
+
+			//add a single switch_vlan for eth0.1
+			var ports = swinfo.ports.replace(new RegExp(tp), tp+'t');
+			addVlanSection(switch_device, v, ports);
+
 			swinfo = collect_switch_info(switch_device);
 		}
 
-		var ifname = (new_vlan > 1) ? (swinfo.ifname+"."+new_vlan) : swinfo.ifname;
+		var v = swinfo.vlan_start + vlans;
+		var ifname = swinfo.ifname+"."+v;
 		delNetSection(ifname);
 		addNetSection(ifname, "private");
-		addVlanSection(swinfo.device, new_vlan, uci.misc.data.tagged_port+"t");
+		addVlanSection(switch_device, v, tp+'t');
+
 		rebuild_switches();
 		rebuild_assignment();
 	});
 
 	append_button(buttons, "L\xf6schen", function() {
+		//delete the last vlan
 		var swinfo = collect_switch_info(switch_device);
-		var del_vlan = switch_root.childNodes.length;
-		var ifname = (del_vlan > 1) ? (swinfo.ifname+"."+del_vlan) : swinfo.ifname;
+		var vlans = countVLANs(switch_device);
 
-		if(del_vlan <= 1)
+		if(vlans <= 1)
 			return alert("Mindestens ein VLAN muss erhalten bleiben.");
 
 		//check if all ports of the last vlan are unchecked
@@ -436,76 +529,27 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 		if(!all_unchecked)
 			return alert("Die Ports des letzten VLANs m\xfcssen zuerst deselektiert werden.");
 
-		delVlanSection(del_vlan);
+		var v = swinfo.vlan_start + vlans - 1;
+		var ifname = swinfo.ifname+"."+v;
+		delVlanSection(v);
 		delNetSection(ifname);
-		if(del_vlan == 2)
-			disableSwitchTagging(swinfo);
+
+		if(vlans <= 2)
+		{
+			//remove all switch_vlan sections
+			delVlanSection(-1);
+
+			//rename eth0.1 to eth0
+			var v = swinfo.vlan_start;
+			var i = swinfo.ifname;
+			renameIfname(i+"."+v, i);
+
+			//add a single switch_vlan for eth0
+			addVlanSection(switch_device, v, swinfo.ports);
+		}
 
 		rebuild_switches();
 	});
-}
-
-function collect_switch_info(device)
-{
-	var obj = {device : device, ifname : "eth0", ports : ""};
-	switch(uci.misc.data.board)
-	{
-		case "TL-WR841N-v8":
-			obj.ifname = "eth1";
-			break;
-	}
-
-	var str = "";
-	config_foreach(uci.network, "switch_vlan", function(id, obj) {
-		if(obj.device != device) return;
-		str += " "+obj.ports;
-	});
-
-	str = uniq(split(str));
-	str.sort();
-	obj.ports = str.join(' ');
-
-	return obj;
-}
-
-function enableSwitchTagging(swinfo)
-{
-	//rename eth0 to eth0.1
-	var n = uci.network;
-	for(var id in n)
-		if(n[id].ifname)
-			n[id].ifname = replaceItem(n[id].ifname, swinfo.ifname, swinfo.ifname+".1");
-
-	//make ports tagged
-	var tp = uci.misc.data.tagged_port;
-	var ports = addItem(removeItem(swinfo.ports, tp), tp+"t");
-
-	//remove all switch_vlan sections
-	delVlanSection(-1);
-	//add a single switch_vlan for eth0.1
-	addVlanSection(swinfo.device, 1, ports);
-
-	n.pchanged = true;
-}
-
-function disableSwitchTagging(swinfo)
-{
-	//rename eth0.1 to eth0
-	var n = uci.network;
-	for(var id in n)
-		if(n[id].ifname)
-			n[id].ifname = replaceItem(n[id].ifname, swinfo.ifname+".1", swinfo.ifname);
-
-	//make ports untagged
-	var tp = uci.misc.data.tagged_port;
-	var ports = addItem(removeItem(swinfo.ports, tp+"t"), tp);
-
-	//remove all switch_vlan sections
-	delVlanSection(-1);
-	//add a single switch_vlan for eth0
-	addVlanSection(swinfo.device, 1, ports);
-
-	n.pchanged = true;
 }
 
 function rebuild_switches()
@@ -518,7 +562,7 @@ function rebuild_switches()
 		var swinfo = collect_switch_info(sobj.name);
 		var sfs = append_section(root, "Switch '"+swinfo.ifname+"'", sid);
 		var switch_root = append(sfs, 'div');
-		var use_tagged = (swinfo.ports.indexOf('t') != -1);
+		var use_tagged = (countVLANs(swinfo.device) > 1);
 
 		//print vlan sections
 		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
@@ -539,7 +583,7 @@ function rebuild_switches()
 /*
 Our scripts use "uci get network.wan.ifname" to get the WAN interface.
 Therefore, this script makes sure the intended section is called 'wan',
-and checks if there are multiple sections for WAN defined.
+The occurence of multiple WAN-sections is also checked.
 */
 function select_wan()
 {
