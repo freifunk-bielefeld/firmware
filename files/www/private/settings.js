@@ -4,8 +4,6 @@ All required uci packages are stored variable uci.
 The GUI code displayes and manipulated this variable.
 */
 var uci = {};
-
-var suffix_map = { "public" : "mesh", "private" : "lan", "mesh" : "bat", "wan" : "wan" };
 var gid = 0;
 
 
@@ -66,7 +64,7 @@ function appendSetting(p, path, value, mode)
 		b = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
 		break;
 	case "config_nets":
-		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","lan"], ["Public","mesh"]]);
+		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
 		break;
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
@@ -123,10 +121,10 @@ function getMode(ifname)
 {
 	var n = uci.network;
 
-	if(inArray(ifname, split(n.mesh.ifname)))
+	if(inArray(ifname, split(n.public.ifname)))
 		return "public";
 
-	if(inArray(ifname, split(n.lan.ifname)))
+	if(inArray(ifname, split(n.private.ifname)))
 		return "private";
 
 	for(var id in n)
@@ -155,7 +153,7 @@ function rebuild_assignment()
 
 	var fs = append_section(root, "Anschl\xfcsse");
 	var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
-	var ignore = ["dummy_mesh", "dummy_lan", "dummy_bat", "fastd_bat", "bat0", "lo"];
+	var ignore = ["dummy_public", "dummy_private", "dummy_mesh", "fastd_mesh", "bat0", "lo"];
 	var ifnames = [];
 
 	//collect all interfaces
@@ -216,11 +214,11 @@ function addNetSection(ifname, mode)
 		break;
 	case "private":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
-		n.lan.ifname = addItem(n.lan.ifname, ifname);
+		n.private.ifname = addItem(n.private.ifname, ifname);
 		break;
 	case "public":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
-		n.mesh.ifname = addItem(n.mesh.ifname, ifname);
+		n.public.ifname = addItem(n.public.ifname, ifname);
 		break;
 	case "none":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
@@ -237,8 +235,8 @@ function delNetSection(ifname)
 			delete n[id];
 	});
 
-	n.lan.ifname = removeItem(n.lan.ifname, ifname);
-	n.mesh.ifname = removeItem(n.mesh.ifname, ifname);
+	n.private.ifname = removeItem(n.private.ifname, ifname);
+	n.public.ifname = removeItem(n.public.ifname, ifname);
 	n.pchanged = true;
 }
 
@@ -257,7 +255,7 @@ function addWifiSection(device, mode)
 	var f = uci.freifunk;
 	var w = uci.wireless;
 	var i = firstSectionID(f, "settings");
-	var ifname = device+"_"+suffix_map[mode];
+	var ifname = device+"_"+mode;
 	var id = "cfg"+(++gid);
 
 	switch(mode)
@@ -269,10 +267,10 @@ function addWifiSection(device, mode)
 		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1};
 		break;
 	case "public":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"mesh"};
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"public"};
 		break;
 	case "private":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"lan","key":randomString(16),"encryption":"psk2"};
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"private","key":randomString(16),"encryption":"psk2"};
 		break;
 	default:
 		return alert("mode error '"+mode+"' "+device);
@@ -330,7 +328,7 @@ function rebuild_wifi()
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
 				var mode = src.value;
-				var ifname = dev+"_"+suffix_map[mode];
+				var ifname = dev+"_"+mode;
 
 				if(src.checked) {
 					delNetSection(ifname);

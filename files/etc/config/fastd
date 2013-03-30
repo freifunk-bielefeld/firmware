@@ -5,7 +5,7 @@ config fastd 'default'
 	list bind 'any:1234' #TODO: disable until we need it
 	list method 'xsalsa20-poly1305'
 	option mode 'tap'
-	option interface 'fastd_bat'
+	option interface 'fastd_mesh'
 	option mtu 1426
 	option forward 0
 	option secret '' #set by /etc/init.d/freifunk_setup

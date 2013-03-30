@@ -36,13 +36,13 @@ get_ip() {
 	ifconfig "$1" 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}'
 }
 
-own_mesh_ip=`get_ip br-mesh`
-own_lan_ip=`get_ip br-lan`
-mesh_gw_ip=$(mac2ip `batctl gwl 2> /dev/null | awk '/^=>/{ printf $2 }'`)
+own_public_ip=`get_ip br-public`
+own_private_ip=`get_ip br-private`
+public_gw_ip=$(mac2ip `batctl gwl 2> /dev/null | awk '/^=>/{ printf $2 }'`)
 
-echo "(I) Own mesh IP address: '$own_mesh_ip'"
-echo "(I) Own lan IP address: '$own_lan_ip'"
-echo "(I) Mesh gateway IP address: '$mesh_gw_ip'"
+echo "(I) Own public IP address: '$own_public_ip'"
+echo "(I) Own private IP address: '$own_private_ip'"
+echo "(I) Public gateway IP address: '$public_gw_ip'"
 
 fastd=`which fastd`
 
@@ -104,7 +104,7 @@ is_running() {
 }
 
 #switch to client
-bat_client()
+mesh_client()
 {
 	if [ "$gw_mode" != "client" ]; then
 		echo "(I) Switch to client mode."
@@ -116,7 +116,7 @@ bat_client()
 }
 
 #switch to server
-bat_server()
+mesh_server()
 {
 	if [ "$gw_mode" != "server" ]; then
 		echo "(I) Switch to gateway mode."
@@ -131,36 +131,36 @@ bat_server()
 set_routes()
 {
 	local has_internet="$1"
-	local mesh_str="3"
-	local lan_str="3,$own_lan_ip"
+	local public_str="3"
+	local private_str="3,$own_private_ip"
 
 	echo "(I) Start setting routes:"
-	[ "$share_internet" = "yes" ] && mesh_str="3,$own_mesh_ip"
-	[ -n "$mesh_gw_ip" ] && mesh_str="3,$mesh_gw_ip"
+	[ "$share_internet" = "yes" ] && public_str="3,$own_public_ip"
+	[ -n "$public_gw_ip" ] && public_str="3,$public_gw_ip"
 
 	if [ "$has_internet" = "yes" ]; then
 		if [ "$share_internet" = "yes" ]; then
-			mesh_str="3,$own_mesh_ip"
+			public_str="3,$own_public_ip"
 		fi
 	else
 		echo "(I) Clear default routes and nameserver list."
 		while `route del default > /dev/null 2>&1`; do true; done
 		echo -e "nameserver 127.0.0.1" > /tmp/resolv.conf.auto
 
-		[ -n "$mesh_gw_ip" ] && {
-			echo "(I) Set default route and nameserver to '$mesh_gw_ip'."
-			route add default gw $mesh_gw_ip
-			echo "nameserver $mesh_gw_ip" >> /tmp/resolv.conf.auto
+		[ -n "$public_gw_ip" ] && {
+			echo "(I) Set default route and nameserver to '$public_gw_ip'."
+			route add default gw $public_gw_ip
+			echo "nameserver $public_gw_ip" >> /tmp/resolv.conf.auto
 		}
 	fi
 
-	local pre_mesh_str="`uci get dhcp.mesh.dhcp_option`"
-	local pre_lan_str="`uci get dhcp.lan.dhcp_option`"
+	local pre_public_str="`uci get dhcp.public.dhcp_option`"
+	local pre_private_str="`uci get dhcp.private.dhcp_option`"
 
-	if [ "$mesh_str" != "$pre_mesh_str" -o "$lan_str" != "$pre_lan_str" ]
+	if [ "$public_str" != "$pre_public_str" -o "$private_str" != "$pre_private_str" ]
 	then
-		uci set dhcp.mesh.dhcp_option="$mesh_str"
-		uci set dhcp.lan.dhcp_option="$lan_str"
+		uci set dhcp.public.dhcp_option="$public_str"
+		uci set dhcp.private.dhcp_option="$private_str"
 
 		echo "(I) DHCP settings were changed => restart dnsmasq."
 		/etc/init.d/dnsmasq restart
@@ -168,8 +168,8 @@ set_routes()
 		echo "(I) No change of DHCP settings."
 	fi
 
-	echo "(I) DHCP lan options: '$lan_str'"
-	echo "(I) DHCP mesh option: '$mesh_str'"
+	echo "(I) DHCP private options: '$private_str'"
+	echo "(I) DHCP public option: '$public_str'"
 }
 
 
@@ -185,14 +185,14 @@ then
 
 	is_running "$fastd" || /etc/init.d/fastd start
 
-	[ "$share_internet" = "yes" ] && bat_server || bat_client
+	[ "$share_internet" = "yes" ] && mesh_server || mesh_client
 else
 	echo "(I) We do not have local internet."
 	set_routes "no"
 
 	is_running "$fastd" && /etc/init.d/fastd stop
 
-	bat_client
+	mesh_client
 fi
 
 

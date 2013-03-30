@@ -4,7 +4,7 @@ config settings
 	option 'ff_subnet' 29
 	option 'mac' ''
 	option 'share_internet' 'no'
-	option 'config_nets' 'lan'
+	option 'config_nets' 'private'
 	option 'default_ap_ssid' 'bielefeld.freifunk.net'
 	option 'default_ah_ssid' ''
 	option 'default_ah_bssid' '12:CA:FF:EE:BA:BE'

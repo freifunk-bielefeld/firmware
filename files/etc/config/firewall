@@ -7,8 +7,8 @@ config defaults
 #	option disable_ipv6	1
 
 config zone
-	option name		lan
-	option network		'lan'
+	option name		private
+	option network		'private'
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
@@ -23,7 +23,7 @@ config zone
 	option mtu_fix		1
 
 config forwarding
-	option src		lan
+	option src		private
 	option dest		wan
 
 # We need to accept udp packets on port 68,
@@ -100,17 +100,18 @@ config include
 	option path /etc/firewall.user
 
 #
-#additional rules to the OpenWRT default firewall entries above
+#Additional rules to the OpenWRT default firewall entries above.
+#Only 'lan' has been replaced by 'private'.
 #
 
 config zone
-	option name		mesh
-	option network		mesh
+	option name		public
+	option network		public
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
 	option masq		1
 
 config forwarding
-	option src		lan
-	option dest 		mesh
+	option src		private
+	option dest 		public

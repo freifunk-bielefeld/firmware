@@ -44,7 +44,7 @@ html, body {
 <br /><br />
 <%
 
-own_mac=`cat /sys/class/net/dummy_bat/address 2> /dev/null`
+own_mac=`cat /sys/class/net/dummy_mesh/address 2> /dev/null`
 own_status=`batctl gw 2> /dev/null`
 
 [ "${own_status:0:6}" = "server" ] && {

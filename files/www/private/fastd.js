@@ -258,6 +258,7 @@ function rebuildList()
 			li.id = id+"#li";
 			li.appendChild(a);
 			ul.appendChild(li);
+
 			if(obj.enabled == '0')
 				li.style.backgroundColor = "#dbdbdb";
 	   });
@@ -278,9 +279,10 @@ function rebuildList()
 			li.appendChild(a);
 			ul.appendChild(li);
 
+			append_peers(li, id);
+
 			if(obj.enabled == '0')
 				li.style.backgroundColor = "#dbdbdb";
-			append_peers(li, id);
 	   });
 	}
 
@@ -292,10 +294,12 @@ function rebuildList()
 		a.onclick = function() { selectItem(id+"#li"); showNet(id); };
 
 		li.id = id+"#li";
-		if(obj.enabled == '0')
-			li.style.backgroundColor = "#dbdbdb";
+
 		append_groups(li, id);
 		append_peers(li, id);
+
+		if(obj.enabled == '0')
+			li.style.backgroundColor = "#dbdbdb";
 	});
 }
 

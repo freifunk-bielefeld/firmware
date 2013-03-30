@@ -31,12 +31,12 @@ ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 wan_interface=`uci get network.wan.ifname`
 echo "(I) wan interface: '$wan_interface'"
 
-lan_interface=`uci get network.lan.ifname`
-echo "(I) lan interface: '$lan_interface'"
+private_interface=`uci get network.lan.ifname`
+echo "(I) private interface: '$private_interface'"
 
 ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 
-lan_ip="192.168.133.1"
+private_ip="192.168.133.1"
 
 
 # ------------------------------------------- #
@@ -77,7 +77,7 @@ config_wifi() {
 	add_ah_interface() {
 		local s=wireless.`uci add wireless wifi-iface`
 		uci set $s.device="$wifi_device"
-		uci set $s.ifname="${wifi_device}_bat"
+		uci set $s.ifname="${wifi_device}_mesh"
 		uci set $s.mode=adhoc
 		uci set $s.ssid="$ah_ssid"
 		uci set $s.bssid="$ah_bssid"
@@ -88,9 +88,9 @@ config_wifi() {
 	add_ap_interface() {
 		local s=wireless.`uci add wireless wifi-iface`
 		uci set $s.device="$wifi_device"
-		uci set $s.ifname="${wifi_device}_mesh"
+		uci set $s.ifname="${wifi_device}_public"
 		uci set $s.mode=ap
-		uci set $s.network=mesh
+		uci set $s.network=public
 		uci set $s.ssid="$ap_ssid"
 		uci set $s.encryption="none"
 	}
@@ -101,8 +101,8 @@ config_wifi() {
 	}
 
 	check_wifi_interfaces() {
-		ifconfig "${wifi_device}_bat" &> /dev/null && ah_ok=1 || ah_ok=0
-		ifconfig "${wifi_device}_mesh" &> /dev/null && ap_ok=1 || ap_ok=0
+		ifconfig "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
+		ifconfig "${wifi_device}_public" &> /dev/null && ap_ok=1 || ap_ok=0
 	}
 
 	add_ah_interface
@@ -119,68 +119,68 @@ config_wifi() {
 		check_wifi_interfaces
 	fi
 
-	[ $ah_ok -eq 1 ] && append wifi_bat_interfaces "${wifi_device}_bat"
-	[ $ap_ok -eq 1 ] && append wifi_mesh_interfaces "${wifi_device}_mesh"
+	[ $ah_ok -eq 1 ] && append wifi_mesh_interfaces "${wifi_device}_mesh"
+	[ $ap_ok -eq 1 ] && append wifi_public_interfaces "${wifi_device}_public"
 }
 
 config_load wireless
 config_foreach config_wifi wifi-device
 
-echo "(I) wifi access point interfaces: '$wifi_mesh_interfaces'"
-echo "(I) wifi ad-hoc interfaces: '$wifi_bat_interfaces'"
+echo "(I) wifi access point interfaces: '$wifi_public_interfaces'"
+echo "(I) wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
 
 
 #get a unique (but not just random) mac to identify the node
-mesh_mac=`cat /sys/class/ieee80211/phy0/macaddress`
-[ -z "$mesh_mac" -o "$mesh_mac" = "00:11:22:33:44:55" ] && {
-	mesh_mac=$(ifconfig $lan_interface | grep HWaddr | awk '{print $5}')
+public_mac=`cat /sys/class/ieee80211/phy0/macaddress`
+[ -z "$public_mac" -o "$public_mac" = "00:11:22:33:44:55" ] && {
+	public_mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
 }
 #translate to local administered mac
-a=${mesh_mac%%:*} #cut out first hex
+a=${public_mac%%:*} #cut out first hex
 a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
-mesh_mac="$a:${mesh_mac#*:}" #reassemble mac
-mesh_ip=`mac2ip $mesh_mac`
+public_mac="$a:${public_mac#*:}" #reassemble mac
+public_ip=`mac2ip $public_mac`
 
-echo "(I) MAC for mesh: '$mesh_mac'"
-echo "(I) IP for mesh: '$mesh_ip'"
+echo "(I) public MAC: '$public_mac'"
+echo "(I) public IP: '$public_ip'"
 
 
 # ------------------------------------- #
-# L A N  S E T U P #
+# P R I V A T E  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Setup LAN interfaces."
+echo "(I) Setup private network interfaces."
 
 uci -q delete network.lan
-uci set network.lan="interface"
-uci set network.lan.type="bridge"
-uci set network.lan.ifname="dummy_lan $lan_interface"
-uci set network.lan.ipaddr="$lan_ip"
-uci set network.lan.proto=static
-uci set network.lan.netmask="255.255.255.0"
+uci set network.private="interface"
+uci set network.private.type="bridge"
+uci set network.private.ifname="dummy_private $private_interface"
+uci set network.private.ipaddr="$private_ip"
+uci set network.private.proto=static
+uci set network.private.netmask="255.255.255.0"
 
 uci -q delete dhcp.lan
-uci set dhcp.lan=dhcp
-uci set dhcp.lan.interface=lan
-uci set dhcp.lan.start=100
-uci set dhcp.lan.limit=150
-uci set dhcp.lan.leasetime=12h
-uci set dhcp.lan.dhcp_option="3" #no gateway yet
+uci set dhcp.private=dhcp
+uci set dhcp.private.interface=private
+uci set dhcp.private.start=100
+uci set dhcp.private.limit=150
+uci set dhcp.private.leasetime=12h
+uci set dhcp.private.dhcp_option="3" #no gateway yet
 
 
 # ------------------------------------- #
-# M E S H  S E T U P #
+# P U B L I C  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Setup MESH interfaces."
+echo "(I) Setup public interfaces."
 
-uci set network.mesh="interface"
-uci set network.mesh.type="bridge"
-uci set network.mesh.ifname="dummy_mesh bat0 $wifi_mesh_interfaces"
-uci set network.mesh.ipaddr="$mesh_ip"
-uci set network.mesh.proto=static
-uci set network.mesh.netmask="255.255.0.0"
+uci set network.public="interface"
+uci set network.public.type="bridge"
+uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
+uci set network.public.ipaddr="$public_ip"
+uci set network.public.proto=static
+uci set network.public.netmask="255.255.0.0"
 
 
 # set (not so) magic numbers for start ip and address space
@@ -192,12 +192,12 @@ end_ip=$((255*255+253)) # -> 65278
 uci -q delete dhcp.@dnsmasq[0].local
 uci -q delete dhcp.@dnsmasq[0].domain
 
-uci set dhcp.mesh=dhcp
-uci set dhcp.mesh.interface=mesh
-uci set dhcp.mesh.start=$start_ip
-uci set dhcp.mesh.limit=$end_ip
-uci set dhcp.mesh.leasetime=2h #max time for address conflicts
-uci set dhcp.mesh.dhcp_option="3" #no gateway yet
+uci set dhcp.public=dhcp
+uci set dhcp.public.interface=public
+uci set dhcp.public.start=$start_ip
+uci set dhcp.public.limit=$end_ip
+uci set dhcp.public.leasetime=2h #max time for address conflicts
+uci set dhcp.public.dhcp_option="3" #no gateway yet
 
 
 # ------------------------------------- #
@@ -222,7 +222,7 @@ uci set dhcp.wan.ignore=1
 # ------------------------------------- #
 
 echo "(I) Add network sections to trigger batman-adv and set mtu."
-for if in dummy_bat fastd_bat $wifi_bat_interfaces; do
+for if in dummy_mesh fastd_mesh $wifi_mesh_interfaces; do
 	local n=`echo -n $if | tr -c a-z0-9_ _`
 	uci set network.$n="interface"
 	uci set network.$n.ifname=$if
@@ -237,7 +237,7 @@ done
 # F R E I F U N K  S E T U P #
 # ------------------------------------- #
 
-uci set freifunk.@settings[0].mac="$mesh_mac"
+uci set freifunk.@settings[0].mac="$public_mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 #prevent own hostname as DNS entry
@@ -245,8 +245,8 @@ uci set dhcp.@dnsmasq[0].add_local_domain='0'
 uci set dhcp.@dnsmasq[0].add_local_hostname='0'
 
 #make "node" and "freifunk" resolve to the node a client is connected to
-echo "$lan_ip node freifunk" >> /etc/hosts
-echo "$mesh_ip node freifunk" >> /etc/hosts
+echo "$private_ip node freifunk" >> /etc/hosts
+echo "$public_ip node freifunk" >> /etc/hosts
 
 
 /etc/init.d/nodogsplash disable

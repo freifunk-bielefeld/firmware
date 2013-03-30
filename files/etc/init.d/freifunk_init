@@ -17,39 +17,39 @@ fi
 echo "(I) Freifunk: start freifunk_init"
 
 
-mesh_mac=`uci get -q freifunk.@settings[0].mac`
+public_mac=`uci get -q freifunk.@settings[0].mac`
 share_internet=`uci get -q freifunk.@settings[0].share_internet`
 config_nets=`uci get -q freifunk.@settings[0].config_nets`
 
-echo "(I) Freifunk: mesh_mac: '$mesh_mac'"
+echo "(I) Freifunk: public_mac: '$public_mac'"
 echo "(I) Freifunk: share_internet: '$share_internet'"
 echo "(I) Freifunk: config_nets: '$config_nets'"
 
 
 #Create dummy interfaces to be able to set the mac of
-#br-mesh and the mac for the OGMs of batman-adv freely.
+#br-public and the mac for the OGMs of batman-adv freely.
 #Also, a bridge needs at least one interface.
+
+echo "(I) Freifunk: Create dummy_public interface."
+tunctl -t dummy_public > /dev/null
+
+echo "(I) Freifunk: Create dummy_private interface."
+tunctl -t dummy_private > /dev/null
 
 echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null
 
-echo "(I) Freifunk: Create dummy_lan interface."
-tunctl -t dummy_lan > /dev/null
-
-echo "(I) Freifunk: Create dummy_bat interface."
-tunctl -t dummy_bat > /dev/null
-
 
 #add first interface to set originator mac
-ifconfig dummy_bat hw ether $mesh_mac mtu 1426 up
-batctl if add dummy_bat
+ifconfig dummy_mesh hw ether $public_mac mtu 1426 up
+batctl if add dummy_mesh
 
 
 uci delete -q firewall.share_internet
 if [ "$share_internet" = "yes" ]; then
-	#forward from mesh to wan
+	#forward from public to wan
 	uci set firewall.share_internet="forwarding"
-	uci set firewall.share_internet.src="mesh"
+	uci set firewall.share_internet.src="public"
 	uci set firewall.share_internet.dest="wan"
 fi
 
@@ -62,7 +62,7 @@ find_default_target() {
 
 #filter ssh/https ports
 config_load firewall
-for src in wan lan mesh; do
+for src in wan private public; do
 	default_target=""
 	config_foreach find_default_target zone $src
 	list_contains config_nets "$src" && target=ACCEPT || target=REJECT
