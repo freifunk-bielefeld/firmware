@@ -34,8 +34,8 @@ config cert px5g
 
 	# Location
 	option country DE
-	option state Berlin
-	option location Berlin
+	option state NRW
+	option location Bielefeld
 
 	# Common name
 	option commonname OpenWrt
