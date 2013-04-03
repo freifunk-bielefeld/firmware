@@ -115,3 +115,25 @@ config zone
 config forwarding
 	option src		private
 	option dest 		public
+    
+###
+### Example 1: forward port 20-21 to ftp-server on my private network
+###
+
+#config redirect
+#        option src       public
+#        option src_dport 20-21
+#        option proto     tcp
+#        option dest      private
+#        option dest_ip   192.168.1.5
+
+###
+### Example 2: forward port 445 to smb-server on my private network
+###
+
+#config redirect
+#        option src       public
+#        option src_dport 445
+#        option proto     tcp
+#        option dest      private
+#        option dest_ip   192.168.1.5
