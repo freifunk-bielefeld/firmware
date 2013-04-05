@@ -20,19 +20,10 @@ function nav_onclick()
 	var id = url.substring(0, url.lastIndexOf('.'));
 
 	var process_html = function(data) {
-		data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-		var div = create("div");
-		div.innerHTML = data;
-		var e;
-		onDesc(div, 'DIV', function(d) {
-			if(d.id != id) return;
-			e = d; return false;
-		});
-
-		var c = get("body");
-		removeChilds(c);
-		c.appendChild(e);
-
+		var b = get("body");
+		removeChilds(b);
+		var pattern = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
+		b.innerHTML = pattern.exec(data)[1];
 		html_cache[id] = data;
 	};
 
