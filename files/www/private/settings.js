@@ -56,7 +56,7 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^[a-z0-9]{8,64}$/i, "Bitte ein Passwort aus mindestens acht Buchstaben und Nummern verwenden");
 		break;
 	case "hwmode":
-		b = append_label(p, name, value);
+		b = append_label(p, "Modus", "802."+value);
 		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
