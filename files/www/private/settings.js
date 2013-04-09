@@ -38,7 +38,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "channel":
 		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
-		if(value > 35) channels = [36,40,42,44,48,50,52,56,58,60,64,149,152,153,157,160,161,165];
+		if(value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
 		b = append_selection(p, "Kanal", id, value, channels);
 		break;
 	case "encryption":
