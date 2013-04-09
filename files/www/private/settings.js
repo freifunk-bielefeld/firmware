@@ -36,6 +36,11 @@ function appendSetting(p, path, value, mode)
 		b = append_input(p, "Hostname", id, value);
 		addInputCheck(b.lastChild, /^[\w]{3,30}$/, name + " ist ung\xfcltig.");
 		break;
+	case "country":
+		b = append_input(p, "Land", id, value);
+		if(!adv_mode)
+			b.lastChild.disabled = "disabled";
+		break;
 	case "channel":
 		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
 		if(value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
