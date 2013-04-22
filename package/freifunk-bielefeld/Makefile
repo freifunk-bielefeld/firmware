@@ -9,28 +9,28 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/freifunk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/freifunk-bielefeld-basic
-  SECTION:=base
-  CATEGORY:=Config
-  DEFAULT:=y
-  TITLE:= Freifunk-Bielefeld Basic
-  URL:=http://freifunk-bielefeld.de
-  DEPENDS:=+kmod-batman-adv +nodogsplash +uhttpd +haserl +@BUSYBOX_CONFIG_TUNCTL +uhttpd-mod-tls +px5g +fastd
+	SECTION:=base
+	CATEGORY:=Config
+	DEFAULT:=y
+	TITLE:= Freifunk-Bielefeld Basic
+	URL:=http://freifunk-bielefeld.de
+	DEPENDS:=+kmod-batman-adv +nodogsplash +uhttpd +haserl +@BUSYBOX_CONFIG_TUNCTL +uhttpd-mod-tls +px5g +fastd
 endef
 
 define Build/Prepare
-  echo "all: " > $(PKG_BUILD_DIR)/Makefile
+	echo "all: " > $(PKG_BUILD_DIR)/Makefile
 endef
 
 define Package/freifunk-bielefeld-basic/install
-  #nothing to do here
+	#nothing to do here
 endef
 
 define Package/freifunk-bielefeld-debug
-  SECTION:=base
-  CATEGORY:=Config
-  DEFAULT:=n
-  TITLE:=Freifunk-Bielefeld with debug tools
-  DEPENDS:=+freifunk-bielefeld-basic +@KMOD_BATMAN_ADV_DEBUG_LOG +nano +htop +iperf +tcpdump +ip
+	SECTION:=base
+	CATEGORY:=Config
+	DEFAULT:=n
+	TITLE:=Freifunk-Bielefeld with debug tools
+	DEPENDS:=+freifunk-bielefeld-basic +@KMOD_BATMAN_ADV_DEBUG_LOG +nano +htop +iperf +tcpdump +ip
 endef
 
 $(eval $(call BuildPackage,freifunk-bielefeld-basic))
