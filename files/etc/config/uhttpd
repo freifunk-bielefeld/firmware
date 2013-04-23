@@ -1,6 +1,6 @@
 
 config uhttpd public
-	list listen_http 0.0.0.0:80
+	list listen_http 80
 	option home /www/public
 	option rfc1918_filter 1
 	option cgi_prefix /
@@ -11,7 +11,7 @@ config uhttpd public
 	option config "_"
 
 config uhttpd private
-	list listen_https 0.0.0.0:443
+	list listen_https 443
 	option home /www/private
 	option rfc1918_filter 1
 	option cert /etc/uhttpd.crt
