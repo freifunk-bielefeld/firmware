@@ -1,0 +1,27 @@
+config interface
+	option interface	'public'
+	option AdvSendAdvert	1
+	option AdvManagedFlag	0
+	option AdvOtherConfigFlag 0
+	list client		''
+
+config prefix
+	option interface	'public'
+	list prefix		'fdef:17a0:ffb1::/64'
+	option AdvOnLink	1
+	option AdvAutonomous	1
+	option AdvRouterAddr	0
+
+config interface
+	option interface	'private'
+	option AdvSendAdvert	1
+	option AdvManagedFlag	0
+	option AdvOtherConfigFlag 0
+	list client		''
+
+config prefix
+	option interface	'private'
+	list prefix		'fdef:17a0:ffb1::1/64'
+	option AdvOnLink	1
+	option AdvAutonomous	1
+	option AdvRouterAddr	0
