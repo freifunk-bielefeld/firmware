@@ -35,8 +35,10 @@ private_interface=`uci get network.lan.ifname`
 echo "(I) private interface: '$private_interface'"
 
 ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
+ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
 
 private_ip="192.168.133.1"
+private_ip6="def:17a0:ffb1::1"
 
 
 # ------------------------------------------- #
@@ -140,10 +142,13 @@ a=${public_mac%%:*} #cut out first hex
 a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
 public_mac="$a:${public_mac#*:}" #reassemble mac
+
 public_ip=`mac2ip $public_mac`
+public_ip6=`mac2ip6 $public_mac`
 
 echo "(I) public MAC: '$public_mac'"
 echo "(I) public IP: '$public_ip'"
+echo "(I) public IP6: '$public_ip6'"
 
 
 # ------------------------------------- #
@@ -157,6 +162,7 @@ uci set network.private="interface"
 uci set network.private.type="bridge"
 uci set network.private.ifname="dummy_private $private_interface"
 uci set network.private.ipaddr="$private_ip"
+uci set network.public.ip6addr="$private_ip6"
 uci set network.private.proto=static
 uci set network.private.netmask="255.255.255.0"
 
@@ -179,6 +185,7 @@ uci set network.public="interface"
 uci set network.public.type="bridge"
 uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
 uci set network.public.ipaddr="$public_ip"
+uci set network.public.ip6addr="$public_ip6"
 uci set network.public.proto=static
 uci set network.public.netmask="255.255.0.0"
 
