@@ -162,7 +162,7 @@ uci set network.private="interface"
 uci set network.private.type="bridge"
 uci set network.private.ifname="dummy_private $private_interface"
 uci set network.private.ipaddr="$private_ip"
-uci set network.public.ip6addr="$private_ip6"
+uci set network.private.ip6addr="$private_ip6"
 uci set network.private.proto=static
 uci set network.private.netmask="255.255.255.0"
 
