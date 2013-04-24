@@ -21,6 +21,7 @@ make menuconfig
 </pre>
 
 Now select the right Target System and Target Profile:
+
 For the TL-WR841ND:
 * Target System => Atheros AR7xxx/AR9xxx
 * Target Profile => TP-LINK TL-WR841ND
