@@ -33,8 +33,8 @@ start_instance() {
 	SERVICE_PID_FILE="/var/run/masala.$s.pid"
 	OPTS=""
 
-	append_opts_list "$s" bootstrap_addr bootstrap_port \
-		dns_addr dns_ifce dns_port hostname port realm username
+	append_opts "$s" bootstrap_addr bootstrap_port \
+		dns_addr dns_ifce dns_port hostname port realm user
 
 	eval service_start "'$MASALA_BIN'" --daemon --pid-file "'$SERVICE_PID_FILE'" $OPTS
 }
@@ -43,6 +43,8 @@ stop_instance() {
 	local s="$1"
 
 	SERVICE_PID_FILE="/var/run/masala.$s.pid"
+	rm -f "$SERVICE_PID_FILE"
+
 	service_stop "$MASALA_BIN"
 }
 
