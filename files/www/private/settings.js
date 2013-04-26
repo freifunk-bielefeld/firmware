@@ -66,7 +66,9 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "share_internet":
-		b = append_radio(p, "Internet Freigeben", id, value, [["Ja", "yes"], ["Nein", "no"]]);
+		b = append_radio(p, "Gateway Modus", id, value, [["An", "yes"], ["Aus", "no"]]);
+		if(!adv_mode)
+			onDesc(b, "INPUT", function(e) { e.disabled = true; });
 		break;
 	case "config_nets":
 		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
