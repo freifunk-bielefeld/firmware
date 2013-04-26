@@ -133,20 +133,20 @@ echo "(I) wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
 
 
 #get a unique (but not just random) mac to identify the node
-public_mac=`cat /sys/class/ieee80211/phy0/macaddress`
-[ -z "$public_mac" -o "$public_mac" = "00:11:22:33:44:55" ] && {
-	public_mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
+mac=`cat /sys/class/ieee80211/phy0/macaddress`
+[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
+	mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
 }
 #translate to local administered mac
-a=${public_mac%%:*} #cut out first hex
+a=${mac%%:*} #cut out first hex
 a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
-public_mac="$a:${public_mac#*:}" #reassemble mac
+mac="$a:${mac#*:}" #reassemble mac
 
-public_ip=`mac2ip $public_mac`
-public_ip6=`mac2ip6 $public_mac`
+public_ip=`mac2ip $mac`
+public_ip6=`mac2ip6 $mac`
 
-echo "(I) public MAC: '$public_mac'"
+echo "(I) MAC: '$mac'"
 echo "(I) public IP: '$public_ip'"
 echo "(I) public IP6: '$public_ip6'"
 
@@ -248,7 +248,7 @@ done
 # F R E I F U N K  S E T U P #
 # ------------------------------------- #
 
-uci set freifunk.@settings[0].mac="$public_mac"
+uci set freifunk.@settings[0].mac="$mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 #prevent own hostname as DNS entry
