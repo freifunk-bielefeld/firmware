@@ -43,9 +43,9 @@ stop_instance() {
 	local s="$1"
 
 	SERVICE_PID_FILE="/var/run/masala.$s.pid"
-	rm -f "$SERVICE_PID_FILE"
-
 	service_stop "$MASALA_BIN"
+
+	rm -f "$SERVICE_PID_FILE"
 }
 
 start() {
