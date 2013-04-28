@@ -40,6 +40,7 @@ case $GET_func in
 		print 'fastd_version' "`fastd --version 2> /dev/null | cut -d' ' -f 2`"
 		print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
 		print 'hostname' `uci get system.@system[0].hostname`
+		print 'board' `cat /proc/cmdline | sed -rn  's/.*board=([^ ]*).*/\1/p' 2> /dev/null`
 	;;
 	set_config_file)
 		file_name="$GET_name"

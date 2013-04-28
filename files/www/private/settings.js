@@ -110,8 +110,6 @@ function rebuild_general()
 
 	var fs = append_section(root, "Allgemeine Einstellungen");
 
-	append_label(fs, "Modell", uci.misc.data.board);
-
 	var s = uci.system;
 	var j = firstSectionID(s, "system");
 	appendSetting(fs, ["system", j, "hostname"], s[j]["hostname"]);
