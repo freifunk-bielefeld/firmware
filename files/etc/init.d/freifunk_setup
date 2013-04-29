@@ -38,7 +38,7 @@ ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
 
 private_ip="192.168.133.1"
-private_ip6="fdef:17a0:ffb1::1"
+private_ip6="fdef:17a0:ffb1:1::1"
 
 
 # ------------------------------------------- #

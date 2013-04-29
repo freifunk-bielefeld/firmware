@@ -21,7 +21,7 @@ config interface
 
 config prefix
 	option interface	'private'
-	list prefix		'fdef:17a0:ffb1::1/64'
+	list prefix		'fdef:17a0:ffb1:1/64'
 	option AdvOnLink	1
 	option AdvAutonomous	1
 	option AdvRouterAddr	0
