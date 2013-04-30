@@ -31,7 +31,7 @@ endef
 
 define Package/masala/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/masala/masala $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/build/masala $(1)/usr/bin/
 
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) files/masala.init $(1)/etc/init.d/masala
