@@ -34,6 +34,9 @@ html, body {
 <b>Eigene IP-Adresse: </b>
 <% ifconfig br-public 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}' %>
 <br />
+<b>Eigene IPv6-Addresse: </b>
+<% ifconfig br-public 2> /dev/null | grep Global | awk -F': ' '/inet6 addr/{split($2,_,"/64");print _[1]}' %>
+<br />
 <b>Anzahl bekannter Knoten: </b>
 <% echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)) %>
 <br />
