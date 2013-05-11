@@ -149,7 +149,9 @@ set_routes()
 
 		[ -n "$public_gw_ip" ] && {
 			echo "(I) Set default route and nameserver to '$public_gw_ip'."
-			route add default gw $public_gw_ip
+			ip route add default via $public_gw_ip
+			ip route add 10.0.0.0/8 via $public_gw_ip
+			ip route add 172.22.0.0/15 via $public_gw_ip
 			echo "nameserver $public_gw_ip" >> /tmp/resolv.conf.auto
 		}
 	fi
