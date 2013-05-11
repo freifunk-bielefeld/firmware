@@ -138,6 +138,15 @@ set_routes()
 	[ "$share_internet" = "yes" ] && public_str="3,$own_public_ip"
 	[ -n "$public_gw_ip" ] && public_str="3,$public_gw_ip"
 
+	[ -n "$public_gw_ip" ] && {
+		ip route del 10.0.0.0/8
+		ip route del 172.22.0.0/15
+		ip route add 10.0.0.0/8 via $public_gw_ip
+		ip route add 172.22.0.0/15 via $public_gw_ip
+
+
+	}
+
 	if [ "$has_internet" = "yes" ]; then
 		if [ "$share_internet" = "yes" ]; then
 			public_str="3,$own_public_ip"
@@ -150,8 +159,8 @@ set_routes()
 		[ -n "$public_gw_ip" ] && {
 			echo "(I) Set default route and nameserver to '$public_gw_ip'."
 			ip route add default via $public_gw_ip
-			ip route add 10.0.0.0/8 via $public_gw_ip
-			ip route add 172.22.0.0/15 via $public_gw_ip
+			ip route del 10.0.0.0/8 via $public_gw_ip
+			ip route del 172.22.0.0/15 via $public_gw_ip
 			echo "nameserver $public_gw_ip" >> /tmp/resolv.conf.auto
 		}
 	fi
