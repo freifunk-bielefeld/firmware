@@ -161,6 +161,12 @@ function rebuild_assignment()
 	var ignore = ["dummy_public", "dummy_private", "dummy_mesh", "fastd_mesh", "bat0", "lo"];
 	var ifnames = [];
 
+	//also ignore raw interfaces
+	config_foreach(uci.network_defaults, "interface", function(sid, sobj) {
+		if(sobj.ifname && sobj.proto == "none")
+			ignore.push(sobj.ifname);
+	});
+
 	//collect all interfaces
 	config_foreach(uci.network, "interface", function(sid, sobj) {
 		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
@@ -425,19 +431,21 @@ function collect_switch_info(device)
 {
 	var obj = {
 		device : device,
-		ifname : 'eth0', //base interface
+		ifname : 'eth0', //base ifname for switch
 		vlan_start : 1, //first vlan device is eth0.1
 		tagged_port : uci.misc.data.tagged_port, //port number, no suffix
 	};
+
+	//if device is an interface name, then it is probably the base ifname
+	var lan_ifname = uci.network_defaults.lan.ifname;
+	if(inArray(device, split(lan_ifname)))
+		obj.ifname = device;
 
 	//board specific settings
 	switch(uci.misc.data.board)
 	{
 		case 'TL-WR1043ND':
 			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', '5']];
-			break;
-		case 'TL-WR841N-v8':
-			obj.ifname = 'eth1';
 			break;
 	}
 
@@ -446,7 +454,7 @@ function collect_switch_info(device)
 	{
 		//create a generic port map
 		var all = "";
-		config_foreach(uci.network, 'switch_vlan', function(id, obj) {
+		config_foreach(uci.network_defaults, 'switch_vlan', function(id, obj) {
 			if(obj.device != device) return;
 			all += " "+obj.ports;
 		});

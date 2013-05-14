@@ -10,6 +10,7 @@ case "$GET_func" in
 		uci export -qn system
 		uci export -qn wireless
 		uci export -qn network
+		uci export -qn network_defaults
 
 		#get the tagged port of the switch
 		echo "package misc"

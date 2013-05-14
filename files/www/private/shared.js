@@ -82,7 +82,8 @@ function toUCI(pkg_obj)
 	return str;
 }
 
-//from (uci export foo && uci export bar)
+// parses output from one or multiple
+// calls like "uci export -qn foo"
 function fromUCI(pkgs_str)
 {
 	var pkg_objs = {};
