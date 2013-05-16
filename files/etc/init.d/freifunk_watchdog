@@ -47,52 +47,58 @@ echo "(I) Public gateway IP address: '$public_gw_ip'"
 fastd=`which fastd`
 
 
+#shuffle a list and pick n entries
+pick()
+{
+	local n=$1; shift;
+	local s="`echo \"$@\" | tr ' ' '\n' | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2- | tr '\n' ' '`"
+	get() { shift $(($#-$1)); echo "$@"; }
+	get $n $s
+}
+
+#ping root servers to check a gateway/interface for internet
+check_internet() {
+	local dev="$1" gw="$2"
+	local addrs="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
+	local addr cmd ok
+
+	echo "(I) Try to ping root servers:"
+	for addr in `pick 3 $addrs`; do
+		cmd="$addr/32 ${gw:+gw $gw} dev $dev"
+		echo -n "(I) Ping $addr "
+		ip route add $cmd
+		ping $addr -c 1 -I $dev -q -W 1 > /dev/null; ok=$?;
+		ip route del $cmd
+		if [ $ok -eq 0 ]; then
+			echo "- success."
+			return 0
+		else
+			echo "- failed."
+		fi
+	done
+	echo "(W) Cannot reach any tested IP."
+	return 1
+}
+
 #check/establish internet on wan
 check_wan()
 {
 	local wan="$1"
-	echo "(I) Check if internet is accessible on '$wan'."
+	echo "(I) Check if Internet is accessible via '$wan'."
 
 	[ -z "$wan" ] && {
 		echo "(I) No wan interfaces found."
 		return 1
 	}
 
-	#shuffle list and pick n entries
-	pick()
-	{
-		local n=$1; shift;
-		local s="`echo \"$@\" | tr ' ' '\n' | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2- | tr '\n' ' '`"
-		get() { shift $(($#-$1)); echo "$@"; }
-		get $n $s
-	}
-
-	ping_servers()
-	{
-		echo "(I) Try to ping root servers:"
-		#check if any root server can be reached via default gateway and wan interface
-		IPCHECK="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
-		for ip in `pick 3 $IPCHECK`; do
-			echo -n "(I) Ping '$ip' "
-			if ping $ip -c 1 -I $wan -q -W 1 > /dev/null 2>&1; then
-				echo "- success."
-				return 0
-			else
-				echo "- failed."
-			fi
-		done
-		echo "(W) Cannot reach any tested IP."
-		return 1
-	}
-
-	ping_servers && return 0
+	check_internet "$wan" && return 0
 
 	echo "(I) Trying to aquire new DHCP lease."
 	local pid=`cat /var/run/udhcpc-$wan.pid`
 	kill -s SIGUSR2 $pid #release lease
 	kill -s SIGUSR1 $pid #get new lease
 
-	ping_servers && return 0
+	check_internet "$wan" && return 0
 
 	echo "(W) No internet detected."
 	ip addr flush dev $wan
