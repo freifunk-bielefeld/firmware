@@ -13,7 +13,7 @@ start()
 exec >/root/freifunk_setup.log 2>&1
 . /lib/functions.sh
 
-echo "(I) start freifunk_setup"
+echo "(I) Start freifunk_setup"
 
 
 #set empty password for root
@@ -29,10 +29,10 @@ ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 
 wan_interface=`uci get network.wan.ifname`
-echo "(I) wan interface: '$wan_interface'"
+echo "(I) WAN interface: '$wan_interface'"
 
 private_interface=`uci get network.lan.ifname`
-echo "(I) private interface: '$private_interface'"
+echo "(I) Private interface: '$private_interface'"
 
 ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 
@@ -43,7 +43,7 @@ private_ip="192.168.133.1"
 # S E T U P  W I R E L E S S #
 # ------------------------------------------- # 
 
-echo "(I) setup /etc/config/wireless"
+echo "(I) Setup /etc/config/wireless"
 
 while uci -q delete wireless.@wifi-iface[0]; do :; done
 
@@ -56,7 +56,7 @@ config_wifi() {
 	#config_get wifi_device "$ds" device
 	[ -z "$wifi_device" ] && wifi_device="$ds"
 
-	echo "(I) configure wifi device: '$wifi_device'"
+	echo "(I) Configure wifi device: '$wifi_device'"
 
 	if [ `uci get wireless.$ds.channel` -gt 35 ]; then
 		uci set wireless.$ds.channel=36
@@ -96,7 +96,7 @@ config_wifi() {
 	}
 
 	wifi_restart() {
-		echo "(I) wireless down/up"
+		echo "(I) Wireless down/up"
 		wifi
 	}
 
@@ -126,8 +126,8 @@ config_wifi() {
 config_load wireless
 config_foreach config_wifi wifi-device
 
-echo "(I) wifi access point interfaces: '$wifi_public_interfaces'"
-echo "(I) wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
+echo "(I) Wifi access point interfaces: '$wifi_public_interfaces'"
+echo "(I) Wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
 
 
 #get a unique (but not just random) mac to identify the node
@@ -142,8 +142,8 @@ a=`printf '%02x\n' $a` #convert to hex
 public_mac="$a:${public_mac#*:}" #reassemble mac
 public_ip=`mac2ip $public_mac`
 
-echo "(I) public MAC: '$public_mac'"
-echo "(I) public IP: '$public_ip'"
+echo "(I) Public MAC: '$public_mac'"
+echo "(I) Public IP: '$public_ip'"
 
 
 # ------------------------------------- #
@@ -264,7 +264,7 @@ uci set fastd.default.key="$key"
 #write everything to flash
 uci commit
 
-echo "(I) done freifunk_setup - rebooting now."
+echo "(I) Done freifunk_setup - rebooting now."
 
 rm /etc/init.d/freifunk_setup
 reboot
