@@ -32,12 +32,12 @@ gw_mode=`batctl gw 2> /dev/null`
 gw_mode=${gw_mode:0:6}
 echo "(I) gw_mode: '$gw_mode'"
 
-get_ip() {
-	ifconfig "$1" 2> /dev/null | awk -F':' '/inet addr/{split($2,_," ");print _[1]}'
+addr() {
+	ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*)\/.*/\1/p' | head -1
 }
 
-own_public_ip=`get_ip br-public`
-own_private_ip=`get_ip br-private`
+own_public_ip=`addr 4 br-public`
+own_private_ip=`addr 4 br-private`
 public_gw_ip=$(mac2ip `batctl gwl 2> /dev/null | awk '/^=>/{ printf $2 }'`)
 
 echo "(I) Own public IP address: '$own_public_ip'"
@@ -95,7 +95,7 @@ check_wan()
 	ping_servers && return 0
 
 	echo "(W) No internet detected."
-	ifconfig $wan 0.0.0.0
+	ip addr flush dev $wan
 	return 1
 }
 
