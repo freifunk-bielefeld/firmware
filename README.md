@@ -3,18 +3,15 @@ This is the router firmware for Freifunk Bielefeld.
 Build Commands:
 
 <pre>
-svn co svn://svn.openwrt.org/openwrt/branches/attitude_adjustment openwrt
+git clone git://git.openwrt.org/12.09/openwrt.git
 cd openwrt
+
+git clone https://github.com/freifunk-bielefeld/firmware.git
+cp -rf firmware/* .
+rm -rf firmware
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-
-./scripts/feeds uninstall kmod-batman-adv
-
-git clone https://github.com/freifunk-bielefeld/firmware.git
-cp -rf firmware/package/* package/
-cp -rf firmware/files ./
-rm -rf firmware
 
 make defconfig
 make menuconfig
