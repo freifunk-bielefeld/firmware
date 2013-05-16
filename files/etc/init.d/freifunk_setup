@@ -16,8 +16,8 @@ exec >/root/freifunk_setup.log 2>&1
 echo "(I) Start freifunk_setup"
 
 
-#set empty password for root
-(echo ""; sleep 1; echo "") | passwd
+echo "(I) Set empty root password."
+(echo ""; sleep 1; echo "") | passwd > /dev/null
 
 #default SSID
 ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
