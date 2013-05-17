@@ -1,4 +1,9 @@
 
+
+.adv_elem {
+	display: none;
+}
+
 /* common */
 
 * { margin:0; padding:0; }

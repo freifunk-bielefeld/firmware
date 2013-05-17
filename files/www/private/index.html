@@ -80,6 +80,9 @@ function toggle_adv_mode(e)
 {
 	adv_mode = !adv_mode;
 	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
+	var elems = document.getElementsByClassName('adv_elem');
+	for(i in elems)
+		adv_mode ? show(elems[i]) : hide(elems[i]);
 }
 </script>
 
@@ -89,9 +92,9 @@ function toggle_adv_mode(e)
 <ul id="globalnav">
 	<li><a href="home.html" id="first">Home</a></li>
 	<li><a href="settings.html">Einstellungen</a></li>
-	<li><a href="nodogsplash.html">Splash Page</a></li>
-	<li><a href="fastd.html">Fastd</a></li>
-	<li><a href="batman-adv.html">Batman-adv</a></li>
+	<li class="adv_elem"><a href="nodogsplash.html">Splash Page</a></li>
+	<li class="adv_elem"><a href="fastd.html">Fastd</a></li>
+	<li class="adv_elem"><a href="batman-adv.html">Batman-adv</a></li>
 	<li><a href="upgrade.html">Upgrade</a></li>
 	<li><a href="password.html">Password</a></li>
 	<li><a href="#" onclick="reboot()">Reboot</a></li>
