@@ -14,6 +14,12 @@ case $GET_func in
 	mac2ip)
 		/sbin/mac2ip "$GET_mac"
 	;;
+	wifiscan_info)
+		uci export -qn wireless
+	;;
+	wifiscan)
+		iw dev "$GET_device" scan 2> /dev/null | grep 'SSID\|set: channel\|signal\|capability'
+	;;
 	status)
 		echo "package misc"
 		echo "config data 'data'"
