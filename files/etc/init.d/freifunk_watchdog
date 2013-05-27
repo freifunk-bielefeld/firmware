@@ -22,7 +22,7 @@ echo "(I) Start: `date`"
 
 [ "`uci get -q firewall.share_internet`" = "forwarding" ] && \
 	share_internet="yes" || share_internet="no"
-echo "(I) share internet: '$share_internet'"
+echo "(I) share_internet: '$share_internet'"
 
 wan_interfaces=`uci -q get network.wan.ifname`
 wan_interface=${wan_interfaces%% *} #get first interface
@@ -106,11 +106,11 @@ check_wan()
 }
 
 is_running() {
-  ps | grep -v grep | grep "$1" > /dev/null
+	ps | grep -v grep | grep "$1" > /dev/null
 }
 
-#switch to client
-mesh_client()
+#this node is a client
+switch_to_client()
 {
 	if [ "$gw_mode" != "client" ]; then
 		echo "(I) Switch to client mode."
@@ -121,8 +121,8 @@ mesh_client()
 	fi
 }
 
-#switch to server
-mesh_server()
+#this node is a server (gateway)
+switch_to_server()
 {
 	if [ "$gw_mode" != "server" ]; then
 		echo "(I) Switch to gateway mode."
@@ -153,7 +153,6 @@ set_routes()
 		ip route add 172.16.0.0/12 via $public_gw_ip
 		ip route add 104.0.0.0/8 via $public_gw_ip
 		ip route add 105.0.0.0/8 via $public_gw_ip
-
 	}
 
 	if [ "$has_internet" = "yes" ]; then
@@ -168,10 +167,10 @@ set_routes()
 		[ -n "$public_gw_ip" ] && {
 			echo "(I) Set default route and nameserver to '$public_gw_ip'."
 			ip route add default via $public_gw_ip
-        	        ip route del 10.0.0.0/8
-                	ip route del 172.16.0.0/12
-                	ip route del 104.0.0.0/8
-                	ip route del 105.0.0.0/8
+			ip route del 10.0.0.0/8
+			ip route del 172.16.0.0/12
+			ip route del 104.0.0.0/8
+			ip route del 105.0.0.0/8
 			echo "nameserver $public_gw_ip" >> /tmp/resolv.conf.auto
 		}
 	fi
@@ -207,14 +206,14 @@ then
 
 	is_running "$fastd" || /etc/init.d/fastd start
 
-	[ "$share_internet" = "yes" ] && mesh_server || mesh_client
+	[ "$share_internet" = "yes" ] && switch_to_server || switch_to_client
 else
 	echo "(I) We do not have local internet."
 	set_routes "no"
 
 	is_running "$fastd" && /etc/init.d/fastd stop
 
-	mesh_client
+	switch_to_client
 fi
 
 
