@@ -61,8 +61,10 @@ check_internet() {
 	local addr cmd ok
 
 	echo "(I) Try to ping root servers:"
+	IFS="
+"
 	for addr in `pick 3 $addrs`; do
-		cmd="$addr/32 ${gw:+gw $gw} dev $dev"
+		cmd="$addr/32 ${gw:+via $gw} dev $dev"
 		echo -n "(I) Ping $addr "
 		eval ip route add $cmd
 		ping $addr -c 1 -I $dev -q -W 1 > /dev/null; ok=$?;
