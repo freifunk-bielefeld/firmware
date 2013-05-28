@@ -38,11 +38,9 @@ addr() {
 
 own_public_ip=`addr 4 br-public`
 own_private_ip=`addr 4 br-private`
-public_gw_ip=$(mac2ip `batctl gwl 2> /dev/null | awk '/^=>/{ printf $2 }'`)
 
 echo "(I) Own public IP address: '$own_public_ip'"
 echo "(I) Own private IP address: '$own_private_ip'"
-echo "(I) Public gateway IP address: '$public_gw_ip'"
 
 fastd=`which fastd`
 
@@ -192,6 +190,28 @@ set_routes()
 	echo "(I) DHCP private options: '$private_str'"
 	echo "(I) DHCP public option: '$public_str'"
 }
+
+#get a gateway that has internet
+set_public_gw_ip()
+{
+	IFS="
+"
+	#get all gateway macs and sort by gw_class
+	for line in `batctl gwl | sed 's/=>//' | awk -F' ' '{printf("%.3d %s\n", $(NF-2), $1)}' | sort -n -r 2> /dev/null`; do
+		local mac="${line:4}"
+		[ ${#mac} -ne 17 ] && continue
+
+		local ip="`mac2ip $mac`"
+		if check_internet "br-public" "$ip"; then
+			public_gw_ip="$ip"
+			return;
+		fi
+	done
+}
+
+echo "(I) Get address of a public gateway."
+set_public_gw_ip
+echo "(I) Public gateway IP address: '$public_gw_ip'"
 
 
 check_wan "$wan_interface" && has_internet="yes" || has_internet="no"
