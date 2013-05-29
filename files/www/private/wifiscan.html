@@ -9,13 +9,16 @@
 </head>
 <body>
 
-<fieldset>
+<fieldset id="wifiscan">
 	<legend>Wifi Scan</legend>
 	<div>
-		<select id="wifi_selection"></select>
+		<select id="wifiscan_selection"></select>
 		<button type="button" onclick="wifi_scan()">Scan starten</button>
 	</div>
-	<table id="scan_table"></table>
+	<table id="wifiscan_table" style="display: none">
+		<tr><th>SSID</th><th>Kanal</th><th>Signal</th><th>Typ</th></tr>
+		<tbody id="wifiscan_tbody"></tbody>
+	</table>
 </fieldset>
 
 </body>

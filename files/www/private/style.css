@@ -53,6 +53,14 @@ body {
 	padding: 1% 1%;
 }
 
+#wifiscan table {
+	text-align: center;
+}
+
+#wifiscan td:nth-of-type(1) {
+	text-align: left;
+}
+
 /* forms */
 
 legend {
