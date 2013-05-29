@@ -47,7 +47,7 @@ send("/cgi-bin/misc", {func:'wifiscan_info'}, function(data) {
 			if(sobj.device == device)
 			{
 				var o = append(list, 'option');
-				o.innerHTML = wifi_device;
+				o.innerHTML = device;
 				o.value = sobj.ifname;
 				return 1;
 			}
