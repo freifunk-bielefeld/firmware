@@ -38,7 +38,6 @@ ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
 
 private_ip="192.168.133.1"
-private_ip6="fdef:17a0:ffb1:1::1"
 
 
 # ------------------------------------------- #
@@ -162,7 +161,6 @@ uci set network.private="interface"
 uci set network.private.type="bridge"
 uci set network.private.ifname="dummy_private $private_interface"
 uci set network.private.ipaddr="$private_ip"
-uci set network.private.ip6addr="$private_ip6/64"
 uci set network.private.proto=static
 uci set network.private.netmask="255.255.255.0"
 
@@ -261,7 +259,6 @@ uci set dhcp.@dnsmasq[0].add_local_hostname='0'
 #make "node" and "freifunk" resolve to the node a client is connected to
 echo "$private_ip node freifunk" >> /etc/hosts
 echo "$public_ip node freifunk" >> /etc/hosts
-echo "$private_ip6 node freifunk" >> /etc/hosts
 echo "$public_ip6 node freifunk" >> /etc/hosts
 
 
