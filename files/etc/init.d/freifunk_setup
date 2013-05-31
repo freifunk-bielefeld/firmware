@@ -172,6 +172,7 @@ uci set dhcp.private.limit=150
 uci set dhcp.private.leasetime=12h
 uci set dhcp.private.dhcp_option="3" #no gateway yet
 
+/etc/init.d/6relayd enable
 
 # ------------------------------------- #
 # P U B L I C  S E T U P #
