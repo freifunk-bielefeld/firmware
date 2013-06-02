@@ -159,7 +159,7 @@ set_routes()
 		fi
 	else
 		echo "(I) Clear default routes and nameserver list."
-		while `route del default > /dev/null 2>&1`; do true; done
+		while `ip route del default 2> /dev/null`; do true; done
 		echo -e "nameserver 127.0.0.1" > /tmp/resolv.conf.auto
 
 		[ -n "$public_gw_ip" ] && {
