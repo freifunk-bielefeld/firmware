@@ -85,7 +85,7 @@ check_wan()
 	echo "(I) Check if Internet is accessible via '$wan'."
 
 	[ -z "$wan" ] && {
-		echo "(I) No wan interfaces found."
+		echo "(I) No WAN interface found."
 		return 1
 	}
 
@@ -129,6 +129,25 @@ switch_to_server()
 	else
 		echo "(I) Already in gateway mode."
 	fi
+}
+
+#Get the best public gateway.
+find_public_gateway() {
+	echo "(I) Try to get the address of a public gateway."
+	IFS="
+"
+	#get all other gateway macs and sort by gw_class
+	for mac in `batctl gwl | sed 's/=>//' | awk -F' ' '{printf("%.3d %s\n", $(NF-2), $1)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null`; do
+		[ ${#mac} -ne 17 ] && continue
+
+		local ip="`mac2ip $mac`"
+		if check_internet "br-public" "$ip"; then
+			public_gw_mac="$mac"
+			public_gw_ip="$ip"
+			echo "(I) Best public gateway: '$public_gw_ip'"
+			return;
+		fi
+	done
 }
 
 #Configure the DHCP server and routing table.
@@ -184,48 +203,36 @@ set_routes()
 	echo "(I) DHCP public option: '$public_str'"
 }
 
-#get a gateway that has internet
-set_public_gw_ip()
-{
-	IFS="
-"
-	#get all gateway macs and sort by gw_class
-	for line in `batctl gwl | sed 's/=>//' | awk -F' ' '{printf("%.3d %s\n", $(NF-2), $1)}' | sort -n -r 2> /dev/null`; do
-		local mac="${line:4}"
-		[ ${#mac} -ne 17 ] && continue
 
-		local ip="`mac2ip $mac`"
-		if check_internet "br-public" "$ip"; then
-			public_gw_ip="$ip"
-			return;
-		fi
-	done
-}
-
-echo "(I) Get address of a public gateway."
-set_public_gw_ip
-echo "(I) Public gateway IP address: '$public_gw_ip'"
-
+#Get the best public gateway.
+find_public_gateway
 
 check_wan "$wan_interface" && has_internet="yes" || has_internet="no"
 
-#log internet status for the web-gui
+#store data for web-gui
 echo -n "$has_internet" > /tmp/has_internet
+echo -n "$public_gw_mac" > /tmp/public_gw_mac
+
 
 if [ "$has_internet" = "yes" ]
 then
 	echo "(I) We have local internet."
 	set_routes "yes"
 
+	#start/restart fastd
 	is_running "$fastd" || /etc/init.d/fastd start
 
+	#set batman-adv mode
 	[ "$share_internet" = "yes" ] && switch_to_server || switch_to_client
 else
 	echo "(I) We do not have local internet."
+
 	set_routes "no"
 
+	#stop fastd
 	is_running "$fastd" && /etc/init.d/fastd stop
 
+	#set batman-adv mode
 	switch_to_client
 fi
 

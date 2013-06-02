@@ -47,28 +47,22 @@ html, body {
 <br /><br />
 <%
 
-own_mac=`cat /sys/class/net/dummy_mesh/address 2> /dev/null`
-own_status=`batctl gw 2> /dev/null`
+#selected gateway
+public_gw_mac="`cat /tmp/public_gw_mac 2> /dev/null`"
 
-[ "${own_status:0:6}" = "server" ] && {
-	gw_macs="$own_mac"
-	gw_mac="$own_mac"
-}
+#add own mac to gateway mac list
+if uci get -q firewall.share_internet 2> /dev/null; then
+	#add own mac to gateway list
+	own_mac=`cat /sys/class/net/dummy_mesh/address 2> /dev/null`
+fi
 
 IFS="
 "
-for line in `batctl gwl | tail -n+2`; do
-	local mac="${line:3:17}"
-	[ "$mac" = "gateways in range" ] && continue
-	[ -z "$gw_mac" -a "${line:0:2}" = "=>" ] && gw_mac="$mac"
-	gw_macs="$gw_macs $mac"
-done
-
 echo "<ul>"
-IFS=" "
-for mac in $gw_macs; do
+for mac in $own_mac `batctl gwl | sed 's/=>//' | awk -F' ' '{printf("%.3d %s\n", $(NF-2), $1)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null`; do
+	[ ${#mac} -ne 17 ] && continue
 	ip=`mac2ip $mac`
-	[ "$mac" = "$gw_mac" ] && ext=" (aktueller default)" || ext=""
+	[ "$mac" = "$public_gw_mac" ] && ext=" (aktueller default)" || ext=""
 	[ -n "$ip" ] && echo "<li><a href='http://$ip'>$ip</a>$ext</li>"
 done
 echo "</ul>"
