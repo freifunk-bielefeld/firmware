@@ -2,3 +2,10 @@
 
 #solves MTU problem with bad ISP´s
 iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+#clear ebtables
+ebtables -F
+ebtables -X
+
+#filter broadcasts from being forwarded (IPv4)
+ebtables -A FORWARD --logical-out br-public -d Broadcast -j DROP
