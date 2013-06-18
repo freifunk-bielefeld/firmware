@@ -36,6 +36,11 @@ addr() {
 	ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*)\/.*/\1/p' | head -1
 }
 
+get_default_gateway() {
+	local dev="$1"
+	ip route show 0.0.0.0/0 dev "$dev" | sed -r 's/default via ([0-9\.]+).*/\1/' 2> /dev/null
+}
+
 own_public_ip=`addr 4 br-public`
 own_private_ip=`addr 4 br-private`
 
@@ -82,6 +87,7 @@ check_internet() {
 check_wan()
 {
 	local wan="$1"
+	local gw=""
 	echo "(I) Check if Internet is accessible via '$wan'."
 
 	[ -z "$wan" ] && {
@@ -89,14 +95,16 @@ check_wan()
 		return 1
 	}
 
-	check_internet "$wan" && return 0
+	gw="`get_default_gateway $wan`"
+	check_internet "$wan" "$gw" && return 0
 
 	echo "(I) Trying to aquire new DHCP lease."
 	local pid=`cat /var/run/udhcpc-$wan.pid`
 	kill -s SIGUSR2 $pid #release lease
 	kill -s SIGUSR1 $pid #get new lease
 
-	check_internet "$wan" && return 0
+	gw="`get_default_gateway $wan`"
+	check_internet "$wan" "$gw" && return 0
 
 	echo "(W) No internet detected."
 	ip addr flush dev $wan
