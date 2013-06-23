@@ -1,0 +1,4 @@
+config kadnode
+	option enabled 0
+	option ifce 'br-public'
+#	option id 'myname.p2p'
