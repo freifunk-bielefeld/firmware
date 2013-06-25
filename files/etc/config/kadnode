@@ -2,3 +2,5 @@ config kadnode
 	option enabled 0
 	option ifce 'br-public'
 #	option id 'myname.p2p'
+	option dns_port '3444'
+	option cmd_port '1704'
