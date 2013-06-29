@@ -3,6 +3,38 @@
 START=19
 
 
+#enable&configure KadNode if the hostname ends with .p2p
+config_kadnode() {
+	local hostname
+
+	hostname="`uci get -q system.@system[0].hostname`"
+
+	find_section() {
+		local s="$1"
+		local hostname="$2"
+		local ifce
+
+		#make sure we got the right section
+		config_get ifce "$s" "ifce"
+		[ "$ifce" = "br-public" ] || return 0
+
+		uci set kadnode.$s.enable="1"
+
+		#make sure the entry is not already present
+		config_get value_id "$s" "value_id"
+		list_contains value_id "$hostname" && return 0
+
+		uci add_list kadnode.$s.value_id="$hostname"
+		return 1
+	}
+
+	#check the TLD
+	if [ "${hostname##*\.}" = "p2p" ]; then
+		config_load kadnode
+		config_foreach find_section 'kadnode' "$hostname"
+	fi
+}
+
 start()
 {
 exec >/tmp/freifunk_init.log 2>&1
@@ -76,6 +108,7 @@ for src in wan private public; do
 	done
 done
 
+config_kadnode
 
 echo "(I) Freifunk: done freifunk_init"
 }
