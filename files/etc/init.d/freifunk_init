@@ -35,6 +35,33 @@ config_kadnode() {
 	fi
 }
 
+#allow/block access via ssh/tls
+config_access() {
+	local default_target src port s
+
+	find_default_target() {
+		local s="$1" src="$2" n=""
+		config_get n "$s" name
+		[ "$src" == "$n" ] && { config_get default_target "$s" input; return 1; }
+	}
+
+	#filter ssh/https ports
+	config_load firewall
+	for src in wan private public; do
+		default_target=""
+		config_foreach find_default_target 'zone' $src
+		list_contains config_nets "$src" && target=ACCEPT || target=REJECT
+		[ "$target" = "$default_target" ] && continue
+		for port in 22 443; do
+			s=firewall.`uci add firewall rule`
+			uci set $s.src=$src
+			uci set $s.dest_port=$port
+			uci set $s.target=$target
+			uci set $s.proto=tcp
+		done
+	done
+}
+
 start()
 {
 exec >/tmp/freifunk_init.log 2>&1
@@ -85,28 +112,7 @@ if [ "$share_internet" = "yes" ]; then
 	uci set firewall.share_internet.dest="wan"
 fi
 
-
-find_default_target() {
-	local s="$1" src="$2" n=""
-	config_get n "$s" name
-	[ "$src" == "$n" ] && { config_get default_target "$s" input; return 1; }
-}
-
-#filter ssh/https ports
-config_load firewall
-for src in wan private public; do
-	default_target=""
-	config_foreach find_default_target zone $src
-	list_contains config_nets "$src" && target=ACCEPT || target=REJECT
-	[ "$target" = "$default_target" ] && continue
-	for port in 22 443; do
-		s=firewall.`uci add firewall rule`
-		uci set $s.src=$src
-		uci set $s.dest_port=$port
-		uci set $s.target=$target
-		uci set $s.proto=tcp
-	done
-done
+config_access
 
 config_kadnode
 
