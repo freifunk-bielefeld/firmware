@@ -34,7 +34,7 @@ function appendSetting(p, path, value, mode)
 	{
 	case "hostname":
 		b = append_input(p, "Hostname", id, value);
-		addInputCheck(b.lastChild, /^[\w]{3,30}$/, name + " ist ung\xfcltig.");
+		addInputCheck(b.lastChild,/^\w+[\w\-\.]{0,20}\w+$/, name + " ist ung\xfcltig.");
 		break;
 	case "country":
 		b = append_input(p, "Land", id, value);
