@@ -35,7 +35,7 @@ config_kadnode() {
 	fi
 }
 
-#allow/block access via ssh/tls
+#allow/block access via ssh/https
 config_access() {
 	local default_target src port s
 
