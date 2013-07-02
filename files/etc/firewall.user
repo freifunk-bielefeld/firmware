@@ -1,4 +1,10 @@
 #!/bin/sh
 
 #solves MTU problem with bad ISP´s
-iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtl
+
+#ebtables test
+ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j DROP
+ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
+ebtables -A INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
+u
