@@ -1,10 +1,35 @@
 #!/bin/sh
-
 #solves MTU problem with bad ISP´s
-iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtl
+iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
-#ebtables test
-ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j DROP
-ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
-ebtables -A INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
-u
+
+#clear ebtables
+ebtables -F
+
+#filter router advertisements on bat0
+ebtables -N IN_ONLY -P RETURN
+ebtables -N OUT_ONLY -P RETURN
+
+ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j OUT_ONLY
+ebtables -A OUTPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j OUT_ONLY
+
+ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j IN_ONLY
+ebtables -A INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j IN_ONLY
+
+ebtables -A IN_ONLY --logical-in br-public -i  bat0 -j DROP
+ebtables -A OUT_ONLY --logical-out br-public -o  bat0 -j DROP
+
+#filter multicast into chain, drop at chain end
+ebtables -N MULTICAST_OUT -P DROP
+ebtables -A FORWARD --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
+
+#allow ARP
+ebtables -A MULTICAST_OUT -p ARP -j RETURN
+
+#allow IPv4/IPv6 ICMP
+ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol icmp -j RETURN
+ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
+
+#allow IGMP (IPv4)
+ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
+
