@@ -7,10 +7,12 @@ iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-
 ebtables -F
 ebtables -X
 
-#filter router advertisements on bat0
+
+#router advertisements/solicitation chains
 ebtables -N IN_ONLY -P RETURN
 ebtables -N OUT_ONLY -P RETURN
 
+#filter router advertisements on bat0
 ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j OUT_ONLY
 ebtables -A OUTPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-solicitation -j OUT_ONLY
 
@@ -20,8 +22,11 @@ ebtables -A INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advert
 ebtables -A IN_ONLY --logical-in br-public -i  bat0 -j DROP
 ebtables -A OUT_ONLY --logical-out br-public -o  bat0 -j DROP
 
-#filter multicast into chain, drop at chain end
+
+#multicast chain
 ebtables -N MULTICAST_OUT -P DROP
+
+#filter multicast on bat0
 ebtables -A FORWARD --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
 
 #allow ARP
@@ -33,4 +38,3 @@ ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
 
 #allow IGMP (IPv4)
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
-
