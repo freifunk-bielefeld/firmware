@@ -198,10 +198,6 @@ end_ip=$((255*255+253)) # -> 65278
 uci -q delete dhcp.@dnsmasq[0].local
 uci -q delete dhcp.@dnsmasq[0].domain
 
-# resolve *.p2p domain names using
-# a local DNS-server (DHT) at port 5353
-uci add_list dhcp.@dnsmasq[0].server='/p2p/::1#5353'
-
 # Allow DNS-querys to RFC1918 IPs
 uci set dhcp.@dnsmasq[0].rebind_protection=0
 

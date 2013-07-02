@@ -30,6 +30,11 @@ config_kadnode() {
 
 	#check the TLD
 	if [ "${hostname##*\.}" = "p2p" ]; then
+		# configure dnsmasq to resolve *.p2p domain names
+		# using a local DNS-server (KadNode) at port 5353
+		uci add_list dhcp.@dnsmasq[0].server='/p2p/::1#5353'
+
+		#add hostname to KadNode announce list
 		config_load kadnode
 		config_foreach find_section 'kadnode' "$hostname"
 	fi
