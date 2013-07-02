@@ -5,6 +5,7 @@ iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-
 
 #clear ebtables
 ebtables -F
+ebtables -X
 
 #filter router advertisements on bat0
 ebtables -N IN_ONLY -P RETURN
