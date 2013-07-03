@@ -57,17 +57,18 @@ pick()
 	echo $@ | tr ' ' '\n' | awk 'BEGIN { srand() } { print rand() "\t" $0 }' | sort -n | cut -f2- | head -$n
 }
 
-#ping root servers to check a gateway/interface for internet
+#ping root servers to check a gateway
+#on a given interface for internet access
 check_internet() {
 	local dev="$1" gw="$2"
 	local addrs="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 	local addr cmd ok
 
-	echo "(I) Try to ping root servers:"
+	echo "(I) Try to ping root servers using gateway: '$gw'"
 	IFS="
 "
 	for addr in `pick 3 $addrs`; do
-		cmd="$addr/32 ${gw:+via $gw} dev $dev"
+		cmd="$addr/32 via $gw dev $dev"
 		echo -n "(I) Ping $addr "
 		eval ip route add $cmd
 		ping $addr -c 1 -I $dev -q -W 1 > /dev/null; ok=$?;
