@@ -29,10 +29,10 @@ ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 
 wan_interface=`uci get -q network.wan.ifname`
-echo "(I) wan interface: '$wan_interface'"
+echo "(I) Wan interface: '$wan_interface'"
 
 private_interface=`uci get -q network.lan.ifname`
-echo "(I) private interface: '$private_interface'"
+echo "(I) Private interface: '$private_interface'"
 
 ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
