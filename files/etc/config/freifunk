@@ -2,6 +2,7 @@
 config settings
 	option 'version' '0.2-dev'
 	option 'ff_subnet' 29
+	option 'ff_prefix' 'fdef:17a0:ffb1::'
 	option 'mac' ''
 	option 'share_internet' 'no'
 	option 'config_nets' 'private'

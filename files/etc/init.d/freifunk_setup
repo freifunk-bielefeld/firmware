@@ -28,13 +28,14 @@ ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 #default BSSID
 ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 
-wan_interface=`uci get network.wan.ifname`
-echo "(I) WAN interface: '$wan_interface'"
+wan_interface=`uci get -q network.wan.ifname`
+echo "(I) wan interface: '$wan_interface'"
 
-private_interface=`uci get network.lan.ifname`
-echo "(I) Private interface: '$private_interface'"
+private_interface=`uci get -q network.lan.ifname`
+echo "(I) private interface: '$private_interface'"
 
 ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
+ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
 
 private_ip="192.168.133.1"
 
@@ -131,19 +132,22 @@ echo "(I) Wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
 
 
 #get a unique (but not just random) mac to identify the node
-public_mac=`cat /sys/class/ieee80211/phy0/macaddress`
-[ -z "$public_mac" -o "$public_mac" = "00:11:22:33:44:55" ] && {
-	public_mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
+mac=`cat /sys/class/ieee80211/phy0/macaddress`
+[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
+	mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
 }
 #translate to local administered mac
-a=${public_mac%%:*} #cut out first hex
+a=${mac%%:*} #cut out first hex
 a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
-public_mac="$a:${public_mac#*:}" #reassemble mac
-public_ip=`mac2ip $public_mac`
+mac="$a:${mac#*:}" #reassemble mac
 
-echo "(I) Public MAC: '$public_mac'"
+public_ip=`mac2ip $mac`
+public_ip6=`mac2ip6 $mac`
+
+echo "(I) MAC: '$mac'"
 echo "(I) Public IP: '$public_ip'"
+echo "(I) Public IP6: '$public_ip6'"
 
 
 # ------------------------------------- #
@@ -168,6 +172,7 @@ uci set dhcp.private.limit=150
 uci set dhcp.private.leasetime=12h
 uci set dhcp.private.dhcp_option="3" #no gateway yet
 
+/etc/init.d/6relayd enable
 
 # ------------------------------------- #
 # P U B L I C  S E T U P #
@@ -179,6 +184,7 @@ uci set network.public="interface"
 uci set network.public.type="bridge"
 uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
 uci set network.public.ipaddr="$public_ip"
+uci set network.public.ip6addr="$public_ip6/64"
 uci set network.public.proto=static
 uci set network.public.netmask="255.255.0.0"
 
@@ -191,6 +197,9 @@ end_ip=$((255*255+253)) # -> 65278
 #we don't want a local domain for this network
 uci -q delete dhcp.@dnsmasq[0].local
 uci -q delete dhcp.@dnsmasq[0].domain
+
+# Allow DNS-querys to RFC1918 IPs
+uci set dhcp.@dnsmasq[0].rebind_protection=0
 
 uci set dhcp.public=dhcp
 uci set dhcp.public.interface=public
@@ -207,15 +216,18 @@ uci set dhcp.public.dhcp_option="3" #no gateway yet
 echo "(I) Setup WAN interface."
 
 uci -q delete network.wan
-uci set network.wan="interface"
-uci set network.wan.ifname="$wan_interface"
-uci set network.wan.proto="dhcp"
-
 uci -q delete dhcp.wan
-uci set dhcp.wan=dhcp
-uci set dhcp.wan.interface=wan
-uci set dhcp.wan.ignore=1
 
+if [ -n "$wan_interface" ]
+then
+	uci set network.wan="interface"
+	uci set network.wan.ifname="$wan_interface"
+	uci set network.wan.proto="dhcp"
+
+	uci set dhcp.wan=dhcp
+	uci set dhcp.wan.interface=wan
+	uci set dhcp.wan.ignore=1
+fi
 
 # ------------------------------------- #
 # B A T M A N  S E T U P #
@@ -237,7 +249,7 @@ done
 # F R E I F U N K  S E T U P #
 # ------------------------------------- #
 
-uci set freifunk.@settings[0].mac="$public_mac"
+uci set freifunk.@settings[0].mac="$mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
 #prevent own hostname as DNS entry
@@ -247,6 +259,7 @@ uci set dhcp.@dnsmasq[0].add_local_hostname='0'
 #make "node" and "freifunk" resolve to the node a client is connected to
 echo "$private_ip node freifunk" >> /etc/hosts
 echo "$public_ip node freifunk" >> /etc/hosts
+echo "$public_ip6 node freifunk" >> /etc/hosts
 
 #save defaults for use in the web-ui
 cp /etc/config/network /etc/config/network_defaults
