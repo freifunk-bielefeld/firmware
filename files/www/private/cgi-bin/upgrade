@@ -3,18 +3,23 @@ content-type: text/plain
 
 <%
 path="$POST_firmware"
-keep_config="$POST_keep_config"
 
-if [ -e "$path" ]; then
+if [ ! -f "$path" ]; then
+	echo "(E) Datei nicht gefunden."
+	exit 1
+fi
+
+dir="`dirname $path`"
+file="`basename $path`"
+
+#make sure the file suffix is .bin
+if [ "${file##*\.}" = "bin" ]; then
 	echo "(I) Starte sysupgrade..."
-	if [ "$keep_config" = "yes" ]; then
-		args="-c"
-	else
-		args="-n"
-	fi
-	sysupgrade $args $path || rm -f "$path"
+
+	#apply openwrt or vendor image
+	sysupgrade -n $path || rm -f "$path"
 else
-	#Firmware has not been found.
-	echo "(E) Firmware '$path' wurde nicht gefunden."
+	echo "(E) Unbekanntes Dateiformat."
+	exit 1
 fi
 %>
