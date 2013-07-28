@@ -210,8 +210,6 @@ set_routes()
 		echo "(I) DHCP settings were changed => restart dnsmasq."
 		/etc/init.d/dnsmasq restart
 
-		#also add the new public gateway to KadNode to help bootstrapping
-		[ -n "$public_gw_ip" ] && kadnode-ctl import "$public_gw_ip" &> /dev/null
 	else
 		echo "(I) No change of DHCP settings."
 	fi

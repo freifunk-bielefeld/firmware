@@ -1,6 +1,0 @@
-config kadnode
-	option enabled 0
-	option ifce 'br-public'
-#	list value_id 'myname.p2p'
-	option dns_port '5353'
-	option cmd_port '1700'

@@ -18,7 +18,7 @@ define Package/freifunk-bielefeld-basic
 		+haserl +@BUSYBOX_CONFIG_TUNCTL +uhttpd-mod-tls \
 		+px5g +fastd +dnsmasq-dhcpv6 +kmod-ipv6 \
 		+ip6tables +ebtables +kmod-ebtables-ipv4 \
-		+kmod-ebtables-ipv6 +ip +6relayd +kadnode
+		+kmod-ebtables-ipv6 +ip +6relayd
 endef
 
 define Build/Prepare

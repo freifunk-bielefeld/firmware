@@ -3,43 +3,6 @@
 START=19
 
 
-#enable&configure KadNode if the hostname ends with .p2p
-config_kadnode() {
-	local hostname
-
-	hostname="`uci get -q system.@system[0].hostname`"
-
-	find_section() {
-		local s="$1"
-		local hostname="$2"
-		local ifce
-
-		#make sure we got the right section
-		config_get ifce "$s" "ifce"
-		[ "$ifce" = "br-public" ] || return 0
-
-		uci set kadnode.$s.enable="1"
-
-		#make sure the entry is not already present
-		config_get value_id "$s" "value_id"
-		list_contains value_id "$hostname" && return 0
-
-		uci add_list kadnode.$s.value_id="$hostname"
-		return 1
-	}
-
-	#check the TLD
-	if [ "${hostname##*\.}" = "p2p" ]; then
-		# configure dnsmasq to resolve *.p2p domain names
-		# using a local DNS-server (KadNode) at port 5353
-		uci add_list dhcp.@dnsmasq[0].server='/p2p/::1#5353'
-
-		#add hostname to KadNode announce list
-		config_load kadnode
-		config_foreach find_section 'kadnode' "$hostname"
-	fi
-}
-
 #allow/block access via ssh/https
 config_access() {
 	local default_target src port s
@@ -118,8 +81,6 @@ if [ "$share_internet" = "yes" ]; then
 fi
 
 config_access
-
-config_kadnode
 
 echo "(I) Freifunk: done freifunk_init"
 }
