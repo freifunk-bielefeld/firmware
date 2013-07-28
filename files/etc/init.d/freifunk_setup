@@ -194,13 +194,6 @@ uci set network.public.netmask="255.255.0.0"
 start_ip=$((256*256*$ff_subnet+1)) # -> 1900545
 end_ip=$((255*255+253)) # -> 65278
 
-#we don't want a local domain for this network
-uci -q delete dhcp.@dnsmasq[0].local
-uci -q delete dhcp.@dnsmasq[0].domain
-
-# Allow DNS-querys to RFC1918 IPs
-uci set dhcp.@dnsmasq[0].rebind_protection=0
-
 uci set dhcp.public=dhcp
 uci set dhcp.public.interface=public
 uci set dhcp.public.start=$start_ip
@@ -251,15 +244,6 @@ done
 
 uci set freifunk.@settings[0].mac="$mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
-
-#prevent own hostname as DNS entry
-uci set dhcp.@dnsmasq[0].add_local_domain='0'
-uci set dhcp.@dnsmasq[0].add_local_hostname='0'
-
-#make "node" and "freifunk" resolve to the node a client is connected to
-echo "$private_ip node freifunk" >> /etc/hosts
-echo "$public_ip node freifunk" >> /etc/hosts
-echo "$public_ip6 node freifunk" >> /etc/hosts
 
 #save defaults for use in the web-ui
 cp /etc/config/network /etc/config/network_defaults

@@ -177,12 +177,10 @@ set_routes()
 	else
 		echo "(I) Clear default routes and nameserver list."
 		while `ip route del default 2> /dev/null`; do true; done
-		echo -e "nameserver 127.0.0.1" > /tmp/resolv.conf.auto
 
 		[ -n "$public_gw_ip" ] && {
 			echo "(I) Set default route and nameserver to '$public_gw_ip'."
 			ip route add default via $public_gw_ip
-			echo "nameserver $public_gw_ip" >> /tmp/resolv.conf.auto
 		}
 	fi
 
