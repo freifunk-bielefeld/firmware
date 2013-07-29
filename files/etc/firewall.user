@@ -20,8 +20,8 @@ ebtables -A FORWARD -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-adve
 ebtables -A INPUT -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j IN_ONLY
 
 #drop bat0 traffic (IPv6)
-ebtables -A IN_ONLY --logical-in br-public -i bat0 -j DROP
-ebtables -A OUT_ONLY --logical-out br-public -o bat0 -j DROP
+ebtables -A IN_ONLY --logical-in br-public -i ! bat0 -j DROP
+ebtables -A OUT_ONLY --logical-out br-public -o ! bat0 -j DROP
 
 
 #multicast chain
@@ -29,8 +29,9 @@ ebtables -N MULTICAST_OUT -P DROP
 
 #filter multicast/broadcast on bat0 into chain
 ebtables -A FORWARD --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
+ebtables -A OUTPUT --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
 
-#allow ARP (-)
+#allow ARP (IPv4)
 ebtables -A MULTICAST_OUT -p ARP -j RETURN
 
 #allow ICMP (IPv4/IPv6)
