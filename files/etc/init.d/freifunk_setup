@@ -39,7 +39,6 @@ ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
 
 private_ip="192.168.133.1"
 
-
 # ------------------------------------------- #
 # S E T U P  W I R E L E S S #
 # ------------------------------------------- # 
@@ -161,6 +160,8 @@ uci set network.private="interface"
 uci set network.private.type="bridge"
 uci set network.private.ifname="dummy_private $private_interface"
 uci set network.private.ipaddr="$private_ip"
+uci delete -q network.private.ip6addr
+uci add_list network.private.ip6addr="fdef:17a0:ffb1::0/64" #anycast
 uci set network.private.proto=static
 uci set network.private.netmask="255.255.255.0"
 
@@ -184,7 +185,9 @@ uci set network.public="interface"
 uci set network.public.type="bridge"
 uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
 uci set network.public.ipaddr="$public_ip"
-uci set network.public.ip6addr="$public_ip6/64"
+uci delete -q network.public.ip6addr
+uci add_list network.public.ip6addr="$public_ip6/64"
+uci add_list network.public.ip6addr="fdef:17a0:ffb1::0/64" #anycast
 uci set network.public.proto=static
 uci set network.public.netmask="255.255.0.0"
 
