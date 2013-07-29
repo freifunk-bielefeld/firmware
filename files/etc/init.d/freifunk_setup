@@ -37,7 +37,6 @@ echo "(I) Private interface: '$private_interface'"
 ff_subnet=`uci get freifunk.@settings[0].ff_subnet`
 ff_prefix=`uci get freifunk.@settings[0].ff_prefix`
 
-private_ip="192.168.133.1"
 
 # ------------------------------------------- #
 # S E T U P  W I R E L E S S #
@@ -159,7 +158,7 @@ uci -q delete network.lan
 uci set network.private="interface"
 uci set network.private.type="bridge"
 uci set network.private.ifname="dummy_private $private_interface"
-uci set network.private.ipaddr="$private_ip"
+uci set network.private.ipaddr="192.168.133.1"
 uci delete -q network.private.ip6addr
 uci add_list network.private.ip6addr="fdef:17a0:ffb1::0/64" #anycast
 uci set network.private.proto=static
