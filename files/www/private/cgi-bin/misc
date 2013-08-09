@@ -4,7 +4,7 @@ content-type: text/plain
 <%
 
 addr() {
-	local addr="`ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*)\/.*/\1/p' | head -1`"
+	local addr="`ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1`"
 	[ -n "$addr" ] && echo "$addr" || echo "-"
 }
 

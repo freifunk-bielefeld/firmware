@@ -32,10 +32,10 @@ html, body {
 <% uci get system.@system[0].hostname %>
 <br />
 <b>Eigene IP-Adresse: </b>
-<% ip -4 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*)\/.*/\1/p' | head -1 %>
+<% ip -4 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1 %>
 <br />
 <b>Eigene IPv6-Addresse: </b>
-<% ip -6 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*)\/.*/\1/p' | head -1 %>
+<% ip -6 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1 %>
 <br />
 <b>Anzahl bekannter Knoten: </b>
 <% echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)) %>
