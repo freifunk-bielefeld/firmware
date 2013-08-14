@@ -48,6 +48,8 @@ case $GET_func in
 		print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
 		print 'hostname' `uci get system.@system[0].hostname`
 		print 'board' `cat /proc/cmdline | sed -rn  's/.*board=([^ ]*).*/\1/p' 2> /dev/null`
+		print 'public_user_count' `cat /tmp/dhcp.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 10/!d' | wc -l`
+		print 'private_user_count' `cat /tmp/dhcp.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l`
 	;;
 	set_config_file)
 		file_name="$GET_name"
