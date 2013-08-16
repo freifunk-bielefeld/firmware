@@ -279,6 +279,7 @@ uci commit
 
 echo "(I) Done freifunk_setup - rebooting now."
 
+/etc/init.d/freifunk_setup disable
 rm /etc/init.d/freifunk_setup
 reboot
 }
