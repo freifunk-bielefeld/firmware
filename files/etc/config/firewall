@@ -113,7 +113,12 @@ config zone
 config forwarding
 	option src		private
 	option dest 		public
-    
+
+config rule
+	option src public
+	option dest_port 53
+	option target DROP
+
 ###
 ### Example 1: forward port 20-21 to ftp-server on my private network
 ###
