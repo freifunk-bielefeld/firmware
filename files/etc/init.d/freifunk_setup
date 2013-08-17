@@ -247,6 +247,15 @@ done
 uci set freifunk.@settings[0].mac="$mac"
 uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 
+#prevent own hostname as DNS entry
+uci set dhcp.@dnsmasq[0].add_local_domain='0'
+uci set dhcp.@dnsmasq[0].add_local_hostname='0'
+
+#make "node" resolve to the node a client
+#is connected to (on the private network).
+echo "$private_ip node" >> /etc/hosts
+echo "$public_ip6 node" >> /etc/hosts
+
 #save defaults for use in the web-ui
 cp /etc/config/network /etc/config/network_defaults
 
