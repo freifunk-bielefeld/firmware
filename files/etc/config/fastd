@@ -2,7 +2,7 @@
 config fastd 'default'
 	option enabled 1
 	option syslog_level 'info'
-	list bind 'any:1234' #TODO: disable until we need it
+	list bind 'any'
 	list method 'xsalsa20-poly1305'
 	option mode 'tap'
 	option interface 'fastd_mesh'
@@ -10,31 +10,31 @@ config fastd 'default'
 	option forward 0
 	option secret '' #set by /etc/init.d/freifunk_setup
 
-config group 'backbone'
+config peer_group 'backbone'
 	option enabled '1'
 	option net 'default'
-	option limit '1'
+	option peer_limit '1'
 
 config peer 'vpn1'
 	option enabled 1
-	option net 'backbone'
+	option net 'default'
+	option group 'backbone'
 	option key 'd7822baec77e7f6572ae9298b5506191e00f9eeaac1db4aba6e3c280678cac3c'
-	option hostname 'vpn1.freifunk-bielefeld.de'
-	option port 1234
+	list remote '"vpn1.freifunk-bielefeld.de" port 1234'
 	option float 0
 
 config peer 'vpn2'
 	option enabled 1
-	option net 'backbone'
+	option net 'default'
+	option group 'backbone'
 	option key '5369f843d41a89c107fe1839b1683e14869046252bb7af734f7d67b2711dd9cc'
-	option hostname 'vpn2.freifunk-bielefeld.de'
-	option port 1234
+	list remote '"vpn2.freifunk-bielefeld.de" port 1234'
 	option float 0
 
 config peer 'vpn3'
 	option enabled 1
-	option net 'backbone'
+	option net 'default'
+	option group 'backbone'
 	option key 'c1f20f98bf22860aac43796c70387651c832c8e7c067761b262850567deab06e'
-	option hostname 'vpn3.freifunk-bielefeld.de'
-	option port 1234
+	list remote '"vpn3.freifunk-bielefeld.de" port 1234'
 	option float 0
