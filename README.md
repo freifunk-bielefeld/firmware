@@ -1,4 +1,16 @@
-This is the router firmware for Freifunk Bielefeld.
+##Firmware for Freifunk Bielefeld
+
+The firmware turns a common wireless router into a mesh networking device.
+It connects to similar routers in the area and builds a Wifi-mesh network
+but also opens an access point for computers to connect over Wifi.
+Included is Internet connectivity and a web interface.
+
+To build the firmware you need a Unix console to enter commands into.
+Install dependencies for the build environment (Debian/Ubuntu):
+
+<pre>
+sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-essential
+</pre>
 
 Build Commands:
 
