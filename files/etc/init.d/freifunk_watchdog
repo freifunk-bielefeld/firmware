@@ -166,11 +166,11 @@ set_routes()
 {
 	local has_internet="$1"
 	local public_str="3"
-	local private_str="3,$own_private_ip"
+	local private_str="3,$own_private_ip option:dns-server,$own_private_ip"
 
 	echo "(I) Start setting routes:"
-	[ "$share_internet" = "yes" ] && public_str="3,$own_public_ip"
-	[ -n "$public_gw_ip" ] && public_str="3,$public_gw_ip"
+	[ "$share_internet" = "yes" ] && public_str="3,$own_public_ip option:dns-server,$own_public_ip"
+	[ -n "$public_gw_ip" ] && public_str="3,$public_gw_ip option:dns-server,$public_gw_ip"
 
 	if [ "$has_internet" = "yes" ]; then
 		if [ "$share_internet" = "yes" ]; then
