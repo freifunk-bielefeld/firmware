@@ -9,17 +9,8 @@ if [ ! -f "$path" ]; then
 	exit 1
 fi
 
-dir="`dirname $path`"
-file="`basename $path`"
+echo "(I) Starte sysupgrade..."
 
-#make sure the file suffix is .bin
-if [ "${file##*\.}" = "bin" ]; then
-	echo "(I) Starte sysupgrade..."
-
-	#apply openwrt or vendor image
-	sysupgrade -n $path || rm -f "$path"
-else
-	echo "(E) Unbekanntes Dateiformat."
-	exit 1
-fi
+#apply openwrt or vendor image
+sysupgrade -n $path
 %>
