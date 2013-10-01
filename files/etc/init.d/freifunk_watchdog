@@ -165,18 +165,40 @@ find_public_gateway() {
 set_routes()
 {
 	local has_internet="$1"
-	local public_str="3"
-	local private_str="3,$own_private_ip"
+	local public_str private_str
 
 	echo "(I) Start setting routes:"
-	[ "$share_internet" = "yes" ] && public_str="3,$own_public_ip"
-	[ -n "$public_gw_ip" ] && public_str="3,$public_gw_ip"
 
-	if [ "$has_internet" = "yes" ]; then
-		if [ "$share_internet" = "yes" ]; then
-			public_str="3,$own_public_ip"
+	#DHCP settings for all states: (3 for gateway, 6 for dns-server)
+	if [ -n "$public_gw_ip" ]; then
+		if [ "$has_internet" = "yes" ]; then
+			if [ "$share_internet" = "yes" ]; then
+				public_str="3,$own_public_ip 6,$own_public_ip"
+				private_str="3,$own_private_ip"
+			else
+				public_str="3,$public_gw_ip 6,$public_gw_ip"
+				private_str="3,$own_private_ip"
+			fi
+		else
+			public_str="3,$public_gw_ip 6,$public_gw_ip"
+			private_str="3,$own_private_ip 6,$public_gw_ip"
 		fi
 	else
+		if [ "$has_internet" = "yes" ]; then
+			if [ "$share_internet" = "yes" ]; then
+				public_str="3,$own_public_ip 6,$own_public_ip"
+				private_str="3,$own_private_ip 6,$own_public_ip"
+			else
+				public_str="3"
+				private_str="3,$own_private_ip"
+			fi
+		else
+			public_str="3"
+			private_str="3"
+		fi
+	fi
+
+	if [ "$has_internet" != "yes" ]; then
 		echo "(I) Clear default routes and nameserver list."
 		while `ip route del default 2> /dev/null`; do true; done
 
