@@ -53,7 +53,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "key":
 		b = append_input(p, "Passwort", id, value);
-		addInputCheck(b.lastChild, /^[a-z0-9]{8,64}$/i, "Bitte ein Passwort aus mindestens acht Buchstaben und Nummern verwenden");
+		addInputCheck(b.lastChild, /^[\S]{8,64}$/, "Bitte nur ein Passwort aus mindestens acht sichbaren Zeichen verwenden.");
 		break;
 	case "hwmode":
 		b = append_label(p, "Modus", "802."+value);
