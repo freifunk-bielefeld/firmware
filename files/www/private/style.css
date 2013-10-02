@@ -44,6 +44,16 @@ body {
 	text-align: left;
 }
 
+#help {
+	padding: 5px;
+	height: 0px;
+	position: absolute;
+	min-height: 50px;
+	background-color: #f2f2f2;
+	display:none;
+	border: 2px dotted grey;
+}
+
 /* forms */
 
 legend {

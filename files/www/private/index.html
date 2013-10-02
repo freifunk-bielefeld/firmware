@@ -84,6 +84,22 @@ function toggle_adv_mode(e)
 	for(i in elems)
 		adv_mode ? show(elems[i]) : hide(elems[i]);
 }
+
+function addHelpText(elem, text) {
+	var help = get("help");
+
+	elem.onmouseover = function(e) {
+		help.style.top = (e.clientY-20)+"px";
+		help.style.left = (e.clientX+80)+"px";
+		help.innerHTML = text;
+		show(help);
+	};
+
+	elem.onmouseout = function() {
+		help.innerHTML = "";
+		hide(help);
+	};
+}
 </script>
 
 </head>
@@ -103,6 +119,8 @@ function toggle_adv_mode(e)
 </ul>
 <br>
 <pre id="msg"></pre>
+
+<div id="help"></div>
 
 <div id="body"></div>
 
