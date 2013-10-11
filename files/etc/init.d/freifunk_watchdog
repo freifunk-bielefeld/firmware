@@ -174,7 +174,7 @@ set_routes()
 	if [ -n "$public_gw_ip" ]; then
 		if [ "$has_internet" = "yes" ]; then
 			if [ "$share_internet" = "yes" ]; then
-				public_str="3,$own_public_ip 6,$own_public_ip"
+				public_str="3,$own_public_ip"
 				private_str="3,$own_private_ip"
 			else
 				public_str="3,$public_gw_ip 6,$public_gw_ip"
