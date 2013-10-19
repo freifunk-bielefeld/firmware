@@ -69,9 +69,11 @@ function appendSetting(p, path, value, mode)
 		b = append_radio(p, "Gateway Modus", id, value, [["An", "yes"], ["Aus", "no"]]);
 		if(!adv_mode)
 			onDesc(b, "INPUT", function(e) { e.disabled = true; });
+		addHelpText(b, "<b>An</b> bedeutet das der private Internetanschluss fuer die \xD6ffentlichkeit freigegeben wird.<br />Die empfohlene Einstellung ist <b>Aus</b>.");
 		break;
 	case "config_nets":
 		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
+		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
@@ -157,6 +159,8 @@ function rebuild_assignment()
 	removeChilds(root);
 
 	var fs = append_section(root, "Anschl\xfcsse");
+	addHelpText(fs, "Die Anschl\xfcsse am Router zusammengefasst zu verschiedenen virtuellen Anschl\xfcssen.");
+
 	var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
 	var ignore = ["dummy_public", "dummy_private", "dummy_mesh", "fastd_mesh", "bat0", "lo"];
 	var ifnames = [];
@@ -312,7 +316,11 @@ function rebuild_wifi()
 		for(var sid in obj)
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
 
-		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["Private","private"], ["Public","public"], ["Mesh", "mesh"], ["WAN", "wan"]]);
+		var private_help = "<b>Private</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
+		var public_help = "<b>Public</b>: Der WLAN-Zugang zum Freifunk-Netz.";
+		var mesh_help = "<b>Mesh</b>: Das WLAN-Netz \xfcber das die Router untereinander kommunizieren.";
+		var wan_help = "<b>WAN</b>: Erm\xf6glicht den Internetzugang eines anderen, herk\xf6mmlichen Routers zu nutzen.";
+		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["Private","private", private_help], ["Public","public", public_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
 		var parent = append(fs, "div");
 
 		//print wireless interfaces
