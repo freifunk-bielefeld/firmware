@@ -196,7 +196,7 @@ set_routes()
 			fi
 		else
 			public_str="3"
-			private_str="3"
+			private_str="3,$own_private_ip"
 		fi
 	fi
 
