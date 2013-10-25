@@ -92,12 +92,13 @@ check_wan()
 {
 	local wan="$1"
 	local gw=""
-	echo "(I) Check if Internet is accessible via '$wan'."
 
 	[ -z "$wan" ] && {
 		echo "(I) No WAN interface found."
 		return 1
 	}
+
+	echo "(I) Check if Internet is accessible via '$wan'."
 
 	gw="`get_default_gateway $wan`"
 	check_internet "$wan" "$gw" && return 0
