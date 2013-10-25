@@ -44,8 +44,8 @@ get_default_gateway() {
 own_public_ip=`addr 4 br-public`
 own_private_ip=`addr 4 br-private`
 
-echo "(I) Own public IP address: '$own_public_ip'"
-echo "(I) Own private IP address: '$own_private_ip'"
+echo "(I) Own public IPv4 address: '$own_public_ip'"
+echo "(I) Own private IPv4 address: '$own_private_ip'"
 
 fastd=`which fastd`
 

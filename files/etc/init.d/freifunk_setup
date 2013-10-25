@@ -141,12 +141,12 @@ a=$((0x$a | 2)) #set second bit to 1
 a=`printf '%02x\n' $a` #convert to hex
 mac="$a:${mac#*:}" #reassemble mac
 
-public_ip=`mac2ip $mac`
+public_ip4=`mac2ip $mac`
 public_ip6=`mac2ip6 $mac`
 
 echo "(I) MAC: '$mac'"
-echo "(I) Public IP: '$public_ip'"
-echo "(I) Public IP6: '$public_ip6'"
+echo "(I) Public IPv4 Address: '$public_ip4'"
+echo "(I) Public IPv6 Address: '$public_ip6'"
 
 
 # ------------------------------------- #
@@ -183,7 +183,7 @@ echo "(I) Setup public interfaces."
 uci set network.public="interface"
 uci set network.public.type="bridge"
 uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
-uci set network.public.ipaddr="$public_ip"
+uci set network.public.ipaddr="$public_ip4"
 uci delete -q network.public.ip6addr
 uci add_list network.public.ip6addr="$public_ip6/64"
 uci set network.public.proto=static
