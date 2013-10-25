@@ -3,9 +3,9 @@
 #Get the IP of a node by MAC.
 
 mac=$1
-ff_subnet=`uci get -q freifunk.@settings[0].ff_subnet`
+prefix4=`uci get -q freifunk.@settings[0].prefix4`
 
-[ -z "$mac" -o -z "$ff_subnet" -o ${#mac} -ne 17 ] && exit 1
+[ -z "$mac" -o -z "$prefix4" -o ${#mac} -ne 17 ] && exit 1
 
 seed=0
 for x in $(echo $mac | tr ":" "\n"); do
@@ -16,4 +16,4 @@ addr_t=$((1900545 + (seed % 65278)))
 addr_c=$(((addr_t & 0xff00) >> 8))
 addr_d=$(((addr_t & 0x00ff) >> 0))
 
-echo "10.$ff_subnet.$addr_c.$addr_d"
+echo "${prefix4%%.0*}.$addr_c.$addr_d"
