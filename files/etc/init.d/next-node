@@ -1,0 +1,57 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2013 Project Gluon
+
+START=95
+
+
+prefix4=`uci get freifunk.@settings[0].prefix4`
+prefix6=`uci get freifunk.@settings[0].prefix6`
+
+next_node_mac='16:41:95:40:f7:dc'
+next_node_ip4="${prefix4%0*}1"
+next_node_ip6="${prefix6%/*}1"
+
+
+ebtable_rules() {
+	rule="$@"
+
+	$rule FORWARD --logical-out br-public -o bat0 -d $next_node_mac -j DROP
+	$rule OUTPUT --logical-out br-public -o bat0 -d $next_node_mac -j DROP
+	$rule FORWARD --logical-out br-public -o bat0 -s $next_node_mac -j DROP
+	$rule OUTPUT --logical-out br-public -o bat0 -s $next_node_mac -j DROP
+
+	$rule FORWARD --logical-out br-public -o bat0 -p IPv4 --ip-destination $next_node_ip4 -j DROP
+	$rule OUTPUT --logical-out br-public -o bat0 -p IPv4 --ip-destination $next_node_ip4 -j DROP
+	$rule FORWARD --logical-out br-public -o bat0 -p IPv4 --ip-source $next_node_ip4 -j DROP
+	$rule OUTPUT --logical-out br-public -o bat0 -p IPv4 --ip-source $next_node_ip4 -j DROP
+
+	$rule FORWARD --logical-out br-public -o bat0 -p IPv6 --ip6-destination $next_node_ip6 -j DROP
+	$rule OUTPUT --logical-out br-public -o bat0 -p IPv6 --ip6-destination $next_node_ip6 -j DROP
+	$rule FORWARD --logical-out br-public -o bat0 -p IPv6 --ip6-source $next_node_ip6 -j DROP
+	$rule OUTPUT --logical-out br-public -o bat0 -p IPv6 --ip6-source $next_node_ip6 -j DROP
+}
+
+start() {
+	ip link add link br-public name local-node type macvlan
+	echo 0 > /proc/sys/net/ipv6/conf/local-node/accept_ra
+	ip link set local-node address $next_node_mac
+
+	ip address add $next_node_ip4/32 dev local-node
+	ip route add $prefix4 dev br-public
+
+	ip address add $next_node_ip6/128 dev local-node
+	ip route add $prefix6 dev br-public
+
+	ip link set local-node up
+
+	ebtable_rules 'ebtables -A'
+}
+
+stop() {
+	ebtable_rules 'ebtables -D'
+
+	ip route del $prefix4 dev br-public
+	ip route del $prefix6 dev br-public
+	ip link set local-node down
+	ip link del local-node
+}
