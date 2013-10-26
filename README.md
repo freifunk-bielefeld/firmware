@@ -29,15 +29,19 @@ make defconfig
 make menuconfig
 </pre>
 
-Now select the right Target System and Target Profile:
+Now select the right "Target System" and "Target Profile" for your AP model:
 
-For the TL-WR841ND:
+For the TL-WR841ND, select:
 * Target System => Atheros AR7xxx/AR9xxx
 * Target Profile => TP-LINK TL-WR841ND
 
-For the DIR-300:
+For the DIR-300, select:
 * Target System => <*> AR231x/AR5312
 * Target Profile => <*> Default
+
+For other models you can lookup the "Target System" in the OpenWrt
+[hardware table](http://wiki.openwrt.org/toh/start). Your AP model
+should now be visible in the "Target Profile" list.
 
 Many other routers have not been tested yet
 but may work. Give it a try! :-)
