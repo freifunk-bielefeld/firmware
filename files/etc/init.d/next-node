@@ -12,23 +12,23 @@ next_node_ip4="${prefix4%0*}1"
 next_node_ip6="${prefix6%/*}1"
 
 
-ebtable_rules() {
-	rule="$@"
+ebtable_apply() {
+	cmd="$@"
 
-	$rule FORWARD --logical-out br-public -o bat0 -d $next_node_mac -j DROP
-	$rule OUTPUT --logical-out br-public -o bat0 -d $next_node_mac -j DROP
-	$rule FORWARD --logical-out br-public -o bat0 -s $next_node_mac -j DROP
-	$rule OUTPUT --logical-out br-public -o bat0 -s $next_node_mac -j DROP
+	$cmd FORWARD --logical-out br-public -o bat0 -d $next_node_mac -j DROP
+	$cmd OUTPUT --logical-out br-public -o bat0 -d $next_node_mac -j DROP
+	$cmd FORWARD --logical-out br-public -o bat0 -s $next_node_mac -j DROP
+	$cmd OUTPUT --logical-out br-public -o bat0 -s $next_node_mac -j DROP
 
-	$rule FORWARD --logical-out br-public -o bat0 -p IPv4 --ip-destination $next_node_ip4 -j DROP
-	$rule OUTPUT --logical-out br-public -o bat0 -p IPv4 --ip-destination $next_node_ip4 -j DROP
-	$rule FORWARD --logical-out br-public -o bat0 -p IPv4 --ip-source $next_node_ip4 -j DROP
-	$rule OUTPUT --logical-out br-public -o bat0 -p IPv4 --ip-source $next_node_ip4 -j DROP
+	$cmd FORWARD --logical-out br-public -o bat0 -p IPv4 --ip-destination $next_node_ip4 -j DROP
+	$cmd OUTPUT --logical-out br-public -o bat0 -p IPv4 --ip-destination $next_node_ip4 -j DROP
+	$cmd FORWARD --logical-out br-public -o bat0 -p IPv4 --ip-source $next_node_ip4 -j DROP
+	$cmd OUTPUT --logical-out br-public -o bat0 -p IPv4 --ip-source $next_node_ip4 -j DROP
 
-	$rule FORWARD --logical-out br-public -o bat0 -p IPv6 --ip6-destination $next_node_ip6 -j DROP
-	$rule OUTPUT --logical-out br-public -o bat0 -p IPv6 --ip6-destination $next_node_ip6 -j DROP
-	$rule FORWARD --logical-out br-public -o bat0 -p IPv6 --ip6-source $next_node_ip6 -j DROP
-	$rule OUTPUT --logical-out br-public -o bat0 -p IPv6 --ip6-source $next_node_ip6 -j DROP
+	$cmd FORWARD --logical-out br-public -o bat0 -p IPv6 --ip6-destination $next_node_ip6 -j DROP
+	$cmd OUTPUT --logical-out br-public -o bat0 -p IPv6 --ip6-destination $next_node_ip6 -j DROP
+	$cmd FORWARD --logical-out br-public -o bat0 -p IPv6 --ip6-source $next_node_ip6 -j DROP
+	$cmd OUTPUT --logical-out br-public -o bat0 -p IPv6 --ip6-source $next_node_ip6 -j DROP
 }
 
 start() {
@@ -44,11 +44,11 @@ start() {
 
 	ip link set local-node up
 
-	ebtable_rules 'ebtables -A'
+	ebtable_apply 'ebtables -A'
 }
 
 stop() {
-	ebtable_rules 'ebtables -D'
+	ebtable_apply 'ebtables -D'
 
 	ip route del $prefix4 dev br-public
 	ip route del $prefix6 dev br-public
