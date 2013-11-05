@@ -104,7 +104,8 @@ config include
 
 config zone
 	option name		public
-	option network		public
+	list network		public
+	list network		local_node
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
