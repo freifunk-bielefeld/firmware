@@ -58,15 +58,18 @@ fi
 
 IFS="
 "
+found_gw="no"
 echo "<ul>"
 for mac in $own_mac `batctl gwl | sed 's/=>//' | awk -F' ' '{printf("%.3d %s\n", $(NF-2), $1)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null`; do
 	[ ${#mac} -ne 17 ] && continue
 	ip=`mac2ip $mac`
 	[ "$mac" = "$public_gw_mac" ] && ext=" (aktueller default)" || ext=""
-	[ -n "$ip" ] && echo "<li><a href='http://$ip'>$ip</a>$ext</li>"
+	[ -n "$ip" ] && { echo "<li><a href='http://$ip'>$ip</a>$ext</li>"; found_gw="yes"; }
 done
 echo "</ul>"
-
+if [ "$found_gw" = "no" ]; then
+	echo "<li>Kein Gateway gefunden</li>"
+fi
 %>
 </div>
 
