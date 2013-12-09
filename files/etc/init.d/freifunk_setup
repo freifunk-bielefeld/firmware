@@ -97,7 +97,8 @@ config_wifi() {
 
 	wifi_restart() {
 		echo "(I) Wireless down/up"
-		wifi
+		wifi reload
+		sleep 5
 	}
 
 	check_wifi_interfaces() {
