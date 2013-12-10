@@ -165,9 +165,9 @@ function rebuild_assignment()
 	var ignore = ["dummy_public", "dummy_private", "dummy_mesh", "fastd_mesh", "bat0", "local-node", "lo"];
 	var ifnames = [];
 
-	//also ignore raw interfaces
+	//also ignore alias and raw interfaces
 	config_foreach(uci.network_defaults, "interface", function(sid, sobj) {
-		if(sobj.ifname && sobj.proto == "none")
+		if(sobj.ifname && (sobj.ifname[0] == "@" || sobj.proto == "none"))
 			ignore.push(sobj.ifname);
 	});
 
