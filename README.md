@@ -31,11 +31,11 @@ make menuconfig
 
 Now select the right "Target System" and "Target Profile" for your AP model:
 
-For the TL-WR841ND, select:
+For example, for the TL-WR841ND, select:
 * Target System => Atheros AR7xxx/AR9xxx
 * Target Profile => TP-LINK TL-WR841ND
 
-For the DIR-300, select:
+Or in case you have the DIR-300, select:
 * Target System => <*> AR231x/AR5312
 * Target Profile => <*> Default
 
@@ -43,13 +43,18 @@ For other models you can lookup the "Target System" in the OpenWrt
 [hardware table](http://wiki.openwrt.org/toh/start). Your AP model
 should now be visible in the "Target Profile" list.
 
-Many other routers have not been tested yet
-but may work. Give it a try! :-)
+Now start the build process. This takes some time:
 
 <pre>
 make
 </pre>
 
-The firmware images are now in the "bin"-folder.
-* Use "openwrt-[chip]-[model]-squashfs-firmware.bin" for the initial flash.
+The firmware images are now in the "bin"-folder. Use the firmware update
+functionality of your router and upload the factory image. The sysupgrade
+images are for further updates.
+
+* Use "openwrt-[chip]-[model]-squashfs-factory.bin" for the initial flash.
 * Use "openwrt-[chip]-[model]-squashfs-sysupgrade.bin" for futher updates.
+
+Many routers have not been tested yet, but may work.
+Give it a try! :-)
