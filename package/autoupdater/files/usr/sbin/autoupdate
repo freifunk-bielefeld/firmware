@@ -20,7 +20,7 @@ PUBKEYS=$(uci get autoupdater.@autoupdater[0].pubkey)
 GOOD_SIGNATURES=$(uci get autoupdater.@autoupdater[0].good_signatures)
 BRANCH=$(uci get autoupdater.@autoupdater[0].branch)
 
-VERSION_FILE=/etc/firmware_version
+
 
 newer_than() {
   local old="$(printf '%s\n%s\n' "$1" "$2" | sort -n | head -n 1)"
@@ -53,7 +53,7 @@ if [ ! -f "$VERSION_FILE" ]; then
   exit 1
 fi
 
-my_version="$(cat "$VERSION_FILE")"
+my_version="$(uci get freifunk.@settings[0].version)"
 
 fw_image=$(mktemp)
 manifest=$(mktemp)
