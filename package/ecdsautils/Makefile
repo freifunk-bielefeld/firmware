@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ecdsautils
-PKG_VERSION:=0.1
+PKG_VERSION:=0.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=v$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/tcatm/ecdsautils/archive/
-PKG_MD5SUM:=5e7a2fa66729a9bd87be339024d6d57e
+PKG_MD5SUM:=bd170e48f045d62b0b4d22c26c1a3f2a
 
 PKG_BUILD_DEPENDS:=libuecc
 
