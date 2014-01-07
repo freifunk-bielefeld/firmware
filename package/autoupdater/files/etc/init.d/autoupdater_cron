@@ -1,0 +1,17 @@
+#!/bin/sh /etc/rc.common
+
+export SERVICE_NAME=autoupdater
+
+START=50
+
+SERVICE_USE_PID=1
+
+start () {
+        [ -z "$(ls /etc/autoupdater/crontabs/)" ] && exit 1
+        service_start /usr/sbin/crond -c /etc/autoupdater/crontabs
+}
+
+stop() {
+        service_stop /usr/sbin/crond
+}
+
