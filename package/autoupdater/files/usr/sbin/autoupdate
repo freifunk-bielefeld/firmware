@@ -48,10 +48,10 @@ case "$my_model" in
     ;;
 esac
 
-if [ ! -f "$VERSION_FILE" ]; then
-  echo "Couldn't determine firmware version!" >&2
-  exit 1
-fi
+#if [ ! -f "$VERSION_FILE" ]; then
+#  echo "Couldn't determine firmware version!" >&2
+#  exit 1
+#fi
 
 my_version="$(uci get freifunk.@settings[0].version)"
 
