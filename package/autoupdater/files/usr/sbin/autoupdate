@@ -132,7 +132,7 @@ if newer_than "$fw_version" "$my_version"; then
 
   echo "Upgrading firmware."
 
-  sysupgrade "${fw_image}"
+  sysupgrade -n "${fw_image}"
 else
   echo "No new firmware available"
 fi
