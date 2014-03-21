@@ -46,6 +46,10 @@ function appendSetting(p, path, value, mode)
 		if(value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
 		b = append_selection(p, "Kanal", id, value, channels);
 		break;
+	case "enabled":
+		b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
+		addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
+		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
 			return
@@ -120,6 +124,10 @@ function rebuild_general()
 	var i = firstSectionID(f, "settings");
 	for(var opt in f[i])
 		appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+
+	var a = uci.autoupdater;
+	var k = firstSectionID(a, "autoupdater");
+	appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
 
 	var div = append(fs, "div");
 }
