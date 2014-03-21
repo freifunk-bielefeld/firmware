@@ -57,6 +57,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "key":
 		b = append_input(p, "Passwort", id, value);
+		b.lastChild.type = "password";
 		addInputCheck(b.lastChild, /^[\S]{8,64}$/, "Bitte nur ein Passwort aus mindestens acht sichbaren Zeichen verwenden.");
 		break;
 	case "hwmode":
