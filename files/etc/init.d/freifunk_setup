@@ -194,15 +194,15 @@ uci set network.local_node="interface"
 uci set network.local_node.proto="none"
 uci set network.local_node.ifname="local-node"
 
-# set (not so) magic numbers for start ip and address space
-# numbers are ip integer representation
-start_ip=$((256*256*$subnet4+1)) # -> 1900545
-end_ip=$((255*255+253)) # -> 65278
+# Calculate the start and limit for the desired subnet
+# 10.29.0.2 - 10.29.255.254
+start=$((256*256*$subnet4+2)) # -> 1900546
+limit=$((256*256-2)) # -> 65534
 
 uci set dhcp.public=dhcp
 uci set dhcp.public.interface=public
-uci set dhcp.public.start=$start_ip
-uci set dhcp.public.limit=$end_ip
+uci set dhcp.public.start=$start
+uci set dhcp.public.limit=$limit
 uci set dhcp.public.leasetime=2h #max time for address conflicts
 uci set dhcp.public.dhcp_option="3" #no gateway yet
 
