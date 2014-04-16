@@ -67,7 +67,7 @@ check_internet() {
 	[ -z "$gw" ] && { echo "(W) No Gateway address given for check_internet()."; return 1; }
 	[ -z "$dev" ] && { echo "(E) No WAN interface given for check_internet()."; return 1; }
 
-	echo "(I) Try to ping root servers using gateway: '$gw'"
+	echo "(I) Try to ping root servers on '$dev' using gateway: '$gw'"
 	IFS="
 "
 	for addr in `pick 3 $addrs`; do
