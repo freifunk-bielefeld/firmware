@@ -458,11 +458,17 @@ function collect_switch_info(device)
 	if(inArray(device, split(lan_ifname)))
 		obj.ifname = device;
 
-	//board specific settings
+	//board specific settings:
+	//Portmap is a mapping of <label>/<internal port number>.
+	//Underscore labels will not be displayed, but are included here,
+	//because they are part of switch_vlan.ports in /etc/config/network.
 	switch(uci.misc.data.board)
 	{
 		case 'TL-WR1043ND':
-			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', '5']];
+			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', 5]];
+			break;
+		case 'TL-WR841ND':
+			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
 			break;
 	}
 
