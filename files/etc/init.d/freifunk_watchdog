@@ -275,6 +275,6 @@ else
 fi
 
 
-rmdir /var/lock/freifunk_watchdog.lock
 echo "(I) Done."
+rmdir $lock_dir
 }
