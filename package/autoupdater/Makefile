@@ -27,7 +27,6 @@ endef
 define Package/autoupdater/install
 	$(CP) ./files/* $(1)/
 	chmod +x $(1)/usr/sbin/autoupdate
-	chmod +x $(1)/etc/init.d/autoupdater_cron
 endef
 
 $(eval $(call BuildPackage,autoupdater))
