@@ -35,7 +35,7 @@ print 'firmware_version' "`uci -q get freifunk.@settings[0].version`"
 print 'fastd_version' "`fastd --version 2> /dev/null | cut -d' ' -f 2`"
 print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
 print 'hostname' `uci get system.@system[0].hostname`
-print 'board' `cat /tmp/sysinfo/model 2> /dev/null`
+print 'model' `cat /tmp/sysinfo/model 2> /dev/null`
 print 'public_user_count' `batctl tl 2> /dev/null | grep -c 'W'`
 print 'private_user_count' `cat /tmp/dhcp.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l`
 print 'private_rx_bytes' `cat /sys/class/net/br-private/statistics/rx_bytes 2> /dev/null`
