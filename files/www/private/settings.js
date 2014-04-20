@@ -464,10 +464,12 @@ function collect_switch_info(device)
 	//because they are part of switch_vlan.ports in /etc/config/network.
 	switch(uci.misc.data.board)
 	{
-		case 'TL-WR1043ND':
+		case 'tp-link-tl-wr1043n-nd-v1':
 			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', 5]];
 			break;
-		case 'TL-WR841ND':
+		case 'tp-link-tl-wr841n-nd-v3':
+		case 'tp-link-tl-wr841n-nd-v5':
+		case 'tp-link-tl-wr841n-nd-v7':
 			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
 			break;
 	}
