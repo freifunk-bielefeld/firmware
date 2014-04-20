@@ -219,7 +219,7 @@ function collect_inputs(p, obj)
 	if(p.tagName == "SELECT")
 		obj[p.name] = p.value;
 	if(p.tagName == "INPUT")
-		if(p.type == "text" || (p.type == "radio" && p.checked))
+		if(p.type == "text" || p.type == "password" || (p.type == "radio" && p.checked))
 			obj[p.name] = p.value
 		else if(p.type == "checkbox" && p.checked)
 		{
