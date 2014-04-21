@@ -15,7 +15,7 @@ sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-es
 Build Commands:
 
 <pre>
-git clone git://git.openwrt.org/12.09/openwrt.git
+git clone git://git.openwrt.org/openwrt.git
 cd openwrt
 
 git clone https://github.com/freifunk-bielefeld/firmware.git
