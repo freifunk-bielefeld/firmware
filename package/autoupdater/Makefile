@@ -1,7 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=autoupdater
-PKG_RELEASE:=0.1
+PKG_VERSION:=0.1
+PKG_RELEASE:=1.1
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
@@ -10,7 +11,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/autoupdater
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+ecdsautils
+  DEPENDS:=+opkg +ecdsautils +!BUSYBOX_CONFIG_SHA512SUM:coreutils-sha512sum
   TITLE:=Automatically update firmware
 endef
 
