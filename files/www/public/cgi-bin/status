@@ -1,6 +1,10 @@
-#!/usr/bin/haserl -n
-Content-type: text/html
+#!/bin/sh
 
+echo Content-type: text/html
+echo ""
+
+cat <<EOF
+<!DOCTYPE html>
 <html>
 <head>
 <title>Info</title>
@@ -29,23 +33,23 @@ html, body {
 <body>
 <div id="header">
 <b>Name des Knoten: </b>
-<% uci get system.@system[0].hostname %>
+$(uci get system.@system[0].hostname)
 <br />
 <b>Eigene IPv4-Adresse: </b>
-<% ip -4 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1 %>
+$(ip -4 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1)
 <br />
 <b>Eigene IPv6-Addresse: </b>
-<% ip -6 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1 %>
+$(ip -6 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1)
 <br />
 <b>Anzahl bekannter Knoten: </b>
-<% echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)) %>
+$(echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)))
 <br />
 <b>Anzahl benachbarter Knoten: </b>
-<% batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l %>
+$(batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l)
 <br /><br />
 <b>Liste bekannter Gateways: </b>
 <br /><br />
-<%
+EOF
 
 #selected gateway
 public_gw_mac="`cat /tmp/public_gw_mac 2> /dev/null`"
@@ -70,12 +74,13 @@ echo "</ul>"
 if [ "$found_gw" = "no" ]; then
 	echo "<li>Kein Gateway gefunden</li>"
 fi
-%>
+
+cat <<EOF
 </div>
 
 <div id="footer">
     <span style="float: left;"><a href="#" id="link">Login</a></span>
-    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">Version</a> <% uci get -q freifunk.@settings[0].version || echo "???" %></span>
+    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">Version</a> $(uci get -q freifunk.@settings[0].version || echo "???")</span>
 </div>
 
 <script type="text/javascript">
@@ -84,3 +89,4 @@ document.getElementById("link").href="https://"+location.host;
 
 </body>
 </html>
+EOF
