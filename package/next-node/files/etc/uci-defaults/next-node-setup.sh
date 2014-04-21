@@ -1,0 +1,61 @@
+#!/bin/sh
+
+exec >/root/next_node_setup.log 2>&1
+. /lib/functions.sh
+
+
+prefix4=`uci get freifunk.@settings[0].prefix4`
+prefix6=`uci get freifunk.@settings[0].prefix6`
+
+echo "prefix4: $prefix4"
+echo "prefix6: $prefix6"
+
+next_node_mac='16:41:95:40:f7:dc'
+next_node_ip4="${prefix4%0*}1"
+next_node_ip6="${prefix6%/*}1"
+base_interface="public"
+
+. /lib/functions.sh
+
+config_load network
+config_get base_ifname $base_interface ifname
+
+
+uci_remove network local_node_dev
+uci_add network device local_node_dev
+uci_set network local_node_dev name 'local-node'
+uci_set network local_node_dev ifname "$base_ifname"
+uci_set network local_node_dev type 'macvlan'
+uci_set network local_node_dev macaddr "$next_node_mac"
+
+uci_remove network local_node
+uci_add network interface local_node
+uci_set network local_node ifname 'local-node'
+uci_set network local_node proto 'static'
+uci_set network local_node ipaddr "$next_node_ip4"
+uci_set network local_node netmask '255.255.255.255'
+uci_set network local_node ip6addr "$next_node_ip6/128"
+
+uci_remove network local_node_route4
+uci_add network route local_node_route4
+uci_set network local_node_route4 interface "$base_interface"
+uci_set network local_node_route4 target "$next_node_ip4"
+uci_set network local_node_route4 netmask "$prefix4"
+uci_set network local_node_route4 gateway '0.0.0.0'
+
+uci_remove network local_node_route6
+uci_add network route6 local_node_route6
+uci_set network local_node_route6 interface "$base_interface"
+uci_set network local_node_route6 target "$prefix6"
+uci_set network local_node_route6 gateway '::'
+
+uci_commit network
+
+uci_remove firewall local_node
+uci_add firewall zone local_node
+uci_set firewall local_node name 'local_node'
+uci add_list firewall.local_node.network='local_node'
+uci_set firewall local_node input 'ACCEPT'
+uci_set firewall local_node output 'ACCEPT'
+uci_set firewall local_node forward 'REJECT'
+uci_commit firewall

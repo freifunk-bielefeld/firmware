@@ -19,7 +19,7 @@ define Package/freifunk-bielefeld-basic
 		+px5g +fastd +dnsmasq-dhcpv6 +kmod-ipv6 \
 		+ip6tables +ebtables +kmod-ebtables-ipv4 \
 		+kmod-ebtables-ipv6 +ip +6relayd +haveged \
-		+autoupdater +simple-tc
+		+autoupdater +next-node +simple-tc
 endef
 
 define Build/Prepare
