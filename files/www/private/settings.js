@@ -29,6 +29,7 @@ function appendSetting(p, path, value, mode)
 {
 	var id = path.join('#');
 	var b;
+	var cfg = path[0]
 	var name = path[path.length-1];
 	switch(name)
 	{
@@ -47,8 +48,24 @@ function appendSetting(p, path, value, mode)
 		b = append_selection(p, "Kanal", id, value, channels);
 		break;
 	case "enabled":
-		b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
-		addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
+		if(cfg == "autoupdater") {
+			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
+		}
+		if(cfg == "simple_tc") {
+			b = append_radio(p, "WAN Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Zum Limitieren der Bandweite (Upload/Download).");
+		}
+		break;
+	case "limit_egress":
+		b = append_input(p, "WAN Upload", id, value);
+		addInputCheck(b.lastChild,/^\d+$/, "Upload ist ung\xfcltig.");
+		addHelpText(b, "Maximaler Upload in das Internet in KBit.");
+		break;
+	case "limit_ingress":
+		b = append_input(p, "WAN Download", id, value);
+		addInputCheck(b.lastChild,/^\d+$/, "Download ist ung\xfcltig.");
+		addHelpText(b, "Maximaler Download aus dem Internet in KBit.");
 		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
@@ -129,6 +146,12 @@ function rebuild_general()
 	var a = uci.autoupdater;
 	var k = firstSectionID(a, "autoupdater");
 	appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
+
+	var t = uci.simple_tc
+	var l = firstSectionID(t, "interface");
+	appendSetting(fs, ['simple_tc', l, "enabled"], t[l]["enabled"]);
+	appendSetting(fs, ['simple_tc', l, "limit_ingress"], t[l]["limit_ingress"]);
+	appendSetting(fs, ['simple_tc', l, "limit_egress"], t[l]["limit_egress"]);
 
 	var div = append(fs, "div");
 }

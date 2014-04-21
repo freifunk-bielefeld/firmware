@@ -1,5 +1,5 @@
 
-config interface 'freifunk'
+config interface
 	option enabled '1'
 	option target 'wan'
 	option limit_egress '1000' # 1000 Kbit/s

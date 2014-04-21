@@ -17,7 +17,7 @@ define Package/simple-tc
 endef
 
 define Package/simple-tc/description
-	Gluon community wifi mesh firmware framework: tc support
+	Simple support for upload and download limits
 endef
 
 define Build/Prepare
