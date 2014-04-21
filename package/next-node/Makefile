@@ -10,14 +10,14 @@ PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 include $(INCLUDE_DIR)/package.mk
 
 define Package/next-node
-  SECTION:=gluon
-  CATEGORY:=Gluon
+  SECTION:=admin
+  CATEGORY:=Administration
   TITLE:=Next-node anycast address
   DEPENDS:=+ebtables +kmod-batman-adv +ip +kmod-macvlan
 endef
 
 define Package/next-node/description
-	Gluon community wifi mesh firmware framework: next-node anycast address
+	next-node anycast address
 endef
 
 define Build/Prepare

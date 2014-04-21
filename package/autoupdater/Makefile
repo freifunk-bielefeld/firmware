@@ -1,3 +1,4 @@
+#Based on gluon-updater
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=autoupdater
