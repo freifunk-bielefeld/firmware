@@ -190,10 +190,6 @@ uci add_list network.public.ip6addr="$public_ip6/64"
 uci set network.public.proto=static
 uci set network.public.netmask="255.255.0.0"
 
-uci set network.local_node="interface"
-uci set network.local_node.proto="none"
-uci set network.local_node.ifname="local-node"
-
 # Calculate the start and limit for the desired subnet
 # 10.29.0.2 - 10.29.255.254
 start=$((256*256*$subnet4+2)) # -> 1900546
