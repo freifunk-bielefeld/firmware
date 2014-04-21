@@ -31,7 +31,7 @@ define Build/Compile
 endef
 
 define Package/next-node/install
-	$(GLUON_GENERATE) ./files/* $(1)/
+	$(CP) ./files/* $(1)/
 endef
 
 $(eval $(call BuildPackage,next-node))
