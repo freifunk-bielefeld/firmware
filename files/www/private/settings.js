@@ -53,19 +53,19 @@ function appendSetting(p, path, value, mode)
 			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
 		}
 		if(cfg == "simple_tc") {
-			b = append_radio(p, "WAN Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
-			addHelpText(b, "Zum Limitieren der Bandweite (Upload/Download).");
+			b = append_radio(p, "Public Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Bandweitenkontrolle für den Upload-/Download aus dem Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
 		break;
 	case "limit_egress":
-		b = append_input(p, "WAN Upload", id, value);
+		b = append_input(p, "Public Upload", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Upload ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Upload in das Internet in KBit.");
+		addHelpText(b, "Maximaler Upload in KBit.");
 		break;
 	case "limit_ingress":
-		b = append_input(p, "WAN Download", id, value);
+		b = append_input(p, "Public Download", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Download ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Download aus dem Internet in KBit.");
+		addHelpText(b, "Maximaler Download in KBit.");
 		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
