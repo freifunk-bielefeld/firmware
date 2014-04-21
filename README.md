@@ -19,6 +19,7 @@ git clone git://git.openwrt.org/openwrt.git
 cd openwrt
 
 git clone https://github.com/freifunk-bielefeld/firmware.git
+cd firmware && git checkout reorganization && cd ..
 cp -rf firmware/* . && cp firmware/.config .
 rm -rf firmware
 
