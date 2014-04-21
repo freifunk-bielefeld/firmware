@@ -21,8 +21,8 @@ case "$GET_func" in
 		port=`swconfig dev switch0 help 2> /dev/null | sed -rn 's/.*\(cpu @ ([0-9])\).*/\1/p'`
 		echo "	option tagged_port '$port'"
 
-		board="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-/g;s/-$//' 2> /dev/null)"
-		echo "	option board '$board'"
+		model="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-/g;s/-$//' 2> /dev/null)"
+		echo "	option model '$model'"
 	;;
 	*)
 		echo "(E) settings: Invalid command: '$GET_func'"
