@@ -1,8 +1,6 @@
 #!/bin/sh
 
-exec >/root/next_node_setup.log 2>&1
 . /lib/functions.sh
-
 
 prefix4=`uci get freifunk.@settings[0].prefix4`
 prefix6=`uci get freifunk.@settings[0].prefix6`
@@ -59,3 +57,5 @@ uci_set firewall local_node input 'ACCEPT'
 uci_set firewall local_node output 'ACCEPT'
 uci_set firewall local_node forward 'REJECT'
 uci_commit firewall
+
+exit 0
