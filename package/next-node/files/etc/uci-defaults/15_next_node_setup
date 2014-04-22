@@ -12,11 +12,12 @@ next_node_mac='16:41:95:40:f7:dc'
 next_node_ip4="${prefix4%0*}1"
 next_node_ip6="${prefix6%/*}1"
 base_interface="public"
+base_ifname="br-public"
 
 . /lib/functions.sh
 
-config_load network
-config_get base_ifname $base_interface ifname
+#config_load network
+#config_get base_ifname $base_interface ifname
 
 
 uci_remove network local_node_dev
