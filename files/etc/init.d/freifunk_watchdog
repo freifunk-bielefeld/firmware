@@ -148,8 +148,8 @@ find_public_gateway() {
 	echo "(I) Try to get the address of a public gateway."
 	IFS="
 "
-	#get all other gateway macs and sort by gw_class
-	for mac in $(batctl gwl | sed 's/=>//' | awk -F' ' '{printf("%.3d %s\n", $(NF-2), $1)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null); do
+	#get all gateways macs and sort by connectivity
+	for mac in $(batctl gwl | awk -F'[ =>()]+' '{printf("%.3d %s\n", $3, $2)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null); do
 		[ "${#mac}" -ne 17 ] && continue
 
 		local ip=$(mac2ip "$mac")
