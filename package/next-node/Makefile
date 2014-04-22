@@ -32,6 +32,7 @@ endef
 
 define Package/next-node/install
 	$(CP) ./files/* $(1)/
+	chmod +x $(1)/etc/init.d/next-node
 endef
 
 $(eval $(call BuildPackage,next-node))
