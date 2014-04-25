@@ -64,7 +64,7 @@ fi
 IFS="
 "
 found_gw="no"
-for mac in $own_mac `batctl gwl | awk -F'[ =>()]+' '{printf("%.3d %s\n", $3, $2)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null` do
+for mac in $own_mac `batctl gwl | awk -F'[ =>()]+' '{printf("%.3d %s\n", $3, $2)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null`; do
 	[ ${#mac} -ne 17 ] && continue
 	ip=`mac2ip $mac`
 	[ "$mac" = "$public_gw_mac" ] && ext=" (aktueller default)" || ext=""
