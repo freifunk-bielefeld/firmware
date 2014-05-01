@@ -138,20 +138,26 @@ function rebuild_general()
 	var j = firstSectionID(s, "system");
 	appendSetting(fs, ["system", j, "hostname"], s[j]["hostname"]);
 
-	var f = uci.freifunk;
-	var i = firstSectionID(f, "settings");
-	for(var opt in f[i])
-		appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+	if('freifunk' in uci) {
+		var f = uci.freifunk;
+		var i = firstSectionID(f, "settings");
+		for(var opt in f[i])
+			appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+	}
 
-	var a = uci.autoupdater;
-	var k = firstSectionID(a, "autoupdater");
-	appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
+	if('autoupdater' in uci) {
+		var a = uci.autoupdater;
+		var k = firstSectionID(a, "autoupdater");
+		appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
+	}
 
-	var t = uci.simple_tc
-	var l = firstSectionID(t, "interface");
-	appendSetting(fs, ['simple_tc', l, "enabled"], t[l]["enabled"]);
-	appendSetting(fs, ['simple_tc', l, "limit_ingress"], t[l]["limit_ingress"]);
-	appendSetting(fs, ['simple_tc', l, "limit_egress"], t[l]["limit_egress"]);
+	if('simple_tc' in uci) {
+		var t = uci.simple_tc
+		var l = firstSectionID(t, "interface");
+		appendSetting(fs, ['simple_tc', l, "enabled"], t[l]["enabled"]);
+		appendSetting(fs, ['simple_tc', l, "limit_ingress"], t[l]["limit_ingress"]);
+		appendSetting(fs, ['simple_tc', l, "limit_egress"], t[l]["limit_egress"]);
+	}
 
 	var div = append(fs, "div");
 }
