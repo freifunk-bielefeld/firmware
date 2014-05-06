@@ -51,7 +51,7 @@ html, body {
 public_gw_mac="`cat /tmp/public_gw_mac 2> /dev/null`"
 
 #add own mac to gateway mac list
-if uci get -q firewall.share_internet 2> /dev/null; then
+if uci get -q firewall.share_internet > /dev/null; then
 	#add own mac to gateway list
 	own_mac=`cat /sys/class/net/dummy_mesh/address 2> /dev/null`
 fi
