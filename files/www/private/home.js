@@ -35,3 +35,5 @@ addHelpText(get("public"), "Das \xf6ffentliche Freifunknetz..");
 addHelpText(get("private"), "Das private Netz bzw. LAN.");
 addHelpText(get("wan"), "Das Netz \xfcber dass das Internet erreicht wird.");
 addHelpText(get("software"), "Einige installierte Softwareversionen.");
+addHelpText(get("public_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
+addHelpText(get("private_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
