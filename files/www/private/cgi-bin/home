@@ -8,6 +8,9 @@ addr() {
 	[ -n "$addr" ] && echo "$addr" || echo "-"
 }
 
+#include OpenWrt version
+. /etc/openwrt_release
+
 echo "package misc"
 echo "config data 'data'"
 print() { echo "	option $1 '$2'"; }
@@ -34,6 +37,7 @@ print 'neigh_count' `batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | s
 print 'firmware_version' "`uci -q get freifunk.@settings[0].version`"
 print 'fastd_version' "`fastd --version 2> /dev/null | cut -d' ' -f 2`"
 print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
+print 'openwrt_version' "$DISTRIB_DESCRIPTION"
 print 'hostname' `uci get system.@system[0].hostname`
 print 'model' `cat /tmp/sysinfo/model 2> /dev/null`
 print 'public_user_count' `batctl tl 2> /dev/null | grep -c 'W'`
