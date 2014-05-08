@@ -44,4 +44,3 @@ define Package/ecdsautils/install
 endef
 
 $(eval $(call BuildPackage,ecdsautils))
-

@@ -3,7 +3,8 @@ config fastd 'default'
 	option enabled 1
 	option syslog_level 'info'
 	list bind 'any'
-	list method 'xsalsa20-poly1305'
+	list method 'salsa2012+gmac'
+	option secure_handshakes 1
 	option mode 'tap'
 	option interface 'fastd_mesh'
 	option mtu 1426

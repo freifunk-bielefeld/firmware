@@ -29,6 +29,7 @@ function appendSetting(p, path, value, mode)
 {
 	var id = path.join('#');
 	var b;
+	var cfg = path[0]
 	var name = path[path.length-1];
 	switch(name)
 	{
@@ -47,8 +48,24 @@ function appendSetting(p, path, value, mode)
 		b = append_selection(p, "Kanal", id, value, channels);
 		break;
 	case "enabled":
-		b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
-		addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
+		if(cfg == "autoupdater") {
+			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
+		}
+		if(cfg == "simple_tc") {
+			b = append_radio(p, "Public Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download aus dem Freifunknetz \xfcber den eigenen Internetanschluss.");
+		}
+		break;
+	case "limit_egress":
+		b = append_input(p, "Public Upload", id, value);
+		addInputCheck(b.lastChild,/^\d+$/, "Upload ist ung\xfcltig.");
+		addHelpText(b, "Maximaler Upload in KBit.");
+		break;
+	case "limit_ingress":
+		b = append_input(p, "Public Download", id, value);
+		addInputCheck(b.lastChild,/^\d+$/, "Download ist ung\xfcltig.");
+		addHelpText(b, "Maximaler Download in KBit.");
 		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
@@ -74,7 +91,7 @@ function appendSetting(p, path, value, mode)
 		b = append_radio(p, "Gateway Modus", id, value, [["An", "yes"], ["Aus", "no"]]);
 		if(!adv_mode)
 			onDesc(b, "INPUT", function(e) { e.disabled = true; });
-		addHelpText(b, "<b>An</b> bedeutet das der private Internetanschluss fuer die \xD6ffentlichkeit freigegeben wird.<br />Die empfohlene Einstellung ist <b>Aus</b>.");
+		addHelpText(b, "<b>An</b> bedeutet das der private Internetanschluss f\xfcr die \xD6ffentlichkeit freigegeben wird.<br />Die empfohlene Einstellung ist <b>Aus</b>, da es zu rechtlichen Problemen kommen kann.");
 		break;
 	case "config_nets":
 		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
@@ -121,14 +138,26 @@ function rebuild_general()
 	var j = firstSectionID(s, "system");
 	appendSetting(fs, ["system", j, "hostname"], s[j]["hostname"]);
 
-	var f = uci.freifunk;
-	var i = firstSectionID(f, "settings");
-	for(var opt in f[i])
-		appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+	if('freifunk' in uci) {
+		var f = uci.freifunk;
+		var i = firstSectionID(f, "settings");
+		for(var opt in f[i])
+			appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+	}
 
-	var a = uci.autoupdater;
-	var k = firstSectionID(a, "autoupdater");
-	appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
+	if('autoupdater' in uci) {
+		var a = uci.autoupdater;
+		var k = firstSectionID(a, "autoupdater");
+		appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
+	}
+
+	if('simple_tc' in uci) {
+		var t = uci.simple_tc
+		var l = firstSectionID(t, "interface");
+		appendSetting(fs, ['simple_tc', l, "enabled"], t[l]["enabled"]);
+		appendSetting(fs, ['simple_tc', l, "limit_ingress"], t[l]["limit_ingress"]);
+		appendSetting(fs, ['simple_tc', l, "limit_egress"], t[l]["limit_egress"]);
+	}
 
 	var div = append(fs, "div");
 }
@@ -458,11 +487,11 @@ function collect_switch_info(device)
 	if(inArray(device, split(lan_ifname)))
 		obj.ifname = device;
 
-	//board specific settings:
+	//model specific settings:
 	//Portmap is a mapping of <label>/<internal port number>.
 	//Underscore labels will not be displayed, but are included here,
 	//because they are part of switch_vlan.ports in /etc/config/network.
-	switch(uci.misc.data.board)
+	switch(uci.misc.data.model)
 	{
 		case 'tp-link-tl-wr1043n-nd-v1':
 			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', 5]];
@@ -471,6 +500,9 @@ function collect_switch_info(device)
 		case 'tp-link-tl-wr841n-nd-v5':
 		case 'tp-link-tl-wr841n-nd-v7':
 			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
+			break;
+		case 'tp-link-tl-wr841n-nd-v9':
+			obj.port_map = [['_',0], ['1',1], ['2',2], ['3',3], ['4',4]];
 			break;
 	}
 

@@ -1,19 +1,23 @@
-#Based on gluon-updater
+#Based on gluon-simple-tc
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=autoupdater
-PKG_VERSION:=0.1
+PKG_NAME:=simple-tc
+PKG_VERSION:=1
 PKG_RELEASE:=1.1
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/autoupdater
+define Package/simple-tc
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+opkg +ecdsautils +@BUSYBOX_DEFAULT_SHA512SUM
-  TITLE:=Automatically update firmware
+  TITLE:=Bandwidth limit support
+  DEPENDS:=+tc +kmod-sched
+endef
+
+define Package/simple-tc/description
+	Simple support for upload and download limits
 endef
 
 define Build/Prepare
@@ -26,9 +30,8 @@ endef
 define Build/Compile
 endef
 
-define Package/autoupdater/install
+define Package/simple-tc/install
 	$(CP) ./files/* $(1)/
-	chmod +x $(1)/usr/sbin/autoupdater
 endef
 
-$(eval $(call BuildPackage,autoupdater))
+$(eval $(call BuildPackage,simple-tc))

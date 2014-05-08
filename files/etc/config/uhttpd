@@ -3,8 +3,7 @@ config uhttpd public
 	list listen_http 80
 	option home /www/public
 	option rfc1918_filter 1
-	option cgi_prefix /
-	option index_page "index.cgi"
+	option cgi_prefix /cgi-bin
 	option script_timeout 60
 	option network_timeout 30
 	option tcp_keepalive 1
