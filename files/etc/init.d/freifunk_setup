@@ -45,6 +45,7 @@ subnet4=${subnet4%%.*}
 
 echo "(I) Setup /etc/config/wireless"
 
+#delete all wifi interfaces
 while uci -q delete wireless.@wifi-iface[0]; do :; done
 
 #test if we can span both Ad-Hoc and Access Point interfaces
@@ -236,7 +237,7 @@ fi
 # B A T M A N  S E T U P #
 # ------------------------------------- #
 
-echo "(I) Add network sections to trigger batman-adv and set mtu."
+echo "(I) Add network sections to trigger batman-adv and set MTU."
 for if in dummy_mesh fastd_mesh $wifi_mesh_interfaces; do
 	local n=`echo -n $if | tr -c a-z0-9_ _`
 	uci set network.$n="interface"
