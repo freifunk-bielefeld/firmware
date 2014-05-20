@@ -496,6 +496,9 @@ function collect_switch_info(device)
 		case 'tp-link-tl-wr1043n-nd-v1':
 			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', 5]];
 			break;
+		case 'tp-link-tl-wr1043n-nd-v2':
+			obj.port_map = [['WAN',5], ['1',4], ['2',3], ['3',2], ['4',1],['_', 0]];
+			break;
 		case 'tp-link-tl-wr841n-nd-v3':
 		case 'tp-link-tl-wr841n-nd-v5':
 		case 'tp-link-tl-wr841n-nd-v7':
