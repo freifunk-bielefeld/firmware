@@ -73,7 +73,7 @@ check_internet() {
 	for addr in `pick 3 $addrs`; do
 		echo -n "(I) Ping $addr "
 		ip route add "$addr/32" via "$gw" dev "$dev"
-		ping "$addr" -c 1 -I "$dev" -q -W 1 > /dev/null; ok=$?;
+		ping "$addr" -c 1 -I "$dev" -q -W 1 &> /dev/null; ok=$?;
 		ip route del "$addr/32" via "$gw" dev "$dev"
 		if [ $ok -eq 0 ]; then
 			echo "- success."
