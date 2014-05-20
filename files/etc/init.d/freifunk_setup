@@ -180,7 +180,7 @@ uci set dhcp.private=dhcp
 uci set dhcp.private.interface=private
 uci set dhcp.private.start=100
 uci set dhcp.private.limit=150
-uci set dhcp.private.leasetime=12h
+uci set dhcp.private.leasetime=2h
 uci set dhcp.private.dhcp_option="3" #no gateway yet
 
 /etc/init.d/6relayd enable
