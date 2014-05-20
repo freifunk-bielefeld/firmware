@@ -254,7 +254,7 @@ echo -n "$public_gw_mac" > /tmp/public_gw_mac
 
 if [ "$has_internet" = "yes" ]
 then
-	echo "(I) We have local internet."
+	echo "(I) We have local Internet."
 	set_routes "yes"
 
 	#start/restart fastd
@@ -263,7 +263,7 @@ then
 	#set batman-adv mode
 	[ "$share_internet" = "yes" ] && switch_to_server || switch_to_client
 else
-	echo "(I) We do not have local internet."
+	echo "(I) We do not have local Internet."
 
 	set_routes "no"
 
