@@ -102,15 +102,22 @@ check_wan()
 	gw=$(get_default_gateway "$wan")
 	check_internet "$wan" "$gw" && return 0
 
-	echo "(I) Trying to aquire new DHCP lease."
-	local pid=$(cat "/var/run/udhcpc-$wan.pid")
-	kill -s SIGUSR2 "$pid" #release lease
-	kill -s SIGUSR1 "$pid" #get new lease
+	[ "$(uci get -q network.wan.proto)" != "dhcp" ] && {
+		return 0
+	}
 
-	gw=$(get_default_gateway "$wan")
-	check_internet "$wan" "$gw" && return 0
+	local pidfile="/var/run/udhcpc-$wan.pid"
+	[ -f "$pidfile" ] && {
+		echo "(I) Trying to aquire new DHCP lease."
 
-	echo "(W) No internet detected."
+		local pid=$(cat "$pidfile")
+		kill -s SIGUSR2 "$pid" #release lease
+		kill -s SIGUSR1 "$pid" #get new lease
+
+		gw=$(get_default_gateway "$wan")
+		check_internet "$wan" "$gw" && return 0
+	}
+	echo "(W) No Internet detected."
 	ip addr flush dev "$wan"
 	return 1
 }
@@ -169,6 +176,9 @@ set_routes()
 	local public_str private_str
 
 	echo "(I) Start setting routes:"
+
+	[ -z "$own_private_ip" ] && { echo "(E) Private IP address not set."; return; }
+	[ -z "$own_public_ip" ] && { echo "(E) Public IP address not set."; return; }
 
 	#DHCP settings for all states: (3 for gateway, 6 for dns-server)
 	if [ -n "$public_gw_ip" ]; then
@@ -241,11 +251,10 @@ set_routes()
 	echo "(I) DHCP public option: '$public_str'"
 }
 
-
-#Get the best public gateway.
-find_public_gateway
-
 check_wan "$wan_interface" && has_internet="yes" || has_internet="no"
+
+#Get the best public gateway in the public network.
+find_public_gateway
 
 #store data for web-gui
 echo -n "$has_internet" > /tmp/has_internet
