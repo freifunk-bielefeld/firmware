@@ -106,18 +106,21 @@ check_wan()
 		return 0
 	}
 
+	echo "(I) Try to aquire new DHCP lease."
 	local pidfile="/var/run/udhcpc-$wan.pid"
-	[ -f "$pidfile" ] && {
-		echo "(I) Trying to aquire new DHCP lease."
-
+	if [ -f "$pidfile" ]; then
 		local pid=$(cat "$pidfile")
 		kill -s SIGUSR2 "$pid" #release lease
 		kill -s SIGUSR1 "$pid" #get new lease
 
+		sleep 3
 		gw=$(get_default_gateway "$wan")
 		check_internet "$wan" "$gw" && return 0
-	}
-	echo "(W) No Internet detected."
+	else
+		echo "(W) No pidfile found."
+	fi
+
+	echo "(W) No Internet detected on '$wan'"
 	ip addr flush dev "$wan"
 	return 1
 }
