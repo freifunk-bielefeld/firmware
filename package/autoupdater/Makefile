@@ -12,7 +12,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/autoupdater
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+opkg +ecdsautils +@BUSYBOX_DEFAULT_SHA512SUM
+  DEPENDS:=+opkg +ecdsautils +@BUSYBOX_CONFIG_SHA512SUM
   TITLE:=Automatically update firmware
 endef
 

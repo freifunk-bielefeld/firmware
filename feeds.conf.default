@@ -1,6 +1,6 @@
 
 #Packages for OpenWrt trunk
-src-git packages git://git.openwrt.org/packages.git
+src-git packages git://git.openwrt.org/12.09/packages.git
 
 #Routing packages (atm. only used for batman-adv 2013.4.0)
 src-git routing git://github.com/openwrt-routing/packages.git;for-12.09.x

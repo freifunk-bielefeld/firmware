@@ -65,15 +65,6 @@ config_wifi() {
 		uci set wireless.$ds.channel=1
 	fi
 
-	case "$(uci get wireless.$ds.type)" in
-	"mac80211")
-		uci set wireless.$ds.hwmode='11ng'
-		uci set wireless.$ds.htmode='HT40+'
-		uci add_list wireless.$ds.ht_capab='SHORT-GI-40'
-		uci add_list wireless.$ds.ht_capab='DSSS_CCK-40'
-	;;
-	esac
-
 	uci set wireless.$ds.country=DE
 	uci set wireless.$ds.disabled=0
 
