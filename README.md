@@ -20,6 +20,7 @@ cd openwrt
 
 git clone https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/{files,package,feeds.conf.default,.config} .
+git am --whitespace=nowarn firmware/patches/*.patch
 rm -rf firmware
 
 ./scripts/feeds update -a
