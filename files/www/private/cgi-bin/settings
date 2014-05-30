@@ -18,7 +18,7 @@ case "$GET_func" in
 		echo "package misc"
 		echo "config data 'data'"
 
-		port=`swconfig dev switch0 help 2> /dev/null | sed -rn 's/.*\(cpu @ ([0-9])\).*/\1/p'`
+		port="$(swconfig dev switch0 help 2> /dev/null | sed -rn 's/.*\(cpu @ ([0-9])\).*/\1/p')"
 		echo "	option tagged_port '$port'"
 
 		model="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-/g;s/-$//' 2> /dev/null)"

@@ -4,7 +4,7 @@ content-type: text/plain
 <%
 
 addr() {
-	local addr="`ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1`"
+	local addr="$(ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1)"
 	[ -n "$addr" ] && echo "$addr" || echo "-"
 }
 
@@ -14,39 +14,39 @@ addr() {
 echo "package misc"
 echo "config data 'data'"
 print() { echo "	option $1 '$2'"; }
-print 'public_addr4' "`addr 4 br-public`"
-print 'public_addr6' "`addr 6 br-public`"
-print 'private_addr4' "`addr 4 br-private`"
-print 'private_addr6' "`addr 6 br-private`"
-up=`uptime`
+print 'public_addr4' "$(addr 4 br-public)"
+print 'public_addr6' "$(addr 6 br-public)"
+print 'private_addr4' "$(addr 4 br-private)"
+print 'private_addr6' "$(addr 6 br-private)"
+up="$(uptime)"
 print 'load' "${up##*:}"
 uptime="${up%%,*}"
 print 'uptime' "${uptime##*up}"
-print 'uname' "`uname -s -m -r`"
-print 'date' "`date`"
-wan_interfaces=`uci -q get network.wan.ifname`
+print 'uname' "$(uname -s -m -r)"
+print 'date' "$(date)"
+wan_interfaces="$(uci -q get network.wan.ifname)"
 wan_interface=${wan_interfaces%% *} #get first interface
-print 'wan_addr4' "`addr 4 $wan_interface`"
-print 'wan_addr6' "`addr 6 $wan_interface`"
-has_internet=`cat /tmp/has_internet 2> /dev/null`
+print 'wan_addr4' "$(addr 4 $wan_interface)"
+print 'wan_addr6' "$(addr 6 $wan_interface)"
+has_internet=$(cat /tmp/has_internet 2> /dev/null)
 [ "$has_internet" = "yes" ] && print 'has_internet' 'Ja' || print 'has_internet' 'Nein'
-share=`uci -q get freifunk.@settings[0].share_internet`
+share=$(uci -q get freifunk.@settings[0].share_internet)
 [ "$share" = "yes" ] && print 'share_internet' 'Ja' || print 'share_internet' 'Nein'
-print 'node_count' $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))
-print 'neigh_count' `batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l`
-print 'firmware_version' "`uci -q get freifunk.@settings[0].version`"
-print 'fastd_version' "`fastd --version 2> /dev/null | cut -d' ' -f 2`"
-print 'batman_version' "`cat /sys/module/batman_adv/version 2> /dev/null`"
+print 'node_count' "$((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))"
+print 'neigh_count' "$(batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l)"
+print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"
+print 'fastd_version' "$(fastd --version 2> /dev/null | cut -d' ' -f 2)"
+print 'batman_version' "$(cat /sys/module/batman_adv/version 2> /dev/null)"
 print 'openwrt_version' "$DISTRIB_DESCRIPTION"
-print 'hostname' `uci get system.@system[0].hostname`
-print 'model' `cat /tmp/sysinfo/model 2> /dev/null`
-print 'public_user_count' `batctl tl 2> /dev/null | grep -c 'W'`
-print 'private_user_count' `cat /tmp/dhcp.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l`
-print 'private_rx_bytes' `cat /sys/class/net/br-private/statistics/rx_bytes 2> /dev/null`
-print 'private_tx_bytes' `cat /sys/class/net/br-private/statistics/tx_bytes 2> /dev/null`
-print 'public_rx_bytes' `cat /sys/class/net/br-public/statistics/rx_bytes 2> /dev/null`
-print 'public_tx_bytes' `cat /sys/class/net/br-public/statistics/tx_bytes 2> /dev/null`
-print 'wan_rx_bytes' `cat /sys/class/net/*wan/statistics/rx_bytes 2> /dev/null`
-print 'wan_tx_bytes' `cat /sys/class/net/*wan/statistics/tx_bytes 2> /dev/null`
+print 'hostname' "$(uci get system.@system[0].hostname)"
+print 'model' "$(cat /tmp/sysinfo/model 2> /dev/null)"
+print 'public_user_count' "$(batctl tl 2> /dev/null | grep -c 'W')"
+print 'private_user_count' "$(cat /tmp/dhcp.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l)"
+print 'private_rx_bytes' "$(cat /sys/class/net/br-private/statistics/rx_bytes 2> /dev/null)"
+print 'private_tx_bytes' "$(cat /sys/class/net/br-private/statistics/tx_bytes 2> /dev/null)"
+print 'public_rx_bytes' "$(cat /sys/class/net/br-public/statistics/rx_bytes 2> /dev/null)"
+print 'public_tx_bytes' "$(cat /sys/class/net/br-public/statistics/tx_bytes 2> /dev/null)"
+print 'wan_rx_bytes' "$(cat /sys/class/net/*wan/statistics/rx_bytes 2> /dev/null)"
+print 'wan_tx_bytes' "$(cat /sys/class/net/*wan/statistics/tx_bytes 2> /dev/null)"
 
 %>
