@@ -243,8 +243,8 @@ set_routes()
 		uci set dhcp.public.dhcp_option="$public_str"
 		uci set dhcp.private.dhcp_option="$private_str"
 
-		echo "(I) DHCP settings were changed => restart dnsmasq."
-		/etc/init.d/dnsmasq restart
+		echo "(I) DHCP settings were changed => reload dnsmasq."
+		/etc/init.d/dnsmasq reload
 
 	else
 		echo "(I) No change of DHCP settings."
