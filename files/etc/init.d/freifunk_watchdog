@@ -64,7 +64,7 @@ check_internet() {
 	local addrs="192.33.4.12 128.8.10.90 193.0.14.129 198.41.0.4 192.228.79.201 192.5.5.241 192.36.148.17 192.58.128.30"
 	local addr cmd ok
 
-	[ -z "$gw" ] && { echo "(W) No Gateway address given for check_internet()."; return 1; }
+	[ -z "$gw" ] && { return 1; }
 	[ -z "$dev" ] && { echo "(E) No WAN interface given for check_internet()."; return 1; }
 
 	echo "(I) Try to ping root servers on '$dev' using gateway: '$gw'"
