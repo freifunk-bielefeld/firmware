@@ -8,12 +8,16 @@ addr() {
 	[ -n "$addr" ] && echo "$addr" || echo "-"
 }
 
+print() {
+	echo "	option $1 '$2'"
+}
+
 #include OpenWrt version
 . /etc/openwrt_release
 
 echo "package misc"
 echo "config data 'data'"
-print() { echo "	option $1 '$2'"; }
+print 'mac' "$(uci -q get freifunk.@settings[0].mac)"
 print 'public_addr4' "$(addr 4 br-public)"
 print 'public_addr6' "$(addr 6 br-public)"
 print 'private_addr4' "$(addr 4 br-private)"
