@@ -183,7 +183,7 @@ set_routes()
 	[ -z "$own_private_ip" ] && { echo "(E) Private IP address not set."; return; }
 	[ -z "$own_public_ip" ] && { echo "(E) Public IP address not set."; return; }
 
-	#DHCP settings for all states: (3 for gateway, 6 for dns-server)
+	#DHCP settings for all states: ('3' for gateway, '6' for DNS-server)
 	if [ -n "$public_gw_ip" ]; then
 		if [ "$has_internet" = "yes" ]; then
 			if [ "$share_internet" = "yes" ]; then
@@ -254,7 +254,13 @@ set_routes()
 	echo "(I) DHCP public option: '$public_str'"
 }
 
-check_wan "$wan_interface" && has_internet="yes" || has_internet="no"
+if check_wan "$wan_interface"; then
+	echo "(I) We have local Internet."
+	has_internet="yes"
+else
+	echo "(I) We do not have local Internet."
+	has_internet="no"
+fi
 
 #Get the best public gateway in the public network.
 find_public_gateway
@@ -266,7 +272,6 @@ echo -n "$public_gw_mac" > /tmp/public_gw_mac
 
 if [ "$has_internet" = "yes" ]
 then
-	echo "(I) We have local Internet."
 	set_routes "yes"
 
 	#start/restart fastd
@@ -275,8 +280,6 @@ then
 	#set batman-adv mode
 	[ "$share_internet" = "yes" ] && switch_to_server || switch_to_client
 else
-	echo "(I) We do not have local Internet."
-
 	set_routes "no"
 
 	#stop fastd
