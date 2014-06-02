@@ -36,7 +36,7 @@ define Package/freifunk-bielefeld-debug
 	DEFAULT:=n
 	TITLE:=Freifunk-Bielefeld with debug tools
 	DEPENDS:=+freifunk-bielefeld-basic \
-		+@KMOD_BATMAN_ADV_DEBUG_LOG +iperf +tcpdump
+		+@KMOD_BATMAN_ADV_DEBUG_LOG +iperf +tcpdump-mini
 endef
 
 $(eval $(call BuildPackage,freifunk-bielefeld-basic))
