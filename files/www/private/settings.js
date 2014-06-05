@@ -128,7 +128,7 @@ function appendSetting(p, path, value, mode)
 
 function rebuild_general()
 {
-	var root = get("general");
+	var root = $("general");
 	removeChilds(root);
 	removeChilds(root);
 
@@ -193,7 +193,7 @@ function isWlanIF(ifname)
 
 function rebuild_assignment()
 {
-	var root = get("assignment");
+	var root = $("assignment");
 	removeChilds(root);
 
 	var fs = append_section(root, "Anschl\xfcsse");
@@ -343,7 +343,7 @@ function delWifiSection(ifname)
 
 function rebuild_wifi()
 {
-	var root = get("wireless");
+	var root = $("wireless");
 	removeChilds(root);
 
 	//print wireless sections
@@ -591,7 +591,7 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 
 		//check if all ports of the last vlan are unchecked
 		var all_unchecked = true;
-		var vlan_root = get("network#"+switch_root.lastChild.id+"#ports");
+		var vlan_root = $("network#"+switch_root.lastChild.id+"#ports");
 		onDesc(vlan_root, "INPUT", function(e) {
 			if(isNaN(e.value) || !e.checked) //ignore tagged and unchecked port
 				return;
@@ -627,7 +627,7 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 
 function rebuild_switches()
 {
-	var root = get("switches");
+	var root = $("switches");
 	removeChilds(root);
 
 	//print switch sections

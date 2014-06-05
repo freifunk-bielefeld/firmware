@@ -18,6 +18,6 @@ function update(name) {
 }
 
 function reload() {
-	var opt = get("load_options");
+	var opt = $("load_options");
 	opt.options[opt.selectedIndex].onclick();
 }

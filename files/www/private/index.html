@@ -20,7 +20,7 @@ function nav_onclick()
 	var id = url.substring(0, url.lastIndexOf('.'));
 
 	var process_html = function(data) {
-		var b = get("body");
+		var b = $("body");
 		removeChilds(b);
 		var pattern = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
 		b.innerHTML = pattern.exec(data)[1];
@@ -46,23 +46,23 @@ function nav_onclick()
 	else
 		jx.load(url.replace(".html", ".js"), process_js, 'text');
 
-	onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
+	onDesc($("globalnav"), 'UL', function(n) { hide(n); });
 	onParents(this, 'UL', function(n) { show(n); });
 	onChilds(this.parentNode, 'UL', function(n) { show(n); });
 
-	onDesc(get("globalnav"), 'A', function(n) { removeClass(n, "here"); });
+	onDesc($("globalnav"), 'A', function(n) { removeClass(n, "here"); });
 	onParents(this, 'LI', function(n) { addClass(n.firstChild, "here"); });
 
 	return false;
 }
 
 function init() {
-	onDesc(get("globalnav"), 'UL', function(n) { hide(n); });
-	onDesc(get("globalnav"), 'A', function(n) {
+	onDesc($("globalnav"), 'UL', function(n) { hide(n); });
+	onDesc($("globalnav"), 'A', function(n) {
 		if(n.getAttribute("href") != '#')
 			n.onclick = nav_onclick;
 	});
-	get("first").onclick();
+	$("first").onclick();
 }
 
 function reboot() {
@@ -86,7 +86,7 @@ function toggle_adv_mode(e)
 }
 
 function addHelpText(elem, text) {
-	var help = get("help");
+	var help = $("help");
 
 	elem.onmouseover = function(e) {
 		help.style.top = (e.clientY-20)+"px";

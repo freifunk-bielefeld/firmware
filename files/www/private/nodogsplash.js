@@ -4,7 +4,7 @@ var mac_regex = /([0-9a-f]{1,2}(:[0-9a-f]{1,2}){5})/gi;
 function addIP(span)
 {
 	var mac = span.innerHTML;
-	var ul = get('nds_macs');
+	var ul = $('nds_macs');
 
 	onChilds(ul, 'LABEL', function(e) { if(e.textContent == mac) mac = ""; });
 	if(mac.length == 0) return;
@@ -36,7 +36,7 @@ function reload()
 	});
 
 	send("/cgi-bin/nodogsplash", { func: "list_files" }, function(text) {
-		var span = get('nds_files');
+		var span = $('nds_files');
 		removeChilds(span);
 		var files = split(text);
 		for(var i in files)
@@ -54,7 +54,7 @@ function reload()
 function button_action(func)
 {
 	var macs = "";
-	onChilds(get('nds_macs'), 'LABEL', function(e) { macs += " " + e.textContent; });
+	onChilds($('nds_macs'), 'LABEL', function(e) { macs += " " + e.textContent; });
 
 	if(macs.length == 0) return;
 	send("/cgi-bin/nodogsplash", { func : func, macs : macs }, function(data) {

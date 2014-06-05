@@ -13,7 +13,7 @@ function append_td(tr, value) {
 
 function wifi_scan()
 {
-	var s = get('wifiscan_selection');
+	var s = $('wifiscan_selection');
 	var device = s.options[s.selectedIndex].value;
 
 	send("/cgi-bin/misc", {func:'wifiscan', device:device}, function(data) {
@@ -22,7 +22,7 @@ function wifi_scan()
 		var signals = fetch(/signal: (.*)\n/g, data);
 		var capabilities = fetch(/capability: (.*)\n/g, data);
 
-		var tbody = get("wifiscan_tbody");
+		var tbody = $("wifiscan_tbody");
 		removeChilds(tbody);
 
 		for(var i = 0; i < ssids.length; ++i)
@@ -34,7 +34,7 @@ function wifi_scan()
 			append_td(tr, /IBSS/.test(capabilities[i]) ? "  adhoc" : "  ap");
 		}
 
-		var table = get('wifiscan_table');
+		var table = $('wifiscan_table');
 		show(table);
 	});
 }
@@ -45,7 +45,7 @@ function wifi_scan()
 */
 send("/cgi-bin/misc", {func:'wifiscan_info'}, function(data) {
 	var uci = fromUCI(data);
-	var list = get('wifiscan_selection');
+	var list = $('wifiscan_selection');
 
 	config_foreach(uci.wireless, "wifi-device", function(device, sobj) {
 		config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {

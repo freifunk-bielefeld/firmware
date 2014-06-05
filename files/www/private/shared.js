@@ -1,11 +1,11 @@
 
-function get(id) { return document.getElementById(id); }
+function $(id) { return document.getElementById(id); }
 function create(name) { return document.createElement(name); }
 function show(e) { e.style.display='block'; }
 function hide(e) { e.style.display='none'; }
 function addClass(e, c) { e.classList.add(c); } //HTML5!
 function removeClass(e, c) { e.classList.remove(c); }
-function setText(id, txt) { get(id).innerHTML = txt; }
+function setText(id, txt) { $(id).innerHTML = txt; }
 function inArray(item, array) { return array.indexOf(item) != -1; }
 
 function split(str)

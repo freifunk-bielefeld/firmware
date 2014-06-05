@@ -30,10 +30,10 @@ send("/cgi-bin/home", { }, function(data) {
 	}
 });
 
-addHelpText(get("system"), "Eine \xdcbersicht \xfcber den Router.");
-addHelpText(get("public"), "Das \xf6ffentliche Freifunknetz..");
-addHelpText(get("private"), "Das private Netz bzw. LAN.");
-addHelpText(get("wan"), "Das Netz \xfcber dass das Internet erreicht wird.");
-addHelpText(get("software"), "Einige installierte Softwareversionen.");
-addHelpText(get("public_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
-addHelpText(get("private_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
+addHelpText($("system"), "Eine \xdcbersicht \xfcber den Router.");
+addHelpText($("public"), "Das \xf6ffentliche Freifunknetz..");
+addHelpText($("private"), "Das private Netz bzw. LAN.");
+addHelpText($("wan"), "Das Netz \xfcber dass das Internet erreicht wird.");
+addHelpText($("software"), "Einige installierte Softwareversionen.");
+addHelpText($("public_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
+addHelpText($("private_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
