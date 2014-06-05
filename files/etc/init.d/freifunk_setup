@@ -165,6 +165,7 @@ uci set network.private.ipaddr="192.168.133.1"
 uci delete -q network.private.ip6addr
 uci set network.private.proto=static
 uci set network.private.netmask="255.255.255.0"
+uci set network.private.force_link="1"
 
 uci -q delete dhcp.lan
 uci set dhcp.private=dhcp
@@ -190,6 +191,7 @@ uci delete -q network.public.ip6addr
 uci add_list network.public.ip6addr="$public_ip6/64"
 uci set network.public.proto=static
 uci set network.public.netmask="255.255.0.0"
+uci set network.public.force_link="1"
 
 # Calculate the start and limit for the desired subnet
 # 10.29.0.2 - 10.29.255.254
