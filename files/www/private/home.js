@@ -2,14 +2,14 @@
 function formatSize(bytes) {
 	if(typeof bytes === "undefined" || bytes == "") {
 		return "-";
-	} else if (bytes < 1024) {
+	} else if (bytes < 1000) {
 		return bytes + "  B";
-	} else if (bytes < 1024*1024) {
-		return (bytes/ 1024.0).toFixed(0)  + " KB";
-	} else if (bytes < 1024*1024*1024) {
-		return (bytes/1024.0/1024.0).toFixed(1)  + " MB";
+	} else if (bytes < 1000*1000) {
+		return (bytes/ 1000.0).toFixed(0)  + " KB";
+	} else if (bytes < 1000*1000*1000) {
+		return (bytes/1000.0/1000.0).toFixed(1)  + " MB";
 	} else {
-		return (bytes/1024.0/1024.0/1024.0).toFixed(2) + " GB";
+		return (bytes/1000.0/1000.0/1000.0).toFixed(2) + " GB";
 	}
 }
 
