@@ -6,6 +6,16 @@ The GUI code displayes and manipulated this variable.
 var uci = {};
 var gid = 0;
 
+function init()
+{
+	send("/cgi-bin/settings", { func : "get_settings" }, function(data) {
+		uci = fromUCI(data);
+		rebuild_general();
+		rebuild_assignment();
+		rebuild_wifi();
+		rebuild_switches();
+	});
+}
 
 function updateFrom(src)
 {
@@ -698,19 +708,6 @@ function save_data()
 		if(!obj.pchanged)
 			continue;
 		var data = toUCI(obj);
-		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data }, function(data) { setText('msg', data); reload(); });
+		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data }, function(data) { setText('msg', data); init(); });
 	}
 }
-
-function reload()
-{
-	send("/cgi-bin/settings", { func : "get_settings" }, function(data) {
-		uci = fromUCI(data);
-		rebuild_general();
-		rebuild_assignment();
-		rebuild_wifi();
-		rebuild_switches();
-	});
-}
-
-reload();

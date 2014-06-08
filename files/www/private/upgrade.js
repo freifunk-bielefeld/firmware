@@ -1,1 +1,4 @@
-/* Nothing to do */
+
+function init() {
+	/* Nothing to do */
+}

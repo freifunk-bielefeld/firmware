@@ -43,19 +43,21 @@ function wifi_scan()
 * Create a selection of wireless devices
 * represented as the first interface found.
 */
-send("/cgi-bin/misc", {func:'wifiscan_info'}, function(data) {
-	var uci = fromUCI(data);
-	var list = $('wifiscan_selection');
+function init() {
+	send("/cgi-bin/misc", {func:'wifiscan_info'}, function(data) {
+		var uci = fromUCI(data);
+		var list = $('wifiscan_selection');
 
-	config_foreach(uci.wireless, "wifi-device", function(device, sobj) {
-		config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
-			if(sobj.device == device)
-			{
-				var o = append(list, 'option');
-				o.innerHTML = device;
-				o.value = sobj.ifname;
-				return 1;
-			}
+		config_foreach(uci.wireless, "wifi-device", function(device, sobj) {
+			config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
+				if(sobj.device == device)
+				{
+					var o = append(list, 'option');
+					o.innerHTML = device;
+					o.value = sobj.ifname;
+					return 1;
+				}
+			});
 		});
 	});
-});
+}

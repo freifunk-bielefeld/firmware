@@ -8,6 +8,18 @@ function removeClass(e, c) { e.classList.remove(c); }
 function setText(id, txt) { $(id).innerHTML = txt; }
 function inArray(item, array) { return array.indexOf(item) != -1; }
 
+/* advanced mode */
+var adv_mode = false;
+
+function toggle_adv_mode(e)
+{
+	adv_mode = !adv_mode;
+	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
+	var elems = document.getElementsByClassName('adv_elem');
+	for(i in elems)
+		adv_mode ? show(elems[i]) : hide(elems[i]);
+}
+
 function split(str)
 {
 	if(typeof str != 'string')
@@ -50,6 +62,22 @@ function replaceItem(str, old_item, new_item)
 		if(array[i] == old_item)
 			array[i] = new_item;
 	return array.join(' ');
+}
+
+function addHelpText(elem, text) {
+	var help = $("help");
+
+	elem.onmouseover = function(e) {
+		help.style.top = (e.clientY-20)+"px";
+		help.style.left = (e.clientX+80)+"px";
+		help.innerHTML = text;
+		show(help);
+	};
+
+	elem.onmouseout = function() {
+		help.innerHTML = "";
+		hide(help);
+	};
 }
 
 //to config file syntax

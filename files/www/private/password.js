@@ -1,5 +1,7 @@
 
-$("p1").focus();
+function init() {
+	$("p1").focus();
+}
 
 function apply()
 {

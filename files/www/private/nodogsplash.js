@@ -1,33 +1,7 @@
 
 var mac_regex = /([0-9a-f]{1,2}(:[0-9a-f]{1,2}){5})/gi;
 
-function addIP(span)
-{
-	var mac = span.innerHTML;
-	var ul = $('nds_macs');
-
-	onChilds(ul, 'LABEL', function(e) { if(e.textContent == mac) mac = ""; });
-	if(mac.length == 0) return;
-
-	var label = create('LABEL');
-	label.onclick = function() { ul.removeChild(this); };
-	label.appendChild(document.createTextNode(mac));
-
-	ul.appendChild(label);
-}
-
-function addDeleteButton(div, filename)
-{
-	append_button(div, "L&ouml;schen", function() {
-		if(!confirm("Datei '"+filename+"' wirklich l\xF6schen?")) return;
-		send("/cgi-bin/nodogsplash", { func: "delete_file", filename : filename }, function(data) {
-			setText('msg', data);
-			reload();
-		});
-	});
-}
-
-function reload()
+function init()
 {
 	send("/cgi-bin/nodogsplash", { func: "get_status" }, function(text) {
 		if(text.length == 0) return;
@@ -51,6 +25,32 @@ function reload()
 	});
 }
 
+function addIP(span)
+{
+	var mac = span.innerHTML;
+	var ul = $('nds_macs');
+
+	onChilds(ul, 'LABEL', function(e) { if(e.textContent == mac) mac = ""; });
+	if(mac.length == 0) return;
+
+	var label = create('LABEL');
+	label.onclick = function() { ul.removeChild(this); };
+	label.appendChild(document.createTextNode(mac));
+
+	ul.appendChild(label);
+}
+
+function addDeleteButton(div, filename)
+{
+	append_button(div, "L&ouml;schen", function() {
+		if(!confirm("Datei '"+filename+"' wirklich l\xF6schen?")) return;
+		send("/cgi-bin/nodogsplash", { func: "delete_file", filename : filename }, function(data) {
+			setText('msg', data);
+			init();
+		});
+	});
+}
+
 function button_action(func)
 {
 	var macs = "";
@@ -61,5 +61,3 @@ function button_action(func)
 		setText('msg', data);
 	});
 }
-
-reload();

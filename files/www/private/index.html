@@ -3,13 +3,12 @@
 <html>
 <head>
 <title>Freifunk</title>
-<link rel="stylesheet" type="text/css" href="style.css">
-<script type="text/javascript" src="shared.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script src="shared.js"></script>
 
 <script type="text/javascript">
 var html_cache = {};
 var js_cache = {};
-var adv_mode = false;
 
 function nav_onclick() 
 {
@@ -30,6 +29,7 @@ function nav_onclick()
 	var process_js = function(data) {
 		(window.execScript || function(data) {
 			window["eval"].call(window, data);
+			window["eval"].call(window, "init();");
 		})(data);
 		js_cache[id] = data;
 	};
@@ -56,7 +56,7 @@ function nav_onclick()
 	return false;
 }
 
-function init() {
+function preselect() {
 	onDesc($("globalnav"), 'UL', function(n) { hide(n); });
 	onDesc($("globalnav"), 'A', function(n) {
 		if(n.getAttribute("href") != '#')
@@ -75,35 +75,10 @@ function reboot() {
 function logout() {
 	window.location="https://none@" + window.location.host;
 }
-
-function toggle_adv_mode(e)
-{
-	adv_mode = !adv_mode;
-	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
-	var elems = document.getElementsByClassName('adv_elem');
-	for(i in elems)
-		adv_mode ? show(elems[i]) : hide(elems[i]);
-}
-
-function addHelpText(elem, text) {
-	var help = $("help");
-
-	elem.onmouseover = function(e) {
-		help.style.top = (e.clientY-20)+"px";
-		help.style.left = (e.clientX+80)+"px";
-		help.innerHTML = text;
-		show(help);
-	};
-
-	elem.onmouseout = function() {
-		help.innerHTML = "";
-		hide(help);
-	};
-}
 </script>
 
 </head>
-<body onload="init();">
+<body onload="preselect();">
 
 <ul id="globalnav">
 	<li><a href="home.html" id="first">Home</a></li>

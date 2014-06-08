@@ -17,7 +17,7 @@ function update(name) {
 	});
 }
 
-function reload() {
+function init() {
 	var opt = $("load_options");
 	opt.options[opt.selectedIndex].onclick();
 }

@@ -3,18 +3,18 @@
 <html>
 <head>
 <title>Batman-Info</title>
-<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="style.css" />
 <script src="shared.js"></script>
 <script src="batman-adv.js"></script>
 </head>
-<body>
+<body onload="init();">
 
 <select id="load_options">
 	<option onclick="update('get_originators')">originators</option>
 	<option onclick="update('get_transglobal')">transglobal</option>
 	<option onclick="update('get_gateways')">gateways</option>
 </select>
-<button type="button" onclick="reload()">Aktualisieren</button>
+<button type="button" onclick="init();">Aktualisieren</button>
 <br /><br />
 <pre id="output"></pre>
 
