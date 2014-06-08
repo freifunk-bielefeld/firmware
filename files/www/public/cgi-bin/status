@@ -8,6 +8,7 @@ cat <<EOF
 <html>
 <head>
 <title>Info</title>
+<meta charset="utf-8"/>
 <style type="text/css">
 * {
     margin: 0;
