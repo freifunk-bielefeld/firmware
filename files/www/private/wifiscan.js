@@ -53,6 +53,7 @@ function init() {
 				if(sobj.device == device)
 				{
 					var o = append(list, 'option');
+					o.style.paddingRight = "1em";
 					o.innerHTML = device;
 					o.value = sobj.ifname;
 					return 1;
