@@ -105,6 +105,14 @@ input:hover, input:focus {
 	background: #f6f6f6;
 }
 
+select {
+	min-width: 4em;
+}
+
+option {
+	padding-right: 1em;
+}
+
 .radio_option div {
 	float: left;
 	white-space: nowrap;
