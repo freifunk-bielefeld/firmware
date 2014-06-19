@@ -50,7 +50,7 @@ print 'private_rx_bytes' "$(cat /sys/class/net/br-private/statistics/rx_bytes 2>
 print 'private_tx_bytes' "$(cat /sys/class/net/br-private/statistics/tx_bytes 2> /dev/null)"
 print 'public_rx_bytes' "$(cat /sys/class/net/br-public/statistics/rx_bytes 2> /dev/null)"
 print 'public_tx_bytes' "$(cat /sys/class/net/br-public/statistics/tx_bytes 2> /dev/null)"
-print 'wan_rx_bytes' "$(cat /sys/class/net/*wan/statistics/rx_bytes 2> /dev/null)"
-print 'wan_tx_bytes' "$(cat /sys/class/net/*wan/statistics/tx_bytes 2> /dev/null)"
+print 'wan_rx_bytes' "$(cat /sys/class/net/$wan_interface/statistics/rx_bytes 2> /dev/null)"
+print 'wan_tx_bytes' "$(cat /sys/class/net/$wan_interface/statistics/tx_bytes 2> /dev/null)"
 
 %>
