@@ -708,6 +708,12 @@ function save_data()
 		if(!obj.pchanged)
 			continue;
 		var data = toUCI(obj);
-		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data }, function(data) { setText('msg', data); init(); });
+		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data },
+			function(data) {
+				$('msg').innerHTML = data;
+				$('msg').focus();
+				init();
+			}
+		);
 	}
 }
