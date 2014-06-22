@@ -13,7 +13,7 @@ tc_interface() {
 	[ -n "$interface" ] && {
 		config_load network
 		config_get ifname "$interface" ifname
-		config_load simple_tc
+		config_load simple-tc
 	}
 
 	[ "$INTERFACE" = "$ifname" ] || return

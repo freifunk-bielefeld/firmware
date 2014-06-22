@@ -12,7 +12,7 @@ case "$GET_func" in
 		uci export -qn network
 		uci export -qn network_defaults
 		uci export -qn autoupdater
-		uci export -qn simple_tc
+		uci export -qn simple-tc
 
 		#get the tagged port of the switch
 		echo "package misc"

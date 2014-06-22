@@ -62,7 +62,7 @@ function appendSetting(p, path, value, mode)
 			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
 		}
-		if(cfg == "simple_tc") {
+		if(cfg == "simple-tc") {
 			b = append_radio(p, "Public Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download aus dem Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
@@ -161,12 +161,12 @@ function rebuild_general()
 		appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
 	}
 
-	if('simple_tc' in uci) {
-		var t = uci.simple_tc
+	if('simple-tc' in uci) {
+		var t = uci['simple-tc'];
 		var l = firstSectionID(t, "interface");
-		appendSetting(fs, ['simple_tc', l, "enabled"], t[l]["enabled"]);
-		appendSetting(fs, ['simple_tc', l, "limit_ingress"], t[l]["limit_ingress"]);
-		appendSetting(fs, ['simple_tc', l, "limit_egress"], t[l]["limit_egress"]);
+		appendSetting(fs, ['simple-tc', l, "enabled"], t[l]["enabled"]);
+		appendSetting(fs, ['simple-tc', l, "limit_ingress"], t[l]["limit_ingress"]);
+		appendSetting(fs, ['simple-tc', l, "limit_egress"], t[l]["limit_egress"]);
 	}
 
 	var div = append(fs, "div");
