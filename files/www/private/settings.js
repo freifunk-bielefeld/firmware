@@ -64,18 +64,18 @@ function appendSetting(p, path, value, mode)
 		}
 		if(cfg == "simple-tc") {
 			b = append_radio(p, "Public Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
-			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download aus dem Freifunknetz \xfcber den eigenen Internetanschluss.");
+			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
 		break;
 	case "limit_egress":
 		b = append_input(p, "Public Upload", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Upload ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Upload in KBit.");
+		addHelpText(b, "Maximaler Upload in KBit f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "limit_ingress":
 		b = append_input(p, "Public Download", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Download ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Download in KBit.");
+		addHelpText(b, "Maximaler Download in KBit f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
