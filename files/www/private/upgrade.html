@@ -10,19 +10,24 @@
 </head>
 <body onload="init();">
 
+<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 <fieldset>
 	<legend>Upgrade</legend>
 	<div id="selected_image"></div>
-	<div>
-		<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
+	<div class="radio_option">
+		<label>
 			<input type="file" id="import_file" name="firmware" onchange="$('selected_image').innerHTML=this.value.replace(/^.*[\\\/](.*)$/, '$1');" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
 			<button type="button" onclick="$('import_file').click()">Image Ausw&auml;hlen</button>
 			<button type="submit">Senden</button>
-			<!--<input type="checkbox" name="keep_config" value="yes" /> Konfiguration erhalten<br />-->
-		</form>
+		</label>
+		<div>
+			<input type="checkbox" name="keep_config" value="yes" />
+			<label>Konfiguration erhalten</label>
+		</div>
 	</div>
 	<div><br />Hinweis: Der Dateiname sollte dem Muster "openwrt-[chipsatz]-[modell]-squashfs-sysupgrade.bin" entsprechen.</div>
 </fieldset>
+</form>
 
 </body>
 </html>

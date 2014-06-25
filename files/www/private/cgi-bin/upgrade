@@ -3,14 +3,21 @@ content-type: text/plain
 
 <%
 path="$POST_firmware"
+keep="$POST_keep_config"
 
 if [ ! -f "$path" ]; then
 	echo "(E) Datei nicht gefunden."
 	exit 1
 fi
 
+if [ "$keep" = "yes" ]; then
+	args=""
+else
+	args="-n"
+fi
+
 echo "(I) Starte sysupgrade..."
 
 #apply openwrt or vendor image
-sysupgrade -n $path
+sysupgrade $args $path
 %>
