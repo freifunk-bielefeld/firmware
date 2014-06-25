@@ -30,6 +30,10 @@ define Package/freifunk-bielefeld-basic/install
 	#nothing to do here
 endef
 
+define Package/freifunk-bielefeld/conffiles
+	/etc/config/freifunk
+endef
+
 define Package/freifunk-bielefeld-debug
 	SECTION:=base
 	CATEGORY:=Config
