@@ -4,274 +4,292 @@
 
 START=99
 
+initial_setup()
+{
+	echo "(I) Set empty root password."
+	(echo ""; sleep 1; echo "") | passwd > /dev/null
+
+	#default SSID
+	ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
+
+	#add batman version to the AdHoc interface SSID
+	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+
+	#default BSSID
+	ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
+
+	wan_interface=`uci get -q network.wan.ifname`
+	echo "(I) Wan interface: '$wan_interface'"
+
+	private_interface=`uci get -q network.lan.ifname`
+	echo "(I) Private interface: '$private_interface'"
+
+	prefix4=`uci get freifunk.@settings[0].prefix4`
+	subnet4=${prefix4#*.}
+	subnet4=${subnet4%%.*}
+
+
+	# ------------------------------------------- #
+	# S E T U P  W I R E L E S S #
+	# ------------------------------------------- #
+
+	echo "(I) Setup /etc/config/wireless"
+
+	#delete all wifi interfaces
+	while uci -q delete wireless.@wifi-iface[0]; do :; done
+
+	#test if we can span both Ad-Hoc and Access Point interfaces
+	config_wifi() {
+		local ds="$1" #device section
+		local ah_ok=0 ap_ok=0 #interface status
+		local wifi_device=`uci get -q wireless.$ds.device`
+
+		#config_get wifi_device "$ds" device
+		[ -z "$wifi_device" ] && wifi_device="$ds"
+
+		echo "(I) Configure wifi device: '$wifi_device'"
+
+		if [ `uci get wireless.$ds.channel` -gt 35 ]; then
+			uci set wireless.$ds.channel=36
+		else
+			uci set wireless.$ds.channel=1
+		fi
+
+		uci set wireless.$ds.country=DE
+		uci set wireless.$ds.disabled=0
+
+		#remove ap/ah wifi interface entries
+		clear_wifi_interfaces() {
+			uci -q delete wireless.@wifi-iface[-1]
+			uci -q delete wireless.@wifi-iface[-1]
+		}
+
+		#Ad-Hoc for batman
+		add_ah_interface() {
+			local s=wireless.`uci add wireless wifi-iface`
+			uci set $s.device="$wifi_device"
+			uci set $s.ifname="${wifi_device}_mesh"
+			uci set $s.mode=adhoc
+			uci set $s.ssid="$ah_ssid"
+			uci set $s.bssid="$ah_bssid"
+			uci set $s.hidden=1
+		}
+
+		#Access Point for clients
+		add_ap_interface() {
+			local s=wireless.`uci add wireless wifi-iface`
+			uci set $s.device="$wifi_device"
+			uci set $s.ifname="${wifi_device}_public"
+			uci set $s.mode=ap
+			uci set $s.network=public
+			uci set $s.ssid="$ap_ssid"
+			uci set $s.encryption="none"
+		}
+
+		wifi_restart() {
+			echo "(I) Wireless down/up"
+			wifi reload
+			sleep 5
+		}
+
+		check_wifi_interfaces() {
+			ifconfig "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
+			ifconfig "${wifi_device}_public" &> /dev/null && ap_ok=1 || ap_ok=0
+		}
+
+		add_ah_interface
+		add_ap_interface
+		wifi_restart
+		check_wifi_interfaces
+
+		#if not both interfaces work; try only Ad-Hoc
+		if [ $ah_ok -eq 0 -o $ap_ok -eq 0 ]; then
+			echo "(I) Cannot start Ad-Hoc and Access Point mode at the same time - try AdHoc only now."
+			clear_wifi_interfaces
+			add_ah_interface
+			wifi_restart
+			check_wifi_interfaces
+		fi
+
+		[ $ah_ok -eq 1 ] && append wifi_mesh_interfaces "${wifi_device}_mesh"
+		[ $ap_ok -eq 1 ] && append wifi_public_interfaces "${wifi_device}_public"
+	}
+
+	config_load wireless
+	config_foreach config_wifi wifi-device
+
+	echo "(I) Wifi access point interfaces: '$wifi_public_interfaces'"
+	echo "(I) Wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
+
+
+	#get a unique (but not just random) mac to identify the node
+	mac=`cat /sys/class/ieee80211/phy0/macaddress`
+	[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
+		mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
+	}
+	#translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a | 2)) #set second bit to 1
+	a=`printf '%02x\n' $a` #convert to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	public_ip4=`mac2ip $mac`
+	public_ip6=`mac2ip6 $mac`
+
+	echo "(I) MAC: '$mac'"
+	echo "(I) Public IPv4 Address: '$public_ip4'"
+	echo "(I) Public IPv6 Address: '$public_ip6'"
+
+
+	# ------------------------------------- #
+	# P R I V A T E  S E T U P #
+	# ------------------------------------- #
+
+	echo "(I) Setup private network interfaces."
+
+	uci -q delete network.lan
+	uci set network.private="interface"
+	uci set network.private.type="bridge"
+	uci set network.private.ifname="dummy_private $private_interface"
+	uci set network.private.ipaddr="192.168.133.1"
+	uci delete -q network.private.ip6addr
+	uci set network.private.proto=static
+	uci set network.private.netmask="255.255.255.0"
+	uci set network.private.force_link="1"
+
+	uci -q delete dhcp.lan
+	uci set dhcp.private=dhcp
+	uci set dhcp.private.interface=private
+	uci set dhcp.private.start=100
+	uci set dhcp.private.limit=150
+	uci set dhcp.private.leasetime=2h
+	uci set dhcp.private.dhcp_option="3" #no gateway yet
+
+	/etc/init.d/6relayd enable
+
+	# ------------------------------------- #
+	# P U B L I C  S E T U P #
+	# ------------------------------------- #
+
+	echo "(I) Setup public interfaces."
+
+	uci set network.public="interface"
+	uci set network.public.type="bridge"
+	uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
+	uci set network.public.ipaddr="$public_ip4"
+	uci delete -q network.public.ip6addr
+	uci add_list network.public.ip6addr="$public_ip6/64"
+	uci set network.public.proto=static
+	uci set network.public.netmask="255.255.0.0"
+	uci set network.public.force_link="1"
+
+	# Calculate the start and limit for the desired subnet
+	# 10.29.0.2 - 10.29.255.254
+	start=$((256*256*$subnet4+2)) # -> 1900546
+	limit=$((256*256-2)) # -> 65534
+
+	uci set dhcp.public=dhcp
+	uci set dhcp.public.interface=public
+	uci set dhcp.public.start=$start
+	uci set dhcp.public.limit=$limit
+	uci set dhcp.public.leasetime=2h #max time for address conflicts
+	uci set dhcp.public.dhcp_option="3" #no gateway yet
+
+
+	# ------------------------------------- #
+	# W A N  S E T U P #
+	# ------------------------------------- #
+
+	echo "(I) Setup WAN interface."
+
+	uci -q delete network.wan
+	uci -q delete dhcp.wan
+
+	if [ -n "$wan_interface" ]
+	then
+		uci set network.wan="interface"
+		uci set network.wan.ifname="$wan_interface"
+		uci set network.wan.proto="dhcp"
+
+		uci set dhcp.wan=dhcp
+		uci set dhcp.wan.interface=wan
+		uci set dhcp.wan.ignore=1
+	fi
+
+	# ------------------------------------- #
+	# B A T M A N  S E T U P #
+	# ------------------------------------- #
+
+	echo "(I) Add network sections to trigger batman-adv and set MTU."
+	for if in dummy_mesh fastd_mesh $wifi_mesh_interfaces; do
+		local n=`echo -n $if | tr -c a-z0-9_ _`
+		uci set network.$n="interface"
+		uci set network.$n.ifname=$if
+		uci set network.$n.mtu=1426
+		uci set network.$n.auto=1
+		uci set network.$n.proto="batadv"
+		uci set network.$n.mesh="bat0"
+	done
+
+
+	# ------------------------------------- #
+	# F R E I F U N K  S E T U P #
+	# ------------------------------------- #
+
+	uci set freifunk.@settings[0].mac="$mac"
+	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
+
+	#prevent own hostname as DNS entry
+	uci set dhcp.@dnsmasq[0].add_local_domain='0'
+	uci set dhcp.@dnsmasq[0].add_local_hostname='0'
+
+	#save defaults for use in the web-ui
+	cp /etc/config/network /etc/config/network_defaults
+
+	/etc/init.d/nodogsplash disable
+	/etc/init.d/fastd disable
+	/etc/init.d/telnet disable
+
+	echo "(I) Generate a key for fastd."
+	secret=`fastd --generate-key --machine-readable`
+	uci set fastd.default.secret="$secret"
+	key=`/etc/init.d/fastd show_key 'default'`
+	uci set fastd.default.key="$key"
+
+	#write everything to flash
+	uci commit
+}
 
 start()
 {
-#Setup the system for the initial Freifunk configuration.
-#This script is only run once and deletes itself.
+	#Setup the system for the initial Freifunk configuration.
+	#This script is only run once and deletes itself.
 
-exec >/root/freifunk_setup.log 2>&1
-. /lib/functions.sh
+	exec >/root/freifunk_setup.log 2>&1
+	. /lib/functions.sh
 
-echo "(I) Start freifunk_setup"
+	echo "(I) Start freifunk_setup"
 
+	from_version="$(uci get -q freifunk.@settings[0].version)"
+	to_version="0.3-dev"
 
-echo "(I) Set empty root password."
-(echo ""; sleep 1; echo "") | passwd > /dev/null
+	echo "(I) Update from '$from_version' to '$to_version'."
+	case "$from_version" in
+		"")
+			echo "I) Start initial setup."
+			initial_setup
+			;;
+		*)
+			echo "(E) Unknown version => Skip setup."
+			;;
+	esac
 
-#default SSID
-ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
+	uci set freifunk.@settings[0].version="$to_version"
+	uci commit freifunk
 
-#add batman version to the AdHoc interface SSID
-ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+	echo "(I) Done freifunk_setup - rebooting now."
 
-#default BSSID
-ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
-
-wan_interface=`uci get -q network.wan.ifname`
-echo "(I) Wan interface: '$wan_interface'"
-
-private_interface=`uci get -q network.lan.ifname`
-echo "(I) Private interface: '$private_interface'"
-
-prefix4=`uci get freifunk.@settings[0].prefix4`
-subnet4=${prefix4#*.}
-subnet4=${subnet4%%.*}
-
-
-# ------------------------------------------- #
-# S E T U P  W I R E L E S S #
-# ------------------------------------------- # 
-
-echo "(I) Setup /etc/config/wireless"
-
-#delete all wifi interfaces
-while uci -q delete wireless.@wifi-iface[0]; do :; done
-
-#test if we can span both Ad-Hoc and Access Point interfaces
-config_wifi() {
-	local ds="$1" #device section
-	local ah_ok=0 ap_ok=0 #interface status
-	local wifi_device=`uci get -q wireless.$ds.device`
-
-	#config_get wifi_device "$ds" device
-	[ -z "$wifi_device" ] && wifi_device="$ds"
-
-	echo "(I) Configure wifi device: '$wifi_device'"
-
-	if [ `uci get wireless.$ds.channel` -gt 35 ]; then
-		uci set wireless.$ds.channel=36
-	else
-		uci set wireless.$ds.channel=1
-	fi
-
-	uci set wireless.$ds.country=DE
-	uci set wireless.$ds.disabled=0
-
-	#remove ap/ah wifi interface entries
-	clear_wifi_interfaces() {
-		uci -q delete wireless.@wifi-iface[-1]
-		uci -q delete wireless.@wifi-iface[-1]
-	}
-
-	#Ad-Hoc for batman
-	add_ah_interface() {
-		local s=wireless.`uci add wireless wifi-iface`
-		uci set $s.device="$wifi_device"
-		uci set $s.ifname="${wifi_device}_mesh"
-		uci set $s.mode=adhoc
-		uci set $s.ssid="$ah_ssid"
-		uci set $s.bssid="$ah_bssid"
-		uci set $s.hidden=1
-	}
-
-	#Access Point for clients
-	add_ap_interface() {
-		local s=wireless.`uci add wireless wifi-iface`
-		uci set $s.device="$wifi_device"
-		uci set $s.ifname="${wifi_device}_public"
-		uci set $s.mode=ap
-		uci set $s.network=public
-		uci set $s.ssid="$ap_ssid"
-		uci set $s.encryption="none"
-	}
-
-	wifi_restart() {
-		echo "(I) Wireless down/up"
-		wifi reload
-		sleep 5
-	}
-
-	check_wifi_interfaces() {
-		ifconfig "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
-		ifconfig "${wifi_device}_public" &> /dev/null && ap_ok=1 || ap_ok=0
-	}
-
-	add_ah_interface
-	add_ap_interface
-	wifi_restart
-	check_wifi_interfaces
-
-	#if not both interfaces work; try only Ad-Hoc
-	if [ $ah_ok -eq 0 -o $ap_ok -eq 0 ]; then
-		echo "(I) Cannot start Ad-Hoc and Access Point mode at the same time - try AdHoc only now."
-		clear_wifi_interfaces
-		add_ah_interface
-		wifi_restart
-		check_wifi_interfaces
-	fi
-
-	[ $ah_ok -eq 1 ] && append wifi_mesh_interfaces "${wifi_device}_mesh"
-	[ $ap_ok -eq 1 ] && append wifi_public_interfaces "${wifi_device}_public"
-}
-
-config_load wireless
-config_foreach config_wifi wifi-device
-
-echo "(I) Wifi access point interfaces: '$wifi_public_interfaces'"
-echo "(I) Wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
-
-
-#get a unique (but not just random) mac to identify the node
-mac=`cat /sys/class/ieee80211/phy0/macaddress`
-[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
-	mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
-}
-#translate to local administered mac
-a=${mac%%:*} #cut out first hex
-a=$((0x$a | 2)) #set second bit to 1
-a=`printf '%02x\n' $a` #convert to hex
-mac="$a:${mac#*:}" #reassemble mac
-
-public_ip4=`mac2ip $mac`
-public_ip6=`mac2ip6 $mac`
-
-echo "(I) MAC: '$mac'"
-echo "(I) Public IPv4 Address: '$public_ip4'"
-echo "(I) Public IPv6 Address: '$public_ip6'"
-
-
-# ------------------------------------- #
-# P R I V A T E  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Setup private network interfaces."
-
-uci -q delete network.lan
-uci set network.private="interface"
-uci set network.private.type="bridge"
-uci set network.private.ifname="dummy_private $private_interface"
-uci set network.private.ipaddr="192.168.133.1"
-uci delete -q network.private.ip6addr
-uci set network.private.proto=static
-uci set network.private.netmask="255.255.255.0"
-uci set network.private.force_link="1"
-
-uci -q delete dhcp.lan
-uci set dhcp.private=dhcp
-uci set dhcp.private.interface=private
-uci set dhcp.private.start=100
-uci set dhcp.private.limit=150
-uci set dhcp.private.leasetime=2h
-uci set dhcp.private.dhcp_option="3" #no gateway yet
-
-/etc/init.d/6relayd enable
-
-# ------------------------------------- #
-# P U B L I C  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Setup public interfaces."
-
-uci set network.public="interface"
-uci set network.public.type="bridge"
-uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
-uci set network.public.ipaddr="$public_ip4"
-uci delete -q network.public.ip6addr
-uci add_list network.public.ip6addr="$public_ip6/64"
-uci set network.public.proto=static
-uci set network.public.netmask="255.255.0.0"
-uci set network.public.force_link="1"
-
-# Calculate the start and limit for the desired subnet
-# 10.29.0.2 - 10.29.255.254
-start=$((256*256*$subnet4+2)) # -> 1900546
-limit=$((256*256-2)) # -> 65534
-
-uci set dhcp.public=dhcp
-uci set dhcp.public.interface=public
-uci set dhcp.public.start=$start
-uci set dhcp.public.limit=$limit
-uci set dhcp.public.leasetime=2h #max time for address conflicts
-uci set dhcp.public.dhcp_option="3" #no gateway yet
-
-
-# ------------------------------------- #
-# W A N  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Setup WAN interface."
-
-uci -q delete network.wan
-uci -q delete dhcp.wan
-
-if [ -n "$wan_interface" ]
-then
-	uci set network.wan="interface"
-	uci set network.wan.ifname="$wan_interface"
-	uci set network.wan.proto="dhcp"
-
-	uci set dhcp.wan=dhcp
-	uci set dhcp.wan.interface=wan
-	uci set dhcp.wan.ignore=1
-fi
-
-# ------------------------------------- #
-# B A T M A N  S E T U P #
-# ------------------------------------- #
-
-echo "(I) Add network sections to trigger batman-adv and set MTU."
-for if in dummy_mesh fastd_mesh $wifi_mesh_interfaces; do
-	local n=`echo -n $if | tr -c a-z0-9_ _`
-	uci set network.$n="interface"
-	uci set network.$n.ifname=$if
-	uci set network.$n.mtu=1426
-	uci set network.$n.auto=1
-	uci set network.$n.proto="batadv"
-	uci set network.$n.mesh="bat0"
-done
-
-
-# ------------------------------------- #
-# F R E I F U N K  S E T U P #
-# ------------------------------------- #
-
-uci set freifunk.@settings[0].mac="$mac"
-uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
-
-#prevent own hostname as DNS entry
-uci set dhcp.@dnsmasq[0].add_local_domain='0'
-uci set dhcp.@dnsmasq[0].add_local_hostname='0'
-
-#save defaults for use in the web-ui
-cp /etc/config/network /etc/config/network_defaults
-
-/etc/init.d/nodogsplash disable
-/etc/init.d/fastd disable
-/etc/init.d/telnet disable
-
-echo "(I) Generate a key for fastd."
-secret=`fastd --generate-key --machine-readable`
-uci set fastd.default.secret="$secret"
-key=`/etc/init.d/fastd show_key 'default'`
-uci set fastd.default.key="$key"
-
-#write everything to flash
-uci commit
-
-echo "(I) Done freifunk_setup - rebooting now."
-
-/etc/init.d/freifunk_setup disable
-rm /etc/init.d/freifunk_setup
-reboot
+	/etc/init.d/freifunk_setup disable
+	rm /etc/init.d/freifunk_setup
+	reboot
 }

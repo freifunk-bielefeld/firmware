@@ -1,6 +1,6 @@
 
 config settings
-	option 'version' '0.3-dev'
+	option 'version' ''
 	option 'prefix6' 'fdef:17a0:ffb1::/64'
 	option 'prefix4' '10.29.0.0/16'
 	option 'mac' ''
