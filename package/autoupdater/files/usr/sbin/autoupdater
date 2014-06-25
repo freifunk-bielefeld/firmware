@@ -152,7 +152,7 @@ autoupdate() {
     fi
     echo "Upgrading firmware."
 
-    sysupgrade -n "${fw_image}"
+    sysupgrade "${fw_image}"
   else
     echo "No new firmware available"
   fi
