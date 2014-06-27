@@ -271,7 +271,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	from_version="$(uci get -q freifunk.@settings[0].version)"
-	to_version="0.3-dev"
+	to_version="0.3"
 
 	echo "(I) Update from '$from_version' to '$to_version'."
 	case "$from_version" in
