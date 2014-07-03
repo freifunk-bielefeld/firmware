@@ -157,8 +157,6 @@ initial_setup()
 	uci set network.private.netmask="255.255.255.0"
 	uci set network.private.force_link="1"
 
-	/etc/init.d/6relayd enable
-
 	# ------------------------------------- #
 	# P U B L I C  S E T U P #
 	# ------------------------------------- #

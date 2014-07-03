@@ -1,7 +1,0 @@
-config server default
-	option master	public
-	list network	private
-	option rd	relay
-	option dhcpv6	relay
-	option ndp	relay
-	option compat_ula 1
