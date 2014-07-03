@@ -34,7 +34,7 @@ addr() {
 
 get_default_gateway() {
 	local dev="$1"
-	ip route show 0.0.0.0/0 dev "$dev" | sed -r 's/default via ([0-9\.]+).*/\1/' 2> /dev/null
+	ip route show 0.0.0.0/0 dev "$dev" 2> /dev/null | sed -r 's/default via ([0-9\.]+).*/\1/'
 }
 
 own_public_ip=$(addr 4 br-public)
