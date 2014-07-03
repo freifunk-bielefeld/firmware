@@ -208,6 +208,7 @@ initial_setup()
 	if [ -n "$wan_interface" ]
 	then
 		uci set network.wan="interface"
+		uci set network.wan.type="bridge"
 		uci set network.wan.ifname="$wan_interface"
 		uci set network.wan.proto="dhcp"
 

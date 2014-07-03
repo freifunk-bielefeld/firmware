@@ -24,10 +24,6 @@ echo "(I) Start: $(date)"
 	share_internet="yes" || share_internet="no"
 echo "(I) share_internet: '$share_internet'"
 
-wan_interfaces=$(uci -q get network.wan.ifname)
-wan_interface=${wan_interfaces%% *} #get first interface
-echo "(I) wan_interface: '$wan_interface'"
-
 gw_mode=$(batctl gw 2> /dev/null)
 gw_mode=${gw_mode:0:6}
 echo "(I) gw_mode: '$gw_mode'"
@@ -254,7 +250,7 @@ set_routes()
 	echo "(I) DHCP public option: '$public_str'"
 }
 
-if check_wan "$wan_interface"; then
+if check_wan "br-wan"; then
 	echo "(I) We have local Internet."
 	has_internet="yes"
 else

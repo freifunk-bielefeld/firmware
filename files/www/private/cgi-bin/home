@@ -28,10 +28,8 @@ uptime="${up%%,*}"
 print 'uptime' "${uptime##*up}"
 print 'uname' "$(uname -s -m -r)"
 print 'date' "$(date)"
-wan_interfaces="$(uci -q get network.wan.ifname)"
-wan_interface=${wan_interfaces%% *} #get first interface
-print 'wan_addr4' "$(addr 4 $wan_interface)"
-print 'wan_addr6' "$(addr 6 $wan_interface)"
+print 'wan_addr4' "$(addr 4 br-wan)"
+print 'wan_addr6' "$(addr 6 br-wan)"
 has_internet=$(cat /tmp/has_internet 2> /dev/null)
 [ "$has_internet" = "yes" ] && print 'has_internet' 'Ja' || print 'has_internet' 'Nein'
 share=$(uci -q get freifunk.@settings[0].share_internet)
@@ -50,7 +48,7 @@ print 'private_rx_bytes' "$(cat /sys/class/net/br-private/statistics/rx_bytes 2>
 print 'private_tx_bytes' "$(cat /sys/class/net/br-private/statistics/tx_bytes 2> /dev/null)"
 print 'public_rx_bytes' "$(cat /sys/class/net/br-public/statistics/rx_bytes 2> /dev/null)"
 print 'public_tx_bytes' "$(cat /sys/class/net/br-public/statistics/tx_bytes 2> /dev/null)"
-print 'wan_rx_bytes' "$(cat /sys/class/net/$wan_interface/statistics/rx_bytes 2> /dev/null)"
-print 'wan_tx_bytes' "$(cat /sys/class/net/$wan_interface/statistics/tx_bytes 2> /dev/null)"
+print 'wan_rx_bytes' "$(cat /sys/class/net/br-wan/statistics/rx_bytes 2> /dev/null)"
+print 'wan_tx_bytes' "$(cat /sys/class/net/br-wan/statistics/tx_bytes 2> /dev/null)"
 
 %>

@@ -182,11 +182,13 @@ function getMode(ifname)
 	if(inArray(ifname, split(n.private.ifname)))
 		return "private";
 
+	if(inArray(ifname, split(n.wan.ifname)))
+		return "wan";
+
 	for(var id in n)
 	{
 		if(n[id].ifname != ifname) continue;
 		if(n[id].proto == "batadv") return "mesh";
-		if(n[id].proto == "dhcp") return "wan";
 	}
 
 	return "none";
@@ -270,7 +272,8 @@ function addNetSection(ifname, mode)
 	switch(mode)
 	{
 	case "wan":
-		n[sid] = {"stype":"interface","ifname":ifname,"proto":"dhcp"};
+		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
+		n.wan.ifname = addItem(n.wan.ifname, ifname);
 		break;
 	case "mesh":
 		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1426","auto":"1","proto":"batadv","mesh":"bat0"};
@@ -666,45 +669,8 @@ function rebuild_switches()
 	rebuild_assignment();
 }
 
-/*
-Our scripts use "uci get network.wan.ifname" to get the WAN interface.
-Therefore, this script makes sure the intended section is called 'wan',
-The occurence of multiple WAN-sections is also checked.
-*/
-function select_wan()
-{
-	var n = uci.network;
-
-	//rename section from 'wan'
-	if('wan' in n)
-	{
-		n["cfg"+(++gid)] = n['wan'];
-		delete n['wan'];
-	}
-
-	//make sure we only have at most one section for WAN
-	var wan_id;
-	for(var id in n)
-	{
-		var obj = n[id];
-		if(obj.stype != 'interface' || !obj.ifname || obj.type == "bridge" || getMode(obj.ifname) != 'wan')
-			continue;
-		if(wan_id)
-			return alert("Es kann nur ein Anschluss als Internetzugang (WAN) definiert werden. Bitte zuerst \xE4ndern.");
-		if(id != 'wan')
-			wan_id = id;
-	}
-
-	//rename section to 'wan'
-	if(wan_id) {
-		n['wan'] = n[wan_id];
-		delete n[wan_id];
-	}
-}
-
 function save_data()
 {
-	select_wan();
 	for(var name in uci)
 	{
 		var obj = uci[name];
