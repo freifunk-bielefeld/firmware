@@ -123,6 +123,9 @@ function appendSetting(p, path, value, mode)
 				map.push(pm[i]);
 		}
 		b = append_check(p, value.title, id, split(value.ports), map);
+
+		var span = append(b, 'span');
+		span.innerHTML = "("+mode+")"; //mode label
 		break;
 	default:
 		return;
@@ -437,7 +440,7 @@ function apply_port_action(switch_root)
 	});
 }
 
-function build_vlan(switch_root, id, obj, swinfo, ifname)
+function build_vlan(switch_root, id, obj, swinfo, ifname, mode)
 {
 	var vlan_root = append(switch_root, 'div');
 	vlan_root.id = id;
@@ -445,9 +448,9 @@ function build_vlan(switch_root, id, obj, swinfo, ifname)
 	for(var k in obj)
 	{
 		if(k == "ports")
-			appendSetting(vlan_root, ["network", id, k], {"title":ifname, "ports":obj[k], "swinfo":swinfo});
+			appendSetting(vlan_root, ["network", id, k], {"title": ifname, "ports":obj[k], "swinfo":swinfo}, mode);
 		else
-			appendSetting(vlan_root, ["network", id, k], obj[k]);
+			appendSetting(vlan_root, ["network", id, k], obj[k], mode);
 	}
 }
 
@@ -660,7 +663,7 @@ function rebuild_switches()
 			var mode = getMode(ifname);
 			delNetSection(ifname);
 			addNetSection(ifname, mode); //makes sure entry exists
-			build_vlan(switch_root, vid, vobj, swinfo, ifname);
+			build_vlan(switch_root, vid, vobj, swinfo, ifname, mode);
 		});
 
 		append_vlan_buttons(sfs, switch_root, swinfo.device);
