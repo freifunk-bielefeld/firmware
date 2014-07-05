@@ -35,6 +35,16 @@ function updateFrom(src)
 	}
 }
 
+function getChangeModeAction(ifname)
+{
+	return function(e) {
+		var src = (e.target || e.srcElement);
+		var mode = src.value;
+		delNetSection(ifname);
+		addNetSection(ifname, mode);
+	};
+}
+
 function appendSetting(p, path, value, mode)
 {
 	var id = path.join('#');
@@ -122,10 +132,11 @@ function appendSetting(p, path, value, mode)
 			else
 				map.push(pm[i]);
 		}
-		b = append_check(p, value.title, id, split(value.ports), map);
+		b = append_check(p, value.ifname, id, split(value.ports), map);
 
-		var span = append(b, 'span');
-		span.innerHTML = "("+mode+")"; //mode label
+		var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
+		var select = append_options(p, "set_mode_"+value.ifname, mode, net_options);
+		select.onchange = getChangeModeAction(value.ifname);
 		break;
 	default:
 		return;
@@ -199,17 +210,18 @@ function getMode(ifname)
 
 function isWlanIF(ifname)
 {
-    var w = uci.wireless;
-    for(var id in w)
-        if(w[id].stype == "wifi-iface" && w[id].ifname == ifname)
-            return true;
-    return false;
+	var w = uci.wireless;
+	for(var id in w)
+		if(w[id].stype == "wifi-iface" && w[id].ifname == ifname)
+			return true;
+	return false;
 }
 
 function rebuild_assignment()
 {
 	var root = $("assignment");
 	removeChilds(root);
+	hide(root);
 
 	var fs = append_section(root, "Anschl\xfcsse");
 	addHelpText(fs, "Die Anschl\xfcsse am Router zusammengefasst zu verschiedenen virtuellen Anschl\xfcssen.");
@@ -229,16 +241,6 @@ function rebuild_assignment()
 		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
 	});
 
-	function getChangeAction(ifname)
-	{
-		return function(e) {
-			var src = (e.target || e.srcElement);
-			var mode = src.value;
-			delNetSection(ifname);
-			addNetSection(ifname, mode);
-		};
-	}
-
 	ifnames = uniq(ifnames);
 	ifnames.sort();
 	for(var i in ifnames)
@@ -248,9 +250,9 @@ function rebuild_assignment()
 			continue;
 		var mode = getMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
-		entry.onchange = getChangeAction(ifname);
+		entry.onchange = getChangeModeAction(ifname);
+		show(root);
 	}
-	var div = append(fs, "div");
 }
 
 function collect_wifi_info(device)
@@ -448,7 +450,7 @@ function build_vlan(switch_root, id, obj, swinfo, ifname, mode)
 	for(var k in obj)
 	{
 		if(k == "ports")
-			appendSetting(vlan_root, ["network", id, k], {"title": ifname, "ports":obj[k], "swinfo":swinfo}, mode);
+			appendSetting(vlan_root, ["network", id, k], {"ifname": ifname, "ports":obj[k], "swinfo":swinfo}, mode);
 		else
 			appendSetting(vlan_root, ["network", id, k], obj[k], mode);
 	}
@@ -652,7 +654,7 @@ function rebuild_switches()
 	//print switch sections
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
-		var sfs = append_section(root, "Switch '"+swinfo.ifname+"'", sid);
+		var sfs = append_section(root, "Switch '"+swinfo.device+"'", sid);
 		var switch_root = append(sfs, 'div');
 		var use_tagged = (countVLANs(swinfo.device) > 1);
 

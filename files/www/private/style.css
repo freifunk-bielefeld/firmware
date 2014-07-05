@@ -54,6 +54,10 @@ body {
 	border: 2px dotted grey;
 }
 
+#switches label {
+	width: 6em;
+}
+
 /* forms */
 
 legend {
