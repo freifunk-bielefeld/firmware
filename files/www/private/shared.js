@@ -328,6 +328,7 @@ function append_options(parent, name, selected, choices)
 		option.selected = (choice_value == selected) ? "selected" : "";
 		option.innerHTML= choice_text;
 	}
+	return select;
 }
 
 function append_selection(parent, title, name, selected, choices)
