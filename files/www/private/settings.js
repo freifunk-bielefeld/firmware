@@ -230,12 +230,6 @@ function rebuild_assignment()
 	var ignore = ["dummy_public", "dummy_private", "dummy_mesh", "fastd_mesh", "bat0", "local-node", "lo"];
 	var ifnames = [];
 
-	//also ignore alias and raw interfaces
-	config_foreach(uci.network_defaults, "interface", function(sid, sobj) {
-		if(sobj.ifname && (sobj.ifname[0] == "@" || sobj.proto == "none"))
-			ignore.push(sobj.ifname);
-	});
-
 	//collect all interfaces
 	config_foreach(uci.network, "interface", function(sid, sobj) {
 		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
@@ -246,7 +240,7 @@ function rebuild_assignment()
 	for(var i in ifnames)
 	{
 		var ifname = ifnames[i];
-		if(isWlanIF(ifname) || inArray(ifname, ignore))
+		if(!ifname || isWlanIF(ifname) || inArray(ifname, ignore) || ifname[0] == "@" )
 			continue;
 		var mode = getMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
