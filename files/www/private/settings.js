@@ -650,7 +650,7 @@ function rebuild_switches()
 	//print switch sections
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
-		var sfs = append_section(root, "Switch '"+swinfo.device+"'", sid);
+		var sfs = append_section(root, "Switch '"+swinfo.ifname+"'", sid);
 		var switch_root = append(sfs, 'div');
 		var use_tagged = (countVLANs(swinfo.device) > 1);
 
