@@ -5,6 +5,7 @@ The GUI code displayes and manipulated this variable.
 */
 var uci = {};
 var gid = 0;
+var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
 
 function init()
 {
@@ -134,7 +135,6 @@ function appendSetting(p, path, value, mode)
 		}
 		b = append_check(p, value.ifname, id, split(value.ports), map);
 
-		var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
 		var select = append_options(p, "set_mode_"+value.ifname, mode, net_options);
 		select.onchange = getChangeModeAction(value.ifname);
 		break;
@@ -208,15 +208,6 @@ function getMode(ifname)
 	return "none";
 }
 
-function isWlanIF(ifname)
-{
-	var w = uci.wireless;
-	for(var id in w)
-		if(w[id].stype == "wifi-iface" && w[id].ifname == ifname)
-			return true;
-	return false;
-}
-
 function rebuild_assignment()
 {
 	var root = $("assignment");
@@ -226,7 +217,6 @@ function rebuild_assignment()
 	var fs = append_section(root, "Anschl\xfcsse");
 	addHelpText(fs, "Die Anschl\xfcsse am Router zusammengefasst zu verschiedenen virtuellen Anschl\xfcssen.");
 
-	var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
 	var ignore = ["dummy_public", "dummy_private", "dummy_mesh", "fastd_mesh", "bat0", "local-node", "lo"];
 	var ifnames = [];
 
@@ -235,12 +225,22 @@ function rebuild_assignment()
 		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
 	});
 
+	//ignore switch interfaces
+	config_foreach(uci.network, "switch", function(sid, sobj) {
+		if(sobj.ifname) ignore.push(sobj.ifname);
+	});
+
+	//ignore wlan interfaces
+	config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
+		if(sobj.ifname) ignore.push(sobj.ifname);
+	});
+
 	ifnames = uniq(ifnames);
 	ifnames.sort();
 	for(var i in ifnames)
 	{
 		var ifname = ifnames[i];
-		if(!ifname || isWlanIF(ifname) || inArray(ifname, ignore) || ifname[0] == "@" )
+		if((ifname.length == 0) || (ifname.indexOf(".") != -1) || inArray(ifname, ignore) || ifname[0] == "@" )
 			continue;
 		var mode = getMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
