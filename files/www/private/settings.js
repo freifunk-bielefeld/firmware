@@ -420,18 +420,20 @@ function apply_port_action(switch_root)
 		var dst = input;
 		input.onclick = function(e) {
 			var src = (e.target || e.srcElement);
-			//ignore unchecking
-			if(!src.checked)
-				return (src.checked = true);
-
 			//uncheck all in same column
 			onDesc(switch_root, "INPUT", function(e) {
 				var src = (e.target || e.srcElement);
-				if(e.value == port && e != dst)
+				if(e.value == port && e != dst) {
 					e.checked = false;
+					while(e != document) {
+						if(e.onchange) {
+							e.onchange();
+							break;
+						}
+						e = e.parentNode;
+					}
+				}
 			});
-
-			updateFrom(switch_root);
 		};
 	});
 }
