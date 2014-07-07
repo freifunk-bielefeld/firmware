@@ -150,7 +150,7 @@ initial_setup()
 	uci -q delete network.lan
 	uci set network.private="interface"
 	uci set network.private.type="bridge"
-	uci set network.private.ifname="dummy_private $private_interface"
+	uci set network.private.ifname="$private_interface"
 	uci set network.private.ipaddr="192.168.133.1"
 	uci delete -q network.private.ip6addr
 	uci set network.private.proto=static
@@ -167,7 +167,7 @@ initial_setup()
 
 	uci set network.public="interface"
 	uci set network.public.type="bridge"
-	uci set network.public.ifname="dummy_public bat0 $wifi_public_interfaces"
+	uci set network.public.ifname="bat0 $wifi_public_interfaces"
 	uci set network.public.ipaddr="$public_ip4"
 	uci delete -q network.public.ip6addr
 	uci add_list network.public.ip6addr="$public_ip6/64"

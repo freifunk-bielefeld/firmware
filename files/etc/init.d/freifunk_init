@@ -53,15 +53,8 @@ echo "(I) Freifunk: share_internet: '$share_internet'"
 echo "(I) Freifunk: config_nets: '$config_nets'"
 
 
-#Create dummy interfaces to be able to set the mac of
-#br-public and the mac for the OGMs of batman-adv freely.
-#Also, a bridge needs at least one interface.
-
-echo "(I) Freifunk: Create dummy_public interface."
-tunctl -t dummy_public > /dev/null
-
-echo "(I) Freifunk: Create dummy_private interface."
-tunctl -t dummy_private > /dev/null
+#Create a dummy interface to be able to set the
+#MAC address for the OGMs of batman-adv freely.
 
 echo "(I) Freifunk: Create dummy_mesh interface."
 tunctl -t dummy_mesh > /dev/null
