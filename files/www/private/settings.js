@@ -81,12 +81,12 @@ function appendSetting(p, path, value, mode)
 	case "limit_egress":
 		b = append_input(p, "Public Upload", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Upload ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Upload in KBit f\xfcr die Bandweitenkontrolle.");
+		addHelpText(b, "Maximaler Upload in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "limit_ingress":
 		b = append_input(p, "Public Download", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Download ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Download in KBit f\xfcr die Bandweitenkontrolle.");
+		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
