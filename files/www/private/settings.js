@@ -478,13 +478,23 @@ function renameIfname(old_if, new_if)
 function countVLANs(device)
 {
 	var c = 0;
-	var n = uci.network;
-	for(var id in n)
-	{
-		if(n[id].stype == "switch_vlan" && n[id].device == device)
-			c++;
-	}
+	config_foreach(uci.network, "switch_vlan", function(id, obj) {
+		c += (obj.device == device);
+	});
+
 	return c;
+}
+
+function predict_vlan_ifname(swinfo, vlan) {
+	var vlans = countVLANs(swinfo.device);
+
+	if(vlans < 2) {
+		return swinfo.ifname;
+	} else if(swinfo.tagged_port) {
+		return swinfo.ifname+"."+vlan;
+	} else {
+		return "eth"+(vlan -  swinfo.vlan_start);
+	}
 }
 
 function collect_switch_info(device)
@@ -576,28 +586,14 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 			return alert("Mehr VLANs sind nicht m\xf6glich.");
 
 		var tp = swinfo.tagged_port;
-		if(vlans <= 1)
-		{
-			//remove all switch_vlan sections
-			delVlanSection(-1);
+		var ports = tp ? tp+'t' : '';
 
-			//rename eth0 to eth0.1
-			var v = swinfo.vlan_start;
-			var i = swinfo.ifname;
-			renameIfname(i, i+"."+v);
+		var new_vlan = swinfo.vlan_start + vlans;
+		var new_ifname = predict_vlan_ifname(swinfo, new_vlan);
 
-			//add a single switch_vlan for eth0.1
-			var ports = swinfo.ports.replace(new RegExp(tp), tp+'t');
-			addVlanSection(switch_device, v, ports);
-
-			swinfo = collect_switch_info(switch_device);
-		}
-
-		var v = swinfo.vlan_start + vlans;
-		var ifname = swinfo.ifname+"."+v;
-		delNetSection(ifname);
-		addNetSection(ifname, "private");
-		addVlanSection(switch_device, v, tp+'t');
+		delNetSection(new_ifname);
+		addNetSection(new_ifname, "private");
+		addVlanSection(switch_device, new_vlan, ports);
 
 		rebuild_switches();
 		rebuild_assignment();
@@ -624,10 +620,10 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 		if(!all_unchecked)
 			return alert("Die Ports des letzten VLANs m\xfcssen zuerst deselektiert werden.");
 
-		var v = swinfo.vlan_start + vlans - 1;
-		var ifname = swinfo.ifname+"."+v;
-		delVlanSection(v);
-		delNetSection(ifname);
+		var old_vlan = swinfo.vlan_start + vlans - 1;
+		var old_ifname = predict_vlan_ifname(swinfo, old_vlan);
+		delVlanSection(old_vlan);
+		delNetSection(old_ifname);
 
 		if(vlans <= 2)
 		{
@@ -635,12 +631,13 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 			delVlanSection(-1);
 
 			//rename eth0.1 to eth0
-			var v = swinfo.vlan_start;
-			var i = swinfo.ifname;
-			renameIfname(i+"."+v, i);
+			var new_vlan = swinfo.vlan_start;
+			var new_ifname = predict_vlan_ifname(swinfo, new_vlan);
+
+			renameIfname(old_ifname, new_ifname);
 
 			//add a single switch_vlan for eth0
-			addVlanSection(switch_device, v, swinfo.ports);
+			addVlanSection(switch_device, new_vlan, swinfo.ports);
 		}
 
 		rebuild_switches();
@@ -662,7 +659,7 @@ function rebuild_switches()
 		//print vlan sections
 		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
 			if(vobj.device != swinfo.device) return;
-			var ifname = use_tagged ? (swinfo.ifname+"."+vobj.vlan) : swinfo.ifname;
+			var ifname = predict_vlan_ifname(swinfo, vobj.vlan);
 			var mode = getMode(ifname);
 			delNetSection(ifname);
 			addNetSection(ifname, mode); //makes sure entry exists
