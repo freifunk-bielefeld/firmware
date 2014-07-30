@@ -6,4 +6,4 @@ src-git packages https://github.com/openwrt/packages.git;for-14.07
 src-git routing git://github.com/openwrt-routing/packages.git;for-14.07
 
 #Fastd - "Fast and Secure Tunnelling Daemon"
-src-git fastd git://git.metameute.de/lff/pkg_fastd;v12-1
+src-git fastd git://git.metameute.de/lff/pkg_fastd;v14-1
