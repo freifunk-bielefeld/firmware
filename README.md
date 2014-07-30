@@ -1,4 +1,4 @@
-##Firmware for Freifunk Bielefeld
+##Firmware for Freifunk Herford
 
 The firmware turns a common wireless router into a mesh networking device.
 It connects to similar routers in the area and builds a Wifi-mesh network
@@ -18,7 +18,7 @@ Build Commands:
 git clone git://git.openwrt.org/12.09/openwrt.git
 cd openwrt
 
-git clone https://github.com/freifunk-bielefeld/firmware.git
+git clone -b herford https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/{files,package,feeds.conf.default,.config} .
 git am --whitespace=nowarn firmware/patches/*.patch
 rm -rf firmware
