@@ -14,8 +14,8 @@ define Package/freifunk-bielefeld-basic
 	DEFAULT:=y
 	TITLE:= Freifunk-Bielefeld Basic
 	URL:=http://freifunk-bielefeld.de
-	DEPENDS:=+kmod-batman-adv +nodogsplash +uhttpd \
-		+haserl +@BUSYBOX_CONFIG_TUNCTL +uhttpd-mod-tls \
+	DEPENDS:=+kmod-batman-adv +batctl +nodogsplash +uhttpd \
+		+haserl +@BUSYBOX_DEFAULT_TUNCTL +uhttpd-mod-tls \
 		+px5g +fastd +dnsmasq-dhcpv6 +kmod-ipv6 \
 		+ip6tables +ebtables +kmod-ebtables-ipv4 \
 		+kmod-ebtables-ipv6 +ip +odhcpd +haveged \
