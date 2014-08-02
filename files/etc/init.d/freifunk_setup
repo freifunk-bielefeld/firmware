@@ -19,7 +19,7 @@ initial_setup()
 	ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 
 	wan_interface=`uci get -q network.wan.ifname`
-	echo "(I) Wan interface: '$wan_interface'"
+	echo "(I) WAN interface: '$wan_interface'"
 
 	private_interface=`uci get -q network.lan.ifname`
 	echo "(I) Private interface: '$private_interface'"
