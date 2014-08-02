@@ -203,7 +203,7 @@ initial_setup()
 		local n=`echo -n $if | tr -c a-z0-9_ _`
 		uci set network.$n="interface"
 		uci set network.$n.ifname=$if
-		uci set network.$n.mtu=1426
+		uci set network.$n.mtu=1406
 		uci set network.$n.auto=1
 		uci set network.$n.proto="batadv"
 		uci set network.$n.mesh="bat0"

@@ -275,7 +275,7 @@ function addNetSection(ifname, mode)
 		n.wan.ifname = addItem(n.wan.ifname, ifname);
 		break;
 	case "mesh":
-		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1426","auto":"1","proto":"batadv","mesh":"bat0"};
+		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1406","auto":"1","proto":"batadv","mesh":"bat0"};
 		break;
 	case "private":
 		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};

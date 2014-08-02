@@ -7,7 +7,7 @@ config fastd 'default'
 	option secure_handshakes 1
 	option mode 'tap'
 	option interface 'fastd_mesh'
-	option mtu 1426
+	option mtu 1406
 	option forward 0
 	option secret '' #set by /etc/init.d/freifunk_setup
 

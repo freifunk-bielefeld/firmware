@@ -62,7 +62,7 @@ tunctl -t dummy_mesh > /dev/null
 
 #add first interface to set originator mac
 ip link set dev dummy_mesh down
-ip link set dev dummy_mesh address $mac mtu 1426 up
+ip link set dev dummy_mesh address $mac mtu 1406 up
 batctl if add dummy_mesh
 
 
