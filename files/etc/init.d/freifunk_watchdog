@@ -219,7 +219,7 @@ set_routes()
 	fi
 
 	#entries for the Intercity-VPN network
-	for net in 10.0.0.0/8 172.16.0.0/12 104.0.0.0/8 105.0.0.0/8; do
+	for net in 10.0.0.0/8 172.16.0.0/12; do
 		if [ -n "$public_gw_ip" ]; then
 			local EXIST=$(ip route show "$net" | grep -c -m 1 "$public_gw_ip" 2> /dev/null)
 			if [ "$EXIST" -eq 0 ]; then
