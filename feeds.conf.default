@@ -1,5 +1,5 @@
 
-#Packages for OpenWrt trunk
+#Packages for OpenWrt "Barrier Breaker"
 src-git packages https://github.com/openwrt/packages.git;for-14.07
 
 #Routing packages (atm. only used for batman-adv 2013.4.0)
