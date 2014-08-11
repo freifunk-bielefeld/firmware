@@ -227,7 +227,7 @@ initial_setup()
 	echo "(I) Generate a key for fastd."
 	secret=`fastd --generate-key --machine-readable`
 	uci set fastd.default.secret="$secret"
-	key=`/etc/init.d/fastd show_key 'default'`
+	key=`echo "secret \"$secret\";" | fastd --config - --show-key --machine-readable`
 	uci set fastd.default.key="$key"
 
 	#write everything to flash
