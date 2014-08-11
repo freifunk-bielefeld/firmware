@@ -16,10 +16,9 @@ define Package/freifunk-bielefeld-basic
 	URL:=http://freifunk-bielefeld.de
 	DEPENDS:=+kmod-batman-adv +batctl +nodogsplash +uhttpd \
 		+haserl +@BUSYBOX_DEFAULT_TUNCTL +uhttpd-mod-tls \
-		+px5g +fastd +dnsmasq-dhcpv6 +kmod-ipv6 \
-		+ip6tables +ebtables +kmod-ebtables-ipv4 \
-		+kmod-ebtables-ipv6 +ip +odhcpd +haveged \
-		+autoupdater +next-node +simple-tc
+		+px5g +fastd +dnsmasq-dhcpv6 +ip +odhcpd \
+		+ebtables +kmod-ebtables-ipv4 +kmod-ebtables-ipv6 \
+		+haveged +autoupdater +next-node +simple-tc
 endef
 
 define Build/Prepare
