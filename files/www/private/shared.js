@@ -161,7 +161,7 @@ function config_foreach(objs, stype, func)
 	for(var key in objs)
 	{
 		var obj = objs[key];
-		if(obj["stype"] == stype && func(key, obj))
+		if((obj["stype"] == stype || stype == "*") && func(key, obj))
 			return;
 	}
 }

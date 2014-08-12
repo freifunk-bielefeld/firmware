@@ -125,7 +125,7 @@ function appendSetting(p, path, value, mode)
 		var map = [];
 		var tp = value.swinfo.tagged_port;
 		var pm = value.swinfo.port_map;
-		var v = (countVLANs(value.swinfo.device) > 1);
+		var v = (collectVLANs(value.swinfo.device).length > 1);
 		for(var i in pm)
 		{
 			if(pm[i][0] == '_')
@@ -158,9 +158,11 @@ function rebuild_general()
 
 	var fs = append_section(root, "Allgemeine Einstellungen");
 
-	var s = uci.system;
-	var j = firstSectionID(s, "system");
-	appendSetting(fs, ["system", j, "hostname"], s[j]["hostname"]);
+	if('system' in uci) {
+		var s = uci.system;
+		var i = firstSectionID(s, "system");
+		appendSetting(fs, ["system", i, "hostname"], s[i]["hostname"]);
+	}
 
 	if('freifunk' in uci) {
 		var f = uci.freifunk;
@@ -171,16 +173,16 @@ function rebuild_general()
 
 	if('autoupdater' in uci) {
 		var a = uci.autoupdater;
-		var k = firstSectionID(a, "autoupdater");
-		appendSetting(fs, ['autoupdater', k, "enabled"], a[k]["enabled"]);
+		var i = firstSectionID(a, "autoupdater");
+		appendSetting(fs, ['autoupdater', i, "enabled"], a[i]["enabled"]);
 	}
 
 	if('simple-tc' in uci) {
 		var t = uci['simple-tc'];
-		var l = firstSectionID(t, "interface");
-		appendSetting(fs, ['simple-tc', l, "enabled"], t[l]["enabled"]);
-		appendSetting(fs, ['simple-tc', l, "limit_ingress"], t[l]["limit_ingress"]);
-		appendSetting(fs, ['simple-tc', l, "limit_egress"], t[l]["limit_egress"]);
+		var i = firstSectionID(t, "interface");
+		appendSetting(fs, ['simple-tc', i, "enabled"], t[i]["enabled"]);
+		appendSetting(fs, ['simple-tc', i, "limit_ingress"], t[i]["limit_ingress"]);
+		appendSetting(fs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
 	}
 
 	var div = append(fs, "div");
@@ -227,7 +229,12 @@ function rebuild_assignment()
 
 	//ignore switch interfaces
 	config_foreach(uci.network, "switch", function(sid, sobj) {
-		if(sobj.ifname) ignore.push(sobj.ifname);
+		var swinfo = collect_switch_info(sobj.name);
+		var vlans = collectVLANs(swinfo.device);
+		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
+			var ifname = guess_vlan_ifname(swinfo, vobj.vlan, vlans.length);
+			ignore.push(ifname);
+		});
 	});
 
 	//ignore wlan interfaces
@@ -240,7 +247,7 @@ function rebuild_assignment()
 	for(var i in ifnames)
 	{
 		var ifname = ifnames[i];
-		if((ifname.length == 0) || (ifname.indexOf(".") != -1) || inArray(ifname, ignore) || ifname[0] == "@" )
+		if((ifname.length == 0) || inArray(ifname, ignore) || ifname[0] == "@" )
 			continue;
 		var mode = getMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
@@ -457,36 +464,37 @@ function addVlanSection(device, vlan, ports)
 	uci.network["cfg"+(++gid)] = { "stype" : "switch_vlan", "device" : device, "vlan" : ""+vlan, "ports" : ports };
 }
 
-function delVlanSection(vlan)
+function delVlanSection(device, vlan)
 {
 	var n = uci.network;
 	config_foreach(n, "switch_vlan", function(id, obj) {
-		if(vlan < 0 || obj.vlan == vlan)
+		if(obj.device == device && (vlan < 0 || obj.vlan == vlan))
 			delete n[id];
 	});
 }
 
 function renameIfname(old_if, new_if)
 {
-	var n = uci.network;
-	for(var id in n)
-		if(n[id].ifname)
-			n[id].ifname = replaceItem(n[id].ifname, old_if, new_if);
-	n.pchanged = true;
-}
-
-function countVLANs(device)
-{
-	var c = 0;
-	config_foreach(uci.network, "switch_vlan", function(id, obj) {
-		c += (obj.device == device);
+	config_foreach(uci.network, "*", function(id, obj) {
+		if(!obj.ifname) return;
+		var n = replaceItem(obj.ifname, old_if, new_if);
+		if(n != obj.ifname) {
+			obj.ifname = n;
+			n.pchanged = true;
+		}
 	});
-
-	return c;
 }
 
-function predict_vlan_ifname(swinfo, vlan) {
-	var vlans = countVLANs(swinfo.device);
+function collectVLANs(device)
+{
+	var vlans = [];
+	config_foreach(uci.network, 'switch_vlan', function(id, obj) {
+		if(obj.device == device) vlans.push(obj.vlan);
+	});
+	return vlans.sort();
+}
+
+function guess_vlan_ifname(swinfo, vlan, vlans) {
 
 	if(vlans < 2) {
 		return swinfo.ifname;
@@ -580,20 +588,29 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 
 	append_button(buttons, "Neu", function() {
 		var swinfo = collect_switch_info(switch_device);
-		var vlans = countVLANs(switch_device);
+		var vlans = collectVLANs(switch_device);
+		var tp = swinfo.tagged_port;
+		var ports_none = tp ? tp+'t' : '';
+		var ports_all = ports_none + " " + swinfo.ports.replace(new RegExp(tp), '');
 
-		if(vlans >= swinfo.port_map.length)
+		if(vlans.length >= swinfo.port_map.length)
 			return alert("Mehr VLANs sind nicht m\xf6glich.");
 
-		var tp = swinfo.tagged_port;
-		var ports = tp ? tp+'t' : '';
+		if(vlans.length <= 1) {
+			var old_ifname = guess_vlan_ifname(swinfo, 1, 1);
+			var new_ifname = guess_vlan_ifname(swinfo, 1, 2);
 
-		var new_vlan = swinfo.vlan_start + vlans;
-		var new_ifname = predict_vlan_ifname(swinfo, new_vlan);
+			renameIfname(old_ifname, new_ifname);
+			delVlanSection(switch_device, -1);
+			addVlanSection(switch_device, 1, ports_all);
+		}
 
-		delNetSection(new_ifname);
-		addNetSection(new_ifname, "private");
-		addVlanSection(switch_device, new_vlan, ports);
+		var add_vlan = swinfo.vlan_start + vlans.length;
+		var add_ifname = guess_vlan_ifname(swinfo, add_vlan, 2);
+
+		delNetSection(add_ifname);
+		addNetSection(add_ifname, "private");
+		addVlanSection(switch_device, add_vlan, ports_none);
 
 		rebuild_switches();
 		rebuild_assignment();
@@ -602,9 +619,9 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 	append_button(buttons, "L\xf6schen", function() {
 		//delete the last vlan
 		var swinfo = collect_switch_info(switch_device);
-		var vlans = countVLANs(switch_device);
+		var vlans = collectVLANs(switch_device);
 
-		if(vlans <= 1)
+		if(vlans.length <= 1)
 			return alert("Mindestens ein VLAN muss erhalten bleiben.");
 
 		//check if all ports of the last vlan are unchecked
@@ -620,27 +637,26 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 		if(!all_unchecked)
 			return alert("Die Ports des letzten VLANs m\xfcssen zuerst deselektiert werden.");
 
-		var old_vlan = swinfo.vlan_start + vlans - 1;
-		var old_ifname = predict_vlan_ifname(swinfo, old_vlan);
-		delVlanSection(old_vlan);
+		//get last ifname of device
+		var last_vlan = swinfo.vlan_start + vlans.length - 1;
+		var old_ifname = guess_vlan_ifname(swinfo, last_vlan, vlans.length);
+		delVlanSection(swinfo.device, last_vlan);
 		delNetSection(old_ifname);
 
-		if(vlans <= 2)
+		if(vlans.length <= 2)
 		{
-			//remove all switch_vlan sections
-			delVlanSection(-1);
+			delVlanSection(swinfo.device, -1);
 
-			//rename eth0.1 to eth0
-			var new_vlan = swinfo.vlan_start;
-			var new_ifname = predict_vlan_ifname(swinfo, new_vlan);
-
+			var old_ifname = guess_vlan_ifname(swinfo, 1, 2);
+			var new_ifname = guess_vlan_ifname(swinfo, 1, 1);
 			renameIfname(old_ifname, new_ifname);
 
 			//add a single switch_vlan for eth0
-			addVlanSection(switch_device, new_vlan, swinfo.ports);
+			addVlanSection(switch_device, swinfo.vlan_start, swinfo.ports);
 		}
 
 		rebuild_switches();
+		rebuild_assignment();
 	});
 }
 
@@ -652,14 +668,15 @@ function rebuild_switches()
 	//print switch sections
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
+		var vlans = collectVLANs(sobj.name);
 		var sfs = append_section(root, "Switch '"+swinfo.ifname+"'", sid);
 		var switch_root = append(sfs, 'div');
-		var use_tagged = (countVLANs(swinfo.device) > 1);
+		var use_tagged = (collectVLANs(swinfo.device).length > 1);
 
 		//print vlan sections
 		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
 			if(vobj.device != swinfo.device) return;
-			var ifname = predict_vlan_ifname(swinfo, vobj.vlan);
+			var ifname = guess_vlan_ifname(swinfo, vobj.vlan, vlans.length);
 			var mode = getMode(ifname);
 			delNetSection(ifname);
 			addNetSection(ifname, mode); //makes sure entry exists
@@ -669,7 +686,6 @@ function rebuild_switches()
 		append_vlan_buttons(sfs, switch_root, swinfo.device);
 		apply_port_action(switch_root);
 	});
-	rebuild_assignment();
 }
 
 function save_data()
