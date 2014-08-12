@@ -117,7 +117,7 @@ check_wan()
 	fi
 
 	echo "(W) No Internet detected on '$wan'"
-	ip addr flush dev "$wan"
+	ip addr flush dev "$wan" 2> /dev/null
 	return 1
 }
 
