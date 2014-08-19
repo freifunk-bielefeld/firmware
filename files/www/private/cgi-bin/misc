@@ -13,9 +13,6 @@ case $GET_func in
 		reboot
 		echo "(I) Bitte warten. Neustart wird durchgef&uuml;hrt..."
 	;;
-	mac2ip)
-		echo `mac2ip "$GET_mac"` / `mac2ip6 "$GET_mac"`
-	;;
 	wifiscan_info)
 		uci export -qn wireless
 	;;
