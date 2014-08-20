@@ -2,7 +2,17 @@
 
 #Print out local connection data for map creation
 
-echo -n '{ "links" : ['
+version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
+hostname="$(uci get -q system.@system[0].hostname 2> /dev/null)"
+geo="$(uci get -q system.@system[0].geo 2> /dev/null)"
+
+echo -n "{"
+
+[ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
+[ -n "$hostname" -a "$hostname" != "OpenWrt" ] && echo -n "\"name\" : \"$hostname\", "
+[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
+
+echo -n "\"links\" : ["
 
 printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
 IFS="

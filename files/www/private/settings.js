@@ -54,6 +54,11 @@ function appendSetting(p, path, value, mode)
 	var name = path[path.length-1];
 	switch(name)
 	{
+	case "geo":
+		b = append_input(p, "GPS-Koordinaten", id, value);
+		addInputCheck(b.lastChild,/^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Koordinaten ist ung\xfcltig.");
+		addHelpText(b, "Die Koordinaten die auf der Webseite angezeigt werden sollen (z.B. \"52.02713078 8.52829987\").");
+		break;
 	case "hostname":
 		b = append_input(p, "Hostname", id, value);
 		addInputCheck(b.lastChild,/^\w+[\w\-]{0,20}\w+$/, name + " ist ung\xfcltig.");
@@ -167,8 +172,9 @@ function rebuild_general()
 	if('freifunk' in uci) {
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
-		for(var opt in f[i])
-			appendSetting(fs, ['freifunk', i, opt], f[i][opt]);
+		appendSetting(fs, ['freifunk', i, "config_nets"], f[i]["config_nets"]);
+		appendSetting(fs, ['freifunk', i, "share_internet"], f[i]["share_internet"]);
+		appendSetting(fs, ['freifunk', i, "geo"], f[i]["geo"]);
 	}
 
 	if('autoupdater' in uci) {
