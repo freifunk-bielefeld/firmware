@@ -131,7 +131,6 @@ switch_to_client()
 	if [ "$gw_mode" != "client" ]; then
 		echo "(I) Switch to client mode."
 		batctl gw client
-		/etc/init.d/nodogsplash stop > /dev/null
 	else
 		echo "(I) Already in client mode."
 	fi
@@ -142,7 +141,6 @@ switch_to_server()
 {
 	if [ "$gw_mode" != "server" ]; then
 		echo "(I) Switch to gateway mode."
-		/etc/init.d/nodogsplash start > /dev/null
 		batctl gw server
 	else
 		echo "(I) Already in gateway mode."

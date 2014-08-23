@@ -220,7 +220,6 @@ initial_setup()
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
-	/etc/init.d/nodogsplash disable
 	/etc/init.d/fastd disable
 	/etc/init.d/telnet disable
 
