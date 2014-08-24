@@ -4,8 +4,8 @@ content-type: text/plain
 <%
 
 addr() {
-	local addr="$(ip -$1 address show dev $2 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1)"
-	[ -n "$addr" ] && echo "$addr" || echo "-"
+	local addr="$(ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')"
+	echo "${addr:--}"
 }
 
 print() {

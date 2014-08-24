@@ -6,6 +6,9 @@ START=19
 #allow/block access via ssh/https
 config_access() {
 	local default_target src port s
+	local config_nets=`uci get -q freifunk.@settings[0].config_nets`
+
+	echo "(I) Freifunk: config_nets: '$config_nets'"
 
 	find_default_target() {
 		local s="$1" src="$2" n=""
@@ -43,28 +46,8 @@ fi
 
 echo "(I) Freifunk: start freifunk_init"
 
-
-mac=`uci get -q freifunk.@settings[0].mac`
 share_internet=`uci get -q freifunk.@settings[0].share_internet`
-config_nets=`uci get -q freifunk.@settings[0].config_nets`
-
-echo "(I) Freifunk: mac: '$mac'"
 echo "(I) Freifunk: share_internet: '$share_internet'"
-echo "(I) Freifunk: config_nets: '$config_nets'"
-
-
-#Create a dummy interface to be able to set the
-#MAC address for the OGMs of batman-adv freely.
-
-echo "(I) Freifunk: Create dummy_mesh interface."
-tunctl -t dummy_mesh > /dev/null
-
-
-#add first interface to set originator mac
-ip link set dev dummy_mesh down
-ip link set dev dummy_mesh address $mac mtu 1406 up
-batctl if add dummy_mesh
-
 
 uci delete -q firewall.share_internet
 if [ "$share_internet" = "yes" ]; then

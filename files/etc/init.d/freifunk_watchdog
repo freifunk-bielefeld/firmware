@@ -24,17 +24,12 @@ echo "(I) Start: $(date)"
 	share_internet="yes" || share_internet="no"
 echo "(I) share_internet: '$share_internet'"
 
-gw_mode=$(batctl gw 2> /dev/null)
-gw_mode=${gw_mode:0:6}
-echo "(I) gw_mode: '$gw_mode'"
-
 addr() {
-	ip -"$1" address show dev "$2" 2> /dev/null | sed -rn 's/.*inet6? (.*)\/.*/\1/p' | head -1
+	ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{print($2); exit(0);}'
 }
 
-get_default_gateway() {
-	local dev="$1"
-	ip route show 0.0.0.0/0 dev "$dev" 2> /dev/null | sed -r 's/default via ([0-9\.]+).*/\1/'
+default_gw() {
+	ip -$1 route list 0/0 dev $2 2> /dev/null | awk '{print($3); exit(0)}'
 }
 
 own_public_ip=$(addr 4 br-public)
@@ -95,7 +90,7 @@ check_wan()
 
 	echo "(I) Check if Internet is accessible via '$wan'."
 
-	gw=$(get_default_gateway "$wan")
+	gw=$(default_gw 4 "$wan")
 	check_internet "$wan" "$gw" && return 0
 
 	[ "$(uci get -q network.wan.proto)" != "dhcp" ] && {
@@ -110,7 +105,7 @@ check_wan()
 		kill -s SIGUSR1 "$pid" #get new lease
 
 		sleep 3
-		gw=$(get_default_gateway "$wan")
+		gw=$(default_gw 4 "$wan")
 		check_internet "$wan" "$gw" && return 0
 	else
 		echo "(W) No pidfile found."
@@ -125,41 +120,19 @@ is_running() {
 	ps | grep -v grep | grep "$1" > /dev/null
 }
 
-#this node is a client
-switch_to_client()
-{
-	if [ "$gw_mode" != "client" ]; then
-		echo "(I) Switch to client mode."
-		batctl gw client
-	else
-		echo "(I) Already in client mode."
-	fi
-}
-
-#this node is a server (gateway)
-switch_to_server()
-{
-	if [ "$gw_mode" != "server" ]; then
-		echo "(I) Switch to gateway mode."
-		batctl gw server
-	else
-		echo "(I) Already in gateway mode."
-	fi
-}
-
 #Get the best public gateway.
 find_public_gateway() {
 	echo "(I) Try to get the address of a public gateway."
 	IFS="
 "
-	#get all gateways macs and sort by connectivity
-	for mac in $(batctl gwl | awk -F'[ =>()]+' '{printf("%.3d %s\n", $3, $2)}' | sort -n -r | cut -f 2 -d ' ' 2> /dev/null); do
-		[ "${#mac}" -ne 17 ] && continue
+	#this disables the gateway check for uptime < 5min
+	skip=$(uptime | awk '{printf("%d",$4=="min," && $3 < 5)}')
 
-		local ip=$(mac2ip "$mac")
-		if check_internet "br-public" "$ip"; then
+	#TODO: ask alfred to sort the resutls for us
+	for addr in $(alfred -r 88 | tr '{}[]\n"\\,' ' ' | awk 'BEGIN{c=0}{ if($4 == "gateway" && $7 ~ /^10.[0-9.]{5,11}$/) {print($7); if(c>9) exit(0)}; c++;}' 2> /dev/null); do
+		if check_internet "br-public" "$addr" || test $skip = "1"; then
 			public_gw_mac="$mac"
-			public_gw_ip="$ip"
+			public_gw_ip="$addr"
 			echo "(I) Best public gateway: '$public_gw_ip'"
 			return;
 		fi
@@ -261,7 +234,6 @@ find_public_gateway
 
 #store data for web-gui
 echo -n "$has_internet" > /tmp/has_internet
-echo -n "$public_gw_mac" > /tmp/public_gw_mac
 
 
 if [ "$has_internet" = "yes" ]
@@ -271,16 +243,15 @@ then
 	#start/restart fastd
 	is_running "$fastd" || /etc/init.d/fastd start
 
-	#set batman-adv mode
-	[ "$share_internet" = "yes" ] && switch_to_server || switch_to_client
+	#announce gateway
+	[ "$share_internet" = "yes" ] && {
+		echo -n "{\"type\" : \"gateway\", \"addr\" : \"$own_public_ip\"}" | alfred -s 88
+	}
 else
 	set_routes "no"
 
 	#stop fastd
 	is_running "$fastd" && /etc/init.d/fastd stop
-
-	#set batman-adv mode
-	switch_to_client
 fi
 
 

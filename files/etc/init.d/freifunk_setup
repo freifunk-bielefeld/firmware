@@ -133,8 +133,8 @@ initial_setup()
 	a=`printf '%02x\n' $a` #convert to hex
 	mac="$a:${mac#*:}" #reassemble mac
 
-	public_ip4=`mac2ip $mac`
-	public_ip6=`mac2ip6 $mac`
+	public_ip4=$(echo ${prefix4%%.0*} | awk 'BEGIN{srand();} {printf("%s.%d.%d", $1, rand()*255, rand()*255)}')
+	#public_ip6=mac2ip6 $mac
 
 	echo "(I) MAC: '$mac'"
 	echo "(I) Public IPv4 Address: '$public_ip4'"
@@ -167,8 +167,9 @@ initial_setup()
 	uci set network.public.type="bridge"
 	uci set network.public.ifname="bat0 $wifi_public_interfaces"
 	uci set network.public.ipaddr="$public_ip4"
-	uci delete -q network.public.ip6addr
-	uci add_list network.public.ip6addr="$public_ip6/64"
+	uci set network.public.macaddr="$mac"
+	#uci delete -q network.public.ip6addr
+	#uci add_list network.public.ip6addr="$public_ip6/64"
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.0.0"
 	uci set network.public.force_link="1"
@@ -199,7 +200,7 @@ initial_setup()
 	# ------------------------------------- #
 
 	echo "(I) Add network sections to trigger batman-adv and set MTU."
-	for if in dummy_mesh fastd_mesh $wifi_mesh_interfaces; do
+	for if in fastd_mesh $wifi_mesh_interfaces; do
 		local n=`echo -n $if | tr -c a-z0-9_ _`
 		uci set network.$n="interface"
 		uci set network.$n.ifname=$if

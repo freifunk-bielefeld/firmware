@@ -225,7 +225,7 @@ function rebuild_assignment()
 	var fs = append_section(root, "Anschl\xfcsse");
 	addHelpText(fs, "Die Anschl\xfcsse am Router zusammengefasst zu verschiedenen virtuellen Anschl\xfcssen.");
 
-	var ignore = ["dummy_mesh", "fastd_mesh", "bat0", "local-node", "lo"];
+	var ignore = ["fastd_mesh", "bat0", "local-node", "lo"];
 	var ifnames = [];
 
 	//collect all interfaces
