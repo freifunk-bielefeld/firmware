@@ -1,5 +1,0 @@
-#receive the mac of the best gateway in reach from batman-adv
-
-[ "$ACTION" != "change" ] && exit
-
-/etc/init.d/freifunk_watchdog start
