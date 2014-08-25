@@ -9,7 +9,7 @@ start()
 
 #Check for Internet access on the WAN port and switch
 #batman-adv between client und server mode accordingly.
-#This script is called by cron every 5min and by /etc/hotplug.d/net/11-batman.
+#This script is called by cron every 5min.
 
 #prevent script from being called simultaneously
 lock_dir=/var/lock/freifunk_watchdog.lock
@@ -143,12 +143,9 @@ find_public_gateway() {
 set_routes()
 {
 	local has_internet="$1"
-	local public_str private_str
+	local public_str private_str changed
 
 	echo "(I) Start setting routes:"
-
-	[ -z "$own_private_ip" ] && { echo "(E) Private IP address not set."; return; }
-	[ -z "$own_public_ip" ] && { echo "(E) Public IP address not set."; return; }
 
 	#DHCP settings for all states: ('3' for gateway, '6' for DNS-server)
 	if [ -n "$public_gw_ip" ]; then
@@ -205,20 +202,25 @@ set_routes()
 	local pre_public_str="$(uci get dhcp.public.dhcp_option)"
 	local pre_private_str="$(uci get dhcp.private.dhcp_option)"
 
-	if [ "$public_str" != "$pre_public_str" -o "$private_str" != "$pre_private_str" ]
-	then
+	if [ -n "$own_public_ip" -a "$public_str" != "$pre_public_str" ]; then
 		uci set dhcp.public.dhcp_option="$public_str"
-		uci set dhcp.private.dhcp_option="$private_str"
+		changed="yes"
+	fi
 
+	if [ -n "$own_private_ip" -a "$private_str" != "$pre_private_str" ]; then
+		uci set dhcp.private.dhcp_option="$private_str"
+		changed="yes"
+	fi
+
+	if [ -n "$changed" ]; then
 		echo "(I) DHCP settings were changed => reload dnsmasq."
 		/etc/init.d/dnsmasq reload
-
 	else
 		echo "(I) No change of DHCP settings."
 	fi
 
-	echo "(I) DHCP private options: '$private_str'"
-	echo "(I) DHCP public option: '$public_str'"
+	echo "(I) DHCP public option: '$(uci get dhcp.public.dhcp_option)'"
+	echo "(I) DHCP private options: '$(uci get dhcp.private.dhcp_option)'"
 }
 
 if check_wan "br-wan"; then
