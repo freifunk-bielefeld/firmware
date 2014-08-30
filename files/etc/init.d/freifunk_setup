@@ -166,12 +166,12 @@ initial_setup()
 	uci set network.public="interface"
 	uci set network.public.type="bridge"
 	uci set network.public.ifname="bat0 $wifi_public_interfaces"
-	uci set network.public.ipaddr="$public_ip4"
+	uci set network.public.ipaddr="192.168.132.1"
 	uci set network.public.macaddr="$mac"
 	#uci delete -q network.public.ip6addr
 	#uci add_list network.public.ip6addr="$public_ip6/64"
 	uci set network.public.proto=static
-	uci set network.public.netmask="255.255.0.0"
+	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.force_link="1"
 
 	# Calculate the start and limit for the desired subnet
@@ -179,8 +179,6 @@ initial_setup()
 	start=$((256*256*$subnet4+2)) # -> 1900546
 	limit=$((256*256-2)) # -> 65534
 
-	uci set dhcp.public.start=$start
-	uci set dhcp.public.limit=$limit
 
 	# ------------------------------------- #
 	# W A N  S E T U P #
