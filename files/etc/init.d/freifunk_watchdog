@@ -120,108 +120,7 @@ is_running() {
 	ps | grep -v grep | grep "$1" > /dev/null
 }
 
-#Get the best public gateway.
-find_public_gateway() {
-	echo "(I) Try to get the address of a public gateway."
-	IFS="
-"
-	#this disables the gateway check for uptime < 5min
-	skip=$(uptime | awk '{printf("%d",$4=="min," && $3 < 5)}')
 
-	#TODO: ask alfred to sort the resutls for us
-	for addr in $(alfred -r 88 | tr '{}[]\n"\\,' ' ' | awk 'BEGIN{c=0}{ if($4 == "gateway" && $7 ~ /^10.[0-9.]{5,11}$/) {print($7); if(c>9) exit(0)}; c++;}' 2> /dev/null); do
-		if check_internet "br-public" "$addr" || test $skip = "1"; then
-			public_gw_mac="$mac"
-			public_gw_ip="$addr"
-			echo "(I) Best public gateway: '$public_gw_ip'"
-			return;
-		fi
-	done
-}
-
-#Configure the DHCP server and routing table.
-set_routes()
-{
-	local has_internet="$1"
-	local public_str private_str changed
-
-	echo "(I) Start setting routes:"
-
-	#DHCP settings for all states: ('3' for gateway, '6' for DNS-server)
-	if [ -n "$public_gw_ip" ]; then
-		if [ "$has_internet" = "yes" ]; then
-			if [ "$share_internet" = "yes" ]; then
-				public_str="3,$own_public_ip"
-				private_str="3,$own_private_ip"
-			else
-				public_str="3,$public_gw_ip 6,$public_gw_ip"
-				private_str="3,$own_private_ip"
-			fi
-		else
-			public_str="3,$public_gw_ip 6,$public_gw_ip"
-			private_str="3,$own_private_ip 6,$public_gw_ip"
-		fi
-	else
-		if [ "$has_internet" = "yes" ]; then
-			if [ "$share_internet" = "yes" ]; then
-				public_str="3,$own_public_ip 6,$own_public_ip"
-				private_str="3,$own_private_ip 6,$own_public_ip"
-			else
-				public_str="3"
-				private_str="3,$own_private_ip"
-			fi
-		else
-			public_str="3"
-			private_str="3,$own_private_ip"
-		fi
-	fi
-
-	if [ "$has_internet" != "yes" ]; then
-		echo "(I) Clear default routes and nameserver list."
-		while ip route del default 2> /dev/null; do true; done
-
-		[ -n "$public_gw_ip" ] && {
-			echo "(I) Set default route and nameserver to '$public_gw_ip'."
-			ip route add default via "$public_gw_ip"
-		}
-	fi
-
-	#entries for the Intercity-VPN network
-	for net in 10.0.0.0/8 172.16.0.0/12; do
-		if [ -n "$public_gw_ip" ]; then
-			local EXIST=$(ip route show "$net" | grep -c -m 1 "$public_gw_ip" 2> /dev/null)
-			if [ "$EXIST" -eq 0 ]; then
-				ip route del "$net" 2> /dev/null
-				ip route add "$net" via "$public_gw_ip"
-			fi
-		else
-			ip route del "$net" 2> /dev/null
-		fi
-	done
-
-	local pre_public_str="$(uci get dhcp.public.dhcp_option)"
-	local pre_private_str="$(uci get dhcp.private.dhcp_option)"
-
-	if [ -n "$own_public_ip" -a "$public_str" != "$pre_public_str" ]; then
-		uci set dhcp.public.dhcp_option="$public_str"
-		changed="yes"
-	fi
-
-	if [ -n "$own_private_ip" -a "$private_str" != "$pre_private_str" ]; then
-		uci set dhcp.private.dhcp_option="$private_str"
-		changed="yes"
-	fi
-
-	if [ -n "$changed" ]; then
-		echo "(I) DHCP settings were changed => reload dnsmasq."
-		/etc/init.d/dnsmasq reload
-	else
-		echo "(I) No change of DHCP settings."
-	fi
-
-	echo "(I) DHCP public option: '$(uci get dhcp.public.dhcp_option)'"
-	echo "(I) DHCP private options: '$(uci get dhcp.private.dhcp_option)'"
-}
 
 if check_wan "br-wan"; then
 	echo "(I) We have local Internet."
@@ -231,8 +130,6 @@ else
 	has_internet="no"
 fi
 
-#Get the best public gateway in the public network.
-find_public_gateway
 
 #store data for web-gui
 echo -n "$has_internet" > /tmp/has_internet
