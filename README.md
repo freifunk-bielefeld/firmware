@@ -18,7 +18,7 @@ Build Commands:
 git clone git://git.openwrt.org/14.07/openwrt.git
 cd openwrt
 
-git clone https://github.com/freifunk-bielefeld/firmware.git
+git clone -b development https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/{files,package,feeds.conf.default,.config} .
 rm -rf firmware
 
