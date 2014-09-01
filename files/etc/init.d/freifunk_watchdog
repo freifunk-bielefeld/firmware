@@ -137,7 +137,6 @@ echo -n "$has_internet" > /tmp/has_internet
 
 if [ "$has_internet" = "yes" ]
 then
-	set_routes "yes"
 
 	#start/restart fastd
 	is_running "$fastd" || /etc/init.d/fastd start
@@ -147,7 +146,6 @@ then
 		echo -n "{\"type\" : \"gateway\", \"addr\" : \"$own_public_ip\"}" | alfred -s 88
 	}
 else
-	set_routes "no"
 
 	#stop fastd
 	is_running "$fastd" && /etc/init.d/fastd stop
