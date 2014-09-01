@@ -27,8 +27,6 @@ config dhcp private
 	option start 100
 	option limit 150
 	option leasetime 2h
-	option dhcp_option 3
-	option dhcpv6 relay
 	option ra relay
 	option ndp relay
 
@@ -37,8 +35,6 @@ config dhcp public
 	option start 100
 	option limit 150
 	option leasetime 2h
-	option dhcp_option 3
-	option dhcpv6 relay
 	option ra relay
 	option ndp relay
 	option master 1
