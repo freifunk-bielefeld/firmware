@@ -24,11 +24,6 @@ initial_setup()
 	private_interface=`uci get -q network.lan.ifname`
 	echo "(I) Private interface: '$private_interface'"
 
-	prefix4=`uci get freifunk.@settings[0].prefix4`
-	subnet4=${prefix4#*.}
-	subnet4=${subnet4%%.*}
-
-
 	# ------------------------------------------- #
 	# S E T U P  W I R E L E S S #
 	# ------------------------------------------- #
@@ -133,13 +128,7 @@ initial_setup()
 	a=`printf '%02x\n' $a` #convert to hex
 	mac="$a:${mac#*:}" #reassemble mac
 
-	public_ip4=$(echo ${prefix4%%.0*} | awk 'BEGIN{srand();} {printf("%s.%d.%d", $1, rand()*255, rand()*255)}')
-	#public_ip6=mac2ip6 $mac
-
 	echo "(I) MAC: '$mac'"
-	echo "(I) Public IPv4 Address: '$public_ip4'"
-	echo "(I) Public IPv6 Address: '$public_ip6'"
-
 
 	# ------------------------------------- #
 	# P R I V A T E  S E T U P #
@@ -173,12 +162,6 @@ initial_setup()
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.force_link="1"
-
-	# Calculate the start and limit for the desired subnet
-	# 10.29.0.2 - 10.29.255.254
-	start=$((256*256*$subnet4+2)) # -> 1900546
-	limit=$((256*256-2)) # -> 65534
-
 
 	# ------------------------------------- #
 	# W A N  S E T U P #
