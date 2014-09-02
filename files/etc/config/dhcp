@@ -27,6 +27,8 @@ config dhcp private
 	option start 100
 	option limit 150
 	option leasetime 2h
+	list dhcp_option '3,192.168.133.1'
+	list dhcp_option '6,192.168.133.1'
 	option ra relay
 	option ndp relay
 
@@ -35,6 +37,8 @@ config dhcp public
 	option start 100
 	option limit 150
 	option leasetime 2h
+	list dhcp_option '3' #no gateway!
+	list dhcp_option '6,192.168.132.1'
 	option ra relay
 	option ndp relay
 	option master 1
