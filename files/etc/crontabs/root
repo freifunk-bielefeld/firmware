@@ -1,5 +1,3 @@
-#check gateway and WAN connectivity every 5 minutes
-*/5 * * * * /etc/init.d/freifunk_watchdog start
 #check for new firmware once an hour
 0 * * * * /usr/sbin/autoupdater
 #publish map data
