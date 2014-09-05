@@ -35,6 +35,13 @@ print 'date' "$(date)"
 print 'wan_addr4' "$(addr 4 br-wan)"
 print 'wan_addr6' "$(addr 6 br-wan)"
 
+kill -s SIGUSR1 $(cat /var/run/fastd.default.pid)
+if [ -n "$(logread -l 5 | awk '/fastd/ && /peer/ && /connected/')" ]; then
+	print 'has_vpn' 'Ja'
+else
+	print 'has_vpn' 'Nein'
+fi
+
 if [ -n "$(default_gw 4 br-wan)" -o  -n "$(default_gw 6 br-wan)" ]; then
 	print 'has_internet' 'Ja'
 else

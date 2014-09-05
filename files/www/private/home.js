@@ -38,4 +38,5 @@ function init() {
 	addHelpText($("software"), "Einige installierte Softwareversionen.");
 	addHelpText($("public_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
 	addHelpText($("private_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
+	addHelpText($("has_vpn"), "Status der VPN-Verbindung zum Server im Internet.");
 }
