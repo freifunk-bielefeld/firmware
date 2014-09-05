@@ -7,29 +7,8 @@ iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-
 ebtables -F
 ebtables -X
 
-
-#router advertisements/solicitation chains
-ebtables -N IN_ONLY -P RETURN
-ebtables -N OUT_ONLY -P RETURN
-
-#drop bat0 traffic (IPv6)
-ebtables -A IN_ONLY --logical-in br-public -i bat0 -j DROP
-ebtables -A OUT_ONLY --logical-out br-public -o bat0 -j DROP
-
-
-#multicast chain
-ebtables -N MULTICAST_OUT -P DROP
-
-#filter multicast/broadcast on bat0 into chain
-ebtables -A FORWARD --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
-ebtables -A OUTPUT --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
-
-#allow ARP (IPv4)
-ebtables -A MULTICAST_OUT -p ARP -j RETURN
-
-#allow ICMP (IPv4/IPv6)
-ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol icmp -j RETURN
-ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
-
-#allow IGMP (IPv4)
-ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
+#drop all IPv4 related traffic from bat0
+ebtables -A INPUT --logical-in br-public -i bat0 -p IPv4 -j DROP
+ebtables -A INPUT --logical-in br-public -i bat0 -p ARP -j DROP
+ebtables -A OUTPUT --logical-out br-public -o bat0 -p IPv4 -j DROP
+ebtables -A OUTPUT --logical-out br-public -o bat0 -p ARP -j DROP
