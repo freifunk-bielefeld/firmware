@@ -2,4 +2,4 @@
 
 [ "$ACTION" = "ifup" -a "$DEVICE" = "br-wan" ] || exit 0
 
-/etc/init.d/fastd enabled && /etc/init.d/fastd start
+/etc/init.d/fastd start
