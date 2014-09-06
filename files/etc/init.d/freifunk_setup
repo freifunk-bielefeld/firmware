@@ -163,6 +163,10 @@ initial_setup()
 	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.force_link="1"
 
+	uci set network.public6="interface"
+	uci set network.public6.ifname="@public"
+	uci set network.public6.proto="dhcpv6"
+
 	# ------------------------------------- #
 	# W A N  S E T U P #
 	# ------------------------------------- #
