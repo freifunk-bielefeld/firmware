@@ -18,7 +18,7 @@ define Package/freifunk-bielefeld-basic
 		+uhttpd +haserl +uhttpd-mod-tls +px5g \
 		+fastd +dnsmasq-dhcpv6 +ip +odhcpd \
 		+ebtables +kmod-ebtables-ipv4 +kmod-ebtables-ipv6 \
-		+haveged +autoupdater +next-node +simple-tc
+		+haveged +autoupdater +simple-tc
 endef
 
 define Build/Prepare
