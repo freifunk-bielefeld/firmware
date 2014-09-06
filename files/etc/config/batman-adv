@@ -1,4 +1,3 @@
 
 config 'mesh' 'bat0'
 	option 'orig_interval' '5000'
-	option 'bridge_loop_avoidance' '1'
