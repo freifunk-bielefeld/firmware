@@ -1,15 +1,11 @@
 
-#Packages for OpenWrt "Barrier Breaker"
+#Default packages for OpenWrt "Barrier Breaker"
 src-git packages https://github.com/openwrt/packages.git;for-14.07
-
-#Routing packages (atm. only used for batman-adv 2013.4.0)
-src-git routing git://github.com/openwrt-routing/packages.git;for-14.07
+src-git luci http://git.openwrt.org/project/luci.git;luci-0.12
+src-git routing https://github.com/openwrt-routing/packages.git;for-14.07
+src-git telephony http://git.openwrt.org/feed/telephony.git;for-14.07
+src-git management https://github.com/openwrt-management/packages.git;for-14.07
+src-git oldpackages http://git.openwrt.org/14.07/packages.git
 
 #Fastd - "Fast and Secure Tunnelling Daemon"
 src-git fastd git://git.metameute.de/lff/pkg_fastd;v14-1
-
-#LuCI when the OpenWrt GUI is preferred
-src-git luci http://git.openwrt.org/project/luci.git
-
-#LuCI2 when the OpenWrt GUI is preferred
-src-git luci2 git://git.openwrt.org/project/luci2/ui.git
