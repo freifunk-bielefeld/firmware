@@ -19,7 +19,7 @@ git clone git://git.openwrt.org/14.07/openwrt.git
 cd openwrt
 
 git clone -b development https://github.com/freifunk-bielefeld/firmware.git
-cp -rf firmware/{files,package,feeds.conf.default,.config} .
+cp -rf firmware/{files,package,feeds.conf.default} .
 rm -rf firmware
 
 ./scripts/feeds update -a
