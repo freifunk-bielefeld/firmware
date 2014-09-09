@@ -151,7 +151,7 @@ autoupdate() {
       return 1
     fi
     echo "Upgrading firmware."
-
+    sleep 6000
     sysupgrade "${fw_image}"
   else
     echo "No new firmware available"
@@ -165,6 +165,9 @@ trap 'echo Signal ignored.' INT TERM PIPE
 my_model="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-/g;s/-$//')"
 my_version="$(uci get -q freifunk.@settings[0].version)"
 
+lock_dir=/var/lock/freifunk_autoupdater.lock
+mkdir $lock_dir || exit
+
 for mirror in $MIRRORS; do
 
   autoupdate $mirror && exit 0
@@ -174,3 +177,5 @@ for mirror in $MIRRORS; do
   unset fw_file
 
 done
+
+rmdir $lock_dir
