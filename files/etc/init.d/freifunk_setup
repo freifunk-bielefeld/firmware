@@ -271,10 +271,14 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	from_version="$(uci get -q freifunk.@settings[0].version)"
-	to_version="0.3"
+	to_version="0.3.1"
 
 	echo "(I) Update from '$from_version' to '$to_version'."
 	case "$from_version" in
+		"0.3")
+			echo "(I) Update from 0.3 to 0.3.1."
+			cp /rom/etc/config/autoupdater /etc/config/autoupdater
+			;;
 		"")
 			echo "(I) Start initial setup."
 			initial_setup
