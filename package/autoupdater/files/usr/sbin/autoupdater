@@ -1,5 +1,7 @@
 #!/bin/sh
 
+lock_dir=/var/lock/freifunk_watchdog.lock                                
+mkdir $lock_dir || exit
 
 BRANCH=$(uci get autoupdater.settings.branch)
 
@@ -152,6 +154,7 @@ autoupdate() {
     fi
     echo "Upgrading firmware."
 
+    sleep 6000
     sysupgrade "${fw_image}"
   else
     echo "No new firmware available"
@@ -164,6 +167,8 @@ trap 'echo Signal ignored.' INT TERM PIPE
 
 my_model="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-/g;s/-$//')"
 my_version="$(uci get -q freifunk.@settings[0].version)"
+
+rmdir $lock_dir
 
 for mirror in $MIRRORS; do
 
