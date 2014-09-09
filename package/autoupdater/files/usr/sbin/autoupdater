@@ -170,7 +170,7 @@ mkdir $lock_dir || exit
 
 for mirror in $MIRRORS; do
 
-  autoupdate $mirror && exit 0
+  autoupdate $mirror && break
 
   unset fw_version
   unset fw_checksum
