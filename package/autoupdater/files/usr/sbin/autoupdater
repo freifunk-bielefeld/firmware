@@ -165,7 +165,7 @@ trap 'echo Signal ignored.' INT TERM PIPE
 my_model="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-/g;s/-$//')"
 my_version="$(uci get -q freifunk.@settings[0].version)"
 
-lock_dir=/var/lock/freifunk_autoupdater.lock
+lock_dir=/var/lock/autoupdater.lock
 mkdir $lock_dir || exit
 
 for mirror in $MIRRORS; do
