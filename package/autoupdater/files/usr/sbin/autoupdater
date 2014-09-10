@@ -3,11 +3,11 @@
 
 BRANCH=$(uci get autoupdater.settings.branch)
 
-if test "a$1" != "a-f"; then
-  if test $(uci get autoupdater.settings.enabled) != 1; then
-    echo "autoupdater is disabled"
-    exit 0
-  fi
+[ "$1" = "-f" ] && force=1 || force=0
+
+if [ $force != 1 -a $(uci get autoupdater.settings.enabled) != 1 ]; then
+	echo "autoupdater is disabled"
+	exit 0
 fi
 
 BRANCH_NAME=$(uci get autoupdater.${BRANCH}.name)
@@ -142,7 +142,7 @@ autoupdate() {
       return 1
     fi
     echo "Upgrading firmware."
-    sleep 6000
+    [ $force -eq 0 ] && sleep 6000
     sysupgrade "${fw_image}"
   else
     echo "No new firmware available"
@@ -160,7 +160,7 @@ lock_dir=/var/lock/autoupdater.lock
 mkdir $lock_dir || exit
 
 #wait up to 15 minutes to spread the load for the server
-sleep $(awk 'BEGIN{srand(); print(int(900 * rand()));}')
+[ $force -eq 0 ] && sleep $(awk 'BEGIN{srand(); print(int(900 * rand()));}')
 
 for mirror in $MIRRORS; do
 
