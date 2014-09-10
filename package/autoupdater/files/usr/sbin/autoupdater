@@ -4,6 +4,9 @@
 BRANCH=$(uci get autoupdater.settings.branch)
 
 [ "$1" = "-f" ] && force=1 || force=0
+[ "$1" = "-c" ] && check=1 || check=0
+
+[ $check -eq 1 ] && force=1
 
 if [ $force != 1 -a $(uci get autoupdater.settings.enabled) != 1 ]; then
 	echo "autoupdater is disabled"
@@ -126,7 +129,9 @@ autoupdate() {
   rm -f $manifest_upper
 
   if newer_than "$fw_version" "$my_version"; then
-    echo "New version available"
+    echo "New version available: $fw_version"
+
+	[ $check -eq 1 ] && return 0
 
     # drop caches to make room for firmware image
     sync
