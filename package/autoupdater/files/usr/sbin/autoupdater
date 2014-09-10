@@ -13,6 +13,11 @@ if [ $force != 1 -a $(uci get autoupdater.settings.enabled) != 1 ]; then
 	exit 0
 fi
 
+FETCH_DELAY=$(uci -q get autoupdater.${BRANCH}.fetch_delay)
+FETCH_DELAY=${FETCH_DELAY-0}
+APPLY_DELAY=$(uci -q get autoupdater.${BRANCH}.apply_delay)
+APPLY_DELAY=${APPLY_DELAY-0}
+
 BRANCH_NAME=$(uci get autoupdater.${BRANCH}.name)
 MIRRORS=$(for mirror in $(uci get autoupdater.${BRANCH}.mirror); do \
             hexdump -n1 -e '/1 "%d '"$mirror"'\n"' /dev/urandom; \
@@ -131,7 +136,7 @@ autoupdate() {
   if newer_than "$fw_version" "$my_version"; then
     echo "New version available: $fw_version"
 
-	[ $check -eq 1 ] && return 0
+    [ $check -eq 1 ] && return 0
 
     # drop caches to make room for firmware image
     sync
@@ -147,7 +152,7 @@ autoupdate() {
       return 1
     fi
     echo "Upgrading firmware."
-    [ $force -eq 0 ] && sleep 6000
+    [ $force -eq 0 ] && sleep $APPLY_DELAY
     sysupgrade "${fw_image}"
   else
     echo "No new firmware available"
@@ -165,7 +170,7 @@ lock_dir=/var/lock/autoupdater.lock
 mkdir $lock_dir || exit
 
 #wait up to 15 minutes to spread the load for the server
-[ $force -eq 0 ] && sleep $(awk 'BEGIN{srand(); print(int(900 * rand()));}')
+[ $force -eq 0 ] && sleep $(awk -v val=$FETCH_DELAY 'BEGIN{srand(); print(int(val * rand()));}')
 
 for mirror in $MIRRORS; do
 

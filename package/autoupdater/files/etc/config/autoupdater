@@ -8,6 +8,16 @@
 
 #	list mirror 'http://[fdef:ffc0:3dd7::8]/~freifunk/firmware/autoupdate'
 
+	#Delay excution of the autoupdater for at most fetch_delay seconds.
+	#This spreads the load of the server when all nodes start
+	#the autoupdater at the same time.
+#	option fetch_delay 1000
+
+	#Delay sysupgrade for apply_delay seconds.
+	#This gives other nodes behind this one time to fetch the update
+	#themselves before the update is performed.
+#	option apply_delay 6000
+
 	# Minimum valid signatures required to perform the update
 #	option good_signatures 2
 
