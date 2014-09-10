@@ -2,22 +2,42 @@
 content-type: text/plain
 
 <%
-path="$POST_firmware"
-keep="$POST_keep_config"
 
-if [ ! -f "$path" ]; then
-	echo "(E) Datei nicht gefunden."
-	exit 1
-fi
+case "$GET_func$POST_func" in
+	apply_firmware)
+		path="$POST_firmware"
+		keep="$POST_keep_config"
 
-if [ "$keep" = "yes" ]; then
-	args=""
-else
-	args="-n"
-fi
+		if [ ! -f "$path" ]; then
+			echo "(E) Datei nicht gefunden."
+			exit 1
+		fi
 
-echo "(I) Starte sysupgrade..."
+		if [ "$keep" = "yes" ]; then
+			args=""
+		else
+			args="-n"
+		fi
 
-#apply openwrt or vendor image
-sysupgrade $args $path
+		echo "(I) Starte sysupgrade..."
+
+		#apply openwrt or vendor image
+		sysupgrade $args $path
+	;;
+	lookup_upgrade)
+		autoupdater -c
+	;;
+	lookup_and_apply_upgrade)
+		autoupdater -f
+	;;
+	restore_firmware)
+		echo "(I) Undo all changes ..."
+		firstboot
+		sync
+		echo "(I) Rebooting now ..."
+		reboot
+	*)
+		echo "(E) upgrade: Invalid command: '$GET_func'"
+	;;
+esac
 %>

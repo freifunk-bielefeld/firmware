@@ -10,13 +10,29 @@
 </head>
 <body onload="init();">
 
-<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 <fieldset>
-	<legend>Upgrade</legend>
+	<legend>Update</legend>
+	<div>
+		<button type="button" onclick="lookup_upgrade()">Suchen</button>
+		<button type="button" onclick="lookup_and_apply_upgrade()">Suchen und Aktualisieren</button>
+	</div>
+	<div><br />Die Freifunk-Community bietet neue Firmware-Versionen für die Router an.<br />Diese enthalten Fehlerbereinigungen und neue Funktionen.</div>
+</fieldset>
+<fieldset>
+	<legend>Wiederherstellung</legend>
+	<div>
+		<button type="button" onclick="restore_firmware()">Wiederherstellen</button>
+	</div>
+	<div><br />Mit der Wiederherstllung werden alle Einstellungen zurückgesetzt und der Router startet neu.</div>
+</fieldset>
+<fieldset>
+	<legend>Manuell</legend>
 	<div id="selected_image"></div>
+	<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 	<div class="radio_option">
 		<label>
 			<input type="file" id="import_file" name="firmware" onchange="$('selected_image').innerHTML=this.value.replace(/^.*[\\\/](.*)$/, '$1');" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
+			<input type="hidden" name="func" value="apply_firmware" />
 			<button type="button" onclick="$('import_file').click()">Image Ausw&auml;hlen</button>
 			<button type="submit">Senden</button>
 		</label>
@@ -25,9 +41,10 @@
 			<label>Konfiguration erhalten</label>
 		</div>
 	</div>
+	</form>
 	<div><br />Hinweis: Der Dateiname sollte dem Muster "openwrt-[chipsatz]-[modell]-squashfs-sysupgrade.bin" entsprechen.</div>
 </fieldset>
-</form>
+
 
 </body>
 </html>
