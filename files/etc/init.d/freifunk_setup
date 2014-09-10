@@ -6,9 +6,6 @@ START=99
 
 initial_setup()
 {
-	echo "(I) Set empty root password."
-	(echo ""; sleep 1; echo "") | passwd > /dev/null
-
 	#default SSID
 	ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
 
@@ -241,12 +238,29 @@ start()
 
 	echo "(I) Update from '$from_version' to '$to_version'."
 	case "$from_version" in
-		"0.3")
-			echo "(I) Update from 0.3 to 0.3.1."
+		"0.3" | "0.3.1")
+			echo "(I) Apply update."
 			cp /rom/etc/config/autoupdater /etc/config/autoupdater
+			cp /rom/etc/config/dhcp /etc/config/dhcp
+			cp /rom/etc/config/firewall /etc/config/firewall
+			cp /rom/etc/config/fastd /etc/config/fastd
+			cp /rom/etc/config/batman-adv /etc/config/batman-adv
+			cp /rom/etc/crontabs/root /etc/crontabs/root
+			cp /rom/etc/firewall.user /etc/firewall.user
+			cp /rom/etc/dnsmasq.conf /etc/dnsmasq.conf
+			rm /etc/hotplug.d/net/11-batman
+			rm /etc/config/6relayd
+			rm -r /etc/nodogsplash
+			rm /etc/init.d/freifunk_setup
+
+			#TODO: merge/update wireless and network settings,
 			;;
 		"")
 			echo "(I) Start initial setup."
+
+			echo "(I) Set empty root password."
+			(echo ""; sleep 1; echo "") | passwd > /dev/null
+
 			initial_setup
 			;;
 		*)
