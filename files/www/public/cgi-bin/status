@@ -72,7 +72,7 @@ cat <<EOF
 
 <div id="footer">
     <span style="float: left;"><a href="#" id="link">Login</a></span>
-    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">FFB Firmware</a> v$(uci get -q freifunk.@settings[0].version || echo "???")</span>
+    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">FFBI Firmware</a> v$(uci get -q freifunk.@settings[0].version || echo "???")</span>
 </div>
 
 <script type="text/javascript">
