@@ -10,7 +10,21 @@
 </head>
 <body onload="init();">
 
-<div id="general"></div>
+<fieldset>
+	<legend>Allgemeine Einstellungen</legend>
+	<span id="general"></span>
+</fieldset>
+<fieldset>
+	<legend>Resource Verk&uuml;nden</legend>
+	<span id="resource"></span>
+	<div><br />Jeder Router kann einen Eintrag auf der Statusseite aller anderen Router anzeigen lassen. Dies soll es erm&ouml;glichen Inhalte im Freifunknetz zu finden.</div>
+</fieldset>
+<fieldset>
+	<legend>Bandbreitenbeschr&auml;nkung</legend>
+	<span id="traffic"></span>
+	<div><br />Die f&uuml;r das Freifunknetz beanspruchte Internet-Bandbreite an WAN kann hier limitiert werden.</div>
+</fieldset>
+
 <button type="button" onclick="save_data()">Speichern</button>
 
 </body>

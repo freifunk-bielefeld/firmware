@@ -91,21 +91,20 @@ function appendSetting(p, path, value, mode)
 		b = append_check(p, "SSH/HTTPS Freigeben", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
-	case "disabled":
-		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
-		break;
 	case "service_link":
 		b = append_input(p, "Service Link", id, value);
 		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,60}$/, "Ung\xfcltige Eingabe.");
+		addHelpText(b, "Ein Verweis auf eine Netzwerkresource. Z.B. \"http://1.2.3.4\".");
 		break;
 	case "service_label":
 		b = append_input(p, "Service Name", id, value);
 		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,30}$/, "Ung\xfcltige Eingabe.");
+		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
 	case "services_display_max":
-		b = append_input(p, "Max. Service-Eintr\xe4ge", id, value);
+		b = append_input(p, "Max. Angezeigte-Eintr\xe4ge", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Ung\xfcltige Zahl.");
-		addHelpText(b, "Maximale Anzahl der auf der Statusseite angezeigten Fremdeintr\xe4ge.");
+		addHelpText(b, "Maximale Anzahl der auf der Statusseite angezeigten Eintr\xe4ge.");
 		break;
 	default:
 		return;
@@ -121,41 +120,40 @@ function appendSetting(p, path, value, mode)
 
 function rebuild_general()
 {
-	var root = $("general");
-	removeChilds(root);
-	removeChilds(root);
-
-	var fs = append_section(root, "Allgemeine Einstellungen");
+	var gfs = $("general");
+	var rfs = $("resource");
+	var tfs = $("traffic");
 
 	if('system' in uci) {
+		var fs = $("general");
 		var s = uci.system;
 		var i = firstSectionID(s, "system");
-		appendSetting(fs, ["system", i, "hostname"], s[i]["hostname"]);
+		appendSetting(gfs, ["system", i, "hostname"], s[i]["hostname"]);
 	}
 
 	if('freifunk' in uci) {
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
-		appendSetting(fs, ['freifunk', i, "config_nets"], f[i]["config_nets"]);
-		appendSetting(fs, ['freifunk', i, "share_internet"], f[i]["share_internet"]);
-		appendSetting(fs, ['freifunk', i, "geo"], f[i]["geo"]);
-		appendSetting(fs, ['freifunk', i, "service_label"], f[i]["service_label"]);
-		appendSetting(fs, ['freifunk', i, "service_link"], f[i]["service_link"]);
-		appendSetting(fs, ['freifunk', i, "services_display_max"], f[i]["services_display_max"]);
+		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
+		appendSetting(gfs, ['freifunk', i, "config_nets"], f[i]["config_nets"]);
+		appendSetting(gfs, ['freifunk', i, "share_internet"], f[i]["share_internet"]);
+		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);
+		appendSetting(rfs, ['freifunk', i, "service_link"], f[i]["service_link"]);
+		appendSetting(rfs, ['freifunk', i, "services_display_max"], f[i]["services_display_max"]);
 	}
 
 	if('autoupdater' in uci) {
 		var a = uci.autoupdater;
 		var i = firstSectionID(a, "autoupdater");
-		appendSetting(fs, ['autoupdater', i, "enabled"], a[i]["enabled"]);
+		appendSetting(gfs, ['autoupdater', i, "enabled"], a[i]["enabled"]);
 	}
 
 	if('simple-tc' in uci) {
 		var t = uci['simple-tc'];
 		var i = firstSectionID(t, "interface");
-		appendSetting(fs, ['simple-tc', i, "enabled"], t[i]["enabled"]);
-		appendSetting(fs, ['simple-tc', i, "limit_ingress"], t[i]["limit_ingress"]);
-		appendSetting(fs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
+		appendSetting(tfs, ['simple-tc', i, "enabled"], t[i]["enabled"]);
+		appendSetting(tfs, ['simple-tc', i, "limit_ingress"], t[i]["limit_ingress"]);
+		appendSetting(tfs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
 	}
 
 	var div = append(fs, "div");
