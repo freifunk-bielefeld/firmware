@@ -37,10 +37,10 @@ html, body {
 $(uci get system.@system[0].hostname)
 <br />
 <b>Eigene IPv4-Adresse: </b>
-$(ip -4 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1)
+$(ip -4 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')
 <br />
 <b>Eigene IPv6-Adresse: </b>
-$(ip -6 address show dev br-public 2> /dev/null | sed -rn 's/.*inet6? (.*[^:])\/.*/\1/p' | head -1)
+$(ip -6 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')
 <br />
 <b>Anzahl bekannter Knoten: </b>
 $(echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)))
@@ -48,27 +48,24 @@ $(echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/
 <b>Anzahl benachbarter Knoten: </b>
 $(batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l)
 <br /><br />
-<b>Liste bekannter Gateways: </b>
-<br /><br />
-<ul>
 EOF
 
-gw_addr=$(ip -4 route list 0/0 dev br-public 2> /dev/null | awk '{print($3)}')
+max=$(uci get -q freifunk.@settings[0].services_display_max)
 
-IFS="
-"
-for addr in $(alfred -r 88 | tr '{}[]\n"\\,' ' ' | awk 'BEGIN{c=0}{ if($4 == "gateway" && $7 ~ /^[0-9.]+$/) {print($7); if(c>9) exit(0)}; c++;}'  2> /dev/null); do
-	[ "$gw_addr" = "$addr" ] && ext=" (aktueller default)" || ext=""
-	echo "<li><a href='http://$addr'>$addr</a>$ext</li>"
-	found="yes"
-done
+if [ -n "$max" -a "$max" != "0" ]; then
+	echo "<b>Liste lokaler Angebote im Freifunk-Netz:</b>"
+	echo "<br /><br />"
+	echo "<ul>"
 
-if [ -z "$found" ]; then
-	echo "<li>Kein Gateway gefunden</li>"
+	printf "$(alfred -r 91)" | head -$max | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
+
+	echo "</ul>"
+	echo "<br />"
+
+	echo "(Bitte beachten: Diese Eintr&auml;ge stammen von anderen Routern!)"
 fi
 
 cat <<EOF
-</ul>
 </div>
 
 <div id="footer">

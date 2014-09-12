@@ -7,6 +7,9 @@ config settings
 	option 'mac' ''
 	option 'share_internet' 'no'
 	option 'config_nets' 'private'
+	option 'service_link' ''
+	option 'service_label' ''
+	option 'services_display_max' 10
 	option 'default_ap_ssid' 'bielefeld.freifunk.net'
 	option 'default_ah_ssid' ''
 	option 'default_ah_bssid' '12:C0:FF:EE:C0:DE'
