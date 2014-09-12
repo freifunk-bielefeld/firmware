@@ -56,10 +56,10 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild,/^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Koordinaten ist ung\xfcltig.");
 		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
 		break;
-	case "hostname":
-		b = append_input(p, "Hostname", id, value);
+	case "name":
+		b = append_input(p, "Name", id, value);
 		addInputCheck(b.lastChild,/^\w+[\w\-]{0,20}\w+$/, name + " ist ung\xfcltig.");
-		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte (wenn nicht \"OpenWrt\" oder leer).");
+		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "enabled":
 		if(cfg == "autoupdater") {
@@ -124,16 +124,10 @@ function rebuild_general()
 	var rfs = $("resource");
 	var tfs = $("traffic");
 
-	if('system' in uci) {
-		var fs = $("general");
-		var s = uci.system;
-		var i = firstSectionID(s, "system");
-		appendSetting(gfs, ["system", i, "hostname"], s[i]["hostname"]);
-	}
-
 	if('freifunk' in uci) {
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
+		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
 		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
 		appendSetting(gfs, ['freifunk', i, "config_nets"], f[i]["config_nets"]);
 		appendSetting(gfs, ['freifunk', i, "share_internet"], f[i]["share_internet"]);

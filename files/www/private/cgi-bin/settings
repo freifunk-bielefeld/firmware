@@ -7,7 +7,6 @@ content-type: text/plain
 case "$GET_func" in
 	get_settings)
 		uci export -qn freifunk
-		uci export -qn system
 		uci export -qn autoupdater
 		uci export -qn simple-tc
 	;;

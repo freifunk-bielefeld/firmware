@@ -34,7 +34,7 @@ html, body {
 <body>
 <div id="header">
 <b>Name des Knoten: </b>
-$(uci get system.@system[0].hostname)
+$(uci get freifunk.@settings[0].name)
 <br />
 <b>Eigene IPv4-Adresse: </b>
 $(ip -4 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')
