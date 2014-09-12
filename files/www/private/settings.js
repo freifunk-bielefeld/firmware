@@ -127,6 +127,19 @@ function appendSetting(p, path, value, mode)
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		break;
+	case "service_link":
+		b = append_input(p, "Service Link", id, value);
+		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,60}$/, "Ung\xfcltige Eingabe.");
+		break;
+	case "service_label":
+		b = append_input(p, "Service Name", id, value);
+		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,30}$/, "Ung\xfcltige Eingabe.");
+		break;
+	case "services_display_max":
+		b = append_input(p, "Max. Service-Eintr\xe4ge", id, value);
+		addInputCheck(b.lastChild,/^\d+$/, "Ung\xfcltige Zahl.");
+		addHelpText(b, "Maximale Anzahl der auf der Statusseite angezeigten Fremdeintr\xe4ge.");
+		break;
 	case "ports":
 		var map = [];
 		var tp = value.swinfo.tagged_port;
@@ -176,6 +189,9 @@ function rebuild_general()
 		appendSetting(fs, ['freifunk', i, "config_nets"], f[i]["config_nets"]);
 		appendSetting(fs, ['freifunk', i, "share_internet"], f[i]["share_internet"]);
 		appendSetting(fs, ['freifunk', i, "geo"], f[i]["geo"]);
+		appendSetting(fs, ['freifunk', i, "service_label"], f[i]["service_label"]);
+		appendSetting(fs, ['freifunk', i, "service_link"], f[i]["service_link"]);
+		appendSetting(fs, ['freifunk', i, "services_display_max"], f[i]["services_display_max"]);
 	}
 
 	if('autoupdater' in uci) {
