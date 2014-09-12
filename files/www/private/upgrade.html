@@ -11,7 +11,7 @@
 <body onload="init();">
 
 <fieldset>
-	<legend>Update</legend>
+	<legend>Firmware Aktualisierung</legend>
 	<div>
 		<button type="button" onclick="lookup_upgrade()">Suchen</button>
 		<button type="button" onclick="lookup_and_apply_upgrade()">Suchen und Aktualisieren</button>
@@ -19,14 +19,14 @@
 	<div><br />Die Freifunk-Community bietet neue Firmware-Versionen für die Router an.<br />Diese enthalten Fehlerbereinigungen und neue Funktionen.</div>
 </fieldset>
 <fieldset>
-	<legend>Wiederherstellung</legend>
+	<legend>Router Zur&uuml;cksetzen</legend>
 	<div>
-		<button type="button" onclick="restore_firmware()">Wiederherstellen</button>
+		<button type="button" onclick="restore_firmware()">Zur&uuml;cksetzen</button>
 	</div>
-	<div><br />Mit der Wiederherstllung werden alle Einstellungen zurückgesetzt und der Router startet neu.</div>
+	<div><br />Alle Einstellungen werden zur&uuml;ckgesetzt und der Router startet neu.</div>
 </fieldset>
 <fieldset>
-	<legend>Manuell</legend>
+	<legend>Manuelles Update</legend>
 	<div id="selected_image"></div>
 	<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 	<div class="radio_option">
