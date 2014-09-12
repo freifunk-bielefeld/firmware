@@ -33,22 +33,24 @@ html, body {
 </head>
 <body>
 <div id="header">
-<b>Name des Knoten: </b>
-$(uci get freifunk.@settings[0].name)
-<br />
-<b>Eigene IPv4-Adresse: </b>
-$(ip -4 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')
-<br />
-<b>Eigene IPv6-Adresse: </b>
-$(ip -6 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')
-<br />
-<b>Anzahl bekannter Knoten: </b>
-$(echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1)))
-<br />
-<b>Anzahl benachbarter Knoten: </b>
-$(batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l)
-<br /><br />
 EOF
+
+name=$(uci get -q freifunk.@settings[0].name)
+[ -n "$name" ] && echo "<b>Name: $name</b><br />"
+
+echo "<b>Eigene IPv4-Adresse: </b>"
+ip -4 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}'
+
+echo "<br /><b>Eigene IPv6-Adresse: </b>"
+ip -6 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}'
+
+echo "<br /><b>Anzahl bekannter Knoten: </b>"
+echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1))
+
+echo "<br /><b>Anzahl benachbarter Knoten: </b>"
+batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l
+
+echo "<br /><br />"
 
 max=$(uci get -q freifunk.@settings[0].services_display_max)
 
