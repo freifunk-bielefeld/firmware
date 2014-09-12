@@ -124,6 +124,10 @@ function rebuild_general()
 	var rfs = $("resource");
 	var tfs = $("traffic");
 
+	removeChilds(gfs);
+	removeChilds(rfs);
+	removeChilds(tfs);
+
 	if('freifunk' in uci) {
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
