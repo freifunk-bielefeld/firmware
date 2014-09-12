@@ -1,4 +1,4 @@
-config dnsmasq
+config dnsmasq private
 	option domainneeded '1'
 	option boguspriv '1'
 	option filterwin2k '0'
@@ -11,19 +11,43 @@ config dnsmasq
 	option nonegcache '0'
 	option authoritative '1'
 	option readethers '1'
-	option leasefile '/tmp/dhcp.leases'
-	option resolvfile '/tmp/resolv.conf.auto'
+	option leasefile '/tmp/dhcp.private.leases'
+	option resolvfile '/tmp/resolv.conf.private.auto'
 	#prevent own hostname as DNS entry
 	option add_local_domain '0'
 	option add_local_hostname '0'
-	option cachelocal '0'
+#	option cachelocal '0'
+	option nonwildcard '1'
+	list listen_address '192.168.133.1'
+
+config dnsmasq public
+	option domainneeded '1'
+	option boguspriv '1'
+	option filterwin2k '0'
+	option localise_queries '1'
+	option rebind_protection '1'
+	option rebind_localhost '1'
+	option local '/lan/'
+	option domain 'lan'
+	option expandhosts '1'
+	option nonegcache '0'
+	option authoritative '1'
+	option readethers '1'
+	option leasefile '/tmp/dhcp.public.leases'
+	option resolvfile '/tmp/resolv.conf.public.auto'
+	#prevent own hostname as DNS entry
+	option add_local_domain '0'
+	option add_local_hostname '0'
+#	option cachelocal '0'
+	option nonwildcard '1'
+	list listen_address '192.168.132.1'
 
 config odhcpd 'odhcpd'
 	option maindhcp '0'
 	option leasefile '/tmp/hosts/odhcpd'
 	option leasetrigger '/usr/sbin/odhcpd-update'
 
-config dhcp private
+config dhcp
 	option interface private
 	option start 100
 	option limit 150
@@ -32,8 +56,9 @@ config dhcp private
 	list dhcp_option '6,192.168.133.1'
 	option ra relay
 	option ndp relay
+	option dnsmasq_config private
 
-config dhcp public
+config dhcp
 	option interface public
 	option start 100
 	option limit 150
@@ -43,6 +68,7 @@ config dhcp public
 	option ra relay
 	option ndp relay
 	option master 1
+	option dnsmasq_config public
 
 config dhcp wan
 	option interface wan
