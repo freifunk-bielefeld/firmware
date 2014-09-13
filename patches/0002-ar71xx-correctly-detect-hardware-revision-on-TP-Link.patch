@@ -1,0 +1,40 @@
+From ba57840a0b1cf4e4d11c3be1474c9af8300b424e Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Sat, 16 Aug 2014 17:52:34 +0200
+Subject: [PATCH 2/2] ar71xx: correctly detect hardware revision on TP-Link
+ Archer C5 and C7
+
+---
+ target/linux/ar71xx/base-files/lib/ar71xx.sh |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+index 1e96b6d..5aceaee 100755
+--- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
++++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+@@ -214,6 +214,13 @@ tplink_board_detect() {
+ 	"934100"*)
+ 		model="NC-LINK SMART-300"
+ 		;;
++	"c50000"*)
++		model="TP-Link Archer C5"
++		;;
++	"750000"*|\
++	"c70000"*)
++		model="TP-Link Archer C7"
++		;;
+ 	*)
+ 		hwver=""
+ 		;;
+@@ -745,7 +752,7 @@ ar71xx_board_detect() {
+ 	esac
+ 
+ 	case "$machine" in
+-	*TL-WR* | *TL-WA* | *TL-MR* | *TL-WD*)
++	*TL-WR* | *TL-WA* | *TL-MR* | *TL-WD* | *Archer*)
+ 		tplink_board_detect "$machine"
+ 		;;
+ 	esac
+-- 
+1.7.10.4
+
