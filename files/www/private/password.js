@@ -11,7 +11,14 @@ function apply()
 	$('p1').value = "";
 	$('p2').value = "";
 
+	if(p1 != p2) {
+		setText('msg', "(E) Die Passw&ouml;rter sind nicht identisch.");
+		return;
+	} else {
+		setText('msg', "(E) Das Passwort wird ge&auml;ndert. Bitte Seite neu laden.");
+	}
+
 	send("/cgi-bin/password", { func : "set_password", pass1 : p1, pass2 : p2 }, function(data) {
-        setText('msg', data);
+		setText('msg', data);
 	});
 }
