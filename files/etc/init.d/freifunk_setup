@@ -195,7 +195,6 @@ initial_setup()
 	# F R E I F U N K  S E T U P #
 	# ------------------------------------- #
 
-	uci set freifunk.@settings[0].mac="$mac"
 	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 	uci set freifunk.@settings[0].version="$version"
 
