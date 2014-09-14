@@ -21,7 +21,7 @@ print() {
 
 echo "package misc"
 echo "config data 'data'"
-print 'mac' "$(uci -q get freifunk.@settings[0].mac)"
+print 'mac' "$(uci -q get network.public.macaddr)"
 print 'public_addr4' "$(addr 4 br-public)"
 print 'public_addr6' "$(addr 6 br-public)"
 print 'private_addr4' "$(addr 4 br-private)"

@@ -11,6 +11,7 @@ function init()
 {
 	send("/cgi-bin/network", { func : "get_settings" }, function(data) {
 		uci = fromUCI(data);
+		rebuild_other();
 		rebuild_assignment();
 		rebuild_wifi();
 		rebuild_switches();
@@ -83,11 +84,11 @@ function appendSetting(p, path, value, mode)
 				b.lastChild.disabled = "disabled";
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
-	case "share_internet":
-		b = append_radio(p, "Gateway Modus", id, value, [["An", "yes"], ["Aus", "no"]]);
-		if(!adv_mode)
-			onDesc(b, "INPUT", function(e) { e.disabled = true; });
-		addHelpText(b, "<b>An</b> bedeutet das der private Internetanschluss f\xfcr die \xD6ffentlichkeit freigegeben wird.<br />Die empfohlene Einstellung ist <b>Aus</b>, da es zu rechtlichen Problemen kommen kann.");
+	case "macaddr":
+		if(!adv_mode || path[1] != "public") return;
+		b = append_input(p, "MAC-Adresse", id, value);
+		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
+		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
 		break;
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
@@ -141,6 +142,21 @@ function getMode(ifname)
 	}
 
 	return "none";
+}
+
+function rebuild_other()
+{
+	var root = $("other");
+	removeChilds(root);
+	hide(root);
+
+	var fs = append_section(root, "Sonstiges");
+
+	if('network' in uci) {
+		var n = uci['network'];
+		var b = appendSetting(fs, ['network', 'public', "macaddr"], n['public']["macaddr"]);
+		if(b) show(root);
+	}
 }
 
 function rebuild_assignment()

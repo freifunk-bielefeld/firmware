@@ -3,7 +3,6 @@ config settings
 	option 'name' ''
 	option 'geo' ''
 	option 'version' ''
-	option 'mac' ''
 	option 'share_internet' 'no'
 	option 'config_nets' 'private'
 	option 'service_link' ''
