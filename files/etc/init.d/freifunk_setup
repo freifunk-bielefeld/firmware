@@ -4,28 +4,19 @@
 
 START=99
 
-initial_setup()
+
+initial_wifi_setup()
 {
+	echo "(I) Setup /etc/config/wireless"
+
 	#default SSID
 	ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
 
 	#add batman version to the AdHoc interface SSID
-	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+	ah_ssid=`uci get freifunk.@settings[0].default_ah_ssid`
 
 	#default BSSID
 	ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
-
-	wan_interface=`uci get -q network.wan.ifname`
-	echo "(I) WAN interface: '$wan_interface'"
-
-	private_interface=`uci get -q network.lan.ifname`
-	echo "(I) Private interface: '$private_interface'"
-
-	# ------------------------------------------- #
-	# S E T U P  W I R E L E S S #
-	# ------------------------------------------- #
-
-	echo "(I) Setup /etc/config/wireless"
 
 	#delete all wifi interfaces
 	while uci -q delete wireless.@wifi-iface[0]; do :; done
@@ -85,8 +76,8 @@ initial_setup()
 		}
 
 		check_wifi_interfaces() {
-			ifconfig "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
-			ifconfig "${wifi_device}_public" &> /dev/null && ap_ok=1 || ap_ok=0
+			ip addr list dev "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
+			ip addr list dev "${wifi_device}_public" &> /dev/null && ap_ok=1 || ap_ok=0
 		}
 
 		add_ah_interface
@@ -112,28 +103,15 @@ initial_setup()
 
 	echo "(I) Wifi access point interfaces: '$wifi_public_interfaces'"
 	echo "(I) Wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
+}
 
-
-	#get a unique (but not just random) mac to identify the node
-	mac=`cat /sys/class/ieee80211/phy0/macaddress`
-	[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
-		mac=$(ifconfig $private_interface | grep HWaddr | awk '{print $5}')
-	}
-	#translate to local administered mac
-	a=${mac%%:*} #cut out first hex
-	a=$((0x$a | 2)) #set second bit to 1
-	a=`printf '%02x\n' $a` #convert to hex
-	mac="$a:${mac#*:}" #reassemble mac
-
-	echo "(I) MAC: '$mac'"
-
-	# ------------------------------------- #
-	# P R I V A T E  S E T U P #
-	# ------------------------------------- #
-
+initial_private_setup()
+{
+	local private_interface="$1"
 	echo "(I) Setup private network interfaces."
 
-	uci -q delete network.lan
+	uci delete -q network.lan
+	uci delete -q network.private
 	uci set network.private="interface"
 	uci set network.private.type="bridge"
 	uci set network.private.ifname="$private_interface"
@@ -142,13 +120,14 @@ initial_setup()
 	uci set network.private.proto=static
 	uci set network.private.netmask="255.255.255.0"
 	uci set network.private.force_link="1"
+}
 
-	# ------------------------------------- #
-	# P U B L I C  S E T U P #
-	# ------------------------------------- #
-
+initial_public_setup()
+{
+	local public_interface="$1" mac="$2"
 	echo "(I) Setup public interfaces."
 
+	uci delete -q network.public
 	uci set network.public="interface"
 	uci set network.public.type="bridge"
 	uci set network.public.ifname="bat0 $wifi_public_interfaces"
@@ -163,12 +142,12 @@ initial_setup()
 	uci set network.public6="interface"
 	uci set network.public6.ifname="@public"
 	uci set network.public6.proto="dhcpv6"
+}
 
-	# ------------------------------------- #
-	# W A N  S E T U P #
-	# ------------------------------------- #
-
-	echo "(I) Setup WAN interface."
+initial_wan_setup()
+{
+	local wan_interface="$1"
+	echo "(I) Setup WAN interfaces."
 
 	uci -q delete network.wan
 	uci -q delete network.wan6
@@ -181,6 +160,70 @@ initial_setup()
 	uci set network.wan6="interface"
 	uci set network.wan6.ifname="@wan"
 	uci set network.wan6.proto="dhcpv6"
+}
+
+initial_setup()
+{
+	version="$1"
+
+	wan_interface=$(uci get -q network.wan.ifname)
+	echo "(I) WAN interface: '$wan_interface'"
+
+	private_interface=$(uci get -q network.lan.ifname)
+	echo "(I) Private interface: '$private_interface'"
+
+	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+	echo "(I) AdHoc SSID: '$ah_ssid'"
+
+	echo "(I) Set empty root password."
+	(echo ""; sleep 1; echo "") | passwd > /dev/null
+
+	#get a unique (but not just random) mac to identify the node
+	mac=`cat /sys/class/ieee80211/phy0/macaddress`
+	[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
+		mac=$(ip addr list dev eth0 | awk '/ether/{print $2}')
+	}
+	#translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a | 2)) #set second bit to 1
+	a=`printf '%02x\n' $a` #convert to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	echo "(I) MAC: '$mac'"
+
+	# ------------------------------------- #
+	# F R E I F U N K  S E T U P #
+	# ------------------------------------- #
+
+	uci set freifunk.@settings[0].mac="$mac"
+	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
+	uci set freifunk.@settings[0].version="$version"
+
+	# ------------------------------------------- #
+	# S E T U P  W I R E L E S S #
+	# ------------------------------------------- #
+
+	initial_wifi_setup
+
+	# ------------------------------------- #
+	# P R I V A T E  S E T U P #
+	# ------------------------------------- #
+
+	initial_private_setup "$private_interface"
+
+	# ------------------------------------- #
+	# P U B L I C  S E T U P #
+	# ------------------------------------- #
+
+	initial_public_setup "$wifi_public_interfaces" "$mac"
+
+	# ------------------------------------- #
+	# W A N  S E T U P #
+	# ------------------------------------- #
+
+	echo "(I) Setup WAN interface."
+
+	initial_wan_setup "$wan_interface"
 
 	# ------------------------------------- #
 	# B A T M A N  S E T U P #
@@ -197,21 +240,10 @@ initial_setup()
 		uci set network.$n.mesh="bat0"
 	done
 
-
-	# ------------------------------------- #
-	# F R E I F U N K  S E T U P #
-	# ------------------------------------- #
-
-	uci set freifunk.@settings[0].mac="$mac"
-	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
-
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
 	echo "192.168.132.1 node" >> /etc/hosts
-
-	/etc/init.d/fastd disable
-	/etc/init.d/telnet disable
 
 	echo "(I) Generate a key for fastd."
 	secret=`fastd --generate-key --machine-readable`
@@ -223,10 +255,100 @@ initial_setup()
 	uci commit
 }
 
+update_03_to_04()
+{
+	echo "(I) Copy/delete some files."
+	cp -f /rom/etc/config/autoupdater /etc/config/
+	cp -f /rom/etc/config/dhcp /etc/config/
+	cp -f /rom/etc/config/firewall /etc/config/
+	cp -f /rom/etc/config/fastd /etc/config/
+	cp -f /rom/etc/config/batman-adv /etc/config/
+	cp -f /rom/etc/crontabs/root /etc/crontabs/
+	cp -f /rom/etc/firewall.user /etc/
+	cp -f /rom/etc/dnsmasq.conf /etc/
+	cp -f /rom/etc/sysctl.conf /etc/
+	cp -f /rom/etc/profile /etc/
+	rm -f /etc/config/6relayd
+
+	#set new ad-hoc SSID
+	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+	mac=$(uci get -q freifunk.@settings[0].mac)
+
+	echo "(I) Remove dummy interfaces and rebuild public/private/wan sections."
+	uci delete -q network.dummy_mesh
+	uci delete -q network.dummy_private
+	uci delete -q network.dummy_public
+
+	ifname=$(uci get -q network.public.ifname)
+	initial_public_setup "${ifname/dummy_public/}" "$mac"
+
+	ifname=$(uci get -q network.private.ifname)
+	initial_private_setup "${ifname/dummy_private/}"
+
+	ifname=$(uci get -q network.wan.ifname)
+	initial_wan_setup "$ifname"
+
+	wireless_change_ssid() {
+		local cfg="$1" ssid mode
+		config_get mode $cfg "mode"
+
+		if [ "$mode" = "adhoc" ]; then
+			uci set wireless.$cfg.ssid="$ah_ssid"
+		fi
+	}
+
+	wireless_fixup_iface() {
+		local cfg="$1" hwmode
+		config_get hwmode $cfg "hwmode"
+
+		uci delete -q wireless.$cfg.ht_capab
+		if [ "$hwmode" = "11ng" ]; then
+			uci set wireless.$cfg.hwmode="11g"
+		fi
+	}
+
+	network_change_mtu() {
+		local cfg="$1" mtu
+		config_get mtu $cfg "mtu"
+
+		if [ "$mtu" = "1426" ]; then
+			uci set network.$cfg.mtu="1406"
+		fi
+	}
+
+	echo "(I) Update network/wireless settings."
+	config_load network
+	config_foreach network_change_mtu interface
+	uci commit network
+
+	config_load wireless
+	config_foreach wireless_change_ssid wifi-iface
+	config_foreach wireless_fixup_iface wifi-device
+	uci commit wireless
+
+	echo "(I) Update /etc/config/freifunk"
+	hostname="$(uci get system.@system[0].hostname)"
+	config_nets="$(uci get freifunk.@settings[0].config_nets)"
+	share_internet="$(uci get freifunk.@settings[0].share_internet)"
+	default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
+
+	cp /rom/etc/config/freifunk /etc/config/
+	cp /rom/etc/config/system /etc/config/
+
+	uci set system.@system[0].hostname="$hostname"
+	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
+	uci set freifunk.@settings[0].config_nets="$config_nets"
+	uci set freifunk.@settings[0].share_internet="$share_internet"
+	uci set freifunk.@settings[0].version="$to_version"
+
+	uci commit system
+	uci commit freifunk
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
-	#This script is only run once and deletes itself.
+	#This script is only run once and deletes itself at the end.
 
 	exec >/root/freifunk_setup.log 2>&1
 	. /lib/functions.sh
@@ -236,44 +358,28 @@ start()
 	from_version="$(uci get -q freifunk.@settings[0].version)"
 	to_version="0.4-dev"
 
-	echo "(I) Update from '$from_version' to '$to_version'."
+	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
 		"0.3" | "0.3.1")
 			echo "(I) Apply update."
-			cp /rom/etc/config/autoupdater /etc/config/autoupdater
-			cp /rom/etc/config/dhcp /etc/config/dhcp
-			cp /rom/etc/config/firewall /etc/config/firewall
-			cp /rom/etc/config/fastd /etc/config/fastd
-			cp /rom/etc/config/batman-adv /etc/config/batman-adv
-			cp /rom/etc/crontabs/root /etc/crontabs/root
-			cp /rom/etc/firewall.user /etc/firewall.user
-			cp /rom/etc/dnsmasq.conf /etc/dnsmasq.conf
-			rm /etc/hotplug.d/net/11-batman
-			rm /etc/config/6relayd
-			rm -r /etc/nodogsplash
-			rm /etc/init.d/freifunk_setup
-
-			#TODO: merge/update wireless and network settings,
+			update_03_to_04
 			;;
 		"")
 			echo "(I) Start initial setup."
-
-			echo "(I) Set empty root password."
-			(echo ""; sleep 1; echo "") | passwd > /dev/null
-
-			initial_setup
+			initial_setup "$to_version"
 			;;
 		*)
 			echo "(E) Unknown version => Skip setup."
 			;;
 	esac
 
-	uci set freifunk.@settings[0].version="$to_version"
-	uci commit freifunk
+	echo "(I) Done - rebooting now."
 
-	echo "(I) Done freifunk_setup - rebooting now."
-
+	/etc/init.d/fastd disable
+	/etc/init.d/telnet disable
 	/etc/init.d/freifunk_setup disable
-	rm /etc/init.d/freifunk_setup
+
+	rm -f /etc/init.d/freifunk_setup
+
 	reboot
 }
