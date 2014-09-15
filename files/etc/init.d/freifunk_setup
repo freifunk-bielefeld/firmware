@@ -267,6 +267,7 @@ update_03_to_04()
 	cp -f /rom/etc/dnsmasq.conf /etc/
 	cp -f /rom/etc/sysctl.conf /etc/
 	cp -f /rom/etc/profile /etc/
+	cp -r /rom/etc/inittab /etc/
 	rm -f /etc/config/6relayd
 
 	#set new ad-hoc SSID
