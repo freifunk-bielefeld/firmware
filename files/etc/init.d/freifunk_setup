@@ -328,7 +328,7 @@ update_03_to_04()
 
 	echo "(I) Update /etc/config/freifunk"
 	hostname="$(uci get system.@system[0].hostname)"
-	config_nets="$(uci get freifunk.@settings[0].config_nets)"
+	access_from="$(uci get freifunk.@settings[0].config_nets)"
 	share_internet="$(uci get freifunk.@settings[0].share_internet)"
 	default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
 
@@ -337,7 +337,7 @@ update_03_to_04()
 
 	uci set system.@system[0].hostname="$hostname"
 	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
-	uci set freifunk.@settings[0].config_nets="$config_nets"
+	uci set freifunk.@settings[0].access_from="$access_from"
 	uci set freifunk.@settings[0].share_internet="$share_internet"
 	uci set freifunk.@settings[0].version="$to_version"
 

@@ -52,7 +52,7 @@ batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l
 
 echo "<br /><br />"
 
-max=$(uci get -q freifunk.@settings[0].services_display_max)
+max=$(uci get -q freifunk.@settings[0].service_display_max)
 
 if [ -n "$max" -a "$max" != "0" ]; then
 	echo "<b>Liste lokaler Angebote im Freifunk-Netz:</b>"

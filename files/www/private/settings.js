@@ -87,7 +87,7 @@ function appendSetting(p, path, value, mode)
 			onDesc(b, "INPUT", function(e) { e.disabled = true; });
 		addHelpText(b, "<b>An</b> bedeutet das der private Internetanschluss f\xfcr die \xD6ffentlichkeit freigegeben wird.<br />Die empfohlene Einstellung ist <b>Aus</b>, da es zu rechtlichen Problemen kommen kann.");
 		break;
-	case "config_nets":
+	case "access_from":
 		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
@@ -101,7 +101,7 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,30}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
-	case "services_display_max":
+	case "service_display_max":
 		b = append_input(p, "Max. Angezeigte-Eintr\xe4ge", id, value);
 		addInputCheck(b.lastChild,/^\d+$/, "Ung\xfcltige Zahl.");
 		addHelpText(b, "Maximale Anzahl der auf der Statusseite angezeigten Eintr\xe4ge.");
@@ -133,11 +133,11 @@ function rebuild_general()
 		var i = firstSectionID(f, "settings");
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
 		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
-		appendSetting(gfs, ['freifunk', i, "config_nets"], f[i]["config_nets"]);
+		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
 		appendSetting(gfs, ['freifunk', i, "share_internet"], f[i]["share_internet"]);
 		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);
 		appendSetting(rfs, ['freifunk', i, "service_link"], f[i]["service_link"]);
-		appendSetting(rfs, ['freifunk', i, "services_display_max"], f[i]["services_display_max"]);
+		appendSetting(rfs, ['freifunk', i, "service_display_max"], f[i]["service_display_max"]);
 	}
 
 	if('autoupdater' in uci) {

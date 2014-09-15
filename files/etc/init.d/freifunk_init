@@ -6,9 +6,9 @@ START=19
 #allow/block access via ssh/https
 config_access() {
 	local default_target src port s
-	local config_nets=`uci get -q freifunk.@settings[0].config_nets`
+	local access_from=`uci get -q freifunk.@settings[0].access_from`
 
-	echo "(I) Freifunk: config_nets: '$config_nets'"
+	echo "(I) Freifunk: access_from: '$access_from'"
 
 	find_default_target() {
 		local s="$1" src="$2" n=""
@@ -21,7 +21,7 @@ config_access() {
 	for src in wan private public; do
 		default_target=""
 		config_foreach find_default_target 'zone' $src
-		list_contains config_nets "$src" && target=ACCEPT || target=REJECT
+		list_contains access_from "$src" && target=ACCEPT || target=REJECT
 		[ "$target" = "$default_target" ] && continue
 		for port in 22 443; do
 			s=firewall.`uci add firewall rule`
