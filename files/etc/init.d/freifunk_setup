@@ -373,13 +373,12 @@ start()
 			;;
 	esac
 
-	echo "(I) Done - rebooting now."
-
 	/etc/init.d/fastd disable
 	/etc/init.d/telnet disable
 	/etc/init.d/freifunk_setup disable
 
 	rm -f /etc/init.d/freifunk_setup
 
+	echo "(I) Done - rebooting now."
 	reboot
 }
