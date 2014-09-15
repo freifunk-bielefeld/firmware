@@ -260,7 +260,6 @@ update_03_to_04()
 	cp -f /rom/etc/config/autoupdater /etc/config/
 	cp -f /rom/etc/config/dhcp /etc/config/
 	cp -f /rom/etc/config/firewall /etc/config/
-	cp -f /rom/etc/config/fastd /etc/config/
 	cp -f /rom/etc/config/batman-adv /etc/config/
 	cp -f /rom/etc/crontabs/root /etc/crontabs/
 	cp -f /rom/etc/firewall.user /etc/
@@ -335,12 +334,14 @@ update_03_to_04()
 	cp /rom/etc/config/freifunk /etc/config/
 	cp /rom/etc/config/system /etc/config/
 
+	uci set fastd.default.mtu="1406"
 	uci set system.@system[0].hostname="$hostname"
 	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 	uci set freifunk.@settings[0].access_from="$access_from"
 	uci set freifunk.@settings[0].share_internet="$share_internet"
 	uci set freifunk.@settings[0].version="$to_version"
 
+	uci commit fastd
 	uci commit system
 	uci commit freifunk
 }
