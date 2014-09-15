@@ -272,6 +272,9 @@ update_03_to_04()
 	#set new ad-hoc SSID
 	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 	mac=$(uci get -q freifunk.@settings[0].mac)
+	wan_proto=$(uci get -q network.wan.proto)
+	wan_ipaddr=$(uci get -q network.wan.ipaddr)
+	wan_gateway=$(uci get -q network.wan.gateway)
 
 	echo "(I) Remove dummy interfaces and rebuild public/private/wan sections."
 	uci delete -q network.dummy_mesh
@@ -314,6 +317,10 @@ update_03_to_04()
 			uci set network.$cfg.mtu="1406"
 		fi
 	}
+
+	[ -n "$wan_proto" ] && uci set network.wan.proto="$wan_proto"
+	[ -n "$wan_ipaddr" ] && uci set network.wan.ipaddr="$wan_ipaddr"
+	[ -n "$wan_gateway" ] && uci set network.wan.gateway="$wan_gateway"
 
 	echo "(I) Update network/wireless settings."
 	config_load network
