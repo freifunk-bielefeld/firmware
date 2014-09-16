@@ -276,11 +276,12 @@ update_03_to_04()
 	wan_ipaddr=$(uci get -q network.wan.ipaddr)
 	wan_gateway=$(uci get -q network.wan.gateway)
 
-	echo "(I) Remove dummy interfaces and rebuild public/private/wan sections."
+	echo "(I) Remove dummy interfaces."
 	uci delete -q network.dummy_mesh
 	uci delete -q network.dummy_private
 	uci delete -q network.dummy_public
 
+	echo "(I) Rebuild public/private/wan sections."
 	ifname=$(uci get -q network.public.ifname)
 	initial_public_setup "${ifname/dummy_public/}" "$mac"
 
