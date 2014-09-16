@@ -257,17 +257,17 @@ initial_setup()
 update_03_to_04()
 {
 	echo "(I) Copy/delete some files."
-	cp -f /rom/etc/config/autoupdater /etc/config/
-	cp -f /rom/etc/config/dhcp /etc/config/
-	cp -f /rom/etc/config/firewall /etc/config/
-	cp -f /rom/etc/config/batman-adv /etc/config/
-	cp -f /rom/etc/crontabs/root /etc/crontabs/
-	cp -f /rom/etc/firewall.user /etc/
-	cp -f /rom/etc/dnsmasq.conf /etc/
-	cp -f /rom/etc/sysctl.conf /etc/
-	cp -f /rom/etc/profile /etc/
-	cp -r /rom/etc/inittab /etc/
-	rm -f /etc/config/6relayd
+	cp /rom/etc/config/autoupdater /etc/config/
+	cp /rom/etc/config/dhcp /etc/config/
+	cp /rom/etc/config/firewall /etc/config/
+	cp /rom/etc/config/batman-adv /etc/config/
+	cp /rom/etc/crontabs/root /etc/crontabs/
+	cp /rom/etc/firewall.user /etc/
+	cp /rom/etc/dnsmasq.conf /etc/
+	cp /rom/etc/sysctl.conf /etc/
+	cp /rom/etc/profile /etc/
+	cp /rom/etc/inittab /etc/
+	rm /etc/config/6relayd
 
 	#set new ad-hoc SSID
 	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
