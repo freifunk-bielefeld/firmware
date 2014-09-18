@@ -57,7 +57,7 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
 		break;
 	case "name":
-		b = append_input(p, "Name", id, value);
+		b = append_input(p, "Knotenname", id, value);
 		addInputCheck(b.lastChild,/^\w+[\w\-]{0,20}\w+$/, name + " ist ung\xfcltig.");
 		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
