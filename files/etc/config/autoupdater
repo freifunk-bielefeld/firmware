@@ -6,7 +6,7 @@ config branch stable
 	# The branch name given in the manifest
 	option name 'stable'
 
-	list mirror 'http://[fdef:17a0:ffb1:0:1cd0:63ff:fe81:1af2]/freifunk/firmware/autoupdater_herford'
+	list mirror 'http://[fdef:17a0:ffb1:0:1cd0:63ff:fe81:1af2]/freifunk/firmware/autoupdater'
 
 	#Delay excution of the autoupdater for at most fetch_delay seconds.
 	#This spreads the load of the server when all nodes start
