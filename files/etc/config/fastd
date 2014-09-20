@@ -39,3 +39,11 @@ config peer 'vpn3'
 	option key 'c1f20f98bf22860aac43796c70387651c832c8e7c067761b262850567deab06e'
 	list remote '"vpn3.freifunk-bielefeld.de" port 1234'
 	option float 0
+
+config peer 'vpn4'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key 'ac2eae2716aaa287f346cf0e1fa7043b2586a0c9655b769074ec1a8e83c49849'
+	list remote '"vpn4.freifunk-bielefeld.de" port 1234'
+	option float 0
