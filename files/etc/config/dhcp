@@ -12,7 +12,7 @@ config dnsmasq private
 	option authoritative '1'
 	option readethers '1'
 	option leasefile '/tmp/dhcp.private.leases'
-	option resolvfile '/tmp/resolv.conf.private.auto'
+	option resolvfile '/tmp/resolv.conf.auto'
 	#prevent own hostname as DNS entry
 	option add_local_domain '0'
 	option add_local_hostname '0'
