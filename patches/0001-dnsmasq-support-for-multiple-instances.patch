@@ -1,12 +1,12 @@
-From 110320806be2b41bd90b4671d44e2e0f29211e18 Mon Sep 17 00:00:00 2001
+From f15e0b14fcc4b865fb39b9e25ddb6a4004cfa506 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 10 Sep 2014 23:35:33 +0200
 Subject: [PATCH 1/2] dnsmasq: support for multiple instances
 
 ---
  package/network/services/dnsmasq/files/dhcp.conf   |   13 ++
- .../network/services/dnsmasq/files/dnsmasq.init    |  156 ++++++++++++--------
- 2 files changed, 105 insertions(+), 64 deletions(-)
+ .../network/services/dnsmasq/files/dnsmasq.init    |  154 ++++++++++++--------
+ 2 files changed, 103 insertions(+), 64 deletions(-)
 
 diff --git a/package/network/services/dnsmasq/files/dhcp.conf b/package/network/services/dnsmasq/files/dhcp.conf
 index 660b06a..c9899f4 100644
@@ -38,7 +38,7 @@ index 660b06a..c9899f4 100644
  	option interface	lan
  	option start 	100
 diff --git a/package/network/services/dnsmasq/files/dnsmasq.init b/package/network/services/dnsmasq/files/dnsmasq.init
-index 942acd7..3efa213 100644
+index 942acd7..498aa06 100644
 --- a/package/network/services/dnsmasq/files/dnsmasq.init
 +++ b/package/network/services/dnsmasq/files/dnsmasq.init
 @@ -12,9 +12,9 @@ DOMAIN=""
@@ -65,13 +65,14 @@ index 942acd7..3efa213 100644
  append_interface() {
  	local ifname=$(uci_get_state network "$1" ifname "$1")
  	xappend "--interface=$ifname"
-@@ -103,8 +107,48 @@ append_bogusnxdomain() {
+@@ -103,8 +107,46 @@ append_bogusnxdomain() {
  	xappend "--bogus-nxdomain=$1"
  }
  
 +filter_dnsmasq() {
 +	local cfg="$1" func="$2" match_cfg="$3" found_cfg
 +
++	#use entry when no dnsmasq_cfg entry set, or if it matches
 +	config_get found_cfg "$cfg" "dnsmasq_config"
 +	if [ -z "$found_cfg" -o "$found_cfg" = "$match_cfg" ]; then
 +		$func $cfg
@@ -84,9 +85,6 @@ index 942acd7..3efa213 100644
 +
 +	config_get_bool disabled "$cfg" 'disabled' 0
 +	[ $disabled -gt 0 ] && return 0
-+
-+	config_get resolvfile "$cfg" "resolvfile"
-+	[ -z "$resolvfile" ] && resolvfile="/tmp/resolv-${cfg}.conf"
 +
 +	DNS_SERVERS=""
 +	DOMAIN=""
@@ -115,7 +113,7 @@ index 942acd7..3efa213 100644
  	append_bool "$cfg" authoritative "--dhcp-authoritative"
  	append_bool "$cfg" nodaemon "--no-daemon"
  	append_bool "$cfg" domainneeded "--domain-needed"
-@@ -135,6 +179,7 @@ dnsmasq() {
+@@ -135,6 +177,7 @@ dnsmasq() {
  	append_parm "$cfg" "local" "--server"
  	config_list_foreach "$cfg" "server" append_server
  	config_list_foreach "$cfg" "address" append_address
@@ -123,7 +121,7 @@ index 942acd7..3efa213 100644
  	config_list_foreach "$cfg" "interface" append_interface
  	config_list_foreach "$cfg" "notinterface" append_notinterface
  	config_list_foreach "$cfg" "addnhosts" append_addnhosts
-@@ -199,6 +244,49 @@ dnsmasq() {
+@@ -199,6 +242,49 @@ dnsmasq() {
  	xappend "--dhcp-broadcast=tag:needs-broadcast"
  
  	echo >> $CONFIGFILE
@@ -162,18 +160,18 @@ index 942acd7..3efa213 100644
 +	config_foreach filter_dnsmasq cname dhcp_cname_add $cfg
 +	echo >> $CONFIGFILE
 +
-+	rm -f $resolvfile
++	rm -f /tmp/resolv.conf
 +	if [ $ADD_LOCAL_DOMAIN -eq 1 -a -n "$DOMAIN" ]; then
-+		echo "search $DOMAIN" >> $resolvfile
++		echo "search $DOMAIN" >> /tmp/resolv.conf
 +	fi
 +	DNS_SERVERS="$DNS_SERVERS 127.0.0.1"
 +	for DNS_SERVER in $DNS_SERVERS ; do
-+		echo "nameserver $DNS_SERVER" >> $resolvfile
++		echo "nameserver $DNS_SERVER" >> /tmp/resolv.conf
 +	done
  }
  
  dhcp_subscrid_add() {
-@@ -535,67 +623,7 @@ start_service() {
+@@ -535,67 +621,7 @@ start_service() {
  
  	config_load dhcp
  
