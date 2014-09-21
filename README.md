@@ -12,7 +12,7 @@ Install dependencies for the build environment (Debian/Ubuntu):
 sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-essential
 </pre>
 
-Build Commands:
+Build commands for the console:
 
 <pre>
 git clone git://git.openwrt.org/14.07/openwrt.git
