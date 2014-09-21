@@ -6,6 +6,7 @@
 
 dnsserver=""
 network_get_dnsserver dnsserver public6
-echo "nameserver $dnsserver" > /tmp/resolv.conf.public.auto
 
-#/etc/init.d/dnsmasq2 reload
+if [ -n "$dnsserver" ]; then
+	echo "nameserver $dnsserver" > /tmp/resolv.conf.public.auto
+fi
