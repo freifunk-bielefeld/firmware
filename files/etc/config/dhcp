@@ -16,7 +16,6 @@ config dnsmasq private
 	#prevent own hostname as DNS entry
 	option add_local_domain '0'
 	option add_local_hostname '0'
-#	option cachelocal '0'
 	option nonwildcard '1'
 	list listen_address '192.168.133.1'
 
@@ -38,7 +37,6 @@ config dnsmasq public
 	#prevent own hostname as DNS entry
 	option add_local_domain '0'
 	option add_local_hostname '0'
-#	option cachelocal '0'
 	option nonwildcard '1'
 	list listen_address '192.168.132.1'
 
