@@ -53,13 +53,13 @@ function appendSetting(p, path, value, mode)
 	{
 	case "geo":
 		b = append_input(p, "GPS-Koordinaten", id, value);
-		b.lastChild.placeholder = "z.B. 52.02713078 8.52829987";
+		b.lastChild.placeholder = "52.02713078 8.52829987";
 		addInputCheck(b.lastChild,/^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Koordinaten ist ung\xfcltig.");
 		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
-		b.lastChild.placeholder = "z.B. MeinKleinerRouter";
+		b.lastChild.placeholder = "MeinServer";
 		addInputCheck(b.lastChild,/^\w+[\w\-]{0,20}\w+$/, name + " ist ung\xfcltig.");
 		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
@@ -95,13 +95,13 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "service_link":
 		b = append_input(p, "Service Link", id, value);
-		b.lastChild.placeholder = "z.B. http://[fdef:17a0:ffb1::1]/seite.html";
+		b.lastChild.placeholder = "http://[fdef:17a0::1]/seite.html";
 		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,60}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Verweis auf eine Netzwerkresource. Z.B. \"http://1.2.3.4\".");
 		break;
 	case "service_label":
 		b = append_input(p, "Service Name", id, value);
-		b.lastChild.placeholder = "z.B. MeineKleineWebseite";
+		b.lastChild.placeholder = "MeineWebseite";
 		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,30}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
