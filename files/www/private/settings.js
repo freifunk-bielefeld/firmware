@@ -157,8 +157,6 @@ function rebuild_general()
 		appendSetting(tfs, ['simple-tc', i, "limit_ingress"], t[i]["limit_ingress"]);
 		appendSetting(tfs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
 	}
-
-	var div = append(fs, "div");
 }
 
 function save_data()
