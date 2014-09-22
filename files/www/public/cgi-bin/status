@@ -54,17 +54,19 @@ echo "<br /><br />"
 
 max=$(uci get -q freifunk.@settings[0].service_display_max)
 
+
 if [ -n "$max" -a "$max" != "0" ]; then
+	link_list=$(
+		printf "$(alfred -r 91)" | head -$max | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
+	)
 	echo "<b>Liste lokaler Angebote im Freifunk-Netz:</b>"
 	echo "<br /><br />"
 	echo "<ul>"
-
-	printf "$(alfred -r 91)" | head -$max | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
-
+	[ -n "$link_list" ] && echo "$link_list" || echo "<li>Keine Angebote gefunden.</li>"
 	echo "</ul>"
 	echo "<br />"
 
-	echo "(Bitte beachten: Diese Eintr&auml;ge stammen von anderen Routern!)"
+	[ -n "$link_list" ] && echo "(Bitte beachten: Diese Eintr&auml;ge stammen nicht von diesem Router!)"
 fi
 
 cat <<EOF
