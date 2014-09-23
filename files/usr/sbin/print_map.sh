@@ -25,5 +25,6 @@ for entry in $(cat /sys/kernel/debug/batman_adv/bat0/originators |  tr '\t/[]()'
 done
 
 echo -n '], '
-cat /sys/kernel/debug/batman_adv/bat0/transtable_local | tr '\t/[]()' ' ' | awk 'BEGIN{ c=0; } { if($1 == "*" && $4 ~ /[NW]/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}'
+mac=$(uci get -q network.public.macaddr)
+cat /sys/kernel/debug/batman_adv/bat0/transtable_local | tr '\t/[]()' ' ' | awk -v mac=$mac 'BEGIN{ c=0; } { if($1 == "*" && $2 != mac && $4 ~ /^[.NW]+$/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}'
 echo -n '}'
