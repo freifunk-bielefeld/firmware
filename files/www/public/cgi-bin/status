@@ -57,7 +57,7 @@ max=$(uci get -q freifunk.@settings[0].service_display_max)
 
 if [ -n "$max" -a "$max" != "0" ]; then
 	link_list=$(
-		printf "$(alfred -r 91)" | head -$max | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
+		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
 	)
 	echo "<b>Liste lokaler Angebote im Freifunk-Netz:</b>"
 	echo "<br /><br />"
