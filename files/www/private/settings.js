@@ -59,7 +59,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
-		b.lastChild.placeholder = "MeinServer";
+		b.lastChild.placeholder = "MeinRouter";
 		addInputCheck(b.lastChild,/^\w+[\w\-]{0,20}\w+$/, name + " ist ung\xfcltig.");
 		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
