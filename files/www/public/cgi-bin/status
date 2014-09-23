@@ -36,15 +36,14 @@ html, body {
 EOF
 
 name=$(uci get -q freifunk.@settings[0].name)
-[ -n "$name" ] && echo "<b>Name: $name</b><br />"
+[ -n "$name" ] && echo "<b>Routername: $name</b><br />"
 
-echo "<b>Eigene IPv4-Adresse: </b>"
-ip -4 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}'
+echo "<b>Router IPv6-Adressen: </b>"
+echo "<ul>"
+ip -6 address list dev br-public 2> /dev/null | tr '/' ' '| awk '{ if($0 ~ /global/ && $0 !~ /temporary/) printf("<li>%s</li>\n", $2) }'
+echo "</ul>"
 
-echo "<br /><b>Eigene IPv6-Adresse: </b>"
-ip -6 address show dev br-public 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}'
-
-echo "<br /><b>Anzahl bekannter Knoten: </b>"
+echo "<b>Anzahl bekannter Knoten: </b>"
 echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1))
 
 echo "<br /><b>Anzahl benachbarter Knoten: </b>"
@@ -64,9 +63,6 @@ if [ -n "$max" -a "$max" != "0" ]; then
 	echo "<ul>"
 	[ -n "$link_list" ] && echo "$link_list" || echo "<li>Keine Angebote gefunden.</li>"
 	echo "</ul>"
-	echo "<br />"
-
-	[ -n "$link_list" ] && echo "(Bitte beachten: Diese Eintr&auml;ge stammen nicht von diesem Router!)"
 fi
 
 cat <<EOF
