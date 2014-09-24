@@ -250,6 +250,8 @@ initial_setup()
 	key=`echo "secret \"$secret\";" | fastd --config - --show-key --machine-readable`
 	uci set fastd.default.key="$key"
 
+	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
+
 	#write everything to flash
 	uci commit
 }
@@ -344,6 +346,7 @@ update_03_to_04()
 
 	uci set fastd.default.mtu="1406"
 	uci set system.@system[0].hostname="$hostname"
+	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 	uci set freifunk.@settings[0].access_from="$access_from"
 	uci set freifunk.@settings[0].share_internet="$share_internet"
