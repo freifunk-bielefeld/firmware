@@ -220,8 +220,6 @@ initial_setup()
 	# W A N  S E T U P #
 	# ------------------------------------- #
 
-	echo "(I) Setup WAN interface."
-
 	initial_wan_setup "$wan_interface"
 
 	# ------------------------------------- #
