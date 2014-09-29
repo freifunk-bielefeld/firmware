@@ -1,12 +1,12 @@
-From f15e0b14fcc4b865fb39b9e25ddb6a4004cfa506 Mon Sep 17 00:00:00 2001
+From c6635c39196339c2e39f5e6f31695bc724c170f6 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 10 Sep 2014 23:35:33 +0200
 Subject: [PATCH 1/2] dnsmasq: support for multiple instances
 
 ---
  package/network/services/dnsmasq/files/dhcp.conf   |   13 ++
- .../network/services/dnsmasq/files/dnsmasq.init    |  154 ++++++++++++--------
- 2 files changed, 103 insertions(+), 64 deletions(-)
+ .../network/services/dnsmasq/files/dnsmasq.init    |  155 ++++++++++++--------
+ 2 files changed, 104 insertions(+), 64 deletions(-)
 
 diff --git a/package/network/services/dnsmasq/files/dhcp.conf b/package/network/services/dnsmasq/files/dhcp.conf
 index 660b06a..c9899f4 100644
@@ -38,7 +38,7 @@ index 660b06a..c9899f4 100644
  	option interface	lan
  	option start 	100
 diff --git a/package/network/services/dnsmasq/files/dnsmasq.init b/package/network/services/dnsmasq/files/dnsmasq.init
-index 942acd7..498aa06 100644
+index 942acd7..e363765 100644
 --- a/package/network/services/dnsmasq/files/dnsmasq.init
 +++ b/package/network/services/dnsmasq/files/dnsmasq.init
 @@ -12,9 +12,9 @@ DOMAIN=""
@@ -113,7 +113,15 @@ index 942acd7..498aa06 100644
  	append_bool "$cfg" authoritative "--dhcp-authoritative"
  	append_bool "$cfg" nodaemon "--no-daemon"
  	append_bool "$cfg" domainneeded "--domain-needed"
-@@ -135,6 +177,7 @@ dnsmasq() {
+@@ -123,6 +165,7 @@ dnsmasq() {
+ 	append_bool "$cfg" nonwildcard "--bind-interfaces"
+ 	append_bool "$cfg" fqdn "--dhcp-fqdn"
+ 	append_bool "$cfg" proxydnssec "--proxy-dnssec"
++	append_bool "$cfg" bind_dynamic "--bind-dynamic"
+ 
+ 	append_parm "$cfg" dhcpscript "--dhcp-script"
+ 	append_parm "$cfg" cachesize "--cache-size"
+@@ -135,6 +178,7 @@ dnsmasq() {
  	append_parm "$cfg" "local" "--server"
  	config_list_foreach "$cfg" "server" append_server
  	config_list_foreach "$cfg" "address" append_address
@@ -121,7 +129,7 @@ index 942acd7..498aa06 100644
  	config_list_foreach "$cfg" "interface" append_interface
  	config_list_foreach "$cfg" "notinterface" append_notinterface
  	config_list_foreach "$cfg" "addnhosts" append_addnhosts
-@@ -199,6 +242,49 @@ dnsmasq() {
+@@ -199,6 +243,49 @@ dnsmasq() {
  	xappend "--dhcp-broadcast=tag:needs-broadcast"
  
  	echo >> $CONFIGFILE
@@ -171,7 +179,7 @@ index 942acd7..498aa06 100644
  }
  
  dhcp_subscrid_add() {
-@@ -535,67 +621,7 @@ start_service() {
+@@ -535,67 +622,7 @@ start_service() {
  
  	config_load dhcp
  

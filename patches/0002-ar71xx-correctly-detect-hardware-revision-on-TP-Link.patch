@@ -1,4 +1,4 @@
-From 6f8a613e15de9fba38cc06c8f0c39ffa2f9b1908 Mon Sep 17 00:00:00 2001
+From 5a0d23aa43d6fd1fb091d3009f9bcecd08544337 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 16 Aug 2014 17:52:34 +0200
 Subject: [PATCH 2/2] ar71xx: correctly detect hardware revision on TP-Link
