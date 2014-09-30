@@ -125,14 +125,14 @@ initial_wifi_setup()
 
 initial_private_setup()
 {
-	local private_interface="$1"
+	local private_interfaces="$1"
 	echo "(I) Setup private network interfaces."
 
 	uci delete -q network.lan
 	uci delete -q network.private
 	uci set network.private="interface"
 	uci set network.private.type="bridge"
-	uci set network.private.ifname="$private_interface"
+	uci set network.private.ifname="$private_interfaces"
 	uci set network.private.ipaddr="192.168.133.1"
 	uci delete -q network.private.ip6addr
 	uci set network.private.proto=static
@@ -142,13 +142,13 @@ initial_private_setup()
 
 initial_public_setup()
 {
-	local public_interface="$1" mac="$2"
+	local public_interfaces="$1" mac="$2"
 	echo "(I) Setup public interfaces."
 
 	uci delete -q network.public
 	uci set network.public="interface"
 	uci set network.public.type="bridge"
-	uci set network.public.ifname="bat0 $wifi_public_interfaces"
+	uci set network.public.ifname="$public_interfaces"
 	uci set network.public.ipaddr="192.168.132.1"
 	uci set network.public.macaddr="$mac"
 	uci delete -q network.public.ip6addr
@@ -165,7 +165,7 @@ initial_public_setup()
 
 initial_wan_setup()
 {
-	local wan_interface="$1"
+	local wan_interfaces="$1"
 	echo "(I) Setup WAN interfaces."
 
 	uci -q delete network.wan
@@ -173,7 +173,7 @@ initial_wan_setup()
 
 	uci set network.wan="interface"
 	uci set network.wan.type="bridge"
-	uci set network.wan.ifname="$wan_interface"
+	uci set network.wan.ifname="$wan_interfaces"
 	uci set network.wan.proto="dhcp"
 
 	uci set network.wan6="interface"
@@ -235,7 +235,7 @@ initial_setup()
 	# P U B L I C  S E T U P #
 	# ------------------------------------- #
 
-	initial_public_setup "$wifi_public_interfaces" "$mac"
+	initial_public_setup "bat0 $wifi_public_interfaces" "$mac"
 
 	# ------------------------------------- #
 	# W A N  S E T U P #
