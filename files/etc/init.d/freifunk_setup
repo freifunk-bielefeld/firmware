@@ -5,6 +5,24 @@
 START=99
 
 
+ula_addr() {
+	local PREFIX6="$(uci get network.globals.ula_prefix)"
+	local mac=$1
+
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=`printf '%02x\n' $a` #convert back to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	mac=${mac//:/} # remove ':'
+	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
+	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
+
+	# assemble IPv6 address
+	echo "${PREFIX6%%::*}:${mac%?}"
+}
+
 initial_wifi_setup()
 {
 	echo "(I) Setup /etc/config/wireless"
@@ -133,14 +151,15 @@ initial_public_setup()
 	uci set network.public.ifname="bat0 $wifi_public_interfaces"
 	uci set network.public.ipaddr="192.168.132.1"
 	uci set network.public.macaddr="$mac"
-	#uci delete -q network.public.ip6addr
-	#uci add_list network.public.ip6addr="$public_ip6/64"
+	uci delete -q network.public.ip6addr
+	uci add_list network.public.ip6addr="$(ula_addr $mac)/64"
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.force_link="1"
 
 	uci set network.public6="interface"
 	uci set network.public6.ifname="@public"
+	uci set network.public6.peerdns="0"
 	uci set network.public6.proto="dhcpv6"
 }
 
@@ -177,6 +196,8 @@ initial_setup()
 
 	echo "(I) Set empty root password."
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
+
+	uci set network.globals.ula_prefix="fdef:17a0:ffb1:300::/64"
 
 	#get a unique (but not just random) mac to identify the node
 	mac=`cat /sys/class/ieee80211/phy0/macaddress`
@@ -241,6 +262,7 @@ initial_setup()
 	cp /etc/config/network /etc/config/network_defaults
 
 	echo "192.168.132.1 node" >> /etc/hosts
+	echo "$(ula_addr $mac) node" >> /etc/hosts
 
 	echo "(I) Generate a key for fastd."
 	secret=`fastd --generate-key --machine-readable`
