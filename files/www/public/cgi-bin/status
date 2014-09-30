@@ -5,10 +5,25 @@ echo ""
 
 cat <<EOF
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-<title>Info</title>
-<meta charset="utf-8"/>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>info</title>
+	<link rel="stylesheet" href="js/pure/0.5.0/pure-min.css">
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="css/layouts/side-menu-old-ie.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+        <link rel="stylesheet" href="css/layouts/side-menu.css">
+    <!--<![endif]-->
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" href="js/pure/0.5.0/grids-responsive-old-ie-min.css">
+	<![endif]-->
+	<!--[if gt IE 8]><!-->
+		<link rel="stylesheet" href="js/pure/0.5.0/grids-responsive-min.css">
+	<!--<![endif]-->
+
 <style type="text/css">
 * {
     margin: 0;
@@ -32,33 +47,82 @@ html, body {
 </style>
 </head>
 <body>
-<div id="header">
+<div id="layout">
+
+<!-- Menu toggle -->
+    <a href="#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+    <div id="menu">
+        <div class="pure-menu pure-menu-open">
 EOF
 
 name=$(uci get -q freifunk.@settings[0].name)
-[ -n "$name" ] && echo "<b>Routername: $name</b><br />"
+[ -n "$name" ] && echo "<a class="pure-menu-heading" href="">$name</a>"
 
-echo "<b>Router IPv6-Adressen: </b>"
+cat <<EOF
+<ul>
+                <li><a href=""  class="menu-item-divided pure-menu-selected">Info</a></li>
+            </ul>
+        </div>
+		<div id="inout"><button type="submit" class="pure-button" onclick="window.location.href='https://'+location.host;">Login</button></div>
+    </div>
+
+    <div id="main">
+        <div class="header">
+EOF
+
+[ -n "$name" ] && echo "<h1>$name</h1>"
+		
+cat <<EOF
+            <h2><span><a href="http://www.freifunk-bielefeld.de/">FFBI Firmware</a> v$(uci get -q freifunk.@settings[0].version || echo "???")</span></h2>
+        </div>
+
+        <div class="content">
+		
+			<div class="pure-g">
+				<div class="pure-u-1 pure-u-md-1-3">
+					<div class="wanmarker blockhead"></div>
+					<p><h2>IPv6-Adressen</h2>
+EOF
 echo "<ul>"
 ip -6 address list dev br-public 2> /dev/null | tr '/' ' '| awk '{ if($0 ~ /global/ && $0 !~ /temporary/) printf("<li>%s</li>\n", $2) }'
 echo "</ul>"
-
-echo "<b>Anzahl bekannter Knoten: </b>"
-echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1))
-
-echo "<br /><b>Anzahl benachbarter Knoten: </b>"
+cat <<EOF
+					</p>
+				</div>
+				<div class="pure-u-1 pure-u-md-1-3">
+					<div class="blockhead"></div>
+					<p>
+					<h2>Benachbarte Knoten</h2>
+EOF
+echo "<ul>"
 batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l
+echo "</ul>"
+cat <<EOF
+					</p>
+				</div>
+				<div class="pure-u-1 pure-u-md-1-3">
+					<div class="blockhead"></div>
+					<p><h2>Lokale Clients</h2>
+EOF
+echo "<ul>"
+batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l
+echo "</ul>"
+cat <<EOF
+					</p>
+				</div>
+			</div>
 
-echo "<br /><br />"
-
+		    <h2 class="content-subhead">Liste lokaler Angebote im Freifunk-Netz:</h2>
+EOF		
 max=$(uci get -q freifunk.@settings[0].service_display_max)
-
 
 if [ -n "$max" -a "$max" != "0" ]; then
 	link_list=$(
 		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
 	)
-	echo "<b>Liste lokaler Angebote im Freifunk-Netz:</b>"
 	echo "<br /><br />"
 	echo "<ul>"
 	[ -n "$link_list" ] && echo "$link_list" || echo "<li>Keine Angebote gefunden.</li>"
@@ -66,17 +130,44 @@ if [ -n "$max" -a "$max" != "0" ]; then
 fi
 
 cat <<EOF
+            <!-- p>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Name</th>
+						<th>Erreichbar unter</th>
+						<th>Art</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td>Bodems frprn</td>
+						<td>ftp://frprn.p2p</td>
+						<td>File-Server FTP</td>
+					</tr>
+
+					<tr>
+						<td>2</td>
+						<td>Muviez</td>
+						<td>smb://muvies.p2p</td>
+						<td>File-Server SMB</td>
+					</tr>
+
+					<tr>
+						<td>3</td>
+						<td>talkrunde</td>
+						<td>jabber.blabla.p2p</td>
+						<td>xmpp Chat</td>
+					</tr>
+				</tbody>
+			</table>
+			</p -->
+EOF
+
+cat <<EOF
 </div>
-
-<div id="footer">
-    <span style="float: left;"><a href="#" id="link">Login</a></span>
-    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">FFBI Firmware</a> v$(uci get -q freifunk.@settings[0].version || echo "???")</span>
-</div>
-
-<script type="text/javascript">
-document.getElementById("link").href="https://"+location.host;
-</script>
-
 </body>
 </html>
 EOF
