@@ -38,7 +38,7 @@ EOF
 name=$(uci get -q freifunk.@settings[0].name)
 [ -n "$name" ] && echo "<b>Routername: $name</b><br />"
 
-echo "<b>Router IPv6-Adressen: </b>"
+echo "<b>Adressen des Knotens: </b>"
 echo "<ul>"
 ip -6 address list dev br-public 2> /dev/null | tr '/' ' '| awk '{ if($0 ~ /global/ && $0 !~ /temporary/) printf("<li>%s</li>\n", $2) }'
 echo "</ul>"
