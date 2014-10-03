@@ -3,8 +3,8 @@
 #Print out local connection data for map creation
 
 version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
-name="$(uci get -q system.@system[0].name 2> /dev/null)"
-geo="$(uci get -q system.@system[0].geo 2> /dev/null)"
+name="$(uci get -q freifunk.@settings[0].name 2> /dev/null)"
+geo="$(uci get -q freifunk.@settings[0].geo 2> /dev/null)"
 
 echo -n "{"
 
