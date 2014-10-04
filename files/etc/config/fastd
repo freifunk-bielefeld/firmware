@@ -47,3 +47,19 @@ config peer 'vpn4'
 	option key 'ac2eae2716aaa287f346cf0e1fa7043b2586a0c9655b769074ec1a8e83c49849'
 	list remote '"vpn4.freifunk-bielefeld.de" port 1244'
 	option float 0
+
+config peer 'vpn5'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key '57c69b1d25c0492d5337f1b23af4fb76394d87495453b8ec9e1c66ca4d2f1c5d'
+	list remote '"vpn3.freifunk-bielefeld.de" port 1244'
+	option float 0
+
+config peer 'vpn6'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key '949ced1433a3ec8920e18efd01e30c7cc0a52a72454619cfe878d4e4fd5e7440'
+	list remote '"vpn4.freifunk-bielefeld.de" port 1244'
+	option float 0
