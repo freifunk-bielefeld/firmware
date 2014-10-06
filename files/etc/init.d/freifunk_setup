@@ -282,7 +282,6 @@ update_03_to_04()
 	echo "(I) Copy/delete some files."
 	cp /rom/etc/config/autoupdater /etc/config/
 	cp /rom/etc/config/dhcp /etc/config/
-	cp /rom/etc/config/fastd /etc/config/
 	cp /rom/etc/config/firewall /etc/config/
 	cp /rom/etc/config/batman-adv /etc/config/
 	cp /rom/etc/crontabs/root /etc/crontabs/
@@ -292,6 +291,13 @@ update_03_to_04()
 	cp /rom/etc/profile /etc/
 	cp /rom/etc/inittab /etc/
 	rm /etc/config/6relayd
+
+	echo "(I) Update fastd configuration."
+	fastd_secret=$(uci get set fastd.default.secret)
+	fastd_key=$(uci get fastd.default.key)
+	cp /rom/etc/config/fastd /etc/config/
+	uci set fastd.default.secret="$fastd_secret"
+	uci set fastd.default.key="$fastd_key"
 
 	#set new ad-hoc SSID
 	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
