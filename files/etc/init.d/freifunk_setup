@@ -282,6 +282,7 @@ update_03_to_04()
 	echo "(I) Copy/delete some files."
 	cp /rom/etc/config/autoupdater /etc/config/
 	cp /rom/etc/config/dhcp /etc/config/
+	cp /rom/etc/config/fastd /etc/config/
 	cp /rom/etc/config/firewall /etc/config/
 	cp /rom/etc/config/batman-adv /etc/config/
 	cp /rom/etc/crontabs/root /etc/crontabs/
