@@ -108,6 +108,7 @@ config include
 config zone
 	option name		public
 	list network		public
+	list network		public6
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
