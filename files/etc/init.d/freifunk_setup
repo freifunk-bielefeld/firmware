@@ -337,10 +337,16 @@ update_03_to_04()
 	}
 
 	wireless_fixup_iface() {
-		local cfg="$1" hwmode
+		local cfg="$1" hwmode type
+		config_get type $cfg "type"
 		config_get hwmode $cfg "hwmode"
 
 		uci delete -q wireless.$cfg.ht_capab
+
+		if [ "$type" = "mac80211" ]; then
+			uci set wireless.$cfg.wds="1"
+		fi
+
 		if [ "$hwmode" = "11ng" ]; then
 			uci set wireless.$cfg.hwmode="11g"
 		fi

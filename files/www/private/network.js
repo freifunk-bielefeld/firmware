@@ -282,7 +282,9 @@ function addWifiSection(device, mode)
 	switch(mode)
 	{
 	case "wan":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","network":"wan","encryption":"psk2"};
+		//We need WDS for this interface to be bridged into br-wan. WDS is not standardized.
+		//WDS is only easily configurable for 'mac80211' type devices (e.g. Atheros wireless chipsets).
+		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","network":"wan","encryption":"psk2", "wds":"1"};
 		break;
 	case "mesh":
 		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1};
@@ -325,7 +327,7 @@ function rebuild_wifi()
 		var private_help = "<b>Private</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
 		var public_help = "<b>Public</b>: Der WLAN-Zugang zum Freifunk-Netz.";
 		var mesh_help = "<b>Mesh</b>: Das WLAN-Netz \xfcber das die Router untereinander kommunizieren.";
-		var wan_help = "<b>WAN</b>: Erm\xf6glicht den Internetzugang eines anderen, herk\xf6mmlichen Routers zu nutzen.";
+		var wan_help = "<b>WAN</b>: Erm\xf6glicht den Internetzugang eines anderen, herk\xf6mmlichen Routers zu nutzen (nutzt WDS).";
 		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["Private","private", private_help], ["Public","public", public_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
 		var parent = append(fs, "div");
 
@@ -356,6 +358,8 @@ function rebuild_wifi()
 				var ifname = dev+"_"+mode;
 
 				if(src.checked) {
+					if(obj.type != "mac80211")
+						alert("Diese Betriebsweise wird von diesem Chipsatz nicht unterst\xfctzt!");
 					delNetSection(ifname);
 					addNetSection(ifname, mode);
 					addWifiSection(dev, mode);
