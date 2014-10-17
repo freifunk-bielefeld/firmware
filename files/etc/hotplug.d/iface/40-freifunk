@@ -4,9 +4,10 @@
   
 . /lib/functions/network.sh
 
-dnsserver=""
-network_get_dnsserver dnsserver public6
+dnsservers=""
+network_get_dnsserver dnsservers public6 true
 
-if [ -n "$dnsserver" ]; then
-	echo "nameserver $dnsserver" > /tmp/resolv.conf.public.auto
-fi
+echo > /tmp/resolv.conf.public.auto
+for dnsserver in $dnsservers; do
+	echo "nameserver $dnsserver" >> /tmp/resolv.conf.public.auto
+done
