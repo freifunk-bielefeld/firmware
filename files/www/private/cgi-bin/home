@@ -48,8 +48,6 @@ else
 	print 'has_internet' 'Nein'
 fi
 
-share=$(uci -q get freifunk.@settings[0].share_internet)
-[ "$share" = "yes" ] && print 'share_internet' 'Ja' || print 'share_internet' 'Nein'
 print 'node_count' "$((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))"
 print 'neigh_count' "$(batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l)"
 print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"

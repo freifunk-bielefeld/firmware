@@ -3,7 +3,6 @@ config settings
 	option 'name' ''
 	option 'geo' ''
 	option 'version' '' #will be set on first boot
-	option 'share_internet' 'no'
 	option 'access_from' 'private'
 	option 'service_link' ''
 	option 'service_label' ''
