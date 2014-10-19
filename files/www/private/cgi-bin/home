@@ -48,8 +48,8 @@ else
 	print 'has_internet' 'Nein'
 fi
 
-print 'node_count' "$((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l`+1))"
-print 'neigh_count' "$(batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l)"
+print 'node_count' "$((`batctl tg -H | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))"
+print 'neigh_count' "$(batctl o -H  | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null)"
 print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"
 print 'fastd_version' "$(fastd --version 2> /dev/null | cut -d' ' -f 2)"
 print 'batman_version' "$(cat /sys/module/batman_adv/version 2> /dev/null)"

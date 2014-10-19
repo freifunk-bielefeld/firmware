@@ -44,10 +44,10 @@ ip -6 address list dev br-public 2> /dev/null | tr '/' ' '| awk '{ if($0 ~ /glob
 echo "</ul>"
 
 echo "<b>Anzahl bekannter Knoten: </b>"
-echo $((`batctl tg | grep '^ \*' | cut -b 33-49 | sort | uniq | wc -l 2> /dev/null`+1))
+echo $((`batctl tg -H | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))
 
 echo "<br /><b>Anzahl benachbarter Knoten: </b>"
-batctl o | grep '^[[:digit:]|[:lower:]]' | cut -b 37-53 | sort | uniq | wc -l
+batctl o -H | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null
 
 echo "<br /><br />"
 
