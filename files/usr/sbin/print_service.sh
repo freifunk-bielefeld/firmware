@@ -14,6 +14,9 @@ if [ "$1" = "-p" ]; then
 	content="$(print)"
 	if [ -n "$content" ]; then
 		echo "$content" | alfred -s 91
+		echo "service published"
+	else
+		echo "nothing published"
 	fi
 else
 	print

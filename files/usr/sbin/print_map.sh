@@ -41,6 +41,9 @@ if [ "$1" = "-p" ]; then
 	content="$(print)"
 	if [ -n "$content" ]; then
 		echo "$content" | alfred -s 64
+		echo "map published"
+	else
+		echo "nothing published"
 	fi
 else
 	print
