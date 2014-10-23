@@ -94,7 +94,7 @@ function appendSetting(p, path, value, mode)
 	case "service_link":
 		b = append_input(p, "Service Link", id, value);
 		b.lastChild.placeholder = "http://[fdef:17a0::1]/seite.html";
-		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,60}$/, "Ung\xfcltige Eingabe.");
+		addInputCheck(b.lastChild,/^[\[\] \w\/.:]{3,300}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Verweis auf eine Netzwerkresource. Z.B. \"http://1.2.3.4\".");
 		break;
 	case "service_label":
