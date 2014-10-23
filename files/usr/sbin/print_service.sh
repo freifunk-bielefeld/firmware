@@ -1,8 +1,20 @@
 #!/bin/sh
 
-link="$(uci get -q freifunk.@settings[0].service_link)"
-label="$(uci get -q freifunk.@settings[0].service_label)"
+#Print a link that is displayed on other routers status page
 
-[ -z "$link" -o -z "$label" ] && exit 1
+print() {
+	local link="$(uci get -q freifunk.@settings[0].service_link)"
+	local label="$(uci get -q freifunk.@settings[0].service_label)"
+	if [ -n "$link" -a -n "$label" ]; then
+		echo "{ \"link\" : \"$link\", \"label\" : \"$label\" }"
+	fi
+}
 
-echo "{ \"link\" : \"$link\", \"label\" : \"$label\" }"
+if [ "$1" = "-p" ]; then
+	content="$(print)"
+	if [ -n "$content" ]; then
+		echo "$content" | alfred -s 91
+	fi
+else
+	print
+fi

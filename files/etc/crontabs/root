@@ -1,8 +1,8 @@
 #check for new firmware once an hour
 0 * * * * /usr/sbin/autoupdater
 #publish map data
-*/5 * * * * /usr/sbin/print_map.sh | alfred -s 64
+*/5 * * * * /usr/sbin/print_map.sh -p
 #publish service data
-*/5 * * * * /usr/sbin/print_service.sh > /dev/null && (/usr/sbin/print_service.sh | alfred -s 91)
+*/5 * * * * /usr/sbin/print_service.sh -p
 #reboot every 5 days at 04:05
 5 4 */5 * * /sbin/reboot
