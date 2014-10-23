@@ -69,7 +69,7 @@ function appendSetting(p, path, value, mode)
 			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
 		}
 		if(cfg == "simple-tc") {
-			b = append_radio(p, "Public Traffic Control", id, value, [["An", "1"], ["Aus", "0"]]);
+			b = append_radio(p, "Bandweitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
 		break;
