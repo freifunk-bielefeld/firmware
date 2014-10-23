@@ -389,6 +389,7 @@ update_03_to_04()
 	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 	uci set freifunk.@settings[0].access_from="$access_from"
 	uci set freifunk.@settings[0].version="$to_version"
+	uci set freifunk.@settings[0].version="$default_ap_ssid"
 
 	uci commit fastd
 	uci commit system
