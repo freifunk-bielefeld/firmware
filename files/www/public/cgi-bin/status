@@ -47,7 +47,7 @@ echo "<b>Anzahl bekannter Knoten: </b>"
 echo $((`batctl tg -H | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))
 
 echo "<br /><b>Anzahl benachbarter Knoten: </b>"
-batctl o -H | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null
+echo $(batctl o -H | grep 'No' -v | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null)
 
 echo "<br /><br />"
 
