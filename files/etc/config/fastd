@@ -64,7 +64,7 @@ config peer 'vpn6'
 	list remote '"vpn6.freifunk-bielefeld.de" port 1244'
 	option float 0
 
-config peer 'vpn1-owl'
+config peer 'vpn1_owl'
 	option enabled 1
 	option net 'default'
 	option group 'backbone'
