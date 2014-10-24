@@ -68,6 +68,6 @@ config peer 'vpn1_owl'
 	option enabled 1
 	option net 'default'
 	option group 'backbone'
-	option 'b6d51c7f80704d9a3f5b3ec8b7727757fdf85961a8bf0bc1d058419083b64a33'
+	option key 'b6d51c7f80704d9a3f5b3ec8b7727757fdf85961a8bf0bc1d058419083b64a33'
 	list remote '"vpn1.freifunk-owl.de" port 1244'
 	option float 0
