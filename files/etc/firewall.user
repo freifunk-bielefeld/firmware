@@ -18,6 +18,9 @@ ebtables -N MULTICAST_OUT -P DROP
 ebtables -A FORWARD --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
 ebtables -A OUTPUT --logical-out br-public -o bat0 -d Multicast -j MULTICAST_OUT
 
+#limit multicast packets
+ebtables -A MULTICAST_OUT --limit 100/sec
+
 #allow ICMP (IPv6)
 ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
 
