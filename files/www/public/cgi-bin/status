@@ -45,11 +45,13 @@ echo "</ul>"
 
 geo=$(uci get -q freifunk.@settings[0].geo)
 if [ -n "$geo" ]; then
-  echo "<br /><b>Position des Knotens: </b>"
-  echo "<a href=\"http://www.openstreetmap.org/?mlat=${geo%% *}&mlon=${geo##* }&zoom=17\">$geo</a>"
+	lat="${geo%% *}"
+	lon="${geo##* }"
+	echo "<br /><b>Position des Knotens: </b>"
+	echo "<a href=\"http://www.openstreetmap.org/?mlat=$lat&mlon=$lon&zoom=17\">${lat:0:8}N / ${lon:0:8}E</a>"
 fi
 
-echo "<b>Anzahl bekannter Knoten: </b>"
+echo "<br /><b>Anzahl bekannter Knoten: </b>"
 echo $((`batctl tg -H | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))
 
 echo "<br /><b>Anzahl benachbarter Knoten: </b>"
