@@ -1,7 +1,7 @@
-From e2bbef29e460f177df2d6c4ce88b0198611df018 Mon Sep 17 00:00:00 2001
+From 42ec46ad735431ae3421dee865d5c303374765e0 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 16 Aug 2014 17:52:34 +0200
-Subject: [PATCH 2/3] ar71xx: correctly detect hardware revision on TP-Link
+Subject: [PATCH 1/2] ar71xx: correctly detect hardware revision on TP-Link
  Archer C5 and C7
 
 ---
