@@ -4,7 +4,7 @@ content-type: text/plain
 <%
 
 addr() {
-	local addr="$(ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{ print($2); exit(0);}')"
+	local addr="$(ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{ printf("%s ", $2); }')"
 	echo "${addr:--}"
 }
 
@@ -16,24 +16,31 @@ print() {
 	echo "	option $1 '$2'"
 }
 
+printList() {
+	for item in $2; do
+		echo "  list $1 '$item'"
+	done
+}
+
 #include OpenWrt version
 . /etc/openwrt_release
 
 echo "package misc"
 echo "config data 'data'"
 print 'mac' "$(uci -q get network.public.macaddr)"
-print 'public_addr4' "$(addr 4 br-public)"
-print 'public_addr6' "$(addr 6 br-public)"
-print 'private_addr4' "$(addr 4 br-private)"
-print 'private_addr6' "$(addr 6 br-private)"
+printList 'public_addr4' "$(addr 4 br-public)"
+printList 'public_addr6' "$(addr 6 br-public)"
+printList 'private_addr4' "$(addr 4 br-private)"
+printList 'private_addr6' "$(addr 6 br-private)"
+printList 'wan_addr4' "$(addr 4 br-wan)"
+printList 'wan_addr6' "$(addr 6 br-wan)"
+
 up="$(uptime)"
 print 'load' "${up##*:}"
 uptime="${up%%,*}"
 print 'uptime' "${uptime##*up}"
 print 'uname' "$(uname -s -m -r)"
 print 'date' "$(date)"
-print 'wan_addr4' "$(addr 4 br-wan)"
-print 'wan_addr6' "$(addr 6 br-wan)"
 
 kill -s SIGUSR1 $(cat /var/run/fastd.default.pid)
 if [ -n "$(logread -l 5 | awk '/fastd/ && /peer/ && /connected/')" ]; then

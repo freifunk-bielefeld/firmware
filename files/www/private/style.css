@@ -10,6 +10,8 @@
 
 a { text-decoration: none; }
 
+li { list-style-type: none; }
+
 html {
 	font: 90%/1.3 arial,sans-serif;
 	padding:1em;

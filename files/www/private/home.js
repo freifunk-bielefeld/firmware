@@ -23,8 +23,14 @@ function init() {
 				continue;
 			}
 
+			//for traffic
 			if(/_bytes$/.test(key)) {
 				value = formatSize(value);
+			}
+
+			//for addresses
+			if(typeof(value) == 'object') {
+				value = "<ul><li>"+value.join("</li><li>")+"</li></ul>"
 			}
 
 			setText(key, value);
