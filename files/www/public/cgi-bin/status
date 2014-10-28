@@ -1,90 +1,72 @@
-#!/bin/sh
+#!/usr/bin/haserl
+content-type: text/html
 
-echo Content-type: text/html
-echo ""
-
-cat <<EOF
 <!DOCTYPE html>
-<html>
-<head>
-<title>Info</title>
-<meta charset="utf-8"/>
-<style type="text/css">
-* {
-    margin: 0;
-}
-
-html, body {
-    height: 98%;
-}
-
-#header {
-	margin:1%;
-}
-
-#footer {
-    position: absolute;
-    bottom: 1%;
-    left: 1%;
-    right: 1%;
-    width: 98%;
-}
-</style>
+<html lang="de"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>info</title>
+	<link rel="stylesheet" href="/css/pure-min.css">
+	<link rel="stylesheet" href="/css/side-menu.css">
+	<link rel="stylesheet" href="/css/grids-responsive-min.css">
+	<link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<div id="header">
-EOF
-
-name=$(uci get -q freifunk.@settings[0].name)
-[ -n "$name" ] && echo "<b>Routername: $name</b><br />"
-
-echo "<b>Adressen des Knotens: </b>"
-echo "<ul>"
-ip -6 address list dev br-public 2> /dev/null | tr '/' ' '| awk '{ if($0 ~ /global/ && $0 !~ /temporary/) printf("<li>%s</li>\n", $2) }'
-echo "</ul>"
-
+	<div class="header">
+		<div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
+			<a class="pure-menu-heading" href="http://<% echo -n $(uci get -q freifunk.@settings[0].default_ap_ssid) %>"><% echo -n $(uci get -q freifunk.@settings[0].default_ap_ssid) %></a>
+			<ul>
+<%
 geo=$(uci get -q freifunk.@settings[0].geo)
 if [ -n "$geo" ]; then
-	lat="${geo%% *}"
-	lon="${geo##* }"
-	echo "<br /><b>Position des Knotens: </b>"
-	echo "<a href=\"http://www.openstreetmap.org/?mlat=$lat&mlon=$lon&zoom=17\">${lat:0:8}N / ${lon:0:8}E</a>"
+	lat="${geo%% *}" lon="${geo##* }"
+	echo "				<li><a href=\"http://www.openstreetmap.org?mlat=$lat&mlon=$lon&zoom=17\">Position: ${lat:0:8}N, ${lon:0:8}E</a></li>"
 fi
+%>
+				<li><button type="submit" class="pure-button" onclick="window.location.href='https://'+location.host;">Login</button></li>
+			</ul>
+		</div>
+	</div>
+	<div class="header">
+<%
+echo "		<h1>$(uci get -q freifunk.@settings[0].name)</h1>"
+%>
+		<h2>Firmware Version <% echo -n $(uci get -q freifunk.@settings[0].version) %></h2>
+	</div>
+	<div class="content">
+		<div class="pure-g" style="text-align:center;">
+			<div class="pure-u-1 pure-u-md-1-3">
+				<div class="blockhead"></div>
+				<h2>Nachbarknoten</h2>
+				<h3><% echo -n $(batctl o -H | grep 'No' -v | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null) %></h3>
+			</div>
+			<div class="pure-u-1 pure-u-md-1-3">
+				<div class="blockhead"></div>
+				<h2>Alle Knoten</h2>
+				<h3><% echo -n $((`batctl tg -H | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1)) %></h3>
+			</div>
+			<div class="pure-u-1 pure-u-md-1-3">
+				<div class="blockhead"></div>
+				<h2>Lokale Clients</h2>
+				<h3><% echo -n $(batctl tl 2> /dev/null | grep -c 'W') %></h3>
+			</div>
+		</div>
+	</div>
 
-echo "<br /><b>Anzahl bekannter Knoten: </b>"
-echo $((`batctl tg -H | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))
-
-echo "<br /><b>Anzahl benachbarter Knoten: </b>"
-echo $(batctl o -H | grep 'No' -v | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null)
-
-echo "<br /><br />"
-
+	<div class="content">
+<%
 max=$(uci get -q freifunk.@settings[0].service_display_max)
-
-
 if [ -n "$max" -a "$max" != "0" ]; then
+	echo '<h2 class="content-subhead">Liste lokaler Angebote im Freifunk-Netz:</h2>'
+	echo '		<ul>'
 	link_list=$(
-		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("<li><a href=\"%s\">%s</a></li>\n", $7, $11) }'
+		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("		<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
 	)
-	echo "<b>Liste lokaler Angebote im Freifunk-Netz:</b>"
-	echo "<br /><br />"
-	echo "<ul>"
-	[ -n "$link_list" ] && echo "$link_list" || echo "<li>Keine Angebote gefunden.</li>"
-	echo "</ul>"
+	[ -n "$link_list" ] && echo -n "$link_list" || echo -n '		<li><h3>Keine Angebote gefunden.</h3></li>'
+	echo '		</ul>'
 fi
-
-cat <<EOF
-</div>
-
-<div id="footer">
-    <span style="float: left;"><a href="#" id="link">Login</a></span>
-    <span style="float: right;"><a href="http://www.freifunk-bielefeld.de/">FFBI Firmware</a> v$(uci get -q freifunk.@settings[0].version || echo "???")</span>
-</div>
-
-<script type="text/javascript">
-document.getElementById("link").href="https://"+location.host;
-</script>
-
+%>
+	</div>
 </body>
 </html>
-EOF
