@@ -138,6 +138,7 @@ initial_private_setup()
 	uci set network.private.proto=static
 	uci set network.private.netmask="255.255.255.0"
 	uci set network.private.force_link="1"
+	uci set network.private.bridge_empty="1"
 }
 
 initial_public_setup()
@@ -156,6 +157,7 @@ initial_public_setup()
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.force_link="1"
+	uci set network.public.bridge_empty="1"
 
 	uci set network.public6="interface"
 	uci set network.public6.ifname="@public"
@@ -175,6 +177,7 @@ initial_wan_setup()
 	uci set network.wan.type="bridge"
 	uci set network.wan.ifname="$wan_interfaces"
 	uci set network.wan.proto="dhcp"
+	uci set network.wan.bridge_empty="1"
 
 	uci set network.wan6="interface"
 	uci set network.wan6.ifname="@wan"
