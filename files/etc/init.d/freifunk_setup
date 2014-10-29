@@ -137,6 +137,7 @@ initial_private_setup()
 	uci delete -q network.private.ip6addr
 	uci set network.private.proto=static
 	uci set network.private.netmask="255.255.255.0"
+	uci set network.private.igmp_snooping="0"
 	uci set network.private.force_link="1"
 	uci set network.private.bridge_empty="1"
 }
@@ -156,6 +157,7 @@ initial_public_setup()
 	uci add_list network.public.ip6addr="$(ula_addr $mac)/64"
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.255.0"
+	uci set network.public.igmp_snooping="0"
 	uci set network.public.force_link="1"
 	uci set network.public.bridge_empty="1"
 
