@@ -270,8 +270,9 @@ initial_setup()
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
-	#disable forwarding on br-public in order for router-solicitations to be send for the interface
+	#disable forwarding on br-public/br-private in order for router-solicitations to be send for the interface
 	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Generate a key for fastd."
 	secret=`fastd --generate-key --machine-readable`
@@ -320,8 +321,9 @@ update_03_to_04()
 	echo "192.168.132.1 node" >> /etc/hosts
 	echo "$(ula_addr $mac) node" >> /etc/hosts
 
-	echo "(I) Disable forwarding on br-public."
+	echo "(I) Disable forwarding on br-public/br-private."
 	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Remove dummy interfaces."
 	uci delete -q network.dummy_mesh
