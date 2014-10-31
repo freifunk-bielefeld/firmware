@@ -54,13 +54,13 @@ function appendSetting(p, path, value, mode)
 	case "geo":
 		b = append_input(p, "GPS-Koordinaten", id, value);
 		b.lastChild.placeholder = "52.02713078 8.52829987";
-		addInputCheck(b.lastChild,/^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Koordinaten ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Koordinaten ist ung\xfcltig.");
 		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
 		b.lastChild.placeholder = "MeinRouter";
-		addInputCheck(b.lastChild,/^[\-\^'\w\.\:\[\]\(\)\/ \u0080-\u00FF]{0,32}$/, name + " ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ \u0080-\u00FF]{0,32}$/, name + " ist ung\xfcltig.");
 		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "enabled":
@@ -79,12 +79,12 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "limit_egress":
 		b = append_input(p, "Public Upload", id, value);
-		addInputCheck(b.lastChild,/^\d+$/, "Upload ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^\d+$/, "Upload ist ung\xfcltig.");
 		addHelpText(b, "Maximaler Upload in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "limit_ingress":
 		b = append_input(p, "Public Download", id, value);
-		addInputCheck(b.lastChild,/^\d+$/, "Download ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^\d+$/, "Download ist ung\xfcltig.");
 		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "access_from":
@@ -94,18 +94,18 @@ function appendSetting(p, path, value, mode)
 	case "service_link":
 		b = append_input(p, "Service Link", id, value);
 		b.lastChild.placeholder = "http://[fdef:17a0::1]/seite.html";
-		addInputCheck(b.lastChild,/^[#\[\] \w\/.:]{0,128}$/, "Ung\xfcltige Eingabe.");
+		addInputCheck(b.lastChild, /^[#\[\] \w\/.:]{0,128}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Verweis auf eine Netzwerkresource. Z.B. \"http://1.2.3.4\".");
 		break;
 	case "service_label":
 		b = append_input(p, "Service Name", id, value);
 		b.lastChild.placeholder = "MeineWebseite";
-		addInputCheck(b.lastChild,/^[\[\]\(\) \w\/.:]{0,32}$/$/, "Ung\xfcltige Eingabe.");
+		addInputCheck(b.lastChild, /^[\[\]\(\) \w\/.:]{0,32}$/$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
 	case "service_display_max":
 		b = append_input(p, "Max. Angezeigte-Eintr\xe4ge", id, value);
-		addInputCheck(b.lastChild,/^\d+$/, "Ung\xfcltige Zahl.");
+		addInputCheck(b.lastChild, /^\d+$/, "Ung\xfcltige Zahl.");
 		addHelpText(b, "Maximale Anzahl der auf der Statusseite angezeigten Eintr\xe4ge.");
 		break;
 	default:
