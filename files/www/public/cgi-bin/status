@@ -61,7 +61,7 @@ if [ -n "$max" -a "$max" != "0" ]; then
 	echo '<h2 class="content-subhead">Liste lokaler Angebote im Freifunk-Netz:</h2>'
 	echo '		<ul>'
 	link_list=$(
-		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ [:alnum:]_\/.:]{3,60}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{3,30}$/) printf("		<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
+		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ #[:alnum:]_\/.:]{1,128}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{1,32}$/) printf("		<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
 	)
 	[ -n "$link_list" ] && echo -n "$link_list" || echo -n '		<li><h3>Keine Angebote gefunden.</h3></li>'
 	echo '		</ul>'
