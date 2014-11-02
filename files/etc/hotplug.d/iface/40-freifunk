@@ -9,5 +9,7 @@ network_get_dnsserver dnsservers public6 true
 
 echo > /tmp/resolv.conf.public.auto
 for dnsserver in $dnsservers; do
-	echo "nameserver $dnsserver" >> /tmp/resolv.conf.public.auto
+	if [ "$(ip a | grep -c $dnsserver)" = "0" ]; then
+		echo "nameserver $dnsserver" >> /tmp/resolv.conf.public.auto
+	fi
 done
