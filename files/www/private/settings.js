@@ -100,7 +100,7 @@ function appendSetting(p, path, value, mode)
 	case "service_label":
 		b = append_input(p, "Service Name", id, value);
 		b.lastChild.placeholder = "MeineWebseite";
-		addInputCheck(b.lastChild, /^[\[\]\(\) \w\/.:]{0,32}$/$/, "Ung\xfcltige Eingabe.");
+		addInputCheck(b.lastChild, /^[\[\]\(\) \w\/.:]{0,32}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
 	case "service_display_max":
