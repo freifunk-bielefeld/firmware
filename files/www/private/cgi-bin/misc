@@ -11,7 +11,7 @@ addr() {
 case $GET_func in
 	reboot)
 		reboot
-		echo "(I) Bitte warten. Neustart wird durchgef&uuml;hrt..."
+		echo "(I) Bitte warten. Neustart wird durchgef&#252;hrt..."
 	;;
 	wifiscan_info)
 		uci export -qn wireless
