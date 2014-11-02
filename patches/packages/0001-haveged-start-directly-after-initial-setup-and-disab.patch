@@ -1,7 +1,7 @@
-From e9ff3f3ce5f4f565a05c63a3e0c3b3a8838ab4d5 Mon Sep 17 00:00:00 2001
+From 900bf10e79d8629dcf7e2f350d3d3a49e7b55e9b Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sat, 25 Oct 2014 14:08:45 +0200
-Subject: [PATCH] haveged: start directly after initial setup and disable
+Subject: [PATCH 1/2] haveged: start directly after initial setup and disable
  tests
 
 ---

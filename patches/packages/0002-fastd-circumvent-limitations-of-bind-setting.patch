@@ -1,0 +1,25 @@
+From 2e35dc99631e67aab99bd736623a4b606bb87c0b Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sun, 2 Nov 2014 21:49:21 +0100
+Subject: [PATCH 2/2] fastd: circumvent limitations of bind setting
+
+---
+ net/fastd/files/fastd.init |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/fastd/files/fastd.init b/net/fastd/files/fastd.init
+index 3a20922..b1dc46a 100644
+--- a/net/fastd/files/fastd.init
++++ b/net/fastd/files/fastd.init
+@@ -63,7 +63,7 @@ yes_no() {
+ config_string_config='include $(escape_string "$value");'
+ config_string_config_peer='include peer $(escape_string "$value");'
+ config_string_config_peer_dir='include peers from $(escape_string "$value");'
+-config_string_bind='bind $(guard_value "$value");'
++config_string_bind='bind $value;'
+ config_string_method='method $(escape_string "$value");'
+ config_string_syslog_level='log to syslog level $(guard_value "$value");'
+ config_string_mode='mode $(guard_value "$value");'
+-- 
+1.7.10.4
+
