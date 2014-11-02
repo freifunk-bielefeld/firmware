@@ -6,6 +6,6 @@ config settings
 	option 'mac' ''
 	option 'share_internet' 'no'
 	option 'config_nets' 'private'
-	option 'default_ap_ssid' 'bielefeld.freifunk.net'
+	option 'default_ap_ssid' 'minden.freifunk.net'
 	option 'default_ah_ssid' ''
 	option 'default_ah_bssid' '12:C0:FF:EE:C0:DE'
