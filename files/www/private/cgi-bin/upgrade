@@ -3,7 +3,7 @@ content-type: text/plain
 
 <%
 
-case "$GET_func$POST_func" in
+case "${GET_func:-$POST_func}" in
 	apply_firmware)
 		path="$POST_firmware"
 		keep="$POST_keep_config"
@@ -36,6 +36,7 @@ case "$GET_func$POST_func" in
 		sync
 		echo "(I) Rebooting now ..."
 		reboot
+	;;
 	*)
 		echo "(E) upgrade: Invalid command: '$GET_func'"
 	;;
