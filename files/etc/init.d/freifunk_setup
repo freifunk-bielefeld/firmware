@@ -299,6 +299,8 @@ update_03_to_04()
 	cp /rom/etc/sysctl.conf /etc/
 	cp /rom/etc/profile /etc/
 	cp /rom/etc/inittab /etc/
+	cp /rom/etc/uhttpd.crt /etc/
+	cp /rom/etc/uhttpd.key /etc/
 	rm /etc/config/6relayd
 
 	echo "(I) Update fastd configuration."
