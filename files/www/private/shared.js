@@ -67,17 +67,19 @@ function replaceItem(str, old_item, new_item)
 function addHelpText(elem, text) {
 	var help = $("help");
 
-	elem.onmouseover = function(e) {
-		help.style.top = (e.clientY-20)+"px";
-		help.style.left = (e.clientX+80)+"px";
-		help.innerHTML = text;
-		show(help);
-	};
+	if(help) {
+		elem.onmouseover = function(e) {
+			help.style.top = (e.clientY-20)+"px";
+			help.style.left = (e.clientX+80)+"px";
+			help.innerHTML = text;
+			show(help);
+		};
 
-	elem.onmouseout = function() {
-		help.innerHTML = "";
-		hide(help);
-	};
+		elem.onmouseout = function() {
+			help.innerHTML = "";
+			hide(help);
+		};
+	}
 }
 
 //to config file syntax
