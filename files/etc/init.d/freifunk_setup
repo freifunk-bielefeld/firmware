@@ -202,7 +202,7 @@ initial_setup()
 	echo "(I) Set empty root password."
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
-	#get a unique (but not just random) mac to identify the node
+	#get a unique MAC address to identify the node
 	mac=`cat /sys/class/ieee80211/phy0/macaddress`
 	[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
 		mac=$(ip addr list dev eth0 | awk '/ether/{print $2}')
