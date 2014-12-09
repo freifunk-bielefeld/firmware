@@ -28,13 +28,13 @@ initial_wifi_setup()
 	echo "(I) Setup /etc/config/wireless"
 
 	#default SSID
-	ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
+	local ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
 
 	#add batman version to the AdHoc interface SSID
-	ah_ssid=`uci get freifunk.@settings[0].default_ah_ssid`
+	local ah_ssid=`uci get freifunk.@settings[0].default_ah_ssid`
 
 	#default BSSID
-	ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
+	local ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
 
 	#delete all wifi interfaces
 	while uci -q delete wireless.@wifi-iface[0]; do :; done
@@ -188,22 +188,22 @@ initial_wan_setup()
 
 initial_setup()
 {
-	version="$1"
+	local version="$1"
 
-	wan_interface=$(uci get -q network.wan.ifname)
+	local wan_interface=$(uci get -q network.wan.ifname)
 	echo "(I) WAN interface: '$wan_interface'"
 
-	private_interface=$(uci get -q network.lan.ifname)
+	local private_interface=$(uci get -q network.lan.ifname)
 	echo "(I) Private interface: '$private_interface'"
 
-	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+	local ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 	echo "(I) AdHoc SSID: '$ah_ssid'"
 
 	echo "(I) Set empty root password."
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
 	#get a unique MAC address to identify the node
-	mac=`cat /sys/class/ieee80211/phy0/macaddress`
+	local mac=`cat /sys/class/ieee80211/phy0/macaddress`
 	[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
 		mac=$(ip addr list dev eth0 | awk '/ether/{print $2}')
 	}
@@ -275,9 +275,9 @@ initial_setup()
 	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Generate a key for fastd."
-	secret=`fastd --generate-key --machine-readable`
+	local secret=`fastd --generate-key --machine-readable`
 	uci set fastd.default.secret="$secret"
-	key=`echo "secret \"$secret\";" | fastd --config - --show-key --machine-readable`
+	local key=`echo "secret \"$secret\";" | fastd --config - --show-key --machine-readable`
 	uci set fastd.default.key="$key"
 
 	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
@@ -304,18 +304,18 @@ update_03_to_04()
 	rm /etc/config/6relayd
 
 	echo "(I) Update fastd configuration."
-	fastd_secret=$(uci get set fastd.default.secret)
-	fastd_key=$(uci get fastd.default.key)
+	local fastd_secret=$(uci get set fastd.default.secret)
+	local fastd_key=$(uci get fastd.default.key)
 	cp /rom/etc/config/fastd /etc/config/
 	uci set fastd.default.secret="$fastd_secret"
 	uci set fastd.default.key="$fastd_key"
 
 	#set new ad-hoc SSID
-	ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
-	mac=$(uci get -q freifunk.@settings[0].mac)
-	wan_proto=$(uci get -q network.wan.proto)
-	wan_ipaddr=$(uci get -q network.wan.ipaddr)
-	wan_gateway=$(uci get -q network.wan.gateway)
+	local ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
+	local mac=$(uci get -q freifunk.@settings[0].mac)
+	local wan_proto=$(uci get -q network.wan.proto)
+	local wan_ipaddr=$(uci get -q network.wan.ipaddr)
+	local wan_gateway=$(uci get -q network.wan.gateway)
 
 	echo "(I) Set Prefix and populate /etc/hosts."
 	uci set -q network.globals="globals"
@@ -334,13 +334,13 @@ update_03_to_04()
 	uci delete -q network.dummy_public
 
 	echo "(I) Rebuild public/private/wan sections."
-	ifname=$(uci get -q network.public.ifname)
+	local ifname=$(uci get -q network.public.ifname)
 	initial_public_setup "${ifname/dummy_public/}" "$mac"
 
-	ifname=$(uci get -q network.private.ifname)
+	local ifname=$(uci get -q network.private.ifname)
 	initial_private_setup "${ifname/dummy_private/}"
 
-	ifname=$(uci get -q network.wan.ifname)
+	local ifname=$(uci get -q network.wan.ifname)
 	initial_wan_setup "$ifname"
 
 	wireless_change_ssid() {
@@ -392,9 +392,9 @@ update_03_to_04()
 	uci commit wireless
 
 	echo "(I) Update /etc/config/freifunk"
-	hostname="$(uci get system.@system[0].hostname)"
-	access_from="$(uci get freifunk.@settings[0].config_nets)"
-	default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
+	local hostname="$(uci get system.@system[0].hostname)"
+	local access_from="$(uci get freifunk.@settings[0].config_nets)"
+	local default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
 
 	cp /rom/etc/config/freifunk /etc/config/
 	cp /rom/etc/config/system /etc/config/
