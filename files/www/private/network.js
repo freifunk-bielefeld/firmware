@@ -122,7 +122,7 @@ function appendSetting(p, path, value, mode)
 	return b;
 }
 
-function getMode(ifname)
+function getNetMode(ifname)
 {
 	var n = uci.network;
 
@@ -135,11 +135,16 @@ function getMode(ifname)
 	if(inArray(ifname, split(n.wan.ifname)))
 		return "wan";
 
-	for(var id in n)
-	{
-		if(n[id].ifname != ifname) continue;
-		if(n[id].proto == "batadv") return "mesh";
-	}
+	return "none";
+}
+
+function getWifiMode(id)
+{
+	var obj = uci.wireless[id];
+
+	if(obj.network == "public") return "public";
+	if(obj.network == "private") return "private";
+	if(obj.mode == "adhoc") return "mesh";
 
 	return "none";
 }
@@ -198,7 +203,7 @@ function rebuild_assignment()
 		var ifname = ifnames[i];
 		if((ifname.length == 0) || inArray(ifname, ignore) || ifname[0] == "@" )
 			continue;
-		var mode = getMode(ifname);
+		var mode = getNetMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
 		entry.onchange = getChangeModeAction(ifname);
 		show(root);
@@ -210,7 +215,7 @@ function collect_wifi_info(device)
 	var modes = [];
 	config_foreach(uci.wireless, "wifi-iface", function(id, obj) {
 		if(device == obj.device)
-			modes.push(getMode(obj.ifname));
+			modes.push(getWifiMode(id));
 	});
 	return {"modes" : modes};
 }
@@ -222,35 +227,33 @@ function capitalise(string) {
 function addNetSection(ifname, mode)
 {
 	var n = uci.network;
-	var sid = "cfg"+(++gid);
 
-	switch(mode)
-	{
+	switch(mode) {
 	case "wan":
-		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
+		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 		n.wan.ifname = addItem(n.wan.ifname, ifname);
 		break;
-	case "mesh":
-		n[sid] = {"stype":"interface","ifname":ifname,"mtu":"1406","auto":"1","proto":"batadv","mesh":"bat0"};
-		break;
 	case "private":
-		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
+		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 		n.private.ifname = addItem(n.private.ifname, ifname);
 		break;
 	case "public":
-		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
+		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 		n.public.ifname = addItem(n.public.ifname, ifname);
 		break;
+	case "mesh":
+		n[ifname] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
 	case "none":
-		n[sid] = {"stype":"interface","ifname":ifname,"proto":"none","auto":"1"};
-	default:
+		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 	}
+
 	n.pchanged = true;
 }
 
 function delNetSection(ifname)
 {
 	var n = uci.network;
+
 	config_foreach(n, "interface", function(id, obj) {
 		if(obj.ifname == ifname && obj.type != "bridge")
 			delete n[id];
@@ -258,6 +261,7 @@ function delNetSection(ifname)
 
 	n.private.ifname = removeItem(n.private.ifname, ifname);
 	n.public.ifname = removeItem(n.public.ifname, ifname);
+
 	n.pchanged = true;
 }
 
@@ -273,42 +277,55 @@ function randomString(length) {
 
 function addWifiSection(device, mode)
 {
-	var f = uci.freifunk;
 	var w = uci.wireless;
+	var n = uci.network;
+	var f = uci.freifunk;
 	var i = firstSectionID(f, "settings");
 	var ifname = device+"_"+mode;
 	var id = "cfg"+(++gid);
 
+	//add section to /etc/config/wireless
 	switch(mode)
 	{
 	case "wan":
 		//We need WDS for this interface to be bridged into br-wan. WDS is not standardized.
 		//WDS is only easily configurable for 'mac80211' type devices (e.g. Atheros wireless chipsets).
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","network":"wan","encryption":"psk2", "wds":"1"};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "wds":"1", "network":"wan"};
 		break;
 	case "mesh":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1,"network":ifname};
+		//connected via option network
+		n[ifname] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
+		n.pchanged = true;
 		break;
 	case "public":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"public"};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"public"};
 		break;
 	case "private":
-		w[id] = {"device":device,"ifname":ifname,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","network":"private","key":randomString(16),"encryption":"psk2"};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"private"};
 		break;
 	default:
 		return alert("mode error '"+mode+"' "+device);
 	}
+
 	w.pchanged = true;
 }
 
-function delWifiSection(ifname)
+function delWifiSection(dev, mode)
 {
 	var w = uci.wireless;
+	var n = uci.network;
+
 	config_foreach(w, "wifi-iface", function(id, obj) {
-		if(obj.ifname == ifname)
+		if(obj.device == dev && getWifiMode(id) == mode) {
+			if(mode == "mesh") {
+				delete n[obj.network];
+				n.pchanged = true;
+			}
 			delete w[id];
+			w.pchanged = true;
+		}
 	});
-	w.pchanged = true;
 }
 
 function rebuild_wifi()
@@ -335,8 +352,8 @@ function rebuild_wifi()
 		config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
 			if(wobj.device != dev) return;
 
-			var mode = getMode(wobj.ifname);
-			var title = (mode == "none") ? "'"+wobj.ifname+"'" : capitalise(mode);
+			var mode = getWifiMode(wid);
+			var title = (mode == "none") ? "'"+wobj.network+"'" : capitalise(mode);
 			var entry = append_section(parent, title, "wireless_"+dev+"_"+mode);
 
 			for(var opt in wobj)
@@ -345,27 +362,24 @@ function rebuild_wifi()
 			if(mode == "none")
 			{
 				append_button(entry, "L\xf6schen", function() {
-					delWifiSection(ifname);
+					delWifiSection(dev, mode);
 					rebuild_wifi();
 				});
 			}
 		});
 
+		/* add or remove a wifi interface */
 		onDesc(mode_checks, "INPUT", function(e) {
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
 				var mode = src.value;
-				var ifname = dev+"_"+mode;
 
 				if(src.checked) {
 					if(obj.type != "mac80211")
 						alert("Diese Betriebsweise wird von diesem Chipsatz nicht unterst\xfctzt!");
-					delNetSection(ifname);
-					addNetSection(ifname, mode);
 					addWifiSection(dev, mode);
 				} else {
-					delNetSection(ifname);
-					delWifiSection(ifname);
+					delWifiSection(dev, mode);
 				}
 				rebuild_wifi();
 			};
@@ -630,7 +644,7 @@ function rebuild_switches()
 		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
 			if(vobj.device != swinfo.device) return;
 			var ifname = guess_vlan_ifname(swinfo, vobj.vlan, vlans.length);
-			var mode = getMode(ifname);
+			var mode = getNetMode(ifname);
 			delNetSection(ifname);
 			addNetSection(ifname, mode); //makes sure entry exists
 			build_vlan(switch_root, vid, vobj, swinfo, ifname, mode);

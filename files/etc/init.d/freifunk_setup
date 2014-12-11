@@ -44,6 +44,7 @@ initial_wifi_setup()
 		local ds="$1" #device section
 		local ah_ok=0 ap_ok=0 #interface status
 		local wifi_device=`uci get -q wireless.$ds.device`
+		local h n p
 
 		#config_get wifi_device "$ds" device
 		[ -z "$wifi_device" ] && wifi_device="$ds"
@@ -61,30 +62,39 @@ initial_wifi_setup()
 
 		#remove ap/ah wifi interface entries
 		clear_wifi_interfaces() {
-			uci -q delete wireless.@wifi-iface[-1]
-			uci -q delete wireless.@wifi-iface[-1]
+			uci delete -q "$h"
+			uci delete -q "$n"
+			uci delete -q "$p"
 		}
 
-		#Ad-Hoc for batman
+		#AdHoc for batman
 		add_ah_interface() {
-			local s=wireless.`uci add wireless wifi-iface`
-			uci set $s.device="$wifi_device"
-			uci set $s.ifname="${wifi_device}_mesh"
-			uci set $s.mode=adhoc
-			uci set $s.ssid="$ah_ssid"
-			uci set $s.bssid="$ah_bssid"
-			uci set $s.hidden=1
+			h=wireless.`uci add wireless wifi-iface`
+			uci set $h.device="$wifi_device"
+			uci set $h.ifname="${wifi_device}_mesh"
+			uci set $h.mode=adhoc
+			uci set $h.network="${wifi_device}_mesh"
+			uci set $h.ssid="$ah_ssid"
+			uci set $h.bssid="$ah_bssid"
+			uci set $h.mcast_rate=12000
+			uci set $h.hidden=1
+
+			n=network.`uci get $h.network`
+			uci set $n="interface"
+			uci set $n.mtu=1406
+			uci set $n.proto="batadv"
+			uci set $n.mesh="bat0"
 		}
 
-		#Access Point for clients
+		#AccessPoint for clients
 		add_ap_interface() {
-			local s=wireless.`uci add wireless wifi-iface`
-			uci set $s.device="$wifi_device"
-			uci set $s.ifname="${wifi_device}_public"
-			uci set $s.mode=ap
-			uci set $s.network=public
-			uci set $s.ssid="$ap_ssid"
-			uci set $s.encryption="none"
+			p=wireless.`uci add wireless wifi-iface`
+			uci set $p.device="$wifi_device"
+			uci set $p.ifname="${wifi_device}_public"
+			uci set $p.mode=ap
+			uci set $p.network=public
+			uci set $p.ssid="$ap_ssid"
+			uci set $p.encryption="none"
 		}
 
 		wifi_restart() {
@@ -105,22 +115,23 @@ initial_wifi_setup()
 
 		#if not both interfaces work; try only Ad-Hoc
 		if [ $ah_ok -eq 0 -o $ap_ok -eq 0 ]; then
-			echo "(I) Cannot start Ad-Hoc and Access Point mode at the same time - try AdHoc only now."
+			echo "(I) Cannot use AdHoc and AccessPoint mode at the same time - try AdHoc only now."
 			clear_wifi_interfaces
 			add_ah_interface
 			wifi_restart
 			check_wifi_interfaces
 		fi
 
-		[ $ah_ok -eq 1 ] && append wifi_mesh_interfaces "${wifi_device}_mesh"
-		[ $ap_ok -eq 1 ] && append wifi_public_interfaces "${wifi_device}_public"
+		[ $ah_ok -eq 1 ] && echo "(I) Add AdHoc interface for wifi device ${wifi_device}."
+		[ $ap_ok -eq 1 ] && echo "(I) Add AccessPoint interface for wifi device ${wifi_device}."
+
+		#ifname not needed anymore
+		uci delete -q $h.ifname
+		uci delete -q $p.ifname
 	}
 
 	config_load wireless
 	config_foreach config_wifi wifi-device
-
-	echo "(I) Wifi access point interfaces: '$wifi_public_interfaces'"
-	echo "(I) Wifi ad-hoc interfaces: '$wifi_mesh_interfaces'"
 }
 
 initial_private_setup()
@@ -244,7 +255,7 @@ initial_setup()
 	# P U B L I C  S E T U P #
 	# ------------------------------------- #
 
-	initial_public_setup "bat0 $wifi_public_interfaces" "$mac"
+	initial_public_setup "bat0" "$mac"
 
 	# ------------------------------------- #
 	# W A N  S E T U P #
@@ -256,16 +267,13 @@ initial_setup()
 	# B A T M A N  S E T U P #
 	# ------------------------------------- #
 
-	echo "(I) Add network sections to trigger batman-adv and set MTU."
-	for if in fastd_mesh $wifi_mesh_interfaces; do
-		local n=`echo -n $if | tr -c a-z0-9_ _`
-		uci set network.$n="interface"
-		uci set network.$n.ifname=$if
-		uci set network.$n.mtu=1406
-		uci set network.$n.auto=1
-		uci set network.$n.proto="batadv"
-		uci set network.$n.mesh="bat0"
-	done
+	echo "(I) Add network sections to add fastd to batman-adv and set MTU."
+	local n=network.fastd_mesh
+	uci set $n=interface
+	uci set $n.ifname=fastd_mesh
+	uci set $n.mtu=1406
+	uci set $n.proto="batadv"
+	uci set $n.mesh="bat0"
 
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
@@ -302,13 +310,14 @@ update_03_to_04()
 	cp /rom/etc/uhttpd.crt /etc/
 	cp /rom/etc/uhttpd.key /etc/
 	rm /etc/config/6relayd
+	rm /etc/config/simple_tc
 
 	echo "(I) Update fastd configuration."
-	local fastd_secret=$(uci get set fastd.default.secret)
-	local fastd_key=$(uci get fastd.default.key)
 	cp /rom/etc/config/fastd /etc/config/
-	uci set fastd.default.secret="$fastd_secret"
-	uci set fastd.default.key="$fastd_key"
+	local secret=`fastd --generate-key --machine-readable`
+	uci set fastd.default.secret="$secret"
+	local key=`echo "secret \"$secret\";" | fastd --config - --show-key --machine-readable`
+	uci set fastd.default.key="$key"
 
 	#set new ad-hoc SSID
 	local ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
@@ -343,28 +352,52 @@ update_03_to_04()
 	local ifname=$(uci get -q network.wan.ifname)
 	initial_wan_setup "$ifname"
 
-	wireless_change_ssid() {
-		local cfg="$1" ssid mode
-		config_get mode $cfg "mode"
-
-		if [ "$mode" = "adhoc" ]; then
-			uci set wireless.$cfg.ssid="$ah_ssid"
-		fi
-	}
-
-	wireless_fixup_iface() {
-		local cfg="$1" hwmode type
+	wireless_fixup_device() {
+		local cfg="$1" type hwmode
 		config_get type $cfg "type"
 		config_get hwmode $cfg "hwmode"
 
 		uci delete -q wireless.$cfg.ht_capab
 
-		if [ "$type" = "mac80211" ]; then
-			uci set wireless.$cfg.wds="1"
-		fi
-
 		if [ "$hwmode" = "11ng" ]; then
 			uci set wireless.$cfg.hwmode="11g"
+		fi
+	}
+
+	wireless_fixup_iface() {
+		local cfg="$1" mode ifname pif
+		config_get mode $cfg "mode"
+		config_get ifname $cfg "ifname"
+
+		uci delete -q wireless.$cfg.ifname
+
+		if [ "$mode" = "adhoc" ]; then
+			uci set wireless.$cfg.ssid="$ah_ssid"
+			uci set wireless.$cfg.network="$ifname"
+			uci set wireless.$cfg.mcast_rate=12000
+
+			uci delete -q network.$ifname.ifname
+		fi
+
+		pif="$(uci get network.public.ifname)"
+		if [ "$pif" != "${pif/$ifname/}" ]; then
+			uci set network.public.ifname="${pif/$ifname/}"
+		fi
+
+		pif="$(uci get network.private.ifname)"
+		if [ "$pif" != "${pif/$ifname/}" ]; then
+			uci set network.private.ifname="${pif/$ifname/}"
+		fi
+	}
+
+	network_fixup_ifce() {
+		local cfg="$1" proto ifname
+
+		config_get proto $cfg "proto"
+		config_get ifname $cfg "ifname"
+
+		if [ $proto = "batadv" ]; then
+			uci delete -q network.$cfg.auto
 		fi
 	}
 
@@ -382,14 +415,15 @@ update_03_to_04()
 	[ -n "$wan_gateway" ] && uci set network.wan.gateway="$wan_gateway"
 
 	echo "(I) Update network/wireless settings."
+	config_load wireless
+	config_foreach wireless_fixup_iface wifi-iface
+	config_foreach wireless_fixup_device wifi-device
+	uci commit wireless
+
 	config_load network
 	config_foreach network_change_mtu interface
+	config_foreach network_fixup_ifce interface
 	uci commit network
-
-	config_load wireless
-	config_foreach wireless_change_ssid wifi-iface
-	config_foreach wireless_fixup_iface wifi-device
-	uci commit wireless
 
 	echo "(I) Update /etc/config/freifunk"
 	local hostname="$(uci get system.@system[0].hostname)"
