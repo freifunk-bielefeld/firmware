@@ -39,6 +39,14 @@ function wifi_scan()
 	});
 }
 
+function add_list_entry(device, ifname) {
+	var list = $('wifiscan_selection');
+	var o = append(list, 'option');
+	o.style.paddingRight = "1em";
+	o.innerHTML = device;
+	o.value = ifname;
+}
+
 /*
 * Create a selection of wireless devices
 * represented as the first interface found.
@@ -46,19 +54,20 @@ function wifi_scan()
 function init() {
 	send("/cgi-bin/misc", {func:'wifiscan_info'}, function(data) {
 		var uci = fromUCI(data);
-		var list = $('wifiscan_selection');
-
 		config_foreach(uci.wireless, "wifi-device", function(device, sobj) {
+			var found = false;
 			config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
-				if(sobj.device == device)
-				{
-					var o = append(list, 'option');
-					o.style.paddingRight = "1em";
-					o.innerHTML = device;
-					o.value = sobj.ifname;
+				if(sobj.device == device && sobj.ifname) {
+					add_entry(device, sobj.ifname);
+					found = true;
 					return 1;
 				}
 			});
+
+			if(!found) switch(device) {
+				case "radio0": add_list_entry(device, "wlan0"); break;
+				case "radio1": add_list_entry(device, "wlan1"); break;
+			}
 		});
 	});
 }
