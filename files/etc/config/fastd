@@ -10,6 +10,7 @@ config fastd 'default'
 	option mtu 1406
 	option forward 0
 	option secret '' #set by /etc/init.d/freifunk_setup
+	option key '' #set by /etc/init.d/freifunk_setup
 
 config peer_group 'backbone'
 	option enabled '1'
