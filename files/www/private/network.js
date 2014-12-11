@@ -229,21 +229,19 @@ function addNetSection(ifname, mode)
 
 	switch(mode) {
 	case "wan":
-		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 		n.wan.ifname = addItem(n.wan.ifname, ifname);
 		break;
 	case "private":
-		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 		n.private.ifname = addItem(n.private.ifname, ifname);
 		break;
 	case "public":
-		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
 		n.public.ifname = addItem(n.public.ifname, ifname);
 		break;
 	case "mesh":
 		n[ifname] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
-	case "none":
-		n[ifname] = {"stype":"interface","ifname":ifname,"proto":"none"};
+		break;
+	default:
+		return;
 	}
 
 	n.pchanged = true;
