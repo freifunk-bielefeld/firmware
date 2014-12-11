@@ -106,7 +106,7 @@ function appendSetting(p, path, value, mode)
 	case "service_display_max":
 		b = append_input(p, "Max. Angezeigte-Eintr\xe4ge", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Ung\xfcltige Zahl.");
-		addHelpText(b, "Maximale Anzahl der auf der Statusseite angezeigten Eintr\xe4ge.");
+		addHelpText(b, "Maximale Anzahl der auf der eigenen Statusseite angezeigten Eintr\xe4ge.");
 		break;
 	default:
 		return;
