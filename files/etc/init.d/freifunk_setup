@@ -425,6 +425,20 @@ update_03_to_04()
 	config_foreach network_fixup_ifce interface
 	uci commit network
 
+	local switch_name="$(uci get -q network.@switch[0].name)"
+	if [ -n "$switch_name" ]; then
+		uci set network_defaults.@switch[0].name="$switch_name"
+
+		network_defaults_switch_fixup() {
+			local cfg="$1"
+			uci set network_defaults.$cfg.device="$switch_name"
+		}
+
+		config_load network_defaults
+		config_foreach network_defaults_switch_fixup switch_vlan
+		uci commit network_defaults
+	fi
+
 	echo "(I) Update /etc/config/freifunk"
 	local hostname="$(uci get system.@system[0].hostname)"
 	local access_from="$(uci get freifunk.@settings[0].config_nets)"
