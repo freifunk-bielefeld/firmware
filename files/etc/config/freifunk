@@ -7,7 +7,7 @@ config settings
 	option 'access_from' 'private'
 	option 'service_link' ''
 	option 'service_label' ''
-	option 'service_display_max' 10
+	option 'service_display_max' 0
 	option 'default_ap_ssid' 'bielefeld.freifunk.net'
 	option 'default_ah_ssid' ''
 	option 'default_ah_bssid' '12:C0:FF:EE:C0:DE'
