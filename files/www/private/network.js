@@ -63,6 +63,9 @@ function appendSetting(p, path, value, mode)
 		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
 		if(value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
 		b = append_selection(p, "Kanal", id, value, channels);
+		if(!adv_mode)
+			b.lastChild.disabled = "disabled";
+		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
 		break;
 	case "encryption":
 		if(mode == "public" || mode == "mesh")
