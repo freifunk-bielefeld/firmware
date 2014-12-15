@@ -32,8 +32,7 @@ case "${GET_func:-$POST_func}" in
 	;;
 	restore_firmware)
 		echo "(I) Undo all changes ..."
-		firstboot
-		sync
+		echo y | firstboot
 		echo "(I) Rebooting now ..."
 		reboot
 	;;
