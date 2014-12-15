@@ -17,7 +17,7 @@ function lookup_upgrade() {
 }
 
 function lookup_and_apply_upgrade() {
-	if(!confirm("Soll ein update durchgef\xFChrt werden?")) return;
+	if(!confirm("Soll ein Update durchgef\xFChrt werden?")) return;
 	send("/cgi-bin/upgrade", { func : 'lookup_and_apply_upgrade' }, function(msg) {
 		setText('msg', text);
 	});
