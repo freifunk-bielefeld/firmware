@@ -9,6 +9,7 @@ ebtables -X
 
 #drop all IPv4 related traffic from bat0
 ebtables -A FORWARD --logical-in br-public -i bat0 -p ! IPv6 -j DROP
+ebtables -A FORWARD --logical-out br-public -o bat0 -p ! IPv6 -j DROP
 ebtables -A OUTPUT --logical-out br-public -o bat0 -p ! IPv6 -j DROP
 
 #drop router advertisments from this router
