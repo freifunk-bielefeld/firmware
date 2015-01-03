@@ -146,6 +146,7 @@ function getWifiMode(id)
 
 	if(obj.network == "public") return "public";
 	if(obj.network == "private") return "private";
+	if(obj.network == "wan") return "wan";
 	if(obj.mode == "adhoc") return "mesh";
 
 	return "none";
