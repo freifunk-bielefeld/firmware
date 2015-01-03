@@ -176,6 +176,7 @@ initial_public_setup()
 	uci set network.public6.ifname="@public"
 	uci set network.public6.peerdns="0"
 	uci set network.public6.proto="dhcpv6"
+
 }
 
 initial_wan_setup()
@@ -195,6 +196,22 @@ initial_wan_setup()
 	uci set network.wan6="interface"
 	uci set network.wan6.ifname="@wan"
 	uci set network.wan6.proto="dhcpv6"
+	#add the default route for wan to table 1
+	uci set network.wan6.ip6table="1"
+
+	#use table 1 also for all traffic marked by mark 1 (fastd)
+	uci set network.wan6_lookup="rule6"
+	uci set network.wan6_lookup.mark="0x01/0x01"
+	uci set network.wan6_lookup.lookup="1"
+
+	uci set network.wan6_unreachable="route6"
+	uci set network.wan6_unreachable.type="unreachable"
+	uci set network.wan6_unreachable.table="1"
+	uci set network.wan6_unreachable.target="::/0"
+	uci set network.wan6_unreachable.metric="65535"
+	uci set network.wan6_unreachable.gateway="::"
+	uci set network.wan6_unreachable.interface="loopback"
+
 }
 
 initial_setup()

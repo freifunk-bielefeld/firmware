@@ -11,6 +11,7 @@ config fastd 'default'
 	option forward 0
 	option secret '' #set by /etc/init.d/freifunk_setup
 	option key '' #set by /etc/init.d/freifunk_setup
+	option packet_mark 1
 
 config peer_group 'backbone'
 	option enabled '1'
