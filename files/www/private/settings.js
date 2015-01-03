@@ -66,7 +66,7 @@ function appendSetting(p, path, value, mode)
 	case "enabled":
 		if(cfg == "autoupdater") {
 			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
-			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version. Dabei werden allerdings alle Einstellungen <b>zur\xfcckgesetzt</b>.");
+			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version.");
 		}
 		if(cfg == "simple-tc") {
 			b = append_radio(p, "Bandweitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
