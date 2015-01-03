@@ -295,7 +295,7 @@ initial_setup()
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
-	echo -e "\n#disable forwarding in roder for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
+	echo -e "\n#disable forwarding in order for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
 
