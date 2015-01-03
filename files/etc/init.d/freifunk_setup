@@ -6,8 +6,8 @@ START=99
 
 #create an IPv6 ULA-address based on EUI-64
 ula_addr() {
-	local PREFIX6="$(uci get network.globals.ula_prefix)"
-	local mac=$1
+	local prefix=$1
+	local mac=$2
 
 	# translate to local administered mac
 	a=${mac%%:*} #cut out first hex
@@ -20,7 +20,7 @@ ula_addr() {
 	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
 
 	# assemble IPv6 address
-	echo "${PREFIX6%%::*}:${mac%?}"
+	echo "${prefix%%::*}:${mac%?}"
 }
 
 initial_wifi_setup()
@@ -156,6 +156,8 @@ initial_private_setup()
 initial_public_setup()
 {
 	local public_interfaces="$1" mac="$2"
+	local prefix="fdef:17a0:ffb1:300::/64"
+
 	echo "(I) Setup public interfaces."
 
 	uci delete -q network.public
@@ -165,7 +167,7 @@ initial_public_setup()
 	uci set network.public.ipaddr="192.168.132.1"
 	uci set network.public.macaddr="$mac"
 	uci delete -q network.public.ip6addr
-	uci add_list network.public.ip6addr="$(ula_addr $mac)/64"
+	uci add_list network.public.ip6addr="$(ula_addr $prefix $mac)/64"
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.igmp_snooping="0"
@@ -217,6 +219,7 @@ initial_wan_setup()
 initial_setup()
 {
 	local version="$1"
+	local prefix="fdef:17a0:ffb1:300::/64"
 
 	local wan_interface=$(uci get -q network.wan.ifname)
 	echo "(I) WAN interface: '$wan_interface'"
@@ -244,10 +247,11 @@ initial_setup()
 	echo "(I) MAC: '$mac'"
 
 	echo "(I) Set Prefix and populate /etc/hosts."
+
 	uci set -q network.globals="globals"
-	uci set network.globals.ula_prefix="fdef:17a0:ffb1:300::/64"
+	uci set network.globals.ula_prefix="$prefix"
 	echo "192.168.132.1 node" >> /etc/hosts
-	echo "$(ula_addr $mac) node" >> /etc/hosts
+	echo "$(ula_addr $prefix $mac) node" >> /etc/hosts
 
 	# ------------------------------------- #
 	# F R E I F U N K  S E T U P #
@@ -313,6 +317,8 @@ initial_setup()
 
 update_03_to_04()
 {
+	local prefix="fdef:17a0:ffb1:300::/64"
+
 	echo "(I) Copy/delete some files."
 	cp /rom/etc/config/autoupdater /etc/config/
 	cp /rom/etc/config/dhcp /etc/config/
@@ -345,9 +351,9 @@ update_03_to_04()
 
 	echo "(I) Set Prefix and populate /etc/hosts."
 	uci set -q network.globals="globals"
-	uci set network.globals.ula_prefix="fdef:17a0:ffb1:300::/64"
+	uci set network.globals.ula_prefix="$prefix"
 	echo "192.168.132.1 node" >> /etc/hosts
-	echo "$(ula_addr $mac) node" >> /etc/hosts
+	echo "$(ula_addr $prefix $mac) node" >> /etc/hosts
 
 	echo "(I) Disable forwarding on br-public/br-private."
 	echo -e "\n#disable forwarding in roder for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
