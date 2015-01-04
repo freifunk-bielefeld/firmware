@@ -93,7 +93,7 @@ IFS="
 "
 for mac in $(batctl o -H | grep 'No' -v | cut -b 37-53 | sort | uniq); do
 	addr="$(ula_addr $prefix $mac)"
-	echo "	<li><h3><a href=\"http://[$addr]\">$addr</a></h3></li>"
+	echo "	<li><h3><a href=\"http://[$addr]\">$mac</a></h3></li>"
 done
 echo '</ul>'
 %>
