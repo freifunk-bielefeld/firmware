@@ -168,6 +168,26 @@ function config_foreach(objs, stype, func)
 	}
 }
 
+function config_find(objs, mobj)
+{
+	for(var key in objs)
+	{
+		var obj = objs[key];
+		var found = true;
+		for(mkey in mobj)
+		{
+			if(obj[mkey] != mobj[mkey])
+			{
+				found = false;
+				break;
+			}
+		}
+		if(found)
+			return obj;
+	}
+	return null;
+}
+
 function params(obj)
 {
 	var str = "";

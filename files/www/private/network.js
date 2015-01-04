@@ -137,7 +137,10 @@ function getNetMode(ifname)
 	if(inArray(ifname, split(n.wan.ifname)))
 		return "wan";
 
-	return "none";
+	if(config_find(n, {"ifname" : ifname, "proto" : "batadv"}))
+		return "mesh";
+
+	return mode;
 }
 
 function getWifiMode(id)
