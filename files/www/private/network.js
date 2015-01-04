@@ -242,7 +242,8 @@ function addNetSection(ifname, mode)
 		n.public.ifname = addItem(n.public.ifname, ifname);
 		break;
 	case "mesh":
-		n[ifname] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
+		var net = ifname.replace(".", "_");
+		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
 		break;
 	default:
 		return;
@@ -294,9 +295,10 @@ function addWifiSection(device, mode)
 		w[id] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "wds":"1", "network":"wan"};
 		break;
 	case "mesh":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1,"network":ifname};
+		var net = ifname.replace(".", "_");
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1,"network":net};
 		//connected via option network
-		n[ifname] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
+		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
 	case "public":
