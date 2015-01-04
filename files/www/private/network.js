@@ -284,8 +284,7 @@ function addWifiSection(device, mode)
 {
 	var w = uci.wireless;
 	var n = uci.network;
-	var f = uci.freifunk;
-	var i = firstSectionID(f, "settings");
+	var s = config_find(uci.freifunk, {"stype" : "settings"});
 	var ifname = device+"_"+mode;
 	var id = "cfg"+(++gid);
 
@@ -299,13 +298,13 @@ function addWifiSection(device, mode)
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":f[i].default_ah_ssid,"bssid":f[i].default_ah_bssid,"hidden":1,"network":net};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":s.default_ah_ssid,"bssid":s.default_ah_bssid,"hidden":1,"network":net};
 		//connected via option network
 		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
 	case "public":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":f[i].default_ap_ssid,"network":"public"};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":s.default_ap_ssid,"network":"public"};
 		break;
 	case "private":
 		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"private"};
