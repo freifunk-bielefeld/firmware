@@ -23,9 +23,9 @@ cd openwrt
 
 git clone -b development https://github.com/freifunk-bielefeld/firmware.git
 cp -rf firmware/files firmware/package firmware/.config .
-git --git-dir=.git am --whitespace=nowarn firmware/patches/openwrt/*.patch
-git --git-dir=feeds/routing/.git am --whitespace=nowarn firmware/patches/routing/*.patch
-git --git-dir=feeds/packages/.git am --whitespace=nowarn firmware/patches/packages/*.patch
+git am --whitespace=nowarn firmware/patches/openwrt/*.patch
+git -C feeds/routing am --whitespace=nowarn `pwd`/firmware/patches/routing/*.patch
+git -C feeds/packages am --whitespace=nowarn `pwd`/firmware/patches/packages/*.patch
 rm -rf firmware
 
 make defconfig
