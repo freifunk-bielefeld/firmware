@@ -1,6 +1,12 @@
+From 24813f64b01d833485de564aaa6aee0b906a9632 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 22 Aug 2014 13:52:42 +0200
-Subject: batman-adv: introduce 'no_rebroadcast' option
+Subject: [PATCH 3/3] batman-adv: introduce 'no_rebroadcast' option
+
+---
+ ...atman-adv-introduce-no_rebroadcast-option.patch | 185 +++++++++++++++++++++
+ 1 file changed, 185 insertions(+)
+ create mode 100644 batman-adv/patches/0001-batman-adv-introduce-no_rebroadcast-option.patch
 
 diff --git a/batman-adv/patches/0001-batman-adv-introduce-no_rebroadcast-option.patch b/batman-adv/patches/0001-batman-adv-introduce-no_rebroadcast-option.patch
 new file mode 100644
@@ -193,3 +199,6 @@ index 0000000..4f2da9a
 +-- 
 +2.1.0
 +
+-- 
+2.1.4
+
