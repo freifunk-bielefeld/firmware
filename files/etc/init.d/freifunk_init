@@ -4,7 +4,7 @@ START=19
 
 
 #allow/block access via ssh/https
-config_access() {
+set_access() {
 	local default_target src port s
 	local access_from=`uci get -q freifunk.@settings[0].access_from`
 
@@ -33,20 +33,32 @@ config_access() {
 	done
 }
 
+#batman-adv wants unique MACs for each interface
+set_macs() {
+	network_set_macaddr() {
+		local s="$1"
+		local proto
+
+		config_get proto $s "proto"
+
+		if [ $proto = "batadv" ]; then
+			#generate and set a random MAC
+			uci set network.$s.macaddr=$(echo -n 02; dd bs=1 count=5 if=/dev/random 2>/dev/null |hexdump -v -e '/1 ":%02X"')
+		fi
+	}
+
+	config_load network
+	config_foreach network_set_macaddr interface
+}
+
 start()
 {
-exec >/tmp/freifunk_init.log 2>&1
-. /lib/functions.sh
+	exec >/tmp/freifunk_init.log 2>&1
 
+	echo "(I) Freifunk: start freifunk_init"
 
-if [ -f /etc/init.d/freifunk_setup ]; then
-	echo "(I) Freifunk: Skip and wait for /etc/init.d/freifunk_setup to be run."
-	exit
-fi
+	set_access
+	set_macs
 
-echo "(I) Freifunk: start freifunk_init"
-
-config_access
-
-echo "(I) Freifunk: done freifunk_init"
+	echo "(I) Freifunk: done freifunk_init"
 }
