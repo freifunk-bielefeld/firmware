@@ -21,7 +21,7 @@ cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-git clone -b development https://github.com/freifunk-bielefeld/firmware.git
+git clone -b development https://github.com/saraedum/firmware.git
 cp -rf firmware/files firmware/package firmware/.config .
 git am --whitespace=nowarn firmware/patches/openwrt/*.patch
 git -C feeds/routing am --whitespace=nowarn `pwd`/firmware/patches/routing/*.patch
