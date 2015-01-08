@@ -1,7 +1,7 @@
-From 557eb758f257430b88389b0c767229ac27b38be6 Mon Sep 17 00:00:00 2001
+From ffd8179d22d65c2f986bb6b8fd3a65feaf71870d Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Thu, 8 Jan 2015 04:03:49 +0100
-Subject: [PATCH 3/3] ar71xx: add flush reset register writes, should fix
+Subject: [PATCH 02/10] ar71xx: add flush reset register writes, should fix
  restart issues
 
 ---

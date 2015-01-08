@@ -1,7 +1,7 @@
-From 60f21d677d10a5ab0000d18f39e802a8edbdafc4 Mon Sep 17 00:00:00 2001
+From 011696f188e26ad0f2cfa5cc13d27f35d11ba271 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 10 Sep 2014 23:35:33 +0200
-Subject: [PATCH 2/3] dnsmasq: support for multiple instances
+Subject: [PATCH 01/10] dnsmasq: support for multiple instances
 
 ---
  package/network/services/dnsmasq/files/dhcp.conf   |  13 ++
