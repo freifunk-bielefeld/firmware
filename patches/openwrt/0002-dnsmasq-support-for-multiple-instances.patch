@@ -1,11 +1,11 @@
-From f4265b1ff4fd54274a9eb81aabdda54a053c4ff9 Mon Sep 17 00:00:00 2001
+From 60f21d677d10a5ab0000d18f39e802a8edbdafc4 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 10 Sep 2014 23:35:33 +0200
-Subject: [PATCH 2/2] dnsmasq: support for multiple instances
+Subject: [PATCH 2/3] dnsmasq: support for multiple instances
 
 ---
- package/network/services/dnsmasq/files/dhcp.conf   |   13 ++
- .../network/services/dnsmasq/files/dnsmasq.init    |  155 ++++++++++++--------
+ package/network/services/dnsmasq/files/dhcp.conf   |  13 ++
+ .../network/services/dnsmasq/files/dnsmasq.init    | 155 ++++++++++++---------
  2 files changed, 104 insertions(+), 64 deletions(-)
 
 diff --git a/package/network/services/dnsmasq/files/dhcp.conf b/package/network/services/dnsmasq/files/dhcp.conf
@@ -248,5 +248,5 @@ index 942acd7..e363765 100644
  
  reload_service() {
 -- 
-1.7.10.4
+2.1.4
 
