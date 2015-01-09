@@ -77,7 +77,7 @@ set_ula() {
 
 	prefix=$(uci get network.globals.ula_prefix)
 	mac=$(uci get network.public.macaddr)
-	if [ -n "$macaddr" -a -n "$prefix" ]; then
+	if [ -n "$mac" -a -n "$prefix" ]; then
 		uci delete -q network.private.ip6addr
 		uci add_list network.public.ip6addr="$(ula_addr $prefix $mac)/64"
 	fi
