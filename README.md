@@ -26,7 +26,7 @@ cp -rf firmware/files firmware/package firmware/.config .
 git am --whitespace=nowarn firmware/patches/openwrt/*.patch
 git -C feeds/routing am --whitespace=nowarn `pwd`/firmware/patches/routing/*.patch
 git -C feeds/packages am --whitespace=nowarn `pwd`/firmware/patches/packages/*.patch
-rm -rf firmware
+rm -rf firmware tmp
 
 make defconfig
 make menuconfig
