@@ -519,6 +519,9 @@ function collect_switch_info(device)
 		case 'tp-link-tl-wr841n-nd-v9':
 			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
 			break;
+		case 'tp-link-cpe210-v1-0':
+			obj.port_map = [['_',0], ['lan0',5], ['lan1',4]];
+			break;
 	}
 
 	//create generic ports string
