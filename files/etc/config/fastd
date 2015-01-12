@@ -3,7 +3,7 @@ config fastd 'default'
 	option enabled 1
 	option syslog_level 'info'
 	list bind 'any interface "br-wan"'
-	list method 'salsa2012+gmac'
+	list method 'salsa2012+umac'
 	option secure_handshakes 1
 	option mode 'tap'
 	option interface 'fastd_mesh'
