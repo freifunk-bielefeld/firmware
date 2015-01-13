@@ -5,18 +5,30 @@ START=19
 
 #allow/block access via ssh/https
 set_access() {
-	local default_target src port s
+	local src port default_target target
 	local access_from=`uci get -q freifunk.@settings[0].access_from`
 
 	echo "(I) Freifunk: access_from: '$access_from'"
 
+	#remove existing rules
+	for src in wan private public; do
+		for port in 22 443; do
+			local s="firewall.${src}${port}"
+			uci delete -q $s
+		done
+	done
+
 	find_default_target() {
-		local s="$1" src="$2" n=""
-		config_get n "$s" name
-		[ "$src" == "$n" ] && { config_get default_target "$s" input; return 1; }
+		local s="$1" src="$2" name
+
+		config_get name "$s" 'name'
+		if [ "$src" == "$name" ]; then
+			config_get default_target "$s" 'input'
+			return 1
+		fi
 	}
 
-	#filter ssh/https ports
+	#add rule to allow/reject ssh/https access
 	config_load firewall
 	for src in wan private public; do
 		default_target=""
@@ -24,7 +36,8 @@ set_access() {
 		list_contains access_from "$src" && target=ACCEPT || target=REJECT
 		[ "$target" = "$default_target" ] && continue
 		for port in 22 443; do
-			s=firewall.`uci add firewall rule`
+			local s="firewall.${src}${port}"
+			uci set $s=rule
 			uci set $s.src=$src
 			uci set $s.dest_port=$port
 			uci set $s.target=$target
