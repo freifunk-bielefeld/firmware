@@ -4,19 +4,31 @@ START=19
 
 
 #allow/block access via ssh/https
-config_access() {
-	local default_target src port s
+set_access() {
+	local src port default_target target
 	local access_from=`uci get -q freifunk.@settings[0].access_from`
 
 	echo "(I) Freifunk: access_from: '$access_from'"
 
+	#remove existing rules
+	for src in wan private public; do
+		for port in 22 443; do
+			local s="firewall.${src}${port}"
+			uci delete -q $s
+		done
+	done
+
 	find_default_target() {
-		local s="$1" src="$2" n=""
-		config_get n "$s" name
-		[ "$src" == "$n" ] && { config_get default_target "$s" input; return 1; }
+		local s="$1" src="$2" name
+
+		config_get name "$s" 'name'
+		if [ "$src" == "$name" ]; then
+			config_get default_target "$s" 'input'
+			return 1
+		fi
 	}
 
-	#filter ssh/https ports
+	#add rule to allow/reject ssh/https access
 	config_load firewall
 	for src in wan private public; do
 		default_target=""
@@ -24,7 +36,8 @@ config_access() {
 		list_contains access_from "$src" && target=ACCEPT || target=REJECT
 		[ "$target" = "$default_target" ] && continue
 		for port in 22 443; do
-			s=firewall.`uci add firewall rule`
+			local s="firewall.${src}${port}"
+			uci set $s=rule
 			uci set $s.src=$src
 			uci set $s.dest_port=$port
 			uci set $s.target=$target
@@ -33,20 +46,65 @@ config_access() {
 	done
 }
 
+#batman-adv wants unique MACs for each interface
+set_macs() {
+	network_set_macaddr() {
+		local s="$1"
+		local proto
+
+		config_get proto $s "proto"
+
+		if [ $proto = "batadv" ]; then
+			#generate and set a random MAC
+			uci set network.$s.macaddr=$(echo -n 02; dd bs=1 count=5 if=/dev/random 2>/dev/null |hexdump -v -e '/1 ":%02X"')
+		fi
+	}
+
+	config_load network
+	config_foreach network_set_macaddr interface
+}
+
+#create an IPv6 ULA-address based on EUI-64
+ula_addr() {
+	local prefix=$1
+	local mac=$2
+
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=`printf '%02x\n' $a` #convert back to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	mac=${mac//:/} # remove ':'
+	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
+	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
+
+	# assemble IPv6 address
+	echo "${prefix%%::*}:${mac%?}"
+}
+
+#set the ULA IPv6 address for br-public based on the MAC
+set_ula() {
+	local prefix
+	local mac
+
+	prefix=$(uci get network.globals.ula_prefix)
+	mac=$(uci get network.public.macaddr)
+	if [ -n "$mac" -a -n "$prefix" ]; then
+		uci delete -q network.private.ip6addr
+		uci add_list network.public.ip6addr="$(ula_addr $prefix $mac)/64"
+	fi
+}
+
 start()
 {
-exec >/tmp/freifunk_init.log 2>&1
-. /lib/functions.sh
+	exec >/tmp/freifunk_init.log 2>&1
 
+	echo "(I) Freifunk: start freifunk_init"
 
-if [ -f /etc/init.d/freifunk_setup ]; then
-	echo "(I) Freifunk: Skip and wait for /etc/init.d/freifunk_setup to be run."
-	exit
-fi
+	set_access
+	set_macs
+	set_ula
 
-echo "(I) Freifunk: start freifunk_init"
-
-config_access
-
-echo "(I) Freifunk: done freifunk_init"
+	echo "(I) Freifunk: done freifunk_init"
 }

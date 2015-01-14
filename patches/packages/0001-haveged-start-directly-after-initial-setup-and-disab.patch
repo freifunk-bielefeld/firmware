@@ -1,12 +1,12 @@
-From 900bf10e79d8629dcf7e2f350d3d3a49e7b55e9b Mon Sep 17 00:00:00 2001
+From 8df44ba2c50767c97db6f409a34738ffbc1f0bd6 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sat, 25 Oct 2014 14:08:45 +0200
 Subject: [PATCH 1/2] haveged: start directly after initial setup and disable
  tests
 
 ---
- utils/haveged/Makefile           |    5 +++--
- utils/haveged/files/haveged.init |    2 +-
+ utils/haveged/Makefile           | 5 +++--
+ utils/haveged/files/haveged.init | 2 +-
  2 files changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/utils/haveged/Makefile b/utils/haveged/Makefile
@@ -39,5 +39,5 @@ index ce28e61..113d64f 100644
  HAVEGED_THRESHOLD=1024
  HAVEGED_DCACHE=32
 -- 
-1.7.10.4
+2.1.4
 

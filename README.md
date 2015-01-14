@@ -24,9 +24,9 @@ cd openwrt
 git clone -b development https://github.com/saraedum/firmware.git
 cp -rf firmware/files firmware/package firmware/.config .
 git am --whitespace=nowarn firmware/patches/openwrt/*.patch
-git -C feeds/routing am --whitespace=nowarn `pwd`/firmware/patches/routing/*.patch
-git -C feeds/packages am --whitespace=nowarn `pwd`/firmware/patches/packages/*.patch
-rm -rf firmware
+cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
+cd feeds/packages && git am --whitespace=nowarn ../../firmware/patches/packages/*.patch && cd -
+rm -rf firmware tmp
 
 make defconfig
 make menuconfig

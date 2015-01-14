@@ -4,24 +4,6 @@
 
 START=99
 
-#create an IPv6 ULA-address based on EUI-64
-ula_addr() {
-	local prefix=$1
-	local mac=$2
-
-	# translate to local administered mac
-	a=${mac%%:*} #cut out first hex
-	a=$((0x$a ^ 2)) #invert second least significant bit
-	a=`printf '%02x\n' $a` #convert back to hex
-	mac="$a:${mac#*:}" #reassemble mac
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
 
 initial_wifi_setup()
 {
@@ -137,7 +119,7 @@ initial_wifi_setup()
 initial_private_setup()
 {
 	local private_interfaces="$1"
-	echo "(I) Setup private network interfaces."
+	echo "(I) Setup private network."
 
 	uci delete -q network.lan
 	uci delete -q network.private
@@ -156,9 +138,8 @@ initial_private_setup()
 initial_public_setup()
 {
 	local public_interfaces="$1" mac="$2"
-	local prefix="fdef:17a0:ffb1:300::/64"
 
-	echo "(I) Setup public interfaces."
+	echo "(I) Setup public network."
 
 	uci delete -q network.public
 	uci set network.public="interface"
@@ -167,7 +148,6 @@ initial_public_setup()
 	uci set network.public.ipaddr="192.168.132.1"
 	uci set network.public.macaddr="$mac"
 	uci delete -q network.public.ip6addr
-	uci add_list network.public.ip6addr="$(ula_addr $prefix $mac)/64"
 	uci set network.public.proto=static
 	uci set network.public.netmask="255.255.255.0"
 	uci set network.public.igmp_snooping="0"
@@ -184,7 +164,7 @@ initial_public_setup()
 initial_wan_setup()
 {
 	local wan_interfaces="$1"
-	echo "(I) Setup WAN interfaces."
+	echo "(I) Setup WAN network."
 
 	uci -q delete network.wan
 	uci -q delete network.wan6
@@ -251,7 +231,6 @@ initial_setup()
 	uci set -q network.globals="globals"
 	uci set network.globals.ula_prefix="$prefix"
 	echo "192.168.132.1 node" >> /etc/hosts
-	echo "$(ula_addr $prefix $mac) node" >> /etc/hosts
 
 	# ------------------------------------- #
 	# F R E I F U N K  S E T U P #
@@ -299,7 +278,7 @@ initial_setup()
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
-	echo -e "\n#disable forwarding in order for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
+	echo -e "\n#disable forwarding in order for router-solicitations to be set for these interfaces" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
 
@@ -353,7 +332,6 @@ update_03_to_04()
 	uci set -q network.globals="globals"
 	uci set network.globals.ula_prefix="$prefix"
 	echo "192.168.132.1 node" >> /etc/hosts
-	echo "$(ula_addr $prefix $mac) node" >> /etc/hosts
 
 	echo "(I) Disable forwarding on br-public/br-private."
 	echo -e "\n#disable forwarding in roder for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf

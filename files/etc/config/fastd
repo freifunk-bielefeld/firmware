@@ -1,10 +1,13 @@
 
 config fastd 'default'
 	option enabled 1
-	option syslog_level 'info'
+	option syslog_level 'warn'
 	list bind 'any interface "br-wan"'
-	list method 'salsa2012+gmac'
+	list method 'salsa2012+umac'
 	option secure_handshakes 1
+	option hide_ip_addresses '1'
+	option hide_mac_addresses '1'
+	option status_socket '/var/run/fastd.status'
 	option mode 'tap'
 	option interface 'fastd_mesh'
 	option mtu 1406

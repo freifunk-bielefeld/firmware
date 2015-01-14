@@ -42,8 +42,7 @@ print 'uptime' "${uptime##*up}"
 print 'uname' "$(uname -s -m -r)"
 print 'date' "$(date)"
 
-kill -s SIGUSR1 $(cat /var/run/fastd.default.pid)
-if [ -n "$(logread -l 5 | awk '/fastd/ && /peer/ && /connected/')" ]; then
+if [ $(sockread /var/run/fastd.status 2> /dev/null | grep  -c '"connection": {') -gt 0 ]; then
 	print 'has_vpn' 'Ja'
 else
 	print 'has_vpn' 'Nein'
