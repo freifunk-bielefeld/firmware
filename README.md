@@ -1,4 +1,4 @@
-##Firmware for Freifunk Bielefeld
+##Firmware for Freifunk Ulm
 
 The firmware turns a common wireless router into a mesh networking device.
 It connects to similar routers in the area and builds a Wifi-mesh network
