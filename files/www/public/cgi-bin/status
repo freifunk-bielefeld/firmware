@@ -67,36 +67,6 @@ if [ -n "$max" -a "$max" != "0" ]; then
 	echo '</ul>'
 fi
 %>
-<%
-echo '<h2 class="content-subhead">Liste der Nachbarknoten:</h2>'
-ula_addr() {
-	local prefix=$1
-	local mac=$2
-
-	# translate to local administered mac
-	a=${mac%%:*} #cut out first hex
-	a=$((0x$a ^ 2)) #invert second least significant bit
-	a=`printf '%02x\n' $a` #convert back to hex
-	mac="$a:${mac#*:}" #reassemble mac
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=`echo $mac | sed 's/..../&:/g'` # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
-
-prefix="$(uci get network.globals.ula_prefix)"
-echo '<ul>'
-IFS="
-"
-for mac in $(batctl o -H | grep 'No' -v | cut -b 37-53 | sort | uniq); do
-	addr="$(ula_addr $prefix $mac)"
-	echo "	<li><h3><a href=\"http://[$addr]\">$mac</a></h3></li>"
-done
-echo '</ul>'
-%>
 	</div>
 </body>
 </html>
