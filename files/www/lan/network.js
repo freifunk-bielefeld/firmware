@@ -5,7 +5,7 @@ The GUI code displayes and manipulated this variable.
 */
 var uci = {};
 var gid = 0;
-var net_options = [["Private", "private"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
+var net_options = [["LAN", "lan"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
 
 function init()
 {
@@ -131,8 +131,8 @@ function getNetMode(ifname)
 	if(inArray(ifname, split(n.public.ifname)))
 		return "public";
 
-	if(inArray(ifname, split(n.private.ifname)))
-		return "private";
+	if(inArray(ifname, split(n.lan.ifname)))
+		return "lan";
 
 	if(inArray(ifname, split(n.wan.ifname)))
 		return "wan";
@@ -148,7 +148,7 @@ function getWifiMode(id)
 	var obj = uci.wireless[id];
 
 	if(obj.network == "public") return "public";
-	if(obj.network == "private") return "private";
+	if(obj.network == "lan") return "lan";
 	if(obj.network == "wan") return "wan";
 	if(obj.mode == "adhoc") return "mesh";
 
@@ -238,8 +238,8 @@ function addNetSection(ifname, mode)
 	case "wan":
 		n.wan.ifname = addItem(n.wan.ifname, ifname);
 		break;
-	case "private":
-		n.private.ifname = addItem(n.private.ifname, ifname);
+	case "lan":
+		n.lan.ifname = addItem(n.lan.ifname, ifname);
 		break;
 	case "public":
 		n.public.ifname = addItem(n.public.ifname, ifname);
@@ -264,7 +264,7 @@ function delNetSection(ifname)
 			delete n[id];
 	});
 
-	n.private.ifname = removeItem(n.private.ifname, ifname);
+	n.lan.ifname = removeItem(n.lan.ifname, ifname);
 	n.public.ifname = removeItem(n.public.ifname, ifname);
 
 	n.pchanged = true;
@@ -306,8 +306,8 @@ function addWifiSection(device, mode)
 	case "public":
 		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":s.default_ap_ssid,"network":"public"};
 		break;
-	case "private":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"private"};
+	case "lan":
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"lan"};
 		break;
 	default:
 		return alert("mode error '"+mode+"' "+device);
@@ -346,11 +346,11 @@ function rebuild_wifi()
 		for(var sid in obj)
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
 
-		var private_help = "<b>Private</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
+		var lan_help = "<b>LAN</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
 		var public_help = "<b>Public</b>: Der WLAN-Zugang zum Freifunk-Netz.";
 		var mesh_help = "<b>Mesh</b>: Das WLAN-Netz \xfcber das die Router untereinander kommunizieren.";
 		var wan_help = "<b>WAN</b>: Erm\xf6glicht den Internetzugang eines anderen, herk\xf6mmlichen Routers zu nutzen (nutzt WDS).";
-		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["Private","private", private_help], ["Public","public", public_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
+		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["LAN","lan", lan_help], ["Public","public", public_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
 		var parent = append(fs, "div");
 
 		//print wireless interfaces
@@ -587,7 +587,7 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 		var add_ifname = guess_vlan_ifname(swinfo, add_vlan, 2);
 
 		delNetSection(add_ifname);
-		addNetSection(add_ifname, "private");
+		addNetSection(add_ifname, "lan");
 		addVlanSection(switch_device, add_vlan, ports_none);
 
 		rebuild_switches();

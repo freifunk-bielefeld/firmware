@@ -9,9 +9,9 @@ config uhttpd public
 	option tcp_keepalive 1
 	option config "_"
 
-config uhttpd private
+config uhttpd lan
 	list listen_https 443
-	option home /www/private
+	option home /www/lan
 	option rfc1918_filter 1
 	option cert /etc/uhttpd.crt
 	option key /etc/uhttpd.key

@@ -88,7 +88,7 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "access_from":
-		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
+		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["LAN","lan"], ["Public","public"]]);
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
 	case "service_link":

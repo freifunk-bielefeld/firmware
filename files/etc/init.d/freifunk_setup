@@ -116,23 +116,22 @@ initial_wifi_setup()
 	config_foreach config_wifi wifi-device
 }
 
-initial_private_setup()
+initial_lan_setup()
 {
-	local private_interfaces="$1"
-	echo "(I) Setup private network."
+	local lan_interfaces="$1"
+	echo "(I) Setup lan network."
 
 	uci delete -q network.lan
-	uci delete -q network.private
-	uci set network.private="interface"
-	uci set network.private.type="bridge"
-	uci set network.private.ifname="$private_interfaces"
-	uci set network.private.ipaddr="192.168.133.1"
-	uci delete -q network.private.ip6addr
-	uci set network.private.proto=static
-	uci set network.private.netmask="255.255.255.0"
-	uci set network.private.igmp_snooping="0"
-	uci set network.private.force_link="1"
-	uci set network.private.bridge_empty="1"
+	uci set network.lan="interface"
+	uci set network.lan.type="bridge"
+	uci set network.lan.ifname="$lan_interfaces"
+	uci set network.lan.ipaddr="192.168.133.1"
+	uci delete -q network.lan.ip6addr
+	uci set network.lan.proto=static
+	uci set network.lan.netmask="255.255.255.0"
+	uci set network.lan.igmp_snooping="0"
+	uci set network.lan.force_link="1"
+	uci set network.lan.bridge_empty="1"
 }
 
 initial_public_setup()
@@ -204,8 +203,8 @@ initial_setup()
 	local wan_interface=$(uci get -q network.wan.ifname)
 	echo "(I) WAN interface: '$wan_interface'"
 
-	local private_interface=$(uci get -q network.lan.ifname)
-	echo "(I) Private interface: '$private_interface'"
+	local lan_interface=$(uci get -q network.lan.ifname)
+	echo "(I) LAN interface: '$lan_interface'"
 
 	local ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
 	echo "(I) AdHoc SSID: '$ah_ssid'"
@@ -249,7 +248,7 @@ initial_setup()
 	# P R I V A T E  S E T U P #
 	# ------------------------------------- #
 
-	initial_private_setup "$private_interface"
+	initial_lan_setup "$lan_interface"
 
 	# ------------------------------------- #
 	# P U B L I C  S E T U P #
@@ -280,7 +279,7 @@ initial_setup()
 
 	echo -e "\n#disable forwarding in order for router-solicitations to be set for these interfaces" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.br-lan.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Generate a key for fastd."
 	local secret=`fastd --generate-key --machine-readable`
@@ -333,10 +332,10 @@ update_03_to_04()
 	uci set network.globals.ula_prefix="$prefix"
 	echo "192.168.132.1 node" >> /etc/hosts
 
-	echo "(I) Disable forwarding on br-public/br-private."
+	echo "(I) Disable forwarding on br-public/br-lan."
 	echo -e "\n#disable forwarding in roder for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.br-private.forwarding=0" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.br-lan.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Remove dummy interfaces."
 	uci delete -q network.dummy_mesh
@@ -348,10 +347,13 @@ update_03_to_04()
 	initial_public_setup "${ifname/dummy_public/}" "$mac"
 
 	local ifname=$(uci get -q network.private.ifname)
-	initial_private_setup "${ifname/dummy_private/}"
+	initial_lan_setup "${ifname/dummy_private/}"
 
 	local ifname=$(uci get -q network.wan.ifname)
 	initial_wan_setup "$ifname"
+
+	echo "(I) Remove old 'private' section."
+	uci delete -q network.private
 
 	wireless_fixup_device() {
 		local cfg="$1" type hwmode
@@ -385,9 +387,9 @@ update_03_to_04()
 			uci set network.public.ifname="${pif/$ifname/}"
 		fi
 
-		pif="$(uci get network.private.ifname)"
+		pif="$(uci get network.lan.ifname)"
 		if [ "$pif" != "${pif/$ifname/}" ]; then
-			uci set network.private.ifname="${pif/$ifname/}"
+			uci set network.lan.ifname="${pif/$ifname/}"
 		fi
 	}
 

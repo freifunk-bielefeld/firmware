@@ -1,5 +1,5 @@
 
-config dnsmasq private
+config dnsmasq lan
 	option domainneeded '1'
 	option boguspriv '1'
 	option filterwin2k '0'
@@ -10,12 +10,12 @@ config dnsmasq private
 	option nonegcache '0'
 	option authoritative '1'
 	option readethers '1'
-	option leasefile '/tmp/dhcp.private.leases'
+	option leasefile '/tmp/dhcp.lan.leases'
 	option resolvfile '/tmp/resolv.conf.auto'
 	option add_local_domain '0'
 	option add_local_hostname '0'
 	option bind_dynamic '1'
-	list interface 'br-private'
+	list interface 'br-lan'
 
 config dnsmasq public
 	option domainneeded '1'
@@ -42,7 +42,7 @@ config odhcpd 'odhcpd'
 	option leasetrigger '/usr/sbin/odhcpd-update'
 
 config dhcp
-	option interface private
+	option interface lan
 	option start 100
 	option limit 150
 	option leasetime 2h
@@ -50,7 +50,7 @@ config dhcp
 	list dhcp_option '6,192.168.133.1'
 	option ra relay
 	option ndp relay
-	option dnsmasq_config private
+	option dnsmasq_config lan
 
 config dhcp
 	option interface public
