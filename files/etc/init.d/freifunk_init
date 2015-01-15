@@ -85,11 +85,9 @@ ula_addr() {
 
 #set the ULA IPv6 address for br-public based on the MAC
 set_ula() {
-	local prefix
-	local mac
+	local prefix=$(uci get network.globals.ula_prefix)
+	local mac=$(uci get network.public.macaddr)
 
-	prefix=$(uci get network.globals.ula_prefix)
-	mac=$(uci get network.public.macaddr)
 	if [ -n "$mac" -a -n "$prefix" ]; then
 		uci delete -q network.private.ip6addr
 		uci add_list network.public.ip6addr="$(ula_addr $prefix $mac)/64"
