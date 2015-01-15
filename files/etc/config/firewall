@@ -105,9 +105,9 @@ config include
 #
 
 config zone
-	option name		public
-	list network		public
-	list network		public6
+	option name		freifunk
+	list network		freifunk
+	list network		freifunk6
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
@@ -115,7 +115,7 @@ config zone
 
 config forwarding
 	option src		lan
-	option dest 		public
+	option dest 		freifunk
 
 
 ###
@@ -123,7 +123,7 @@ config forwarding
 ###
 
 #config redirect
-#        option src       public
+#        option src       freifunk
 #        option src_dport 20-21
 #        option proto     tcp
 #        option dest      lan
@@ -134,7 +134,7 @@ config forwarding
 ###
 
 #config redirect
-#        option src       public
+#        option src       freifunk
 #        option src_dport 445
 #        option proto     tcp
 #        option dest      lan

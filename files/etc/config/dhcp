@@ -17,7 +17,7 @@ config dnsmasq lan
 	option bind_dynamic '1'
 	list interface 'br-lan'
 
-config dnsmasq public
+config dnsmasq freifunk
 	option domainneeded '1'
 	option boguspriv '1'
 	option filterwin2k '0'
@@ -28,12 +28,12 @@ config dnsmasq public
 	option nonegcache '0'
 	option authoritative '1'
 	option readethers '1'
-	option leasefile '/tmp/dhcp.public.leases'
-	option resolvfile '/tmp/resolv.conf.public.auto'
+	option leasefile '/tmp/dhcp.freifunk.leases'
+	option resolvfile '/tmp/resolv.conf.freifunk.auto'
 	option add_local_domain '0'
 	option add_local_hostname '0'
 	option bind_dynamic '1'
-	list interface 'br-public'
+	list interface 'br-freifunk'
 	list notinterface 'lo'
 
 config odhcpd 'odhcpd'
@@ -53,7 +53,7 @@ config dhcp
 	option dnsmasq_config lan
 
 config dhcp
-	option interface public
+	option interface freifunk
 	option start 100
 	option limit 150
 	option leasetime 2h
@@ -62,7 +62,7 @@ config dhcp
 	option ra relay
 	option ndp relay
 	option master 1
-	option dnsmasq_config public
+	option dnsmasq_config freifunk
 
 config dhcp wan
 	option interface wan

@@ -72,9 +72,9 @@ initial_wifi_setup()
 		add_ap_interface() {
 			p=wireless.`uci add wireless wifi-iface`
 			uci set $p.device="$wifi_device"
-			uci set $p.ifname="${wifi_device}_public"
+			uci set $p.ifname="${wifi_device}_freifunk"
 			uci set $p.mode=ap
-			uci set $p.network=public
+			uci set $p.network=freifunk
 			uci set $p.ssid="$ap_ssid"
 			uci set $p.encryption="none"
 		}
@@ -87,7 +87,7 @@ initial_wifi_setup()
 
 		check_wifi_interfaces() {
 			ip addr list dev "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
-			ip addr list dev "${wifi_device}_public" &> /dev/null && ap_ok=1 || ap_ok=0
+			ip addr list dev "${wifi_device}_freifunk" &> /dev/null && ap_ok=1 || ap_ok=0
 		}
 
 		add_ah_interface
@@ -134,29 +134,29 @@ initial_lan_setup()
 	uci set network.lan.bridge_empty="1"
 }
 
-initial_public_setup()
+initial_freifunk_setup()
 {
-	local public_interfaces="$1" mac="$2"
+	local freifunk_interfaces="$1" mac="$2"
 
-	echo "(I) Setup public network."
+	echo "(I) Setup freifunk network."
 
-	uci delete -q network.public
-	uci set network.public="interface"
-	uci set network.public.type="bridge"
-	uci set network.public.ifname="$public_interfaces"
-	uci set network.public.ipaddr="192.168.132.1"
-	uci set network.public.macaddr="$mac"
-	uci delete -q network.public.ip6addr
-	uci set network.public.proto=static
-	uci set network.public.netmask="255.255.255.0"
-	uci set network.public.igmp_snooping="0"
-	uci set network.public.force_link="1"
-	uci set network.public.bridge_empty="1"
+	uci delete -q network.freifunk
+	uci set network.freifunk="interface"
+	uci set network.freifunk.type="bridge"
+	uci set network.freifunk.ifname="$freifunk_interfaces"
+	uci set network.freifunk.ipaddr="192.168.132.1"
+	uci set network.freifunk.macaddr="$mac"
+	uci delete -q network.freifunk.ip6addr
+	uci set network.freifunk.proto=static
+	uci set network.freifunk.netmask="255.255.255.0"
+	uci set network.freifunk.igmp_snooping="0"
+	uci set network.freifunk.force_link="1"
+	uci set network.freifunk.bridge_empty="1"
 
-	uci set network.public6="interface"
-	uci set network.public6.ifname="@public"
-	uci set network.public6.peerdns="0"
-	uci set network.public6.proto="dhcpv6"
+	uci set network.freifunk6="interface"
+	uci set network.freifunk6.ifname="@freifunk"
+	uci set network.freifunk6.peerdns="0"
+	uci set network.freifunk6.proto="dhcpv6"
 
 }
 
@@ -254,7 +254,7 @@ initial_setup()
 	# P U B L I C  S E T U P #
 	# ------------------------------------- #
 
-	initial_public_setup "bat0" "$mac"
+	initial_freifunk_setup "bat0" "$mac"
 
 	# ------------------------------------- #
 	# W A N  S E T U P #
@@ -278,7 +278,7 @@ initial_setup()
 	cp /etc/config/network /etc/config/network_defaults
 
 	echo -e "\n#disable forwarding in order for router-solicitations to be set for these interfaces" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.br-freifunk.forwarding=0" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-lan.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Generate a key for fastd."
@@ -332,9 +332,9 @@ update_03_to_04()
 	uci set network.globals.ula_prefix="$prefix"
 	echo "192.168.132.1 node" >> /etc/hosts
 
-	echo "(I) Disable forwarding on br-public/br-lan."
+	echo "(I) Disable forwarding on br-freifunk/br-lan."
 	echo -e "\n#disable forwarding in roder for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.br-public.forwarding=0" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.br-freifunk.forwarding=0" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-lan.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Remove dummy interfaces."
@@ -344,7 +344,7 @@ update_03_to_04()
 
 	echo "(I) Rebuild public/private/wan sections."
 	local ifname=$(uci get -q network.public.ifname)
-	initial_public_setup "${ifname/dummy_public/}" "$mac"
+	initial_freifunk_setup "${ifname/dummy_public/}" "$mac"
 
 	local ifname=$(uci get -q network.private.ifname)
 	initial_lan_setup "${ifname/dummy_private/}"
@@ -352,8 +352,9 @@ update_03_to_04()
 	local ifname=$(uci get -q network.wan.ifname)
 	initial_wan_setup "$ifname"
 
-	echo "(I) Remove old 'private' section."
+	echo "(I) Remove old private/public sections."
 	uci delete -q network.private
+	uci delete -q network.public
 
 	wireless_fixup_device() {
 		local cfg="$1" type hwmode
@@ -382,9 +383,9 @@ update_03_to_04()
 			uci delete -q network.$ifname.ifname
 		fi
 
-		pif="$(uci get network.public.ifname)"
+		pif="$(uci get network.freifunk.ifname)"
 		if [ "$pif" != "${pif/$ifname/}" ]; then
-			uci set network.public.ifname="${pif/$ifname/}"
+			uci set network.freifunk.ifname="${pif/$ifname/}"
 		fi
 
 		pif="$(uci get network.lan.ifname)"

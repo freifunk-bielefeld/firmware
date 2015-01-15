@@ -11,7 +11,7 @@ set_access() {
 	echo "(I) Freifunk: access_from: '$access_from'"
 
 	#remove existing rules
-	for src in wan lan public; do
+	for src in wan lan freifunk; do
 		for port in 22 443; do
 			local s="firewall.${src}${port}"
 			uci delete -q $s
@@ -30,7 +30,7 @@ set_access() {
 
 	#add rule to allow/reject ssh/https access
 	config_load firewall
-	for src in wan lan public; do
+	for src in wan lan freifunk; do
 		default_target=""
 		config_foreach find_default_target 'zone' $src
 		list_contains access_from "$src" && target=ACCEPT || target=REJECT
@@ -83,14 +83,14 @@ ula_addr() {
 	echo "${prefix%%::*}:${mac%?}"
 }
 
-#set the ULA IPv6 address for br-public based on the MAC
+#set the ULA IPv6 address for br-freifunk based on the MAC
 set_ula() {
 	local prefix=$(uci get network.globals.ula_prefix)
-	local mac=$(uci get network.public.macaddr)
+	local mac=$(uci get network.freifunk.macaddr)
 
 	if [ -n "$mac" -a -n "$prefix" ]; then
 		uci delete -q network.lan.ip6addr
-		uci add_list network.public.ip6addr="$(ula_addr $prefix $mac)/64"
+		uci add_list network.freifunk.ip6addr="$(ula_addr $prefix $mac)/64"
 	fi
 }
 

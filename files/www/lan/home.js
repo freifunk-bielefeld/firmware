@@ -38,11 +38,11 @@ function init() {
 	});
 
 	addHelpText($("system"), "Eine \xdcbersicht \xfcber den Router.");
-	addHelpText($("public"), "Das \xf6ffentliche Freifunknetz..");
+	addHelpText($("freifunk"), "Das \xf6ffentliche Freifunknetz..");
 	addHelpText($("lan"), "Das private Netz bzw. LAN.");
 	addHelpText($("wan"), "Das Netz \xfcber dass das Internet erreicht wird.");
 	addHelpText($("software"), "Einige installierte Softwareversionen.");
-	addHelpText($("public_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
+	addHelpText($("freifunk_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
 	addHelpText($("lan_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
 	addHelpText($("has_vpn"), "Status der VPN-Verbindung zum Server im Internet.");
 }

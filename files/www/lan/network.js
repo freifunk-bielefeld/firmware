@@ -5,7 +5,7 @@ The GUI code displayes and manipulated this variable.
 */
 var uci = {};
 var gid = 0;
-var net_options = [["LAN", "lan"], ["Public", "public"], ["Mesh", "mesh"], ["WAN", "wan"]];
+var net_options = [["LAN", "lan"], ["Freifunk", "freifunk"], ["Mesh", "mesh"], ["WAN", "wan"]];
 
 function init()
 {
@@ -68,7 +68,7 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
 		break;
 	case "encryption":
-		if(mode == "public" || mode == "mesh")
+		if(mode == "freifunk" || mode == "mesh")
 			return
 		b = append_selection(p, "Verschl\xfcsselung", id, value, [["Keine", "none"],["WPA", "psk"], ["WPA2", "psk2"]]);
 		break;
@@ -81,13 +81,13 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
-		if(mode == "public" || mode == "mesh")
+		if(mode == "freifunk" || mode == "mesh")
 			if(!adv_mode)
 				b.lastChild.disabled = "disabled";
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "macaddr":
-		if(!adv_mode || path[1] != "public") return;
+		if(!adv_mode || path[1] != "freifunk") return;
 		b = append_input(p, "MAC-Adresse", id, value);
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
 		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
@@ -128,8 +128,8 @@ function getNetMode(ifname)
 {
 	var n = uci.network;
 
-	if(inArray(ifname, split(n.public.ifname)))
-		return "public";
+	if(inArray(ifname, split(n.freifunk.ifname)))
+		return "freifunk";
 
 	if(inArray(ifname, split(n.lan.ifname)))
 		return "lan";
@@ -147,7 +147,7 @@ function getWifiMode(id)
 {
 	var obj = uci.wireless[id];
 
-	if(obj.network == "public") return "public";
+	if(obj.network == "freifunk") return "freifunk";
 	if(obj.network == "lan") return "lan";
 	if(obj.network == "wan") return "wan";
 	if(obj.mode == "adhoc") return "mesh";
@@ -165,7 +165,7 @@ function rebuild_other()
 
 	if('network' in uci) {
 		var n = uci['network'];
-		var b = appendSetting(fs, ['network', 'public', "macaddr"], n['public']["macaddr"]);
+		var b = appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
 		if(b) show(root);
 	}
 }
@@ -241,8 +241,8 @@ function addNetSection(ifname, mode)
 	case "lan":
 		n.lan.ifname = addItem(n.lan.ifname, ifname);
 		break;
-	case "public":
-		n.public.ifname = addItem(n.public.ifname, ifname);
+	case "freifunk":
+		n.freifunk.ifname = addItem(n.freifunk.ifname, ifname);
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
@@ -265,7 +265,7 @@ function delNetSection(ifname)
 	});
 
 	n.lan.ifname = removeItem(n.lan.ifname, ifname);
-	n.public.ifname = removeItem(n.public.ifname, ifname);
+	n.freifunk.ifname = removeItem(n.freifunk.ifname, ifname);
 
 	n.pchanged = true;
 }
@@ -303,8 +303,8 @@ function addWifiSection(device, mode)
 		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
-	case "public":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":s.default_ap_ssid,"network":"public"};
+	case "freifunk":
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":s.default_ap_ssid,"network":"freifunk"};
 		break;
 	case "lan":
 		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"lan"};
@@ -347,10 +347,10 @@ function rebuild_wifi()
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
 
 		var lan_help = "<b>LAN</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
-		var public_help = "<b>Public</b>: Der WLAN-Zugang zum Freifunk-Netz.";
+		var freifunk_help = "<b>Freifunk</b>: Der WLAN-Zugang zum Freifunk-Netz.";
 		var mesh_help = "<b>Mesh</b>: Das WLAN-Netz \xfcber das die Router untereinander kommunizieren.";
 		var wan_help = "<b>WAN</b>: Erm\xf6glicht den Internetzugang eines anderen, herk\xf6mmlichen Routers zu nutzen (nutzt WDS).";
-		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["LAN","lan", lan_help], ["Public","public", public_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
+		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["LAN","lan", lan_help], ["Freifunk","freifunk", freifunk_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
 		var parent = append(fs, "div");
 
 		//print wireless interfaces
