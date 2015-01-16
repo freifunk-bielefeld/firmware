@@ -21,7 +21,7 @@ cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-git clone -b development https://github.com/saraedum/firmware.git
+git clone https://github.com/ffulm/firmware.git
 cp -rf firmware/files firmware/package firmware/.config .
 git am --whitespace=nowarn firmware/patches/openwrt/*.patch
 cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
