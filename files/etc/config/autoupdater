@@ -24,3 +24,4 @@ config branch stable
 	# List of public keys
 	list pubkey '4320668c6858faa064d2f205c538bafb7b042600eef6a7503258d7355d01e4f8' #mwarning
 	list pubkey '0cd4235f202dc147b9bac22eb70cf201e704bb24a80b7c1ff96a7b6f2e248817' #saraedum
+	list pubkey '65c273c3fab43f81b8620d30700a30ed49d8035c3072941cadd94f1339a7e850' #foschum
