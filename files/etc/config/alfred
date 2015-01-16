@@ -1,6 +1,6 @@
 
 config 'alfred' 'alfred'
-	option interface 'br-public'
+	option interface 'br-freifunk'
 	option mode 'slave'
 	option batmanif 'bat0'
 	option start_vis '0'

@@ -7,8 +7,8 @@ config defaults
 #	option disable_ipv6	1
 
 config zone
-	option name		private
-	list   network		'private'
+	option name		lan
+	list   network		'lan'
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
@@ -24,7 +24,7 @@ config zone
 	option mtu_fix		1
 
 config forwarding
-	option src		private
+	option src		lan
 	option dest		wan
 
 # We need to accept udp packets on port 68,
@@ -102,41 +102,40 @@ config include
 
 #
 #Additional rules to the OpenWRT default firewall entries above.
-#Only 'lan' has been replaced by 'private'.
 #
 
 config zone
-	option name		public
-	list network		public
-	list network		public6
+	option name		freifunk
+	list network		freifunk
+	list network		freifunk6
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
 	option masq		1
 
 config forwarding
-	option src		private
-	option dest 		public
+	option src		lan
+	option dest 		freifunk
 
 
 ###
-### Example 1: forward port 20-21 to ftp-server on my private network
+### Example 1: forward port 20-21 to ftp-server on my lan network
 ###
 
 #config redirect
-#        option src       public
+#        option src       freifunk
 #        option src_dport 20-21
 #        option proto     tcp
-#        option dest      private
+#        option dest      lan
 #        option dest_ip   192.168.1.5
 
 ###
-### Example 2: forward port 445 to smb-server on my private network
+### Example 2: forward port 445 to smb-server on my lan network
 ###
 
 #config redirect
-#        option src       public
+#        option src       freifunk
 #        option src_dport 445
 #        option proto     tcp
-#        option dest      private
+#        option dest      lan
 #        option dest_ip   192.168.1.5

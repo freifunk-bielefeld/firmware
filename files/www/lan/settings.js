@@ -78,17 +78,17 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Soll dieser Knoten auf der Knotenkarte angezeigt werden?");
 		break;
 	case "limit_egress":
-		b = append_input(p, "Public Upload", id, value);
+		b = append_input(p, "Freifunk Upload", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Upload ist ung\xfcltig.");
 		addHelpText(b, "Maximaler Upload in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "limit_ingress":
-		b = append_input(p, "Public Download", id, value);
+		b = append_input(p, "Freifunk Download", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Download ist ung\xfcltig.");
 		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandweitenkontrolle.");
 		break;
 	case "access_from":
-		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["Private","private"], ["Public","public"]]);
+		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["LAN","lan"], ["Freifunk","freifunk"]]);
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
 	case "service_link":
