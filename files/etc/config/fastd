@@ -28,3 +28,19 @@ config peer 'vpn2'
 	option key 'dfb46c9b5237199b3256508b7a21d4055152d53df5adef0314a962b0ce297640'
 	list remote '"vpn2.ulm.freifunk.net" port 1244'
 	option float 0
+
+config peer 'vpn3'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key '7a6a679880776608b23b037c5efe209433f6c0f1a2e160cf83759334c3367dee'
+	list remote '"vpn3.ulm.freifunk.net" port 1244'
+	option float 0
+
+config peer 'vpn4'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key 'bf2ad179bce3daed29ddaabb7643f7937829de015263480a12c0a77e68b12924'
+	list remote '"vpn4.ulm.freifunk.net" port 1244'
+	option float 0
