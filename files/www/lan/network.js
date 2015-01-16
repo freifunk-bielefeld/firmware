@@ -498,6 +498,7 @@ function collect_switch_info(device)
 	switch(uci.misc.data.model)
 	{
 		case 'tp-link-tl-wdr3600-v1':
+		case 'tp-link-tl-wdr4300-v1':
 			obj.port_map = [['_',0], ['WAN',1], ['1',2], ['2',3], ['3',4], ['4',5]];
 			break;
 		case 'tp-link-tl-wr1043n-nd-v1':
