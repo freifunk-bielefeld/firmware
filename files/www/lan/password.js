@@ -15,7 +15,7 @@ function apply()
 		setText('msg', "(E) Die Passw&ouml;rter sind nicht identisch.");
 		return;
 	} else {
-		setText('msg', "(E) Das Passwort wird ge&auml;ndert. Bitte Seite neu laden.");
+		setText('msg', "(I) Das Passwort wird ge&auml;ndert. Bitte die Seite neu laden.");
 	}
 
 	send("/cgi-bin/password", { func : "set_password", pass1 : p1, pass2 : p2 }, function(data) {
