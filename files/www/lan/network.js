@@ -508,6 +508,7 @@ function collect_switch_info(device)
 			obj.port_map = [['WAN',5], ['1',4], ['2',3], ['3',2], ['4',1],['_', 0]];
 			obj.ifname = "eth1";
 			break;
+		case 'tp-link-tl-wr741n-nd-v4':
 		case 'tp-link-tl-wr841n-nd-v3':
 		case 'tp-link-tl-wr841n-nd-v5':
 		case 'tp-link-tl-wr841n-nd-v7':
