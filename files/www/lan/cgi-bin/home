@@ -18,7 +18,7 @@ print() {
 
 printList() {
 	for item in $2; do
-		echo "  list $1 '$item'"
+		echo "	list $1 '$item'"
 	done
 }
 
