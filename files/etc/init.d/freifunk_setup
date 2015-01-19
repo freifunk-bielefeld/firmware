@@ -301,6 +301,7 @@ update_03_to_04()
 	cp /rom/etc/config/autoupdater /etc/config/
 	cp /rom/etc/config/dhcp /etc/config/
 	cp /rom/etc/config/firewall /etc/config/
+	cp /rom/etc/config/uhttpd /etc/config/
 	cp /rom/etc/config/batman-adv /etc/config/
 	cp /rom/etc/crontabs/root /etc/crontabs/
 	cp /rom/etc/firewall.user /etc/
