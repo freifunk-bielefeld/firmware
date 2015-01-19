@@ -448,6 +448,9 @@ update_03_to_04()
 	local access_from="$(uci get freifunk.@settings[0].config_nets)"
 	local default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
 
+	access_from="${access_from/private/lan}"
+	access_from="${access_from/public/freifunk}"
+
 	cp /rom/etc/config/freifunk /etc/config/
 	cp /rom/etc/config/system /etc/config/
 
