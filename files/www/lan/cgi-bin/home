@@ -18,7 +18,7 @@ print() {
 
 printList() {
 	for item in $2; do
-		echo "  list $1 '$item'"
+		echo "	list $1 '$item'"
 	done
 }
 
@@ -64,7 +64,7 @@ name="$(uci get -q freifunk.@settings[0].name)"
 print 'name' "${name:--}"
 print 'model' "$(cat /tmp/sysinfo/model 2> /dev/null)"
 print 'freifunk_user_count' "$(batctl tl 2> /dev/null | grep -c 'W')"
-print 'lan_user_count' "$(cat /tmp/dhcp.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l)"
+print 'lan_user_count' "$(cat /tmp/dhcp.lan.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l)"
 print 'lan_rx_bytes' "$(cat /sys/class/net/br-lan/statistics/rx_bytes 2> /dev/null)"
 print 'lan_tx_bytes' "$(cat /sys/class/net/br-lan/statistics/tx_bytes 2> /dev/null)"
 print 'freifunk_rx_bytes' "$(cat /sys/class/net/br-freifunk/statistics/rx_bytes 2> /dev/null)"

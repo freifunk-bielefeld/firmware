@@ -301,6 +301,7 @@ update_03_to_04()
 	cp /rom/etc/config/autoupdater /etc/config/
 	cp /rom/etc/config/dhcp /etc/config/
 	cp /rom/etc/config/firewall /etc/config/
+	cp /rom/etc/config/uhttpd /etc/config/
 	cp /rom/etc/config/batman-adv /etc/config/
 	cp /rom/etc/crontabs/root /etc/crontabs/
 	cp /rom/etc/firewall.user /etc/
@@ -447,6 +448,9 @@ update_03_to_04()
 	local hostname="$(uci get system.@system[0].hostname)"
 	local access_from="$(uci get freifunk.@settings[0].config_nets)"
 	local default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
+
+	access_from="${access_from/private/lan}"
+	access_from="${access_from/public/freifunk}"
 
 	cp /rom/etc/config/freifunk /etc/config/
 	cp /rom/etc/config/system /etc/config/
