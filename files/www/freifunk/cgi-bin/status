@@ -24,7 +24,7 @@ if [ -n "$geo" ]; then
 	echo "				<li><a href=\"https://www.openstreetmap.org?mlat=$lat&mlon=$lon&zoom=17\">Position: ${lat:0:8}N, ${lon:0:8}E</a></li>"
 fi
 %>
-				<li><button type="submit" class="pure-button" onclick="window.location.href='https://'+location.host;">Login</button></li>
+				<li><form action="https://<% echo -n "$HTTP_HOST" %>"><button type="submit" class="pure-button">Login</button></form></li>
 			</ul>
 		</div>
 	</div>
