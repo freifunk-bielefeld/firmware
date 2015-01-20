@@ -89,7 +89,7 @@ set_ula() {
 	local mac=$(uci get network.freifunk.macaddr)
 
 	if [ -n "$mac" -a -n "$prefix" ]; then
-		uci delete -q network.lan.ip6addr
+		uci delete -q network.freifunk.ip6addr
 		uci add_list network.freifunk.ip6addr="$(ula_addr $prefix $mac)/64"
 	fi
 }
