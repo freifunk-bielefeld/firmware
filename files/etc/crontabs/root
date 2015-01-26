@@ -5,4 +5,4 @@
 #publish service data
 */5 * * * * /usr/sbin/print_service.sh -p
 #reboot every 5 days at 04:05
-1 4 */5 * * /sbin/reboot
+5 4 */5 * * /sbin/reboot
