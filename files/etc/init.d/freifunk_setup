@@ -307,8 +307,8 @@ update_03_to_04()
 	cp /rom/etc/sysctl.conf /etc/
 	cp /rom/etc/profile /etc/
 	cp /rom/etc/inittab /etc/
-	cp /rom/etc/uhttpd.crt /etc/
-	cp /rom/etc/uhttpd.key /etc/
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 	rm /etc/config/6relayd
 	rm /etc/config/simple_tc
 
