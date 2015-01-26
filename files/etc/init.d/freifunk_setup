@@ -496,7 +496,9 @@ start()
 			/etc/init.d/telnet disable
 			;;
 		*)
-			echo "(E) Unknown version => Skip setup."
+			echo "(I) No configuration updater set. Only version will be updated."
+			uci set -q freifunk.@settings[0].version="$to_version"
+			uci commit -q freifunk
 			;;
 	esac
 
