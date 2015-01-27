@@ -368,9 +368,10 @@ update_03_to_04()
 	}
 
 	wireless_fixup_iface() {
-		local cfg="$1" mode ifname pif
+		local cfg="$1" mode ifname network pif
 		config_get mode $cfg "mode"
 		config_get ifname $cfg "ifname"
+		config_get network $cfg "network"
 
 		uci delete -q wireless.$cfg.ifname
 
@@ -380,6 +381,16 @@ update_03_to_04()
 			uci set wireless.$cfg.mcast_rate=12000
 
 			uci delete -q network.$ifname.ifname
+		fi
+
+		if [ "$mode" = "ap" ]; then
+			if [ "$network" = "public" ]; then
+				uci set wireless.$cfg.network="freifunk"
+			fi
+
+			if [ "$network" = "private" ]; then
+				uci set wireless.$cfg.network="lan"
+			fi
 		fi
 
 		pif="$(uci get network.freifunk.ifname)"
