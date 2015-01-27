@@ -393,11 +393,13 @@ update_03_to_04()
 			fi
 		fi
 
+		#remove wireless interface name from bridge 'freifunk'
 		pif="$(uci get network.freifunk.ifname)"
 		if [ "$pif" != "${pif/$ifname/}" ]; then
 			uci set network.freifunk.ifname="${pif/$ifname/}"
 		fi
 
+		#remove wireless interface name from bridge 'lan'
 		pif="$(uci get network.lan.ifname)"
 		if [ "$pif" != "${pif/$ifname/}" ]; then
 			uci set network.lan.ifname="${pif/$ifname/}"
