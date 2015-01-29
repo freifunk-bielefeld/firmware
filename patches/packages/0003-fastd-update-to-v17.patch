@@ -1,7 +1,7 @@
-From 0cd5ace36efdbf27a90624630a9bfd7f1daca3fa Mon Sep 17 00:00:00 2001
+From f2fa3d9be2d7c8ebaf9115fb867f6f846d913144 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Thu, 8 Jan 2015 13:52:20 +0100
-Subject: [PATCH 2/2] fastd: update to v16
+Subject: [PATCH 3/3] fastd: update to v17
 
 ---
  net/fastd/Config.in          |  29 ++-
@@ -73,24 +73,30 @@ index ca4045c..5820b97 100644
  
  endmenu
 diff --git a/net/fastd/Makefile b/net/fastd/Makefile
-index 0629cd7..5140029 100644
+index 0629cd7..027f549 100644
 --- a/net/fastd/Makefile
 +++ b/net/fastd/Makefile
+@@ -1,5 +1,5 @@
+ #
+-# Copyright (C) 2012-2014 OpenWrt.org
++# Copyright (C) 2012-2015 OpenWrt.org
+ #
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
 @@ -8,19 +8,24 @@
  include $(TOPDIR)/rules.mk
  
  PKG_NAME:=fastd
 -PKG_VERSION:=14
--PKG_RELEASE:=1
-+PKG_VERSION:=16
-+PKG_RELEASE:=2
++PKG_VERSION:=17
+ PKG_RELEASE:=1
  
  PKG_MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 -PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/75
 -PKG_MD5SUM:=34f6bdebd0410a1fba7c8fd06fff7a05
-+PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/78
-+PKG_MD5SUM:=135b3083d2743e335738de3bd4bb0c3c
++PKG_SOURCE_URL:=https://projects.universe-factory.net/attachments/download/81
++PKG_MD5SUM:=bad4f1948702f418b799578f83a0edb8
 +
 +PKG_LICENSE:=BSD-2-Clause
 +PKG_LICENSE_FILES:=COPYRIGHT
