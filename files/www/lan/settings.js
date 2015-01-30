@@ -73,7 +73,7 @@ function appendSetting(p, path, value, mode)
 			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
 		break;
-	case "map_publish":
+	case "publish_map":
 		b = append_radio(p, "Zur Karte beitragen", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		addHelpText(b, "Soll dieser Knoten auf der Knotenkarte angezeigt werden?");
 		break;
@@ -135,7 +135,7 @@ function rebuild_general()
 		var i = firstSectionID(f, "settings");
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
 		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
-		appendSetting(gfs, ['freifunk', i, "map_publish"], f[i]["map_publish"]);
+		appendSetting(gfs, ['freifunk', i, "publish_map"], f[i]["publish_map"]);
 		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
 		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);
 		appendSetting(rfs, ['freifunk', i, "service_link"], f[i]["service_link"]);

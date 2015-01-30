@@ -3,7 +3,7 @@ config settings
 	option 'name' ''
 	option 'geo' ''
 	option 'version' '' #will be set on first boot
-	option 'map_publish' '1'
+	option 'publish_map' '1'
 	option 'access_from' 'lan'
 	option 'service_link' ''
 	option 'service_label' ''
