@@ -22,7 +22,7 @@ cd openwrt
 ./scripts/feeds install -a
 
 git clone -b development https://github.com/freifunk-bielefeld/firmware.git
-cp -rf firmware/files firmware/package firmware/.config .
+cp -rf firmware/files firmware/package .
 git am --whitespace=nowarn firmware/patches/openwrt/*.patch
 cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
 cd feeds/packages && git am --whitespace=nowarn ../../firmware/patches/packages/*.patch && cd -
