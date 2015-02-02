@@ -425,6 +425,15 @@ update_03_to_04()
 		fi
 	}
 
+	network_trim_ifname() {
+		local cfg="$1" ifname
+
+		config_get ifname $cfg "ifname"
+
+		trim() { echo $@; }
+		uci set network.$cfg.ifname="$(trim $ifname)"
+	}
+
 	[ -n "$wan_proto" ] && uci set network.wan.proto="$wan_proto"
 	[ -n "$wan_ipaddr" ] && uci set network.wan.ipaddr="$wan_ipaddr"
 	[ -n "$wan_gateway" ] && uci set network.wan.gateway="$wan_gateway"
@@ -438,6 +447,7 @@ update_03_to_04()
 	config_load network
 	config_foreach network_change_mtu interface
 	config_foreach network_fixup_ifce interface
+	config_foreach network_trim_ifname interface
 	uci commit network
 
 	local switch_name="$(uci get -q network.@switch[0].name)"
