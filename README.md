@@ -9,7 +9,7 @@ To build the firmware you need a Unix console to enter commands into.
 Install dependencies for the build environment (Debian/Ubuntu):
 
 <pre>
-sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-essential
+sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-essential gettext
 </pre>
 
 Build commands for the console:
