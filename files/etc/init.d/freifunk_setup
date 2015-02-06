@@ -155,7 +155,6 @@ initial_freifunk_setup()
 
 	uci set network.freifunk6="interface"
 	uci set network.freifunk6.ifname="@freifunk"
-	uci set network.freifunk6.peerdns="0"
 	uci set network.freifunk6.proto="dhcpv6"
 }
 
