@@ -74,11 +74,13 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "In einem anderen Netz anmelden (Client) oder das Anmelden anderer Ger\xe4te zulassen (AccessPoint).");
 		break;
 	case "encryption":
-		if(mode == "freifunk" || mode == "mesh")
-			return
+		if(!inArray(mode, ["wan", "lan", "none"]))
+			return;
 		b = append_selection(p, "Verschl\xfcsselung", id, value, [["Keine", "none"],["WPA", "psk"], ["WPA2", "psk2"]]);
 		break;
 	case "key":
+		if(!inArray(mode, ["wan", "lan", "none"]))
+			return;
 		b = append_input(p, "Passwort", id, value);
 		addInputCheck(b.lastChild, /^[\S]{8,32}$/, "Bitte nur ein Passwort aus mindestens acht sichbaren Zeichen verwenden.");
 		break;
@@ -87,9 +89,8 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
-		if(mode == "freifunk" || mode == "mesh")
-			if(!adv_mode)
-				b.lastChild.disabled = "disabled";
+		if(!inArray(mode, ["wan", "lan", "none"]) && !adv_mode)
+			b.lastChild.disabled = "disabled";
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "macaddr":
