@@ -411,7 +411,7 @@ update_03_to_04()
 		config_get proto $cfg "proto"
 		config_get ifname $cfg "ifname"
 
-		if [ $proto = "batadv" ]; then
+		if [ "$proto" = "batadv" ]; then
 			uci delete -q network.$cfg.auto
 		fi
 	}
