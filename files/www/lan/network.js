@@ -177,7 +177,7 @@ function rebuild_assignment()
 	hide(root);
 
 	var fs = append_section(root, "Anschl\xfcsse");
-	addHelpText(fs, "Die Anschl\xfcsse am Router zusammengefasst zu verschiedenen virtuellen Anschl\xfcssen.");
+	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
 
 	var ignore = ["fastd_mesh", "bat0", "local-node", "lo"];
 	var ifnames = [];
