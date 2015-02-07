@@ -226,8 +226,13 @@ function collect_wifi_info(device)
 	return {"modes" : modes};
 }
 
-function capitalise(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
+function modeName(mode) {
+	for(var i in net_options) {
+		if(net_options[i][1] == mode) {
+			return net_options[i][0];
+		}
+	}
+	return mode;
 }
 
 function addNetSection(ifname, mode)
@@ -358,7 +363,7 @@ function rebuild_wifi()
 			if(wobj.device != dev) return;
 
 			var mode = getWifiMode(wid);
-			var title = (mode == "none") ? "'"+wobj.network+"'" : capitalise(mode);
+			var title = (mode == "none") ? "'"+wobj.network+"'" : modeName(mode);
 			var entry = append_section(parent, title, "wireless_"+dev+"_"+mode);
 
 			for(var opt in wobj)
