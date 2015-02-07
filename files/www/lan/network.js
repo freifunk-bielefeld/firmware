@@ -67,6 +67,12 @@ function appendSetting(p, path, value, mode)
 			b.lastChild.disabled = "disabled";
 		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
 		break;
+	case "mode":
+		if(!inArray(mode, ["wan", "none"]))
+			return;
+		b = append_selection(p, "Modus", id, value, [["Client", "sta"],["AccessPoint", "ap"]]);
+		addHelpText(b, "In einem anderen Netz anmelden (Client) oder das Anmelden anderer Ger\xe4te zulassen (AccessPoint).");
+		break;
 	case "encryption":
 		if(mode == "freifunk" || mode == "mesh")
 			return
