@@ -140,7 +140,7 @@ function getNetMode(ifname)
 	if(config_find(n, {"ifname" : ifname, "proto" : "batadv"}))
 		return "mesh";
 
-	return mode;
+	return "none";
 }
 
 function getWifiMode(id)
