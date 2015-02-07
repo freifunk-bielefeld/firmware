@@ -293,6 +293,8 @@ initial_setup()
 update_03_to_04()
 {
 	local prefix="fdef:17a0:ffb1:300::/64"
+	local old_ifnames=""
+	local old_cfgs=""
 
 	echo "(I) Copy/delete some files."
 	cp /rom/etc/config/autoupdater /etc/config/
@@ -372,14 +374,13 @@ update_03_to_04()
 		config_get ifname $cfg "ifname"
 		config_get network $cfg "network"
 
+		append old_ifnames "$ifname"
 		uci delete -q wireless.$cfg.ifname
 
 		if [ "$mode" = "adhoc" ]; then
 			uci set wireless.$cfg.ssid="$ah_ssid"
 			uci set wireless.$cfg.network="$ifname"
 			uci set wireless.$cfg.mcast_rate=12000
-
-			uci delete -q network.$ifname.ifname
 		fi
 
 		if [ "$mode" = "ap" ]; then
@@ -413,6 +414,13 @@ update_03_to_04()
 
 		if [ "$proto" = "batadv" ]; then
 			uci delete -q network.$cfg.auto
+		fi
+
+		if [ -n "$proto" ]; then
+			#remove old interface section
+			if [ "$old_ifnames" != "${old_ifnames/$ifname/}" ]; then
+				append old_cfgs $cfg
+			fi
 		fi
 	}
 
@@ -448,6 +456,12 @@ update_03_to_04()
 	config_foreach network_change_mtu interface
 	config_foreach network_fixup_ifce interface
 	config_foreach network_trim_ifname interface
+
+	echo "(I) Remove obsolete network sections."
+	for cfg in $old_cfgs; do
+		uci delete network.$cfg
+	done
+
 	uci commit network
 
 	local switch_name="$(uci get -q network.@switch[0].name)"
