@@ -1,7 +1,7 @@
-From 2ee6f80d622024d85d49b794f86c9cfede48402a Mon Sep 17 00:00:00 2001
+From 5b5f8d4f770e7275b493d2783caff3e8e9f0f97e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 26 Nov 2014 23:20:33 +0100
-Subject: [PATCH 08/10] ar71xx: refactor ubnt xw board setup
+Subject: [PATCH 10/18] ar71xx: refactor ubnt xw board setup
 
 Signed-off-by: Alexander Couzens <lynxis@fe80.eu>
 ---
