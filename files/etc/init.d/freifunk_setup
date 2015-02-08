@@ -520,7 +520,7 @@ start()
 		"0.3" | "0.3.1")
 			echo "(I) Apply update."
 			update_03_to_04
-			/etc/init.d/fastd enable
+			/etc/init.d/fastd disable
 			/etc/init.d/telnet disable
 			;;
 		"")
