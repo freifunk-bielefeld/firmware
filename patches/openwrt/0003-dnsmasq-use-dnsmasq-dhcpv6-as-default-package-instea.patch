@@ -1,8 +1,8 @@
-From 5c8395b85b88646f33f909d1f24bb91ce5a1642b Mon Sep 17 00:00:00 2001
+From 97d11584f59849204a5018833e778e680e383ee7 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Fri, 30 Jan 2015 14:12:55 +0100
-Subject: [PATCH 1/1] dnsmasq: use dnsmasq-dhcpv6 as default package instead of
- dnsmasq
+Subject: [PATCH 03/18] dnsmasq: use dnsmasq-dhcpv6 as default package instead
+ of dnsmasq
 
 All settings are reset when the Target System is changed. This also
 selects dnsmasq as a default package and this overwrites the binary
