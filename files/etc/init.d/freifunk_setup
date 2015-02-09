@@ -155,9 +155,7 @@ initial_freifunk_setup()
 
 	uci set network.freifunk6="interface"
 	uci set network.freifunk6.ifname="@freifunk"
-	uci set network.freifunk6.peerdns="0"
 	uci set network.freifunk6.proto="dhcpv6"
-
 }
 
 initial_wan_setup()
@@ -192,7 +190,6 @@ initial_wan_setup()
 	uci set network.wan6_unreachable.metric="65535"
 	uci set network.wan6_unreachable.gateway="::"
 	uci set network.wan6_unreachable.interface="loopback"
-
 }
 
 initial_setup()
@@ -296,6 +293,8 @@ initial_setup()
 update_03_to_04()
 {
 	local prefix="fdef:17a0:ffb1:300::/64"
+	local old_ifnames=""
+	local old_cfgs=""
 
 	echo "(I) Copy/delete some files."
 	cp /rom/etc/config/autoupdater /etc/config/
@@ -309,8 +308,8 @@ update_03_to_04()
 	cp /rom/etc/sysctl.conf /etc/
 	cp /rom/etc/profile /etc/
 	cp /rom/etc/inittab /etc/
-	cp /rom/etc/uhttpd.crt /etc/
-	cp /rom/etc/uhttpd.key /etc/
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 	rm /etc/config/6relayd
 	rm /etc/config/simple_tc
 
@@ -370,25 +369,37 @@ update_03_to_04()
 	}
 
 	wireless_fixup_iface() {
-		local cfg="$1" mode ifname pif
+		local cfg="$1" mode ifname network pif
 		config_get mode $cfg "mode"
 		config_get ifname $cfg "ifname"
+		config_get network $cfg "network"
 
+		append old_ifnames "$ifname"
 		uci delete -q wireless.$cfg.ifname
 
 		if [ "$mode" = "adhoc" ]; then
 			uci set wireless.$cfg.ssid="$ah_ssid"
 			uci set wireless.$cfg.network="$ifname"
 			uci set wireless.$cfg.mcast_rate=12000
-
-			uci delete -q network.$ifname.ifname
 		fi
 
+		if [ "$mode" = "ap" ]; then
+			if [ "$network" = "public" ]; then
+				uci set wireless.$cfg.network="freifunk"
+			fi
+
+			if [ "$network" = "private" ]; then
+				uci set wireless.$cfg.network="lan"
+			fi
+		fi
+
+		#remove wireless interface name from bridge 'freifunk'
 		pif="$(uci get network.freifunk.ifname)"
 		if [ "$pif" != "${pif/$ifname/}" ]; then
 			uci set network.freifunk.ifname="${pif/$ifname/}"
 		fi
 
+		#remove wireless interface name from bridge 'lan'
 		pif="$(uci get network.lan.ifname)"
 		if [ "$pif" != "${pif/$ifname/}" ]; then
 			uci set network.lan.ifname="${pif/$ifname/}"
@@ -401,8 +412,15 @@ update_03_to_04()
 		config_get proto $cfg "proto"
 		config_get ifname $cfg "ifname"
 
-		if [ $proto = "batadv" ]; then
+		if [ "$proto" = "batadv" ]; then
 			uci delete -q network.$cfg.auto
+		fi
+
+		if [ -n "$proto" ]; then
+			#remove old interface section
+			if [ "$old_ifnames" != "${old_ifnames/$ifname/}" ]; then
+				append old_cfgs $cfg
+			fi
 		fi
 	}
 
@@ -413,6 +431,15 @@ update_03_to_04()
 		if [ "$mtu" = "1426" ]; then
 			uci set network.$cfg.mtu="1406"
 		fi
+	}
+
+	network_trim_ifname() {
+		local cfg="$1" ifname
+
+		config_get ifname $cfg "ifname"
+
+		trim() { echo $@; }
+		uci set network.$cfg.ifname="$(trim $ifname)"
 	}
 
 	[ -n "$wan_proto" ] && uci set network.wan.proto="$wan_proto"
@@ -428,6 +455,13 @@ update_03_to_04()
 	config_load network
 	config_foreach network_change_mtu interface
 	config_foreach network_fixup_ifce interface
+	config_foreach network_trim_ifname interface
+
+	echo "(I) Remove obsolete network sections."
+	for cfg in $old_cfgs; do
+		uci delete network.$cfg
+	done
+
 	uci commit network
 
 	local switch_name="$(uci get -q network.@switch[0].name)"
@@ -479,14 +513,14 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	from_version="$(uci get -q freifunk.@settings[0].version)"
-	to_version="0.4-rc.3"
+	to_version="0.4-rc.4"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
 		"0.3" | "0.3.1")
 			echo "(I) Apply update."
 			update_03_to_04
-			/etc/init.d/fastd enable
+			/etc/init.d/fastd disable
 			/etc/init.d/telnet disable
 			;;
 		"")

@@ -1,7 +1,7 @@
-From 0292155bfac36691e7fde0620c295a631de1d80e Mon Sep 17 00:00:00 2001
+From 224138904385b7fd957e2f18c662de5eaf4468f8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 26 Nov 2014 19:57:39 +0100
-Subject: [PATCH 06/10] firmware-utils: add new tool tplink-safeloader for the
+Subject: [PATCH 08/18] firmware-utils: add new tool tplink-safeloader for the
  new TP-LINK Pharos devices (CPE210/220/510/520)
 
 The new TP-LINK Pharos series uses a new bootloader, the "TP-LINK Safeloader".

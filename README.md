@@ -9,7 +9,7 @@ To build the firmware you need a Unix console to enter commands into.
 Install dependencies for the build environment (Debian/Ubuntu):
 
 <pre>
-sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-essential
+sudo apt-get install git subversion g++ libncurses5-dev gawk zlib1g-dev build-essential gettext
 </pre>
 
 Build commands for the console:
@@ -22,11 +22,11 @@ cd openwrt
 ./scripts/feeds install -a
 
 git clone https://github.com/ffulm/firmware.git
-cp -rf firmware/files firmware/package firmware/.config .
+cp -rf firmware/files firmware/package .
 git am --whitespace=nowarn firmware/patches/openwrt/*.patch
 cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
 cd feeds/packages && git am --whitespace=nowarn ../../firmware/patches/packages/*.patch && cd -
-rm -rf firmware tmp
+rm -rf firmware .config tmp
 
 make defconfig
 make menuconfig

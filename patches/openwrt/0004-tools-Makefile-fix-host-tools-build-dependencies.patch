@@ -1,7 +1,7 @@
-From 6313f6d6d41512fcaafc510cc20d03026ba631aa Mon Sep 17 00:00:00 2001
+From ac414db70707e73c4344dbf7ebf26411bfa05cb9 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 26 Jul 2014 06:10:23 +0200
-Subject: [PATCH 03/10] tools/Makefile: fix host tools build dependencies
+Subject: [PATCH 04/18] tools/Makefile: fix host tools build dependencies
 
 ---
  tools/Makefile | 14 ++++++++++----

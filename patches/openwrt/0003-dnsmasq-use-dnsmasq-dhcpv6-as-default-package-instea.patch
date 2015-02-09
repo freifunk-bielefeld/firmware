@@ -1,0 +1,29 @@
+From 97d11584f59849204a5018833e778e680e383ee7 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Fri, 30 Jan 2015 14:12:55 +0100
+Subject: [PATCH 03/18] dnsmasq: use dnsmasq-dhcpv6 as default package instead
+ of dnsmasq
+
+All settings are reset when the Target System is changed. This also
+selects dnsmasq as a default package and this overwrites the binary
+of dnsmasq-dhcpv6. So we make dnsmasq-dhcpv6 the default dnsmasq flavor.
+---
+ include/target.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/target.mk b/include/target.mk
+index e36cdd6..9d85973 100644
+--- a/include/target.mk
++++ b/include/target.mk
+@@ -14,7 +14,7 @@ DEVICE_TYPE?=router
+ # Default packages - the really basic set
+ DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools
+ # For router targets
+-DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall odhcpd odhcp6c
++DEFAULT_PACKAGES.router:=dnsmasq-dhcpv6 iptables ip6tables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall odhcpd odhcp6c
+ DEFAULT_PACKAGES.bootloader:=
+ 
+ ifneq ($(DUMP),)
+-- 
+2.1.4
+

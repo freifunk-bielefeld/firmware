@@ -35,8 +35,8 @@ print() {
 }
 
 if [ "$1" = "-p" ]; then
-	map_publish="$(uci get -q freifunk.@settings[0].map_publish 2> /dev/null)"
-	[ "$map_publish" != "1" ] && exit 0
+	publish_map="$(uci get -q freifunk.@settings[0].publish_map 2> /dev/null)"
+	[ "$publish_map" != "1" ] && exit 0
 
 	content="$(print)"
 	if [ -n "$content" ]; then

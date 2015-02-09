@@ -1,7 +1,7 @@
-From 9ffdf04833925ec81562e6c77325489e9f08938a Mon Sep 17 00:00:00 2001
+From 2b47f3f79a3846e69b2a416bb683b3e318c2bd92 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 16 Aug 2014 17:52:34 +0200
-Subject: [PATCH 04/10] ar71xx: correctly detect hardware revision on TP-Link
+Subject: [PATCH 06/18] ar71xx: correctly detect hardware revision on TP-Link
  Archer C5 and C7
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 04/10] ar71xx: correctly detect hardware revision on TP-Link
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 1e96b6d..5aceaee 100755
+index df35775..6694839 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -214,6 +214,13 @@ tplink_board_detect() {
@@ -26,7 +26,7 @@ index 1e96b6d..5aceaee 100755
  	*)
  		hwver=""
  		;;
-@@ -745,7 +752,7 @@ ar71xx_board_detect() {
+@@ -748,7 +755,7 @@ ar71xx_board_detect() {
  	esac
  
  	case "$machine" in
