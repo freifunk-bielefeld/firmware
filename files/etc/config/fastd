@@ -21,6 +21,14 @@ config peer_group 'backbone'
 	option net 'default'
 	option peer_limit '1'
 
+config peer 'vpn1'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key '6262ad51bca4032e330a280212bc4862c5497d329c127bb9c5b0978f681f87fd'
+	list remote '"vpn1.ulm.freifunk.net" port 1244'
+	option float 0
+
 config peer 'vpn2'
 	option enabled 1
 	option net 'default'
