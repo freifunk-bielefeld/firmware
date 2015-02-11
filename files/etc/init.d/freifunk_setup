@@ -271,6 +271,15 @@ initial_setup()
 	uci set $n.proto="batadv"
 	uci set $n.mesh="bat0"
 
+	#special WR1043v2 switch fixup for the webui
+	if [ "$(cat /tmp/sysinfo/model)" = "TP-Link TL-WR1043N/ND v2" ]; then
+		uci set network.@switch_vlan[-2].ports="1 2 3 4 0t"
+		uci set network.@switch_vlan[-1].ports="5 0t"
+		uci set network.lan.ifname="eth1.1"
+		uci set network.wan.ifname="eth1.2"
+		uci commit network
+	fi
+
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
