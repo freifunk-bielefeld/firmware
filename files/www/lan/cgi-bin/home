@@ -1,7 +1,6 @@
 #!/usr/bin/haserl
-content-type: text/plain
-
 <%
+echo -en "content-type: text/plain\r\n\r\n"
 
 addr() {
 	local addr="$(ip -$1 address show dev $2 2> /dev/null | tr '/' ' '| awk '/inet/{ printf("%s ", $2); }')"

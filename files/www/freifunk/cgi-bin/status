@@ -1,6 +1,5 @@
 #!/usr/bin/haserl
-content-type: text/html
-
+<% echo -en "content-type: text/html\r\n\r\n" %>
 <!DOCTYPE html>
 <html lang="de"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
