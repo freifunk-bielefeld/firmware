@@ -335,6 +335,8 @@ update_03_to_04()
 	local wan_proto=$(uci get -q network.wan.proto)
 	local wan_ipaddr=$(uci get -q network.wan.ipaddr)
 	local wan_gateway=$(uci get -q network.wan.gateway)
+	local private_ipaddr=$(uci get -q network.private.ipaddr)
+	local private_netmask=$(uci get -q network.private.netmask)
 
 	echo "(I) Set Prefix and populate /etc/hosts."
 	uci set -q network.globals="globals"
@@ -470,6 +472,10 @@ update_03_to_04()
 	for cfg in $old_cfgs; do
 		uci delete network.$cfg
 	done
+
+	echo "(I) Preserve previous ipaddr/netmask."
+	uci set -q network.lan.ipaddr="$private_ipaddr"
+	uci set -q network.lan.netmask="$private_netmask"
 
 	uci commit network
 
