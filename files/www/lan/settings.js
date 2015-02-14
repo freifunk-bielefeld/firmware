@@ -111,7 +111,7 @@ function appendSetting(p, path, value, mode)
 	case "default_ap_ssid":
 		if(!adv_mode)
 			return;
-		b = append_input(p, "Default AdHoc SSID", id, value);
+		b = append_input(p, "Default AP SSID", id, value);
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "Ung\xfcltiger Name.");
 		addHelpText(b, "Default Name f\xfcr die Freifunk Access-Point SSID. Der erste Teil gibt den Namen der Community an.");
 		break;
