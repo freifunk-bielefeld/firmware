@@ -1,7 +1,6 @@
 #!/usr/bin/haserl --upload-dir=/tmp --upload-limit=12000
-content-type: text/plain
-
 <%
+echo -en "content-type: text/plain\r\n\r\n"
 
 case "${GET_func:-$POST_func}" in
 	apply_firmware)

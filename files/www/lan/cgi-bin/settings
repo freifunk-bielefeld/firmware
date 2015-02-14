@@ -1,7 +1,7 @@
 #!/usr/bin/haserl
-content-type: text/plain
-
 <%
+echo -en "content-type: text/plain\r\n\r\n"
+
 . /lib/functions.sh
 
 case "$GET_func" in
