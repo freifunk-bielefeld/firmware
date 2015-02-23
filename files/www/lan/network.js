@@ -5,7 +5,7 @@ The GUI code displayes and manipulated this variable.
 */
 var uci = {};
 var gid = 0;
-var net_options = [["LAN", "lan"], ["Freifunk", "freifunk"], ["Mesh", "mesh"], ["WAN", "wan"]];
+var net_options = [["LAN", "lan"], ["Freifunk", "freifunk"], ["Mesh", "mesh"], ["WAN", "wan"], ["None", "none"]];
 
 function init()
 {
@@ -186,7 +186,7 @@ function rebuild_assignment()
 	var fs = append_section(root, "Anschl\xfcsse");
 	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
 
-	var ignore = ["fastd_mesh", "bat0", "local-node", "lo"];
+	var ignore = ["fastd_mesh", "bat0", "lo"];
 	var ifnames = [];
 
 	//collect all interfaces
@@ -276,6 +276,7 @@ function delNetSection(ifname)
 			delete n[id];
 	});
 
+	n.wan.ifname = removeItem(n.wan.ifname, ifname);
 	n.lan.ifname = removeItem(n.lan.ifname, ifname);
 	n.freifunk.ifname = removeItem(n.freifunk.ifname, ifname);
 
@@ -671,8 +672,10 @@ function rebuild_switches()
 			if(vobj.device != swinfo.device) return;
 			var ifname = guess_vlan_ifname(swinfo, vobj.vlan, vlans.length);
 			var mode = getNetMode(ifname);
-			delNetSection(ifname);
-			addNetSection(ifname, mode); //makes sure entry exists
+			if(mode != "none") {
+				delNetSection(ifname);
+				addNetSection(ifname, mode); //makes sure entry exists
+			}
 			build_vlan(switch_root, vid, vobj, swinfo, ifname, mode);
 		});
 
