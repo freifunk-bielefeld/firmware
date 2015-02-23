@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+
+START=50
+
+SERVICE_WRITE_PID=1
+SERVICE_DAEMONIZE=1
+
+
+start() {
+	service_start /usr/sbin/simple-radvd -i br-freifunk -p $(uci get network.globals.ula_prefix)
+}
+
+stop() {
+	service_stop /usr/sbin/simple-radvd
+}
