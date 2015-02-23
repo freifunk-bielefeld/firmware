@@ -8,6 +8,7 @@ SERVICE_DAEMONIZE=1
 
 start() {
 	service_start /usr/sbin/simple-radvd -i br-freifunk -p $(uci get network.globals.ula_prefix)
+	service_start /usr/sbin/simple-radvd -i br-lan -p $(uci get network.globals.ula_prefix)
 }
 
 stop() {
