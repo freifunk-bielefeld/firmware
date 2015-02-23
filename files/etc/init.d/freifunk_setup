@@ -58,7 +58,6 @@ initial_wifi_setup()
 			uci set $h.network="${wifi_device}_mesh"
 			uci set $h.ssid="$ah_ssid"
 			uci set $h.bssid="$ah_bssid"
-			uci set $h.mcast_rate=12000
 			uci set $h.hidden=1
 
 			n=network.`uci get $h.network`
@@ -517,6 +516,25 @@ update_03_to_04()
 	uci commit freifunk
 }
 
+update_04_to_041()
+{
+	rm /etc/dnsmasq.conf
+
+	wireless_fixup_iface() {
+		local cfg="$1" mode
+		config_get mode $cfg "mode"
+
+		if [ "$mode" = "adhoc" ]; then
+			uci delete -q wireless.$cfg.mcast_rate
+		fi
+	}
+
+	echo "(I) Update network/wireless settings."
+	config_load wireless
+	config_foreach wireless_fixup_iface wifi-device
+	uci commit wireless
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
@@ -528,26 +546,31 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	from_version="$(uci get -q freifunk.@settings[0].version)"
-	to_version="0.4"
+	to_version="0.4.1"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
 		"0.3" | "0.3.1")
 			echo "(I) Apply update."
 			update_03_to_04
-			/etc/init.d/fastd disable
-			/etc/init.d/telnet disable
+			update_04_to_041
+			;;
+		"0.4")
+			echo "(I) Apply update."
+			update_04_to_041
 			;;
 		"")
 			echo "(I) Start initial setup."
 			initial_setup "$to_version"
-			/etc/init.d/fastd disable
-			/etc/init.d/telnet disable
 			;;
 		*)
 			echo "(E) Unknown version => Skip setup."
 			;;
 	esac
+
+	/etc/init.d/fastd disable
+	/etc/init.d/telnet disable
+	/etc/init.d/simple-radvd enable
 
 	#disable and remove this script
 	/etc/init.d/freifunk_setup disable
