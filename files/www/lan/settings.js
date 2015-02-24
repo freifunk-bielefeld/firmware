@@ -63,6 +63,11 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ \u0080-\u00FF]{0,32}$/, name + " ist ung\xfcltig.");
 		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
+	case "contact":
+		b = append_input(p, "Kontaktdaten", id, value);
+		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ @\u0080-\u00FF]{0,32}$/, "Feld 'Kontaktdaten' ist ung\xfcltig.");
+		addHelpText(b, "Kontaktdaten f\xfcr die \xf6ffentliche Freifunk-Karte und Statusseite. Falls ihr euch von anderen Leuten kontaktieren lassen wollt (z.B. per Email).");
+		break;
 	case "enabled":
 		if(cfg == "autoupdater") {
 			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
@@ -142,6 +147,7 @@ function rebuild_general()
 		var i = firstSectionID(f, "settings");
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
 		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
+		appendSetting(gfs, ['freifunk', i, "contact"], f[i]["contact"]);
 		appendSetting(gfs, ['freifunk', i, "publish_map"], f[i]["publish_map"]);
 		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
 		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);

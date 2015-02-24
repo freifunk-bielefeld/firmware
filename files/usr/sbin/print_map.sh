@@ -8,11 +8,13 @@ print() {
 	local version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
 	local name="$(uci get -q freifunk.@settings[0].name 2> /dev/null)"
 	local geo="$(uci get -q freifunk.@settings[0].geo 2> /dev/null)"
+	local contact="$(uci get -q freifunk.@settings[0].contact 2> /dev/null)"
 
 	echo -n "{"
 
 	[ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
+	[ -n "$contact" ] && echo -n "\"contact\" : \"$contact\", "
 	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 
