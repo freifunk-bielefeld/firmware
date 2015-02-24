@@ -2,6 +2,7 @@
 config settings
 	option 'name' ''
 	option 'geo' ''
+	option 'contact' ''
 	option 'version' '' #will be set on first boot
 	option 'publish_map' '1'
 	option 'access_from' 'lan'

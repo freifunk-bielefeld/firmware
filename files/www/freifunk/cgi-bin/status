@@ -17,6 +17,11 @@
 			<a class="pure-menu-heading" href="http://<% echo -n $(uci get -q freifunk.@settings[0].default_ap_ssid) %>"><% echo -n $(uci get -q freifunk.@settings[0].default_ap_ssid) %></a>
 			<ul>
 <%
+contact=$(uci get -q freifunk.@settings[0].contact)
+if [ -n "$contact" ]; then
+	echo "				<li><a href='#'>Kontakt: $contact</a></li>"
+fi
+
 geo=$(uci get -q freifunk.@settings[0].geo)
 if [ -n "$geo" ]; then
 	lat="${geo%% *}" lon="${geo##* }"
