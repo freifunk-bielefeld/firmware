@@ -54,18 +54,18 @@ function appendSetting(p, path, value, mode)
 	case "geo":
 		b = append_input(p, "GPS-Koordinaten", id, value);
 		b.lastChild.placeholder = "52.02713078 8.52829987";
-		addInputCheck(b.lastChild, /^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Koordinaten sind ung\xfcltig. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
+		addInputCheck(b.lastChild, /^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
 		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
 		b.lastChild.placeholder = "MeinRouter";
-		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ \u0080-\u00FF]{0,32}$/, name + " ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ \u0080-\u00FF]{0,32}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Der Name dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "contact":
 		b = append_input(p, "Kontaktdaten", id, value);
-		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ @\u0080-\u00FF]{0,32}$/, "Feld 'Kontaktdaten' ist ung\xfcltig.");
+		addInputCheck(b.lastChild, /^[\-\^'\w\.\:\[\]\(\)\/ @\u0080-\u00FF]{0,32}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Kontaktdaten f\xfcr die \xf6ffentliche Freifunk-Karte und Statusseite. Falls ihr euch von anderen Leuten kontaktieren lassen wollt (z.B. per Email).");
 		break;
 	case "enabled":
