@@ -508,7 +508,6 @@ update_03_to_04()
 	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
 	uci set freifunk.@settings[0].access_from="$access_from"
-	uci set freifunk.@settings[0].version="$to_version"
 	uci set freifunk.@settings[0].default_ap_ssid="$default_ap_ssid"
 
 	uci commit fastd
@@ -545,8 +544,8 @@ start()
 
 	echo "(I) Start freifunk_setup"
 
-	from_version="$(uci get -q freifunk.@settings[0].version)"
-	to_version="0.4.1"
+	local from_version="$(uci get -q freifunk.@settings[0].version)"
+	local to_version="0.4.1"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
@@ -564,9 +563,12 @@ start()
 			initial_setup "$to_version"
 			;;
 		*)
-			echo "(E) Unknown version => Skip setup."
+			echo "(I) No configuration updater set. Only version will be updated."
 			;;
 	esac
+
+	uci set -q freifunk.@settings[0].version="$to_version"
+	uci commit -q freifunk
 
 	/etc/init.d/fastd disable
 	/etc/init.d/telnet disable
