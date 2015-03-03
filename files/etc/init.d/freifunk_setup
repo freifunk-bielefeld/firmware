@@ -530,7 +530,7 @@ update_04_to_041()
 
 	echo "(I) Update network/wireless settings."
 	config_load wireless
-	config_foreach wireless_fixup_iface wifi-device
+	config_foreach wireless_fixup_iface wifi-iface
 	uci commit wireless
 }
 
