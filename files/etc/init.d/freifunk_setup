@@ -516,6 +516,8 @@ update_03_to_04()
 update_04_to_041()
 {
 	rm /etc/dnsmasq.conf
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
 	wireless_fixup_iface() {
 		local cfg="$1" mode
