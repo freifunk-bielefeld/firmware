@@ -75,8 +75,8 @@ function appendSetting(p, path, value, mode)
 			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version.");
 		}
 		if(cfg == "simple-tc") {
-			b = append_radio(p, "Bandweitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
-			addHelpText(b, "Bandweitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
+			b = append_radio(p, "Bandbreitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Bandbreitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
 		break;
 	case "publish_map":
@@ -86,12 +86,12 @@ function appendSetting(p, path, value, mode)
 	case "limit_egress":
 		b = append_input(p, "Freifunk Upload", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Upload ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Upload in KBit/s f\xfcr die Bandweitenkontrolle.");
+		addHelpText(b, "Maximaler Upload in KBit/s f\xfcr die Bandbreitenkontrolle.");
 		break;
 	case "limit_ingress":
 		b = append_input(p, "Freifunk Download", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Download ist ung\xfcltig.");
-		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandweitenkontrolle.");
+		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandbreitenkontrolle.");
 		break;
 	case "access_from":
 		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["LAN","lan"], ["Freifunk","freifunk"]]);
