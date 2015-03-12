@@ -14,7 +14,7 @@
 <body>
 	<div class="header">
 		<div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
-			<a class="pure-menu-heading" href="http://<% echo -n $(uci get -q freifunk.@settings[0].default_ap_ssid) %>"><% echo -n $(uci get -q freifunk.@settings[0].default_ap_ssid) %></a>
+			<a class="pure-menu-heading" href="http://<% echo -n $(uci get -q freifunk.@settings[0].community) %>.freifunk.net"><% echo -n $(uci get -q freifunk.@settings[0].community) %>.freifunk.net</a>
 			<ul>
 <%
 contact="$(uci get -q freifunk.@settings[0].contact)"
