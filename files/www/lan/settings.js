@@ -114,12 +114,12 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^\d+$/, "Ung\xfcltige Zahl.");
 		addHelpText(b, "Maximale Anzahl der auf der eigenen Statusseite angezeigten Eintr\xe4ge.");
 		break;
-	case "default_ap_ssid":
+	case "community":
 		if(!adv_mode)
 			return;
-		b = append_input(p, "Default AP SSID", id, value);
-		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "Ung\xfcltiger Name.");
-		addHelpText(b, "Default Name f\xfcr die Freifunk Access-Point SSID. Der erste Teil gibt den Namen der Community an.");
+		b = append_input(p, "Community", id, value);
+		addInputCheck(b.lastChild, /^[a-z0-9_\-]{3,30}$/, "Ung\xfcltiger Bezeichner.");
+		addHelpText(b, "Der Bezeichner der Community, zu der dieser Knoten geh\xf6rt.");
 		break;
 	default:
 		return;
@@ -149,12 +149,12 @@ function rebuild_general()
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
 		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
 		appendSetting(gfs, ['freifunk', i, "contact"], f[i]["contact"]);
+		appendSetting(rfs, ['freifunk', i, "community"], f[i]["community"]);
 		appendSetting(gfs, ['freifunk', i, "publish_map"], f[i]["publish_map"]);
 		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
 		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);
 		appendSetting(rfs, ['freifunk', i, "service_link"], f[i]["service_link"]);
 		appendSetting(rfs, ['freifunk', i, "service_display_max"], f[i]["service_display_max"]);
-		appendSetting(rfs, ['freifunk', i, "default_ap_ssid"], f[i]["default_ap_ssid"]);
 	}
 
 	if('autoupdater' in uci) {

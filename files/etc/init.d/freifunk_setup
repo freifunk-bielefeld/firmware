@@ -534,6 +534,18 @@ update_04_to_041()
 	uci commit wireless
 }
 
+update_041_to_042()
+{
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	local default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
+
+	uci delete -q freifunk.@settings[0].default_ap_ssid
+	uci set freifunk.@settings[0].community="${default_ap_ssid%%.*}"
+	uci commit freifunk
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
@@ -545,7 +557,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.4.1"
+	local to_version="0.4.2"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
@@ -553,10 +565,16 @@ start()
 			echo "(I) Apply update."
 			update_03_to_04
 			update_04_to_041
+			update_041_to_042
 			;;
 		"0.4")
 			echo "(I) Apply update."
 			update_04_to_041
+			update_041_to_042
+			;;
+		"0.4.1")
+			echo "(I) Apply update."
+			update_041_to_042
 			;;
 		"")
 			echo "(I) Start initial setup."

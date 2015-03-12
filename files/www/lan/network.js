@@ -317,7 +317,7 @@ function addWifiSection(device, mode)
 		n.pchanged = true;
 		break;
 	case "freifunk":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":s.default_ap_ssid,"network":"freifunk"};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":(s.community+".freifunk.net"),"network":"freifunk"};
 		break;
 	case "lan":
 		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"lan"};

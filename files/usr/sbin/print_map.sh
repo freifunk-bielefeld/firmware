@@ -3,8 +3,7 @@
 #Print out local connection data for map creation
 
 print() {
-	local default_ap_ssid="$(uci get -q freifunk.@settings[0].default_ap_ssid 2> /dev/null)"
-	local community="${default_ap_ssid%%.*}"
+	local community="$(uci get -q freifunk.@settings[0].community 2> /dev/null)"
 	local version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
 	local name="$(uci get -q freifunk.@settings[0].name 2> /dev/null)"
 	local geo="$(uci get -q freifunk.@settings[0].geo 2> /dev/null)"
