@@ -17,7 +17,7 @@ define Package/freifunk-bielefeld-basic
 	DEPENDS:=+kmod-batman-adv +batctl +alfred +sockread\
 		+uhttpd +haserl +uhttpd-mod-tls +px5g \
 		+fastd +ip +odhcpd +simple-radvd \
-		+ebtables +kmod-ebtables-ipv4 +kmod-ebtables-ipv6 \
+		+ebtables +kmod-ebtables-ipv6 \
 		+haveged +autoupdater +simple-tc +@ATH_USER_REGD
 endef
 
