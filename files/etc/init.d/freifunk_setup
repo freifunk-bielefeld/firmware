@@ -10,7 +10,7 @@ initial_wifi_setup()
 	echo "(I) Setup /etc/config/wireless"
 
 	#default SSID
-	local ap_ssid=`uci get freifunk.@settings[0].default_ap_ssid`
+	local ap_ssid="$(uci get freifunk.@settings[0].community).freifunk.net"
 
 	#add batman version to the AdHoc interface SSID
 	local ah_ssid=`uci get freifunk.@settings[0].default_ah_ssid`
