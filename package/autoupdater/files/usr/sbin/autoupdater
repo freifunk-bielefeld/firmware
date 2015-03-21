@@ -35,7 +35,7 @@ fetch_manifest() {
   local MIRROR=$1
   local manifest=$2
 
-  wget -O$manifest "$MIRROR"/manifest
+  wget -T 120 -O$manifest "$MIRROR"/manifest
 
   if test $? -ne 0; then
     echo "Couldn't fetch manifest from $MIRROR" >&2
@@ -110,7 +110,7 @@ fetch_firmware() {
   local MIRROR=$1
   local fw_image=$2
 
-  wget -O$fw_image "${MIRROR}/${fw_file}"
+  wget -T 120 -O$fw_image "${MIRROR}/${fw_file}"
 
   if test $? -ne 0; then
     echo "Error downloading image from $MIRROR" >&2
