@@ -1,7 +1,7 @@
-From 49e497c5c9a92254f9c1cc46a87503a33227ae96 Mon Sep 17 00:00:00 2001
+From e2b32486a487a36dcd7a1f78e53e2cfd76b50062 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 16 Jan 2015 03:49:40 +0100
-Subject: [PATCH 14/18] build: explicitly unexport CONFIG_SITE
+Subject: [PATCH 13/32] build: explicitly unexport CONFIG_SITE
 
 On systems with CONFIG_SITE in the environment (e.g. OpenSUSE) make will export
 the CONFIG_SITE set in include/package.mk by default. This will cause host

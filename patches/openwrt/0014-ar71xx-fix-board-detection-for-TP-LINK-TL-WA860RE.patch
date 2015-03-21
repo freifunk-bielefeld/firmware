@@ -1,7 +1,7 @@
-From 45a4458c298bb513412394eabde1d4ef4a9309c2 Mon Sep 17 00:00:00 2001
+From f26851b6b3706b5a40735220105cf5b40b50273f Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 16 Jan 2015 19:56:39 +0100
-Subject: [PATCH 15/18] ar71xx: fix board detection for TP-LINK TL-WA860RE
+Subject: [PATCH 14/32] ar71xx: fix board detection for TP-LINK TL-WA860RE
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
  1 file changed, 3 insertions(+)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 19cd1a7..b0a0bd6 100755
+index 79b6073..13c5bf2 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -630,6 +630,9 @@ ar71xx_board_detect() {

@@ -1,7 +1,7 @@
-From 2c56156cbe2550f8051d9148403d7bb488ce6d6a Mon Sep 17 00:00:00 2001
+From 86d04b33f086f5e7470ec326538829ae31314baa Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 28 Jan 2015 14:56:03 +0100
-Subject: [PATCH 17/18] ar71xx: fix D-Link DIR-615 rev. C1 WLAN MAC address
+Subject: [PATCH 16/32] ar71xx: fix D-Link DIR-615 rev. C1 WLAN MAC address
 
 Fix the WLAN MAC address to match the one printed on the label by using the
 correct address from the ART instead of the address of the LAN interface.

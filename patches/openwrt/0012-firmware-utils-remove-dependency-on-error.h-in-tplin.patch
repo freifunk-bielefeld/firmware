@@ -1,7 +1,7 @@
-From 9a8b264570d1eecc89ca4b10f1262ef06afa7c11 Mon Sep 17 00:00:00 2001
+From ac786ce0e9dabc29d36d0b69d6aadff923754734 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 11 Jan 2015 09:14:34 +0100
-Subject: [PATCH 13/18] firmware-utils: remove dependency on error.h in
+Subject: [PATCH 12/32] firmware-utils: remove dependency on error.h in
  tplink-safeloader
 
 Fixes build on Mac OS X

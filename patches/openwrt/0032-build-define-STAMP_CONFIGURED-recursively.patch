@@ -1,0 +1,33 @@
+From 20797f4c6a6d13cfe64ea163cbdc655e85867ccd Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Wed, 18 Mar 2015 20:07:22 +0100
+Subject: [PATCH 32/32] build: define STAMP_CONFIGURED recursively
+
+Defining STAMP_CONFIGURED statically caused it not to reflect changes to
+PKG_CONFIG_DEPENDS made after including package.mk, like the additional options
+added by feeds.mk for all packages.
+
+Furthermore, as STAMP_CONFIGURED_WILDCARD was already defined recursively, the
+patsubst in its definition would never match, and in consequence, the stamps
+were never removed. This caused packages not to be rebuilt when they should have
+been.
+---
+ include/package.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/package.mk b/include/package.mk
+index 53ca6de..402fb1a 100644
+--- a/include/package.mk
++++ b/include/package.mk
+@@ -60,7 +60,7 @@ ifneq ($(PREV_STAMP_PREPARED),)
+ else
+   STAMP_PREPARED=$(PKG_BUILD_DIR)/.prepared$(if $(QUILT)$(DUMP),,_$(shell $(call find_md5,${CURDIR} $(PKG_FILE_DEPENDS),))$(call confvar,$(PKG_PREPARED_DEPENDS)))
+ endif
+-STAMP_CONFIGURED:=$(PKG_BUILD_DIR)/.configured$(if $(DUMP),,_$(call confvar,$(PKG_CONFIG_DEPENDS)))
++STAMP_CONFIGURED=$(PKG_BUILD_DIR)/.configured$(if $(DUMP),,_$(call confvar,$(PKG_CONFIG_DEPENDS)))
+ STAMP_CONFIGURED_WILDCARD=$(patsubst %_$(call confvar,$(PKG_CONFIG_DEPENDS)),%_*,$(STAMP_CONFIGURED))
+ STAMP_BUILT:=$(PKG_BUILD_DIR)/.built
+ STAMP_INSTALLED:=$(STAGING_DIR)/stamp/.$(PKG_NAME)_installed
+-- 
+2.1.4
+

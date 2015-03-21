@@ -1,7 +1,7 @@
-From 6a6a84dda217230bc46ece6f1ac57b4eb3ecbc44 Mon Sep 17 00:00:00 2001
+From cfc144772d90c76e13c70654adad4bd0abd1da8c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 28 Jan 2015 15:02:54 +0100
-Subject: [PATCH 16/18] ar71xx: add default LED configuration for D-Link
+Subject: [PATCH 15/32] ar71xx: add default LED configuration for D-Link
  DIR-615 rev. C1
 
 This patch adds an entry in the uci-defaults' led-file to configure the
