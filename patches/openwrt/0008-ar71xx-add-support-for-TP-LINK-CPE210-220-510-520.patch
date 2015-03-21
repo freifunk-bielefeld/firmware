@@ -1,7 +1,7 @@
-From 89a3c9567ee2c1397214c088e3a233081ee04c7c Mon Sep 17 00:00:00 2001
+From 4709523e29fe4f9c1584597dad30056aa5fbbe8c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 26 Nov 2014 19:57:50 +0100
-Subject: [PATCH 09/18] ar71xx: add support for TP-LINK CPE210/220/510/520
+Subject: [PATCH 08/32] ar71xx: add support for TP-LINK CPE210/220/510/520
 
 This adds support for the TP-LINK CPE210/220/510/520 (Pharos series). These
 devices are very similar to the Ubiquiti NanoStations, but with better specs:
@@ -76,7 +76,7 @@ index 4be30b8..78f4992 100755
  rb-2011l | \
  rb-2011uas |\
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 6694839..c13a8eb 100755
+index 1709356..9fb4102 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -229,6 +229,39 @@ tplink_board_detect() {

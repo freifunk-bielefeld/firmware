@@ -1,0 +1,33 @@
+From 04e7e2d2f3242790026bf379525463796bb13060 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Wed, 11 Mar 2015 18:30:54 +0100
+Subject: [PATCH 24/32] uClibc: fix syscall() for syscalls with 6 arguments on
+ PowerPC
+
+Patch from the uClibc master.
+
+Fixes the package fastd on PowerPC.
+---
+ toolchain/uClibc/patches-0.9.33.2/470-powerpc_syscall6.patch | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+ create mode 100644 toolchain/uClibc/patches-0.9.33.2/470-powerpc_syscall6.patch
+
+diff --git a/toolchain/uClibc/patches-0.9.33.2/470-powerpc_syscall6.patch b/toolchain/uClibc/patches-0.9.33.2/470-powerpc_syscall6.patch
+new file mode 100644
+index 0000000..9511dcc
+--- /dev/null
++++ b/toolchain/uClibc/patches-0.9.33.2/470-powerpc_syscall6.patch
+@@ -0,0 +1,10 @@
++--- a/libc/sysdeps/linux/powerpc/syscall.S
+++++ b/libc/sysdeps/linux/powerpc/syscall.S
++@@ -30,6 +30,7 @@ syscall:
++ 	mr 5,6
++ 	mr 6,7
++ 	mr 7,8
+++	mr 8,9
++ 	sc
++ 	bnslr;
++ 
+-- 
+2.1.4
+
