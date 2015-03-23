@@ -536,6 +536,7 @@ update_041_to_042()
 {
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+	cp /rom/etc/config/uhttpd /etc/config/
 
 	local default_ap_ssid="$(uci get freifunk.@settings[0].default_ap_ssid)"
 
