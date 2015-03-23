@@ -155,6 +155,8 @@ initial_freifunk_setup()
 	uci set network.freifunk6="interface"
 	uci set network.freifunk6.ifname="@freifunk"
 	uci set network.freifunk6.proto="dhcpv6"
+	uci set network.freifunk6.reqaddress="none" #slaac only
+	uci set network.freifunk6.reqprefix="no" #disable dhcpv6 /128 request
 }
 
 initial_wan_setup()
@@ -281,10 +283,6 @@ initial_setup()
 
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
-
-	echo -e "\n#disable forwarding in order for router-solicitations to be set for these interfaces" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.br-freifunk.forwarding=0" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.br-lan.forwarding=0" >> /etc/sysctl.conf
 
 	echo "(I) Generate a key for fastd."
 	local secret=`fastd --generate-key --machine-readable`
@@ -544,6 +542,14 @@ update_041_to_042()
 	uci delete -q freifunk.@settings[0].default_ap_ssid
 	uci set freifunk.@settings[0].community="${default_ap_ssid%%.*}"
 	uci commit freifunk
+
+	uci set network.freifunk6.reqaddress="none"
+	uci set network.freifunk6.reqprefix="no"
+	uci commit network
+
+	sed -i "/#disable forwarding.*/d" /etc/sysctl.conf
+	sed -i "/net.ipv6.conf.br-freifunk.forwarding.*/d" /etc/sysctl.conf
+	sed -i "/net.ipv6.conf.br-lan.forwarding.*/d" /etc/sysctl.conf
 }
 
 start()
