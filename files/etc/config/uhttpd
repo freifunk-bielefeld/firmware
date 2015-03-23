@@ -26,15 +26,10 @@ config uhttpd lan
 config cert px5g
 
 	# Validity time
-	option days 730
+	option days 1400
 
 	# RSA key size
-	option bits 1024
-
-	# Location
-	option country DE
-	option state NRW
-	option location Bielefeld
+	option bits 2048
 
 	# Common name
 	option commonname OpenWrt
