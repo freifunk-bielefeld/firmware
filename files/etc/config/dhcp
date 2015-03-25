@@ -48,7 +48,6 @@ config dhcp
 	option leasetime 2h
 	list dhcp_option '3,192.168.133.1'
 	list dhcp_option '6,192.168.133.1'
-	option ra relay
 	option ndp relay
 	option dnsmasq_config lan
 
@@ -59,7 +58,6 @@ config dhcp
 	option leasetime 2h
 	list dhcp_option '3' #no gateway!
 	list dhcp_option '6,192.168.132.1'
-	option ra relay
 	option ndp relay
 	option master 1
 	option dnsmasq_config freifunk
