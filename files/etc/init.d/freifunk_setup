@@ -284,6 +284,15 @@ initial_setup()
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
+	cat >> /etc/sysctl.conf <<  EOF
+
+#increase neighbor table timings by a factor of 10
+net.ipv6.neigh.default.gc_interval=300
+net.ipv6.neigh.default.gc_stale_time=600
+net.ipv6.neigh.default.base_reachable_time=300
+
+EOF
+
 	echo "(I) Generate a key for fastd."
 	local secret=`fastd --generate-key --machine-readable`
 	uci set fastd.default.secret="$secret"
@@ -555,6 +564,15 @@ update_041_to_042()
 	sed -i "/#disable forwarding.*/d" /etc/sysctl.conf
 	sed -i "/net.ipv6.conf.br-freifunk.forwarding.*/d" /etc/sysctl.conf
 	sed -i "/net.ipv6.conf.br-lan.forwarding.*/d" /etc/sysctl.conf
+
+	cat >> /etc/sysctl.conf <<  EOF
+
+#increase neighbor table timings by a factor of 10
+net.ipv6.neigh.default.gc_interval=300
+net.ipv6.neigh.default.gc_stale_time=600
+net.ipv6.neigh.default.base_reachable_time=300
+
+EOF
 }
 
 start()
