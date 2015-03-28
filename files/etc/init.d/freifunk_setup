@@ -286,11 +286,10 @@ initial_setup()
 
 	cat >> /etc/sysctl.conf <<  EOF
 
-#increase neighbor table timings by a factor of 10
+# increase neighbor table timings by a factor of 10
 net.ipv6.neigh.default.gc_interval=300
 net.ipv6.neigh.default.gc_stale_time=600
 net.ipv6.neigh.default.base_reachable_time=300
-
 EOF
 
 	echo "(I) Generate a key for fastd."
@@ -567,11 +566,10 @@ update_041_to_042()
 
 	cat >> /etc/sysctl.conf <<  EOF
 
-#increase neighbor table timings by a factor of 10
+# increase neighbor table timings by a factor of 10
 net.ipv6.neigh.default.gc_interval=300
 net.ipv6.neigh.default.gc_stale_time=600
 net.ipv6.neigh.default.base_reachable_time=300
-
 EOF
 }
 
