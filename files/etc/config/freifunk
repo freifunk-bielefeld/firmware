@@ -3,7 +3,7 @@ config settings
 	option 'name' ''
 	option 'geo' ''
 	option 'contact' ''
-	option community 'ulm'
+	option 'community' 'ulm'
 	option 'version' '' #will be set on first boot
 	option 'publish_map' '1'
 	option 'access_from' 'lan'
