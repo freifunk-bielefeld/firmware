@@ -3,10 +3,11 @@
 
 BRANCH=$(uci get autoupdater.settings.branch)
 
-[ "$1" = "-f" ] && force=1 || force=0
-[ "$1" = "-c" ] && check=1 || check=0
+force=0
+check=0
 
-[ $check -eq 1 ] && force=1
+[ "$1" = "-f" ] && force=1
+[ "$1" = "-c" ] && force=1 && check=1
 
 if [ $force != 1 -a $(uci get autoupdater.settings.enabled) != 1 ]; then
 	echo "autoupdater is disabled"
