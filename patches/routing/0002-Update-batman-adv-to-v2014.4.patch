@@ -1,7 +1,7 @@
-From 55d4f59924148a381c09c379fd512c3c3e2c8243 Mon Sep 17 00:00:00 2001
+From 6f22bbdd67eb32d441f8f4d452f550780155969b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 30 Aug 2014 19:46:55 +0200
-Subject: [PATCH 2/3] Update batman-adv to v2014.4
+Subject: [PATCH 2/4] Update batman-adv to v2014.4
 
 ---
  batctl/Makefile     | 4 ++--
