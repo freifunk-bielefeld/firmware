@@ -1,5 +1,5 @@
-#check for new firmware once an hour
-0 * * * * /usr/sbin/autoupdater
+#check for new firmware at 12am
+0 0 * * * /usr/sbin/autoupdater
 #publish map data
 */5 * * * * /usr/sbin/print_map.sh -p
 #publish service data
