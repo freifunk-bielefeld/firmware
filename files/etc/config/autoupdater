@@ -25,5 +25,4 @@ config branch stable
 	# List of public keys
 	list pubkey '371d244af00790e1d8e0da61d5c01ab32457374e7c33c0bddd334333a91a7a18' #bodems
 	list pubkey '4320668c6858faa064d2f205c538bafb7b042600eef6a7503258d7355d01e4f8' #mwarning
-	list pubkey '1159d1dcec905daf4477c920a70050a7e6ffb6e969818d27252780ac806c78fd' #njumaen
 	list pubkey '4d379d4a9d73260785c013f61d5e483725c1272f385a25a60fc53e1784b89f8f' #iwok
