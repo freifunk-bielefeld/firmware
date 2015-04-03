@@ -271,6 +271,7 @@ initial_setup()
 	uci set $n.mtu=1406
 	uci set $n.proto="batadv"
 	uci set $n.mesh="bat0"
+	uci set $n.mesh_no_rebroadcast="1"
 
 	#special WR1043v2 switch fixup for the webui
 	if [ "$(cat /tmp/sysinfo/model)" = "TP-Link TL-WR1043N/ND v2" ]; then
@@ -573,6 +574,14 @@ net.ipv6.neigh.default.base_reachable_time=300
 EOF
 }
 
+update_042_to_043() {
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	uci set network.fastd_mesh.mesh_no_rebroadcast="1"
+	uci commit network
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
@@ -584,7 +593,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.4.2"
+	local to_version="0.4.3"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
@@ -602,6 +611,10 @@ start()
 		"0.4.1")
 			echo "(I) Apply update."
 			update_041_to_042
+			;;
+		"0.4.2")
+			echo "(I) Apply update."
+			update_042_to_043
 			;;
 		"")
 			echo "(I) Start initial setup."
