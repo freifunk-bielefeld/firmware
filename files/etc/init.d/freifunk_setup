@@ -578,8 +578,22 @@ update_042_to_043() {
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
+	local fastd_enabled="$(uci get fastd.default.enabled)"
+	local fastd_secret="$(uci get fastd.default.secret)"
+	local fastd_key="$(uci get fastd.default.key)"
+
+	cp /rom/etc/config/autoupdater /etc/config/
+	cp /rom/etc/config/batman-adv /etc/config/
+	cp /rom/etc/config/fastd /etc/config/
+	cp /rom/etc/crontabs/root /etc/crontabs/
+
 	uci set network.fastd_mesh.mesh_no_rebroadcast="1"
 	uci commit network
+
+	uci set fastd.default.enabled="$fastd_enabled"
+	uci set fastd.default.secret="$fastd_secret"
+	uci set fastd.default.key="$fastd_key"
+	uci commit fastd
 }
 
 start()
