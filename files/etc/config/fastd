@@ -26,7 +26,7 @@ config peer 'vpn1'
 	option net 'default'
 	option group 'backbone'
 	option key '6262ad51bca4032e330a280212bc4862c5497d329c127bb9c5b0978f681f87fd'
-	list remote '"vpn1.ulm.freifunk.net" port 1244'
+	list remote 'ipv4 "vpn1.ulm.freifunk.net" port 1244'
 	option float 0
 
 config peer 'vpn2'
@@ -34,7 +34,7 @@ config peer 'vpn2'
 	option net 'default'
 	option group 'backbone'
 	option key 'dfb46c9b5237199b3256508b7a21d4055152d53df5adef0314a962b0ce297640'
-	list remote '"vpn2.ulm.freifunk.net" port 1244'
+	list remote 'ipv4 "vpn2.ulm.freifunk.net" port 1244'
 	option float 0
 
 config peer 'vpn3'
@@ -42,7 +42,7 @@ config peer 'vpn3'
 	option net 'default'
 	option group 'backbone'
 	option key '7a6a679880776608b23b037c5efe209433f6c0f1a2e160cf83759334c3367dee'
-	list remote '"vpn3.ulm.freifunk.net" port 1244'
+	list remote 'ipv4 "vpn3.ulm.freifunk.net" port 1244'
 	option float 0
 
 config peer 'vpn4'
@@ -50,7 +50,7 @@ config peer 'vpn4'
 	option net 'default'
 	option group 'backbone'
 	option key 'bf2ad179bce3daed29ddaabb7643f7937829de015263480a12c0a77e68b12924'
-	list remote '"vpn4.ulm.freifunk.net" port 1244'
+	list remote 'ipv4 "vpn4.ulm.freifunk.net" port 1244'
 	option float 0
 
 config peer 'vpn5'
@@ -58,5 +58,5 @@ config peer 'vpn5'
 	option net 'default'
 	option group 'backbone'
 	option key '6c86de370e59200eb45ba23ea850f0d6c9711b3c8099cff2c7c61e031f56ca5b'
-	list remote '"vpn5.ulm.freifunk.net" port 1244'
+	list remote 'ipv4 "vpn5.ulm.freifunk.net" port 1244'
 	option float 0
