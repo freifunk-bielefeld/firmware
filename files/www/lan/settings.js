@@ -54,7 +54,7 @@ function appendSetting(p, path, value, mode)
 	case "geo":
 		b = append_input(p, "GPS-Koordinaten", id, value);
 		b.lastChild.placeholder = "52.02713078 8.52829987";
-		addInputCheck(b.lastChild, /^\d{1,3}\.\d{1,8} +\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
+		addInputCheck(b.lastChild, /^\d{1,3}\.\d{1,8} {1,3}\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
 		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
 		break;
 	case "name":
