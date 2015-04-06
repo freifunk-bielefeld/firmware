@@ -26,7 +26,7 @@ define Build/Prepare
 endef
 
 define Package/freifunk-bielefeld-basic/install
-	#nothing to do here
+	$(CP) ./files/* $(1)/
 endef
 
 define Package/freifunk-bielefeld/conffiles
