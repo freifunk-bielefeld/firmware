@@ -36,7 +36,7 @@ fetch_manifest() {
   local MIRROR=$1
   local manifest=$2
 
-  wget -T 120 -O$manifest "$MIRROR"/manifest
+  wget -T 120 -O$manifest "$MIRROR"/manifest &> /dev/null
 
   if test $? -ne 0; then
     echo "Couldn't fetch manifest from $MIRROR" >&2
@@ -111,7 +111,7 @@ fetch_firmware() {
   local MIRROR=$1
   local fw_image=$2
 
-  wget -T 120 -O$fw_image "${MIRROR}/${fw_file}"
+  wget -T 120 -O$fw_image "${MIRROR}/${fw_file}" &> /dev/null
 
   if test $? -ne 0; then
     echo "Error downloading image from $MIRROR" >&2
@@ -156,7 +156,7 @@ autoupdate() {
     [ $force -eq 0 ] && sleep $APPLY_DELAY
     sysupgrade "${fw_image}"
   else
-    echo "No new firmware available"
+    echo "No new firmware available" >&2
   fi
 
   return 0
@@ -168,7 +168,7 @@ my_model="$(cat /tmp/sysinfo/model | tr '[A-Z]' '[a-z]' | sed -r 's/[^a-z0-9]+/-
 my_version="$(uci get -q freifunk.@settings[0].version)"
 
 lock_dir=/var/lock/autoupdater.lock
-mkdir $lock_dir || exit
+mkdir $lock_dir || { echo "Autoudpater already running" >&2; exit 1; }
 
 #wait up to 15 minutes to spread the load for the server
 [ $force -eq 0 ] && sleep $(awk -v val=$FETCH_DELAY 'BEGIN{srand(); print(int(val * rand()));}')
