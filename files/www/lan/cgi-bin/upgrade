@@ -24,10 +24,10 @@ case "${GET_func:-$POST_func}" in
 		sysupgrade $args $path
 	;;
 	lookup_upgrade)
-		autoupdater -c
+		autoupdater -c 2>&1
 	;;
 	lookup_and_apply_upgrade)
-		autoupdater -f
+		autoupdater -f 2>&1
 	;;
 	restore_firmware)
 		echo "(I) Undo all changes ..."
