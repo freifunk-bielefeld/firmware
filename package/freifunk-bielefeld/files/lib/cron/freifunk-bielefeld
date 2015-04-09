@@ -4,5 +4,3 @@
 */5 * * * * /usr/sbin/print_map.sh -p
 #publish service data
 */5 * * * * /usr/sbin/print_service.sh -p
-#reboot every 5 days at 04:05
-5 4 */5 * * /sbin/reboot

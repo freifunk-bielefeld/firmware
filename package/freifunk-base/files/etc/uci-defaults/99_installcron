@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cat /lib/cron/* /etc/crontabs/root
+
+#execute on every restart before initscripts
+exit 1
