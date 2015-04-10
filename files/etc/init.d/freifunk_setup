@@ -596,6 +596,14 @@ update_042_to_043() {
 	uci commit fastd
 }
 
+update_043_to_044()  {
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	cp /rom/etc/config/batman-adv /etc/config/
+	cp /rom/etc/crontabs/root /etc/crontabs/
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
@@ -607,7 +615,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.4.3"
+	local to_version="0.4.4"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
@@ -629,6 +637,10 @@ start()
 		"0.4.2")
 			echo "(I) Apply update."
 			update_042_to_043
+			;;
+		"0.4.3")
+			echo "(I) Apply update."
+			update_043_to_044
 			;;
 		"")
 			echo "(I) Start initial setup."
