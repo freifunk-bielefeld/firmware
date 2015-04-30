@@ -1,7 +1,7 @@
-From 6f22bbdd67eb32d441f8f4d452f550780155969b Mon Sep 17 00:00:00 2001
+From c6b159cc47ce08db3b35ae9a26dc3cfed855f5cc Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 30 Aug 2014 19:46:55 +0200
-Subject: [PATCH 2/4] Update batman-adv to v2014.4
+Subject: [PATCH 2/4] Update batman-adv to v2015.0
 
 ---
  batctl/Makefile     | 4 ++--
@@ -25,7 +25,7 @@ index ae22286..43c9098 100644
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
 diff --git a/batman-adv/Makefile b/batman-adv/Makefile
-index 889dea7..6909ba8 100644
+index 889dea7..8a932aa 100644
 --- a/batman-adv/Makefile
 +++ b/batman-adv/Makefile
 @@ -10,12 +10,13 @@ include $(TOPDIR)/rules.mk
@@ -33,10 +33,10 @@ index 889dea7..6909ba8 100644
  PKG_NAME:=batman-adv
  
 -PKG_VERSION:=2014.2.0
-+PKG_VERSION:=2014.4.0
++PKG_VERSION:=2015.0
  PKG_RELEASE:=1
 -PKG_MD5SUM:=1243029b3a3e2f4fa721d1a59c2faaf5
-+PKG_MD5SUM:=b1518e84ce530883d224c6ca4c673ce8
++PKG_MD5SUM:=178b082266a8bfb3041178a0c821d843
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
