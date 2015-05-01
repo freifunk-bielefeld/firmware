@@ -290,7 +290,7 @@ initial_setup()
 # increase neighbor table timings by a factor of 10
 net.ipv6.neigh.default.gc_interval=300
 net.ipv6.neigh.default.gc_stale_time=600
-net.ipv6.neigh.default.base_reachable_time=300
+net.ipv6.neigh.default.base_reachable_time_ms=300
 EOF
 
 	echo "(I) Generate a key for fastd."
@@ -570,7 +570,7 @@ update_041_to_042()
 # increase neighbor table timings by a factor of 10
 net.ipv6.neigh.default.gc_interval=300
 net.ipv6.neigh.default.gc_stale_time=600
-net.ipv6.neigh.default.base_reachable_time=300
+net.ipv6.neigh.default.base_reachable_time_ms=300
 EOF
 }
 
@@ -602,6 +602,8 @@ update_043_to_044()  {
 
 	cp /rom/etc/config/batman-adv /etc/config/
 	cp /rom/etc/crontabs/root /etc/crontabs/
+
+	sed -i "s/base_reachable_time/base_reachable_time_ms/" /etc/sysctl.conf
 }
 
 start()
