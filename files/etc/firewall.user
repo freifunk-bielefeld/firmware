@@ -30,3 +30,10 @@ ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
 
 #allow Alfred
 ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff:02::1 --ip6-proto UDP --ip6-dport 16962 -j RETURN
+
+#allow IGMP/ICMP (IPv4)
+ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
+ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol icmp -j RETURN
+
+#allow ARP (IPv4)
+ebtables -A MULTICAST_OUT -p ARP -j RETURN
