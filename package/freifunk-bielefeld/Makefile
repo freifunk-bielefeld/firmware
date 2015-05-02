@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/freifunk-bielefeld-basic
 	SECTION:=base
-	CATEGORY:=Config
+	CATEGORY:=Freifunk
 	DEFAULT:=y
 	TITLE:= Freifunk-Bielefeld Basic
 	URL:=http://freifunk-bielefeld.de
@@ -35,7 +35,7 @@ endef
 
 define Package/freifunk-bielefeld-debug
 	SECTION:=base
-	CATEGORY:=Config
+	CATEGORY:=Freifunk
 	DEFAULT:=n
 	TITLE:=Freifunk-Bielefeld with debug tools
 	DEPENDS:=+freifunk-bielefeld-basic \
