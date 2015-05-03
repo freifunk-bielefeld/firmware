@@ -7,11 +7,6 @@ iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-
 ebtables -F
 ebtables -X
 
-#drop all IPv4 related traffic from bat0
-ebtables -A FORWARD --logical-in br-freifunk -i bat0 -p ! IPv6 -j DROP
-ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p ! IPv6 -j DROP
-ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p ! IPv6 -j DROP
-
 #drop router advertisments from this router
 ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
 
