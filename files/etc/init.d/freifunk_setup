@@ -211,10 +211,15 @@ initial_setup()
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
 	#get a unique MAC address to identify the node
-	local mac=`cat /sys/class/ieee80211/phy0/macaddress`
-	[ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ] && {
-		mac=$(ip addr list dev eth0 | awk '/ether/{print $2}')
-	}
+	local mac=$(cat /sys/class/ieee80211/phy0/macaddress)
+	if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
+		mac=$(cat /sys/class/net/eth0/address)
+		if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
+			#random MAC address
+			mac=$(echo -n 02; dd bs=1 count=5 if=/dev/random 2>/dev/null | hexdump -v -e '/1 ":%02X"')
+		fi
+	fi
+
 	#translate to local administered mac
 	a=${mac%%:*} #cut out first hex
 	a=$((0x$a | 2)) #set second bit to 1
