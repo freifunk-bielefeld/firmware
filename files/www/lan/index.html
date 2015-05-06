@@ -10,6 +10,25 @@
 <script type="text/javascript">
 var html_cache = {};
 var js_cache = {};
+var adv_mode = false;
+
+function adv_apply()
+{
+	var inputs = document.getElementsByClassName('adv_disable');
+	var elems = document.getElementsByClassName('adv_hide');
+
+	for(var i=0;  i < inputs.length; i++)
+		inputs[i].disabled = adv_mode ? "": "disabled";
+	for(var i=0;  i < elems.length; i++)
+		elems[i].style.display = adv_mode ? "block" : "none";
+}
+
+function adv_toggle(e)
+{
+	adv_mode = !adv_mode;
+	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
+	adv_apply();
+}
 
 function nav_onclick() 
 {
@@ -90,7 +109,7 @@ function logout() {
 	<li><a href="password.html">Password</a></li>
 	<li><a href="#" onclick="reboot()">Neustart</a></li>
 	<li><a href="#" onclick="logout()">Logout</a></li>
-	<li><a href="#" onclick="toggle_adv_mode(this)">Erweitert: Aus</a></li>
+	<li><a href="#" onclick="adv_toggle(this)">Erweitert: Aus</a></li>
 </ul>
 <br>
 <pre id="msg" tabindex="-1"></pre>

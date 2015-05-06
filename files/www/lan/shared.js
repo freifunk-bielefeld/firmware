@@ -8,18 +8,6 @@ function removeClass(e, c) { e.classList.remove(c); }
 function setText(id, txt) { $(id).innerHTML = txt; }
 function inArray(item, array) { return array.indexOf(item) != -1; }
 
-/* advanced mode */
-var adv_mode = false;
-
-function toggle_adv_mode(e)
-{
-	adv_mode = !adv_mode;
-	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
-	var elems = document.getElementsByClassName('adv_elem');
-	for(i in elems)
-		adv_mode ? show(elems[i]) : hide(elems[i]);
-}
-
 function split(str)
 {
 	if(typeof str != 'string')

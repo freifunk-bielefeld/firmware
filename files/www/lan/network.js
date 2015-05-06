@@ -15,6 +15,7 @@ function init()
 		rebuild_assignment();
 		rebuild_wifi();
 		rebuild_switches();
+		adv_apply();
 	});
 }
 
@@ -56,15 +57,13 @@ function appendSetting(p, path, value, mode)
 	{
 	case "country":
 		b = append_input(p, "Land", id, value);
-		if(!adv_mode)
-			b.lastChild.disabled = "disabled";
+		addClass(b.lastChild, "adv_disable");
 		break;
 	case "channel":
 		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
 		if(value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
 		b = append_selection(p, "Kanal", id, value, channels);
-		if(!adv_mode)
-			b.lastChild.disabled = "disabled";
+		addClass(b.lastChild, "adv_disable");
 		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
 		break;
 	case "mode":
@@ -89,12 +88,12 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
-		if(!inArray(mode, ["wan", "lan", "none"]) && !adv_mode)
-			b.lastChild.disabled = "disabled";
+		if(!inArray(mode, ["wan", "lan", "none"]))
+			addClass(b.lastChild, "adv_disable");
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 	case "macaddr":
-		if(!adv_mode || path[1] != "freifunk") return;
+		if(path[1] != "freifunk") return;
 		b = append_input(p, "MAC-Adresse", id, value);
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
 		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
@@ -175,6 +174,8 @@ function rebuild_other()
 		var b = appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
 		if(b) show(root);
 	}
+
+	addClass(root, "adv_hide");
 }
 
 function rebuild_assignment()
@@ -382,6 +383,7 @@ function rebuild_wifi()
 				append_button(entry, "L\xf6schen", function() {
 					delWifiSection(dev, mode);
 					rebuild_wifi();
+					adv_apply();
 				});
 			}
 		});
@@ -400,6 +402,7 @@ function rebuild_wifi()
 					delWifiSection(dev, mode);
 				}
 				rebuild_wifi();
+				adv_apply();
 			};
 		});
 	});
@@ -608,6 +611,7 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 
 		rebuild_switches();
 		rebuild_assignment();
+		adv_apply();
 	});
 
 	append_button(buttons, "L\xf6schen", function() {
@@ -651,6 +655,7 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 
 		rebuild_switches();
 		rebuild_assignment();
+		adv_apply();
 	});
 }
 
