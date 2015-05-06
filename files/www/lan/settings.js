@@ -12,6 +12,7 @@ function init()
 	send("/cgi-bin/settings", { func : "get_settings" }, function(data) {
 		uci = fromUCI(data);
 		rebuild_general();
+		adv_apply();
 	});
 }
 
@@ -115,9 +116,8 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Maximale Anzahl der auf der eigenen Statusseite angezeigten Eintr\xe4ge.");
 		break;
 	case "community":
-		if(!adv_mode)
-			return;
 		b = append_input(p, "Community", id, value);
+		addClass(b, "adv_hide");
 		addInputCheck(b.lastChild, /^[a-z0-9_\-]{3,30}$/, "Ung\xfcltiger Bezeichner.");
 		addHelpText(b, "Der Bezeichner der Community, zu der dieser Knoten geh\xf6rt.");
 		break;
