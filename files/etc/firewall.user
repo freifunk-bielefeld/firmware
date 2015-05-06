@@ -10,6 +10,9 @@ ebtables -X
 #drop router advertisments from this router
 ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
 
+#allow DHCP requests (IPv4)
+ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv4 --ip-protocol UDP --ip-sport 68 -j ACCEPT
+
 #create chain (drop packets at end)
 ebtables -N MULTICAST_OUT -P DROP
 
