@@ -1,5 +1,5 @@
 #!/bin/sh
-#solves MTU problem with bad ISP´s
+#solves MTU problem with bad ISPs
 iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
 
