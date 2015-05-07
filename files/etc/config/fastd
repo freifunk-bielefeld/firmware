@@ -60,3 +60,11 @@ config peer 'vpn5'
 	option key '6c86de370e59200eb45ba23ea850f0d6c9711b3c8099cff2c7c61e031f56ca5b'
 	list remote 'ipv4 "vpn5.ulm.freifunk.net" port 1244'
 	option float 0
+
+config peer 'vpn6'
+	option enabled 1
+	option net 'default'
+	option group 'backbone'
+	option key '8bc0158ce98dad2c7e1f122a36657208a3b8cc18f68cfb3c32862ed398786fb8'
+	list remote 'ipv4 "vpn6.ulm.freifunk.net" port 1244'
+	option float 0
