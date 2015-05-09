@@ -143,11 +143,11 @@ initial_freifunk_setup()
 	uci set network.freifunk="interface"
 	uci set network.freifunk.type="bridge"
 	uci set network.freifunk.ifname="$freifunk_interfaces"
-	uci set network.freifunk.ipaddr="192.168.132.1"
+	uci set network.freifunk.ipaddr="10.26.127.0"
 	uci set network.freifunk.macaddr="$mac"
 	uci delete -q network.freifunk.ip6addr
 	uci set network.freifunk.proto=static
-	uci set network.freifunk.netmask="255.255.255.0"
+	uci set network.freifunk.netmask="255.255.192.0"
 	uci set network.freifunk.igmp_snooping="0"
 	uci set network.freifunk.force_link="1"
 	uci set network.freifunk.bridge_empty="1"
@@ -613,6 +613,10 @@ update_043_to_044()
 
 	uci set fastd.vpn1_badsalzuflen.key="d780166fdedf9c311350902e1b71e7887c5bbd45a99c9813b0056de25b29a970"
 	uci commit fastd
+
+	uci set network.freifunk.ipaddr="10.26.127.0"
+	uci set network.freifunk.netmask="255.255.192.0"
+	uci commit network
 
 	sed -i "s/base_reachable_time/base_reachable_time_ms/" /etc/sysctl.conf
 }
