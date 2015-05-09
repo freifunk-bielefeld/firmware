@@ -27,3 +27,4 @@ config branch stable
 	list pubkey '0cd4235f202dc147b9bac22eb70cf201e704bb24a80b7c1ff96a7b6f2e248817' #saraedum
 	list pubkey '65c273c3fab43f81b8620d30700a30ed49d8035c3072941cadd94f1339a7e850' #foschum
 	list pubkey '1ac49f73f9de9943634b2cf25e2212e67f654dbb0c8a913743ef3087d35f7b0a' #mk070'
+	list pubkey '761cf21ec0161173469e6adbc04247d4c9085dc3a7ecb4a462ef7ef9a7123e7b' #flo
