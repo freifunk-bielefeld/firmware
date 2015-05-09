@@ -601,12 +601,18 @@ update_042_to_043() {
 	uci commit fastd
 }
 
-update_043_to_044()  {
+update_043_to_044()
+{
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
 	cp /rom/etc/config/batman-adv /etc/config/
+	cp /rom/etc/config/dhcp /etc/config/
+	cp /rom/etc/firewall.user /etc/
 	cp /rom/etc/crontabs/root /etc/crontabs/
+
+	uci set fastd.vpn1_badsalzuflen.key="d780166fdedf9c311350902e1b71e7887c5bbd45a99c9813b0056de25b29a970"
+	uci commit fastd
 
 	sed -i "s/base_reachable_time/base_reachable_time_ms/" /etc/sysctl.conf
 }
@@ -631,19 +637,26 @@ start()
 			update_03_to_04
 			update_04_to_041
 			update_041_to_042
+			update_042_to_043
+			update_043_to_044
 			;;
 		"0.4")
 			echo "(I) Apply update."
 			update_04_to_041
 			update_041_to_042
+			update_042_to_043
+			update_043_to_044
 			;;
 		"0.4.1")
 			echo "(I) Apply update."
 			update_041_to_042
+			update_042_to_043
+			update_043_to_044
 			;;
 		"0.4.2")
 			echo "(I) Apply update."
 			update_042_to_043
+			update_043_to_044
 			;;
 		"0.4.3")
 			echo "(I) Apply update."
