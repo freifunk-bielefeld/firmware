@@ -261,6 +261,10 @@ function addNetSection(ifname, mode)
 		var net = ifname.replace(".", "_");
 		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
 		break;
+	case "none":
+		var net = ifname.replace(".", "_");
+		n[net] = {"stype":"interface","ifname":ifname,"proto":"none"};
+		break;
 	default:
 		return;
 	}
