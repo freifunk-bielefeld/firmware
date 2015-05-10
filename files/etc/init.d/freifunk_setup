@@ -232,7 +232,7 @@ initial_setup()
 
 	uci set -q network.globals="globals"
 	uci set network.globals.ula_prefix="$prefix"
-	echo "192.168.132.1 node" >> /etc/hosts
+	echo "10.26.127.0 node" >> /etc/hosts
 
 	# ------------------------------------- #
 	# F R E I F U N K  S E T U P #
@@ -621,6 +621,14 @@ update_043_to_044()
 	sed -i "s/base_reachable_time=/base_reachable_time_ms=/" /etc/sysctl.conf
 }
 
+update_044_to_050()
+{
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	sed -i "s/192.168.132.1/10.26.127.0/" /etc/hosts
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
@@ -650,21 +658,29 @@ start()
 			update_041_to_042
 			update_042_to_043
 			update_043_to_044
+			update_044_to_050
 			;;
 		"0.4.1")
 			echo "(I) Apply update."
 			update_041_to_042
 			update_042_to_043
 			update_043_to_044
+			update_044_to_050
 			;;
 		"0.4.2")
 			echo "(I) Apply update."
 			update_042_to_043
 			update_043_to_044
+			update_044_to_050
 			;;
 		"0.4.3")
 			echo "(I) Apply update."
 			update_043_to_044
+			update_044_to_050
+			;;
+		"0.5.0")
+			echo "(I) Apply update."
+			update_044_to_050
 			;;
 		"")
 			echo "(I) Start initial setup."
