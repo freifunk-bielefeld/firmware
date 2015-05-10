@@ -626,6 +626,10 @@ update_044_to_050()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
+	local hostname="$(uci get system.@system[0].hostname)"
+	cp /rom/etc/config/system /etc/config/
+	uci set system.@system[0].hostname="$hostname"
+
 	sed -i "s/192.168.132.1/10.26.127.0/" /etc/hosts
 }
 
