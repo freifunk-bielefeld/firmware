@@ -618,7 +618,7 @@ update_043_to_044()
 	uci set network.freifunk.netmask="255.255.192.0"
 	uci commit network
 
-	sed -i "s/base_reachable_time/base_reachable_time_ms/" /etc/sysctl.conf
+	sed -i "s/base_reachable_time=/base_reachable_time_ms=/" /etc/sysctl.conf
 }
 
 start()
