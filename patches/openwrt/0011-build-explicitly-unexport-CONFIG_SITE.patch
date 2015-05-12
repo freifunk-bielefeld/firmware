@@ -1,0 +1,35 @@
+From 6e323e0451502a98170e57bf258ad0878f5fa8e2 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Fri, 16 Jan 2015 03:49:40 +0100
+Subject: [PATCH 11/36] build: explicitly unexport CONFIG_SITE
+
+On systems with CONFIG_SITE in the environment (e.g. OpenSUSE) make will export
+the CONFIG_SITE set in include/package.mk by default. This will cause host
+builds to get the target site configuration, leading to all kinds of weirdness
+(wrong pointer size, wrong endianess).
+
+Fix this by explicitly unexporting CONFIG_SITE. The explicit export for the
+target builds overrides the unexport, so the target builds will still correctly
+get the site config.
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ include/package.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/package.mk b/include/package.mk
+index 88ec3ef..53ca6de 100644
+--- a/include/package.mk
++++ b/include/package.mk
+@@ -93,7 +93,7 @@ CONFIG_SITE:=$(INCLUDE_DIR)/site/$(REAL_GNU_TARGET_NAME)
+ CUR_MAKEFILE:=$(filter-out Makefile,$(firstword $(MAKEFILE_LIST)))
+ SUBMAKE:=$(NO_TRACE_MAKE) $(if $(CUR_MAKEFILE),-f $(CUR_MAKEFILE))
+ PKG_CONFIG_PATH=$(STAGING_DIR)/usr/lib/pkgconfig:$(STAGING_DIR)/usr/share/pkgconfig
+-unexport QUIET
++unexport QUIET CONFIG_SITE
+ 
+ ifeq ($(DUMP)$(filter prereq clean refresh update,$(MAKECMDGOALS)),)
+   ifneq ($(if $(QUILT),,$(CONFIG_AUTOREBUILD)),)
+-- 
+2.1.4
+
