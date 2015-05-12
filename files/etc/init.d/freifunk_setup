@@ -644,7 +644,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.4.4"
+	local to_version="0.5.0-dev"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
@@ -682,7 +682,7 @@ start()
 			update_043_to_044
 			update_044_to_050
 			;;
-		"0.5.0")
+		"0.5.0-dev")
 			echo "(I) Apply update."
 			update_044_to_050
 			;;
