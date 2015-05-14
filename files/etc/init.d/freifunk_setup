@@ -646,6 +646,11 @@ start()
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
 	local to_version="0.5.0-dev"
 
+	update_version() {
+		uci set -q freifunk.@settings[0].version="$to_version"
+		uci commit -q freifunk
+	}
+
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
 		"0.3" | "0.3.1")
@@ -655,6 +660,7 @@ start()
 			update_041_to_042
 			update_042_to_043
 			update_043_to_044
+			update_version
 			;;
 		"0.4")
 			echo "(I) Apply update."
@@ -663,6 +669,7 @@ start()
 			update_042_to_043
 			update_043_to_044
 			update_044_to_050
+			update_version
 			;;
 		"0.4.1")
 			echo "(I) Apply update."
@@ -670,33 +677,35 @@ start()
 			update_042_to_043
 			update_043_to_044
 			update_044_to_050
+			update_version
 			;;
 		"0.4.2")
 			echo "(I) Apply update."
 			update_042_to_043
 			update_043_to_044
 			update_044_to_050
+			update_version
 			;;
 		"0.4.3")
 			echo "(I) Apply update."
 			update_043_to_044
 			update_044_to_050
+			update_version
 			;;
 		"0.5.0-dev")
 			echo "(I) Apply update."
 			update_044_to_050
+			update_version
 			;;
 		"")
 			echo "(I) Start initial setup."
 			initial_setup "$to_version"
+			update_version
 			;;
 		*)
-			echo "(I) No configuration updater set. Only version will be updated."
+			echo "(I) No configuration updater set. No idea what to do."
 			;;
 	esac
-
-	uci set -q freifunk.@settings[0].version="$to_version"
-	uci commit -q freifunk
 
 	/etc/init.d/fastd disable
 	/etc/init.d/telnet disable
