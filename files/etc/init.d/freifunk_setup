@@ -342,6 +342,7 @@ initial_setup()
 	#save defaults for use in the web-ui
 	cp /etc/config/network /etc/config/network_defaults
 
+	#reduce NDP traffic
 	cat >> /etc/sysctl.conf <<  EOF
 
 # increase neighbor table timings by a factor of 10
@@ -678,6 +679,7 @@ update_044_to_050()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
+	#restore LED settings
 	local hostname="$(uci get system.@system[0].hostname)"
 	cp /rom/etc/config/system /etc/config/
 	uci set system.@system[0].hostname="$hostname"
