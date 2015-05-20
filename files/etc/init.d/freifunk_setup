@@ -621,6 +621,14 @@ update_043_to_044()
 	sed -i "s/base_reachable_time=/base_reachable_time_ms=/" /etc/sysctl.conf
 }
 
+update_044_to_045()
+{
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	cp /rom/etc/config/fastd /etc/config/
+}
+
 start()
 {
 	#Setup the system for the initial Freifunk configuration.
@@ -632,7 +640,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.4.4"
+	local to_version="0.4.5"
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
@@ -643,6 +651,7 @@ start()
 			update_041_to_042
 			update_042_to_043
 			update_043_to_044
+			update_044_to_045
 			;;
 		"0.4")
 			echo "(I) Apply update."
@@ -650,21 +659,29 @@ start()
 			update_041_to_042
 			update_042_to_043
 			update_043_to_044
+			update_044_to_045
 			;;
 		"0.4.1")
 			echo "(I) Apply update."
 			update_041_to_042
 			update_042_to_043
 			update_043_to_044
+			update_044_to_045
 			;;
 		"0.4.2")
 			echo "(I) Apply update."
 			update_042_to_043
 			update_043_to_044
+			update_044_to_045
 			;;
 		"0.4.3")
 			echo "(I) Apply update."
 			update_043_to_044
+			update_044_to_045
+			;;
+		"0.4.4")
+			echo "(I) Apply update."
+			update_044_to_045
 			;;
 		"")
 			echo "(I) Start initial setup."
