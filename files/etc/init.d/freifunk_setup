@@ -626,7 +626,12 @@ update_044_to_045()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
+	local secret="$(uci get fastd.default.secret)"
+	local key="$(uci get fastd.default.key)"
 	cp /rom/etc/config/fastd /etc/config/
+	uci set fastd.default.secret="$secret"
+	uci set fastd.default.key="$key"
+	uci commit fastd
 }
 
 start()
