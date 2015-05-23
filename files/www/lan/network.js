@@ -6,6 +6,26 @@ The GUI code displayes and manipulated this variable.
 var uci = {};
 var gid = 0;
 var net_options = [["LAN", "lan"], ["Freifunk", "freifunk"], ["Mesh", "mesh"], ["WAN", "wan"], ["None", "none"]];
+var txpower_choices = [
+["20 dBm (100 mW)", "20"],
+["19 dBm (79 mW)", "19"],
+["18 dBm (63 mW)", "18"],
+["17 dBm (50 mW)", "17"],
+["16 dBm (39 mW)", "16"],
+["15 dBm (31 mW)", "15"],
+["14 dBm (25 mW)", "14"],
+["13 dBm (19 mW)", "13"],
+["12 dBm (15 mW)", "12"],
+["11 dBm (12 mW)", "11"],
+["10 dBm (10 mW)", "10"],
+["9 dBm (7 mW)", "9"],
+["8 dBm (6 mW)", "8"],
+["6 dBm (5 mW)", "6"],
+["5 dBm (3 mW)", "5"],
+["4 dBm (2 mW)", "4"],
+["0 dBm (1 mW)", "0"],
+["default", "-"]
+];
 
 function init()
 {
@@ -65,6 +85,11 @@ function appendSetting(p, path, value, mode)
 		b = append_selection(p, "Kanal", id, value, channels);
 		addClass(b.lastChild, "adv_disable");
 		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
+		break;
+	case "txpower":
+		b = append_selection(p, "txpower", id, value, txpower_choices);
+		addClass(b.lastChild, "adv_hide");
+		addHelpText(b, "Die Sendeleistung in dBm. Achtung! Beim Tausch der Antennen muss die Sendeleistung entsprechend angepasst werden!");
 		break;
 	case "mode":
 		if(!inArray(mode, ["wan", "none"]))
