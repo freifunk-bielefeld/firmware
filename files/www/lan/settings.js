@@ -99,10 +99,14 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
 	case "service_link":
+		var ula_prefix = uci['network']['globals']['ula_prefix'];
+		var addr_prefix = ula_prefix.replace(/:\/[0-9]+$/,""); //cut off ':/64'
+		var regexp = new RegExp("^$|((?=.*"+addr_prefix+")(?=^.{0,128}$))");
+
 		b = append_input(p, "Service Link", id, value);
-		b.lastChild.placeholder = "http://[fdef:17a0::1]/seite.html";
-		addInputCheck(b.lastChild, /^$|^[#\[\] \w&\/.:]{0,128}$/, "Ung\xfcltige Eingabe.");
-		addHelpText(b, "Ein Verweis auf eine Netzwerkresource. Z.B. \"http://[fdef:17a0::1]/seite.html\".");
+		b.lastChild.placeholder = "http://["+addr_prefix+":1]/index.html";
+		addInputCheck(b.lastChild, regexp, "Ung\xfcltige Eingabe.");
+		addHelpText(b, "Ein Verweis auf eine _interne_ Netzwerkresource. Z.B. \"http://["+addr_prefix+":1]/index.html\".");
 		break;
 	case "service_label":
 		b = append_input(p, "Service Name", id, value);

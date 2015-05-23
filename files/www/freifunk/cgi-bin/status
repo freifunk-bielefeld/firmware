@@ -62,10 +62,13 @@ echo "		<h1>$(uci get -q freifunk.@settings[0].name)</h1>"
 <%
 max=$(uci get -q freifunk.@settings[0].service_display_max)
 if [ -n "$max" -a "$max" != "0" ]; then
+	ula_prefix="$(uci get network.globals.ula_prefix)"
+	addr_prefix="${ula_prefix%%::*}:"
+
 	echo '<h2 class="content-subhead">Liste lokaler Angebote im Freifunk-Netz:</h2>'
 	echo '<ul>'
 	link_list=$(
-		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ #[:alnum:]_\/.:]{1,128}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{1,32}$/) printf("	<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
+		printf "$(alfred -r 91 | head -$max)" | grep "$addr_prefix" | awk -F'["\\]+' '{ if($5 == "link" && $7 ~ /^[][ #[:alnum:]_\/.:]{1,128}$/ && $9 == "label" && $11 ~ /^[][ [:alnum:]_\/.:]{1,32}$/) printf("	<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
 	)
 	[ -n "$link_list" ] && echo "$link_list" || echo '	<li><h3>Keine Angebote gefunden.</h3></li>'
 	echo '</ul>'

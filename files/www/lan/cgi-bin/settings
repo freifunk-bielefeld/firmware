@@ -9,6 +9,12 @@ case "$GET_func" in
 		uci export -qn freifunk
 		uci export -qn autoupdater
 		uci export -qn simple-tc
+		uci export -qn autoupdater
+
+		ula_prefix="$(uci get -q network.globals.ula_prefix)"
+		echo "package network"
+		echo "config globals 'globals'"
+		echo "	option ula_prefix '$ula_prefix'"
 	;;
 	*)
 		echo "(E) settings: Invalid command: '$GET_func'"
