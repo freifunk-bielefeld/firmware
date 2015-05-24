@@ -101,7 +101,7 @@ function appendSetting(p, path, value, mode)
 	case "service_link":
 		var ula_prefix = uci['network']['globals']['ula_prefix'];
 		var addr_prefix = ula_prefix.replace(/:\/[0-9]+$/,""); //cut off ':/64'
-		var regexp = new RegExp("^$|((?=.*"+addr_prefix+"|.*\.ffbi|.*\.ffobk)(?=^.{0,128}$))");
+		var regexp = new RegExp("^$|((?=.*"+addr_prefix+"|.*\.ff[a-z]{0,3})(?=^.{0,128}$))");
 
 		b = append_input(p, "Service Link", id, value);
 		b.lastChild.placeholder = "http://["+addr_prefix+":1]/index.html";
