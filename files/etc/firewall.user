@@ -35,5 +35,9 @@ ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff:02::1 --ip6-
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol icmp -j RETURN
 
-#allow ARP (IPv4)
+#drop funny ARP packets (IPv4)
+ebtables -A MULTICAST_OUT -p ARP --arp-opcode Reply --arp-ip-src 0.0.0.0 -j DROP
+ebtables -A MULTICAST_OUT -p ARP --arp-opcode Request --arp-ip-dst 0.0.0.0 -j DROP
+
+#allow normal ARP (IPv4)
 ebtables -A MULTICAST_OUT -p ARP -j RETURN
