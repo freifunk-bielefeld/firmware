@@ -1,6 +1,7 @@
 #!/bin/sh /etc/rc.common
 
-#This script is run once at startup and is then deleted.
+# This script is run once at startup after
+# file system finalization and is then deleted.
 
 START=99
 
