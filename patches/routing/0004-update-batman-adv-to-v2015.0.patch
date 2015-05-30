@@ -1,7 +1,7 @@
-From c6b159cc47ce08db3b35ae9a26dc3cfed855f5cc Mon Sep 17 00:00:00 2001
+From e4b1acd7a9e71e294fbcc158166f4aa95afda6f4 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 30 Aug 2014 19:46:55 +0200
-Subject: [PATCH 2/4] Update batman-adv to v2015.0
+Subject: [PATCH 4/5] update batman-adv to v2015.0
 
 ---
  batctl/Makefile     | 4 ++--
