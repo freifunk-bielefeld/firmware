@@ -1,7 +1,7 @@
-From 5a09beda72a8ec49142db9d30272bbf674ab0634 Mon Sep 17 00:00:00 2001
+From c54f09d84d6d7d6ae33b75b326de53b2b89f3abc Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sat, 30 May 2015 11:02:57 +0200
-Subject: [PATCH 5/5] update to alfred v2015.0
+Subject: [PATCH 3/4] update to alfred v2015.0
 
 ---
  alfred/Makefile | 12 +++++++-----

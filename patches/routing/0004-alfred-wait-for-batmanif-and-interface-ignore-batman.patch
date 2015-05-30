@@ -1,0 +1,80 @@
+From 2a50b644c1aa4edf0b4160009923a46ab41b49ed Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sat, 30 May 2015 13:40:06 +0200
+Subject: [PATCH 4/4] alfred: wait for batmanif and interface, ignore batmanif
+ if it is set to 'none'
+
+---
+ alfred/files/alfred.init | 39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
+
+diff --git a/alfred/files/alfred.init b/alfred/files/alfred.init
+index b777b53..b3b068a 100755
+--- a/alfred/files/alfred.init
++++ b/alfred/files/alfred.init
+@@ -16,10 +16,27 @@ pid_file_alfred="/var/run/alfred.pid"
+ pid_file_vis="/var/run/batadv-vis.pid"
+ enable=0
+ vis_enable=0
+-batmanif=""
+ SERVICE_DAEMONIZE=1
+ SERVICE_WRITE_PID=1
+ 
++wait_for_dir()
++{
++	local ifce="$1" dir="$2"
++
++	if ! [ -d "$dir" ] ; then
++		timeout=30
++		echo "${initscript}: waiting $timeout secs for $ifce interface..."
++		for i in $(seq $timeout); do
++			sleep 1
++			[ -d "$dir" ] && break
++			if [ $i == $timeout ] ; then
++				echo "${initscript}: $ifce not detected, alfred not starting."
++				exit 1
++			fi
++		done
++	fi
++}
++
+ alfred_start()
+ {
+ 	local args=""
+@@ -41,6 +58,12 @@ alfred_start()
+ 	config_get batmanif "$section" batmanif
+ 	append args "-b $batmanif"
+ 
++	if [ "$batmanif" != "none" ]; then
++		wait_for_dir "$batmanif" "/sys/class/net/$batmanif/mesh"
++	fi
++
++	wait_for_dir "$interface" "/sys/class/net/$interface/"
++
+ 	append alfred_args "$args"
+ 	enable=1
+ 
+@@ -64,20 +87,6 @@ start()
+ 		exit 0
+ 	fi
+ 
+-	mesh_dir="/sys/class/net/$batmanif/mesh/"
+-	if ! [ -d "$mesh_dir" ] ; then
+-		timeout=30
+-		echo "${initscript}: waiting $timeout secs for $batmanif interface..."
+-		for i in $(seq $timeout); do
+-			sleep 1
+-			[ -d "$mesh_dir" ] && break
+-			if [ $i == $timeout ] ; then
+-				echo "${initscript}: $batmanif not detected, alfred not starting."
+-				exit 1
+-			fi
+-		done
+-	fi
+-
+ 	echo "${initscript}: starting alfred"
+ 	SERVICE_PID_FILE="$pid_file_alfred"
+ 	service_start /usr/sbin/alfred ${alfred_args}
+-- 
+2.1.4
+
