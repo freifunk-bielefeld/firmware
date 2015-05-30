@@ -166,7 +166,7 @@ initial_local_node_setup()
 	echo "(I) Setup IPv4/IPv6 local node access."
 
 	local prefix6="$(uci get network.globals.ula_prefix)"
-	local addr6="{prefix6%%::*}::0"
+	local addr6="${prefix6%%::*}::0"
 	local s
 
 	s='local_node_dev'
