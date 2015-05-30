@@ -23,7 +23,7 @@ print() {
 	IFS="
 "
 	nd=0
-	for entry in $(cat /sys/kernel/debug/batman_adv/bat0/originators | tr '\t/[]()' ' ' |  awk '{ if($1==$4) print($1, $3, $5) }' 2> /dev/null); do
+	for entry in $(cat /sys/kernel/debug/batman_adv/bat0/originators 2> /dev/null | tr '\t/[]()' ' ' |  awk '{ if($1==$4) print($1, $3, $5) }'); do
 		[ $nd -eq 0 ] && nd=1 || echo -n ", "
 		IFS=" "
 		printLink $entry
@@ -31,7 +31,7 @@ print() {
 
 	echo -n '], '
 	mac=$(uci get -q network.freifunk.macaddr)
-	cat /sys/kernel/debug/batman_adv/bat0/transtable_local | tr '\t/[]()' ' ' | awk -v mac=$mac 'BEGIN{ c=0; } { if($1 == "*" && $2 != mac && $4 ~ /^[.NW]+$/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}' 2> /dev/null
+	cat /sys/kernel/debug/batman_adv/bat0/transtable_local 2> /dev/null | tr '\t/[]()' ' ' | awk -v mac=$mac 'BEGIN{ c=0; } { if($1 == "*" && $2 != mac && $4 ~ /^[.NW]+$/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}'
 	echo -n '}'
 }
 
