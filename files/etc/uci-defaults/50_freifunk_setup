@@ -315,6 +315,9 @@ net.ipv6.conf.default.accept_ra=0
 net.ipv6.conf.br-freifunk.forwarding=0
 net.ipv6.conf.br-lan.forwarding=0
 
+#reboot on out of memory
+vm.panic_on_oom=1
+
 EOF
 
 	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
