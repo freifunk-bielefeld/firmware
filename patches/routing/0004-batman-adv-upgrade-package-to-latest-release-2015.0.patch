@@ -1,0 +1,29 @@
+From 1158a524ee728f46598236d658db2c440be2693f Mon Sep 17 00:00:00 2001
+From: Marek Lindner <mareklindner@neomailbox.ch>
+Date: Tue, 9 Jun 2015 22:11:41 +0800
+Subject: [PATCH 4/5] batman-adv: upgrade package to latest release 2015.0
+
+Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
+---
+ batman-adv/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/batman-adv/Makefile b/batman-adv/Makefile
+index 6909ba8..8a932aa 100644
+--- a/batman-adv/Makefile
++++ b/batman-adv/Makefile
+@@ -10,9 +10,9 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=batman-adv
+ 
+-PKG_VERSION:=2014.4.0
++PKG_VERSION:=2015.0
+ PKG_RELEASE:=1
+-PKG_MD5SUM:=b1518e84ce530883d224c6ca4c673ce8
++PKG_MD5SUM:=178b082266a8bfb3041178a0c821d843
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+-- 
+2.1.4
+

@@ -1,7 +1,7 @@
-From b8e704d0b9408e6df7288c2d171ab24a0fa58a2b Mon Sep 17 00:00:00 2001
+From 82253d7fb6063dc019526930efcf136ebb933cb4 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 22 Aug 2014 13:52:42 +0200
-Subject: [PATCH 2/3] batman-adv: add no_rebroadcast feature to kernel module
+Subject: [PATCH 2/5] batman-adv: add no_rebroadcast feature to kernel module
 
 ---
  ...atman-adv-introduce-no_rebroadcast-option.patch | 185 +++++++++++++++++++++
