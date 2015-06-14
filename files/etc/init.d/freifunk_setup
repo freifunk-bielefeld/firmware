@@ -410,7 +410,7 @@ update_03_to_04()
 	echo "192.168.132.1 node" >> /etc/hosts
 
 	echo "(I) Disable forwarding on br-freifunk/br-lan."
-	echo -e "\n#disable forwarding in roder for router-solicitations to be send for these interfaces" >> /etc/sysctl.conf
+	echo -e "\n#disable forwarding so that these interfaces ask for IPv6 addresses" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-freifunk.forwarding=0" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.br-lan.forwarding=0" >> /etc/sysctl.conf
 
