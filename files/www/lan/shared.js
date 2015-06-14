@@ -240,12 +240,17 @@ function checkName(name)
 	return false;
 }
 
+//prepend input check
 function addInputCheck(input, regex, msg)
 {
 	var prev_value = input.value;
+	var prev_onchange = input.onchange;
 	input.onchange = function(e) {
-		if(regex.test(input.value))
+		if(regex.test(input.value)) {
+			if(prev_onchange)
+				prev_onchange(e);
 			return;
+		}
 		alert(msg);
 		input.value = prev_value;
 		e.stopPropagation();
