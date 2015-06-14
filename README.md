@@ -14,7 +14,7 @@ Install dependencies for the build environment (Debian/Ubuntu):
 
 Build commands for the console:
 
-    git clone git://git.openwrt.org/14.07/openwrt.git
+    git clone git://git.openwrt.org/15.05/openwrt.git
     cd openwrt
     
     ./scripts/feeds update -a
@@ -24,7 +24,6 @@ Build commands for the console:
     cp -rf firmware/files firmware/package .
     git am --whitespace=nowarn firmware/patches/openwrt/*.patch
     cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
-    cd feeds/packages && git am --whitespace=nowarn ../../firmware/patches/packages/*.patch && cd -
     rm -rf firmware tmp
     
     make defconfig
