@@ -101,7 +101,6 @@ initial_freifunk_setup()
 	uci set network.freifunk="interface"
 	uci set network.freifunk.type="bridge"
 	uci set network.freifunk.ifname="$freifunk_interfaces"
-	uci set network.freifunk.ipaddr="10.26.127.0"
 	uci set network.freifunk.macaddr="$mac"
 	uci delete -q network.freifunk.ip6addr
 	uci set network.freifunk.proto=static
