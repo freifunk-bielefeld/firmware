@@ -364,7 +364,6 @@ update_041_to_042()
 	uci commit network
 
 	uci delete -q dhcp.@dhcp[0].ra
-	uci delete -q dhcp.@dhcp[1].ra
 	uci commit dhcp
 
 	sed -i "/#disable forwarding.*/d" /etc/sysctl.conf
