@@ -1,9 +1,11 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh
 
-# This script is run once at startup after
-# file system finalization and is then deleted.
+# Setup the system for the initial Freifunk configuration.
+# This script is only run once and deletes itself at the end.
 
-START=99
+exec >/root/freifunk_setup.log 2>&1
+
+. /lib/functions.sh
 
 
 initial_wifi_setup()
@@ -29,7 +31,6 @@ initial_wifi_setup()
 		local wifi_device=`uci get -q wireless.$ds.device`
 		local h n p
 
-		#config_get wifi_device "$ds" device
 		[ -z "$wifi_device" ] && wifi_device="$ds"
 
 		echo "(I) Configure wifi device: '$wifi_device'"
@@ -44,73 +45,28 @@ initial_wifi_setup()
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
 
-		#remove ap/ah wifi interface entries
-		clear_wifi_interfaces() {
-			uci delete -q "$h"
-			uci delete -q "$n"
-			uci delete -q "$p"
-		}
+		#add AdHoc interface for meshing
+		h=wireless.`uci add wireless wifi-iface`
+		uci set $h.device="$wifi_device"
+		uci set $h.mode=adhoc
+		uci set $h.network="${wifi_device}_mesh"
+		uci set $h.ssid="$ah_ssid"
+		uci set $h.bssid="$ah_bssid"
+		uci set $h.hidden=1
 
-		#AdHoc for batman
-		add_ah_interface() {
-			h=wireless.`uci add wireless wifi-iface`
-			uci set $h.device="$wifi_device"
-			uci set $h.ifname="${wifi_device}_mesh"
-			uci set $h.mode=adhoc
-			uci set $h.network="${wifi_device}_mesh"
-			uci set $h.ssid="$ah_ssid"
-			uci set $h.bssid="$ah_bssid"
-			uci set $h.hidden=1
+		n=network.`uci get $h.network`
+		uci set $n="interface"
+		uci set $n.mtu=1406
+		uci set $n.proto="batadv"
+		uci set $n.mesh="bat0"
 
-			n=network.`uci get $h.network`
-			uci set $n="interface"
-			uci set $n.mtu=1406
-			uci set $n.proto="batadv"
-			uci set $n.mesh="bat0"
-		}
-
-		#AccessPoint for clients
-		add_ap_interface() {
-			p=wireless.`uci add wireless wifi-iface`
-			uci set $p.device="$wifi_device"
-			uci set $p.ifname="${wifi_device}_freifunk"
-			uci set $p.mode=ap
-			uci set $p.network=freifunk
-			uci set $p.ssid="$ap_ssid"
-			uci set $p.encryption="none"
-		}
-
-		wifi_restart() {
-			echo "(I) Wireless down/up"
-			wifi reload
-			sleep 5
-		}
-
-		check_wifi_interfaces() {
-			ip addr list dev "${wifi_device}_mesh" &> /dev/null && ah_ok=1 || ah_ok=0
-			ip addr list dev "${wifi_device}_freifunk" &> /dev/null && ap_ok=1 || ap_ok=0
-		}
-
-		add_ah_interface
-		add_ap_interface
-		wifi_restart
-		check_wifi_interfaces
-
-		#if not both interfaces work; try only Ad-Hoc
-		if [ $ah_ok -eq 0 -o $ap_ok -eq 0 ]; then
-			echo "(I) Cannot use AdHoc and AccessPoint mode at the same time - try AdHoc only now."
-			clear_wifi_interfaces
-			add_ah_interface
-			wifi_restart
-			check_wifi_interfaces
-		fi
-
-		[ $ah_ok -eq 1 ] && echo "(I) Add AdHoc interface for wifi device ${wifi_device}."
-		[ $ap_ok -eq 1 ] && echo "(I) Add AccessPoint interface for wifi device ${wifi_device}."
-
-		#ifname not needed anymore
-		uci delete -q $h.ifname
-		uci delete -q $p.ifname
+		#add AccessPoint for clients
+		p=wireless.`uci add wireless wifi-iface`
+		uci set $p.device="$wifi_device"
+		uci set $p.mode=ap
+		uci set $p.network=freifunk
+		uci set $p.ssid="$ap_ssid"
+		uci set $p.encryption="none"
 	}
 
 	config_load wireless
@@ -165,8 +121,8 @@ initial_local_node_setup()
 {
 	echo "(I) Setup IPv4/IPv6 local node access."
 
-	local prefix6="$(uci get network.globals.ula_prefix)"
-	local addr6="${prefix6%%::*}::0"
+	local ula_prefix="$(uci get network.globals.ula_prefix)"
+	local addr6="${ula_prefix%%::*}::0"
 	local s
 
 	s='local_node_dev'
@@ -193,7 +149,7 @@ initial_local_node_setup()
 
 	s='local_node_route6'
 	uci set network.$s='route6'
-	uci set network.$s.target="$prefix6"
+	uci set network.$s.target="$ula_prefix"
 	uci set network.$s.gateway='::'
 	uci set network.$s.interface='freifunk'
 
@@ -353,12 +309,6 @@ net.ipv6.neigh.default.gc_stale_time=600
 net.ipv6.neigh.default.base_reachable_time_ms=300
 EOF
 
-	echo "(I) Generate a key for fastd."
-	local secret=`fastd --generate-key --machine-readable`
-	uci set fastd.default.secret="$secret"
-	local key=`echo "secret \"$secret\";" | fastd --config - --show-key --machine-readable`
-	uci set fastd.default.key="$key"
-
 	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 
 	#write everything to flash
@@ -480,12 +430,6 @@ update_044_to_050()
 
 start()
 {
-	#Setup the system for the initial Freifunk configuration.
-	#This script is only run once and deletes itself at the end.
-
-	exec >/root/freifunk_setup.log 2>&1
-	. /lib/functions.sh
-
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
@@ -546,11 +490,11 @@ start()
 	/etc/init.d/fastd disable
 	/etc/init.d/telnet disable
 	/etc/init.d/simple-radvd enable
+	/etc/init.d/freifunk_init enable
 
-	#disable and remove this script
-	/etc/init.d/freifunk_setup disable
-	rm -f /etc/init.d/freifunk_setup
-
-	echo "(I) Done - rebooting now."
-	reboot
+	echo "(I) Done."
 }
+
+start
+
+exit 0
