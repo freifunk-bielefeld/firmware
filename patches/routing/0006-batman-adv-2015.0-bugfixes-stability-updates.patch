@@ -1,0 +1,871 @@
+From 16aa5f86b55760a3518aa7346a795b57b0721848 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sun, 21 Jun 2015 15:01:07 +0200
+Subject: [PATCH 6/6] batman-adv: 2015.0 bugfixes & stability updates
+
+---
+ ...-Avoid-u32-overflow-during-gateway-select.patch |  42 ++++
+ ...batman-adv-avoid-DAT-to-mess-up-LAN-state.patch |  74 ++++++
+ ...an-adv-Make-DAT-capability-changes-atomic.patch |  54 +++++
+ ...man-adv-Make-NC-capability-changes-atomic.patch |  40 ++++
+ ...man-adv-Make-TT-capability-changes-atomic.patch |  60 +++++
+ ...-adv-Make-MCAST-capability-changes-atomic.patch |  50 ++++
+ ...Fix-potential-synchronization-issues-in-m.patch | 254 +++++++++++++++++++++
+ ...Fix-compile-error-on-deactivated-MCAST-fe.patch |  58 +++++
+ ...fix-kernel-crash-due-to-missing-NULL-chec.patch |  93 ++++++++
+ ...protect-tt_local_entry-from-concurrent-de.patch |  55 +++++
+ 10 files changed, 780 insertions(+)
+ create mode 100644 batman-adv/patches/0001-batman-adv-Avoid-u32-overflow-during-gateway-select.patch
+ create mode 100644 batman-adv/patches/0002-batman-adv-avoid-DAT-to-mess-up-LAN-state.patch
+ create mode 100644 batman-adv/patches/0003-batman-adv-Make-DAT-capability-changes-atomic.patch
+ create mode 100644 batman-adv/patches/0004-batman-adv-Make-NC-capability-changes-atomic.patch
+ create mode 100644 batman-adv/patches/0005-batman-adv-Make-TT-capability-changes-atomic.patch
+ create mode 100644 batman-adv/patches/0006-batman-adv-Make-MCAST-capability-changes-atomic.patch
+ create mode 100644 batman-adv/patches/0007-batman-adv-Fix-potential-synchronization-issues-in-m.patch
+ create mode 100644 batman-adv/patches/0008-batman-adv-Fix-compile-error-on-deactivated-MCAST-fe.patch
+ create mode 100644 batman-adv/patches/0009-batman-adv-fix-kernel-crash-due-to-missing-NULL-chec.patch
+ create mode 100644 batman-adv/patches/0010-batman-adv-protect-tt_local_entry-from-concurrent-de.patch
+
+diff --git a/batman-adv/patches/0001-batman-adv-Avoid-u32-overflow-during-gateway-select.patch b/batman-adv/patches/0001-batman-adv-Avoid-u32-overflow-during-gateway-select.patch
+new file mode 100644
+index 0000000..2955e75
+--- /dev/null
++++ b/batman-adv/patches/0001-batman-adv-Avoid-u32-overflow-during-gateway-select.patch
+@@ -0,0 +1,42 @@
++From f63c54bba31d2c86269982fd8efdfb618f1daabe Mon Sep 17 00:00:00 2001
++From: Ruben Wisniewski <ruben@freifunk-nrw.de>
++Date: Tue, 26 May 2015 18:34:27 +0200
++Subject: [PATCH 01/10] batman-adv: Avoid u32 overflow during gateway select
++
++The gateway selection based on fast connections is using a single value
++calculated from the average tq (0-255) and the download bandwidth (in
++100Kibit). The formula for the first step (tq ** 2 * 10000 * bandwidth)
++tends to overflow a u32 with low bandwidth settings like 50 [100KiBit]
++and a tq value of over 92.
++
++Changing this to a 64 bit unsigned integer allows to support a
++bandwidth_down with up to ~2.8e10 [100KiBit] and a perfect tq of 255. This
++is ~6.6 times higher than the maximum possible value of the gateway
++announcement TVLV.
++
++This problem only affects the non-default gw_sel_class 1.
++
++Signed-off-by: Ruben Wisniewsi <ruben@vfn-nrw.de>
++[sven@narfation.org: rewritten commit message, changed to kernel type]
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ gateway_client.c | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/gateway_client.c b/gateway_client.c
++index a85eaca..3f32357 100644
++--- a/gateway_client.c
+++++ b/gateway_client.c
++@@ -133,7 +133,7 @@ batadv_gw_get_best_gw_node(struct batadv_priv *bat_priv)
++ 	struct batadv_neigh_node *router;
++ 	struct batadv_neigh_ifinfo *router_ifinfo;
++ 	struct batadv_gw_node *gw_node, *curr_gw = NULL;
++-	uint32_t max_gw_factor = 0, tmp_gw_factor = 0;
+++	uint64_t max_gw_factor = 0, tmp_gw_factor = 0;
++ 	uint32_t gw_divisor;
++ 	uint8_t max_tq = 0;
++ 	uint8_t tq_avg;
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0002-batman-adv-avoid-DAT-to-mess-up-LAN-state.patch b/batman-adv/patches/0002-batman-adv-avoid-DAT-to-mess-up-LAN-state.patch
+new file mode 100644
+index 0000000..bdc0d4a
+--- /dev/null
++++ b/batman-adv/patches/0002-batman-adv-avoid-DAT-to-mess-up-LAN-state.patch
+@@ -0,0 +1,74 @@
++From 9bbd794030657fe0d38590cd67d4801b989cebf9 Mon Sep 17 00:00:00 2001
++From: Antonio Quartulli <antonio@meshcoding.com>
++Date: Mon, 1 Jun 2015 17:29:57 +0200
++Subject: [PATCH 02/10] batman-adv: avoid DAT to mess up LAN state
++
++When a node running DAT receives an ARP request from the LAN for the
++first time, it is likely that this node will request the ARP entry
++through the distributed ARP table (DAT) in the mesh.
++
++Once a DAT reply is received the asking node must check if the MAC
++address for which the IP address has been asked is local. If it is, the
++node must drop the ARP reply bceause the client should have replied on
++its own locally.
++
++Forwarding this reply means fooling any L2 bridge (e.g. Ethernet
++switches) lying between the batman-adv node and the LAN. This happens
++because the L2 bridge will think that the client sending the ARP reply
++lies somewhere in the mesh, while this node is sitting in the same LAN.
++
++Reported-by: Simon Wunderlich <sw@simonwunderlich.de>
++Signed-off-by: Antonio Quartulli <antonio@meshcoding.com>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ distributed-arp-table.c | 18 +++++++++++++-----
++ 1 file changed, 13 insertions(+), 5 deletions(-)
++
++diff --git a/distributed-arp-table.c b/distributed-arp-table.c
++index da1742d..0d791dc 100644
++--- a/distributed-arp-table.c
+++++ b/distributed-arp-table.c
++@@ -1107,6 +1107,9 @@ void batadv_dat_snoop_outgoing_arp_reply(struct batadv_priv *bat_priv,
++  * @bat_priv: the bat priv with all the soft interface information
++  * @skb: packet to check
++  * @hdr_size: size of the encapsulation header
+++ *
+++ * Returns true if the packet was snooped and consumed by DAT. False if the
+++ * packet has to be delivered to the interface
++  */
++ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
++ 					 struct sk_buff *skb, int hdr_size)
++@@ -1114,7 +1117,7 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
++ 	uint16_t type;
++ 	__be32 ip_src, ip_dst;
++ 	uint8_t *hw_src, *hw_dst;
++-	bool ret = false;
+++	bool dropped = false;
++ 	unsigned short vid;
++ 
++ 	if (!atomic_read(&bat_priv->distributed_arp_table))
++@@ -1143,12 +1146,17 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
++ 	/* if this REPLY is directed to a client of mine, let's deliver the
++ 	 * packet to the interface
++ 	 */
++-	ret = !batadv_is_my_client(bat_priv, hw_dst, vid);
+++	dropped = !batadv_is_my_client(bat_priv, hw_dst, vid);
+++
+++	/* if this REPLY is sent on behalf of a client of mine, let's drop the
+++	 * packet because the client will reply by itself
+++	 */
+++	dropped |= batadv_is_my_client(bat_priv, hw_src, vid);
++ out:
++-	if (ret)
+++	if (dropped)
++ 		kfree_skb(skb);
++-	/* if ret == false -> packet has to be delivered to the interface */
++-	return ret;
+++	/* if dropped == false -> deliver to the interface */
+++	return dropped;
++ }
++ 
++ /**
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0003-batman-adv-Make-DAT-capability-changes-atomic.patch b/batman-adv/patches/0003-batman-adv-Make-DAT-capability-changes-atomic.patch
+new file mode 100644
+index 0000000..aa8718a
+--- /dev/null
++++ b/batman-adv/patches/0003-batman-adv-Make-DAT-capability-changes-atomic.patch
+@@ -0,0 +1,54 @@
++From bfd0fbaef270ac4ed8e4457a38ef8d91190c0540 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
++Date: Tue, 16 Jun 2015 17:10:22 +0200
++Subject: [PATCH 03/10] batman-adv: Make DAT capability changes atomic
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Bitwise OR/AND assignments in C aren't guaranteed to be atomic. One
++OGM handler might undo the set/clear of a specific bit from another
++handler run in between.
++
++Fix this by using the atomic set_bit()/clear_bit() functions.
++
++Fixes: 2b1c07b918d2 ("batman-adv: tvlv - add distributed arp table container")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ distributed-arp-table.c | 4 ++--
++ types.h                 | 2 +-
++ 2 files changed, 3 insertions(+), 3 deletions(-)
++
++diff --git a/distributed-arp-table.c b/distributed-arp-table.c
++index 0d791dc..b2cc19b 100644
++--- a/distributed-arp-table.c
+++++ b/distributed-arp-table.c
++@@ -682,9 +682,9 @@ static void batadv_dat_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
++ 					   uint16_t tvlv_value_len)
++ {
++ 	if (flags & BATADV_TVLV_HANDLER_OGM_CIFNOTFND)
++-		orig->capabilities &= ~BATADV_ORIG_CAPA_HAS_DAT;
+++		clear_bit(BATADV_ORIG_CAPA_HAS_DAT, &orig->capabilities);
++ 	else
++-		orig->capabilities |= BATADV_ORIG_CAPA_HAS_DAT;
+++		set_bit(BATADV_ORIG_CAPA_HAS_DAT, &orig->capabilities);
++ }
++ 
++ /**
++diff --git a/types.h b/types.h
++index 28f2461..e33b5aa 100644
++--- a/types.h
+++++ b/types.h
++@@ -256,7 +256,7 @@ struct batadv_orig_node {
++ 	struct hlist_node mcast_want_all_ipv4_node;
++ 	struct hlist_node mcast_want_all_ipv6_node;
++ #endif
++-	uint8_t capabilities;
+++	unsigned long capabilities;
++ 	uint8_t capa_initialized;
++ 	atomic_t last_ttvn;
++ 	unsigned char *tt_buff;
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0004-batman-adv-Make-NC-capability-changes-atomic.patch b/batman-adv/patches/0004-batman-adv-Make-NC-capability-changes-atomic.patch
+new file mode 100644
+index 0000000..55996a9
+--- /dev/null
++++ b/batman-adv/patches/0004-batman-adv-Make-NC-capability-changes-atomic.patch
+@@ -0,0 +1,40 @@
++From 586df9e2537b51c0df7ce99576c3cee1681b64de Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
++Date: Tue, 16 Jun 2015 17:10:23 +0200
++Subject: [PATCH 04/10] batman-adv: Make NC capability changes atomic
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Bitwise OR/AND assignments in C aren't guaranteed to be atomic. One
++OGM handler might undo the set/clear of a specific bit from another
++handler run in between.
++
++Fix this by using the atomic set_bit()/clear_bit() functions.
++
++Fixes: 7dd9d8992b0c ("batman-adv: tvlv - add network coding container")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ network-coding.c | 4 ++--
++ 1 file changed, 2 insertions(+), 2 deletions(-)
++
++diff --git a/network-coding.c b/network-coding.c
++index 89e1d47..3ce493e 100644
++--- a/network-coding.c
+++++ b/network-coding.c
++@@ -105,9 +105,9 @@ static void batadv_nc_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
++ 					  uint16_t tvlv_value_len)
++ {
++ 	if (flags & BATADV_TVLV_HANDLER_OGM_CIFNOTFND)
++-		orig->capabilities &= ~BATADV_ORIG_CAPA_HAS_NC;
+++		clear_bit(BATADV_ORIG_CAPA_HAS_NC, &orig->capabilities);
++ 	else
++-		orig->capabilities |= BATADV_ORIG_CAPA_HAS_NC;
+++		set_bit(BATADV_ORIG_CAPA_HAS_NC, &orig->capabilities);
++ }
++ 
++ /**
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0005-batman-adv-Make-TT-capability-changes-atomic.patch b/batman-adv/patches/0005-batman-adv-Make-TT-capability-changes-atomic.patch
+new file mode 100644
+index 0000000..788cf32
+--- /dev/null
++++ b/batman-adv/patches/0005-batman-adv-Make-TT-capability-changes-atomic.patch
+@@ -0,0 +1,60 @@
++From a51fa16ecf3f079518baaa56bffae343bd5694f0 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
++Date: Tue, 16 Jun 2015 17:10:24 +0200
++Subject: [PATCH 05/10] batman-adv: Make TT capability changes atomic
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Bitwise OR/AND assignments in C aren't guaranteed to be atomic. One
++OGM handler might undo the set/clear of a specific bit from another
++handler run in between.
++
++Fix this by using the atomic set_bit()/clear_bit() functions.
++
++Fixes: 5d2121af6d31 ("batman-adv: introduce capability initialization bitfield")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ translation-table.c | 4 ++--
++ types.h             | 2 +-
++ 2 files changed, 3 insertions(+), 3 deletions(-)
++
++diff --git a/translation-table.c b/translation-table.c
++index b098e53..e95a424 100644
++--- a/translation-table.c
+++++ b/translation-table.c
++@@ -1843,7 +1843,7 @@ void batadv_tt_global_del_orig(struct batadv_priv *bat_priv,
++ 		}
++ 		spin_unlock_bh(list_lock);
++ 	}
++-	orig_node->capa_initialized &= ~BATADV_ORIG_CAPA_HAS_TT;
+++	clear_bit(BATADV_ORIG_CAPA_HAS_TT, &orig_node->capa_initialized);
++ }
++ 
++ static bool batadv_tt_global_to_purge(struct batadv_tt_global_entry *tt_global,
++@@ -2802,7 +2802,7 @@ static void _batadv_tt_update_changes(struct batadv_priv *bat_priv,
++ 				return;
++ 		}
++ 	}
++-	orig_node->capa_initialized |= BATADV_ORIG_CAPA_HAS_TT;
+++	set_bit(BATADV_ORIG_CAPA_HAS_TT, &orig_node->capa_initialized);
++ }
++ 
++ static void batadv_tt_fill_gtable(struct batadv_priv *bat_priv,
++diff --git a/types.h b/types.h
++index e33b5aa..c6ec558 100644
++--- a/types.h
+++++ b/types.h
++@@ -257,7 +257,7 @@ struct batadv_orig_node {
++ 	struct hlist_node mcast_want_all_ipv6_node;
++ #endif
++ 	unsigned long capabilities;
++-	uint8_t capa_initialized;
+++	unsigned long capa_initialized;
++ 	atomic_t last_ttvn;
++ 	unsigned char *tt_buff;
++ 	int16_t tt_buff_len;
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0006-batman-adv-Make-MCAST-capability-changes-atomic.patch b/batman-adv/patches/0006-batman-adv-Make-MCAST-capability-changes-atomic.patch
+new file mode 100644
+index 0000000..7876e28
+--- /dev/null
++++ b/batman-adv/patches/0006-batman-adv-Make-MCAST-capability-changes-atomic.patch
+@@ -0,0 +1,50 @@
++From 201a54ba710ab7f40b82ad3c109f702c47d0761f Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
++Date: Tue, 16 Jun 2015 17:10:25 +0200
++Subject: [PATCH 06/10] batman-adv: Make MCAST capability changes atomic
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Bitwise OR/AND assignments in C aren't guaranteed to be atomic. One
++OGM handler might undo the set/clear of a specific bit from another
++handler run in between.
++
++Fix this by using the atomic set_bit()/clear_bit() functions.
++
++Fixes: 77ec494490d6 ("batman-adv: Announce new capability via multicast TVLV")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ multicast.c | 6 +++---
++ 1 file changed, 3 insertions(+), 3 deletions(-)
++
++diff --git a/multicast.c b/multicast.c
++index 09f2838..00612bf 100644
++--- a/multicast.c
+++++ b/multicast.c
++@@ -684,7 +684,7 @@ static void batadv_mcast_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
++ 	    !(orig->capabilities & BATADV_ORIG_CAPA_HAS_MCAST)) {
++ 		if (orig_initialized)
++ 			atomic_dec(&bat_priv->mcast.num_disabled);
++-		orig->capabilities |= BATADV_ORIG_CAPA_HAS_MCAST;
+++		set_bit(BATADV_ORIG_CAPA_HAS_MCAST, &orig->capabilities);
++ 	/* If mcast support is being switched off or if this is an initial
++ 	 * OGM without mcast support then increase the disabled mcast
++ 	 * node counter.
++@@ -693,10 +693,10 @@ static void batadv_mcast_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
++ 		   (orig->capabilities & BATADV_ORIG_CAPA_HAS_MCAST ||
++ 		    !orig_initialized)) {
++ 		atomic_inc(&bat_priv->mcast.num_disabled);
++-		orig->capabilities &= ~BATADV_ORIG_CAPA_HAS_MCAST;
+++		clear_bit(BATADV_ORIG_CAPA_HAS_MCAST, &orig->capabilities);
++ 	}
++ 
++-	orig->capa_initialized |= BATADV_ORIG_CAPA_HAS_MCAST;
+++	set_bit(BATADV_ORIG_CAPA_HAS_MCAST, &orig->capa_initialized);
++ 
++ 	if (orig_mcast_enabled && tvlv_value &&
++ 	    (tvlv_value_len >= sizeof(mcast_flags)))
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0007-batman-adv-Fix-potential-synchronization-issues-in-m.patch b/batman-adv/patches/0007-batman-adv-Fix-potential-synchronization-issues-in-m.patch
+new file mode 100644
+index 0000000..2688efd
+--- /dev/null
++++ b/batman-adv/patches/0007-batman-adv-Fix-potential-synchronization-issues-in-m.patch
+@@ -0,0 +1,254 @@
++From 7f220ed1f063be00833bd34a013c8f3f45884031 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
++Date: Tue, 16 Jun 2015 17:10:26 +0200
++Subject: [PATCH 07/10] batman-adv: Fix potential synchronization issues in
++ mcast tvlv handler
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++So far the mcast tvlv handler did not anticipate the processing of
++multiple incoming OGMs from the same originator at the same time. This
++can lead to various issues:
++
++* Broken refcounting: For instance two mcast handlers might both assume
++  that an originator just got multicast capabilities and will together
++  wrongly decrease mcast.num_disabled by two, potentially leading to
++  an integer underflow.
++
++* Potential kernel panic on hlist_del_rcu(): Two mcast handlers might
++  one after another try to do an
++  hlist_del_rcu(&orig->mcast_want_all_*_node). The second one will
++  cause memory corruption / crashes.
++  (Reported by: Sven Eckelmann <sven@narfation.org>)
++
++Right in the beginning the code path makes assumptions about the current
++multicast related state of an originator and bases all updates on that. The
++easiest and least error prune way to fix the issues in this case is to
++serialize multiple mcast handler invocations with a spinlock.
++
++Fixes: 77ec494490d6 ("batman-adv: Announce new capability via multicast TVLV")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ multicast.c  | 62 +++++++++++++++++++++++++++++++++++++++++++++++-------------
++ originator.c |  4 ++++
++ types.h      |  3 +++
++ 3 files changed, 56 insertions(+), 13 deletions(-)
++
++diff --git a/multicast.c b/multicast.c
++index 00612bf..b75bcc3 100644
++--- a/multicast.c
+++++ b/multicast.c
++@@ -565,19 +565,26 @@ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
++  *
++  * If the BATADV_MCAST_WANT_ALL_UNSNOOPABLES flag of this originator,
++  * orig, has toggled then this method updates counter and list accordingly.
+++ *
+++ * Caller needs to hold orig->mcast_handler_lock.
++  */
++ static void batadv_mcast_want_unsnoop_update(struct batadv_priv *bat_priv,
++ 					     struct batadv_orig_node *orig,
++ 					     uint8_t mcast_flags)
++ {
+++	struct hlist_node *node = &orig->mcast_want_all_unsnoopables_node;
+++	struct hlist_head *head = &bat_priv->mcast.want_all_unsnoopables_list;
+++
++ 	/* switched from flag unset to set */
++ 	if (mcast_flags & BATADV_MCAST_WANT_ALL_UNSNOOPABLES &&
++ 	    !(orig->mcast_flags & BATADV_MCAST_WANT_ALL_UNSNOOPABLES)) {
++ 		atomic_inc(&bat_priv->mcast.num_want_all_unsnoopables);
++ 
++ 		spin_lock_bh(&bat_priv->mcast.want_lists_lock);
++-		hlist_add_head_rcu(&orig->mcast_want_all_unsnoopables_node,
++-				   &bat_priv->mcast.want_all_unsnoopables_list);
+++		/* flag checks above + mcast_handler_lock prevents this */
+++		BUG_ON(!hlist_unhashed(node));
+++
+++		hlist_add_head_rcu(node, head);
++ 		spin_unlock_bh(&bat_priv->mcast.want_lists_lock);
++ 	/* switched from flag set to unset */
++ 	} else if (!(mcast_flags & BATADV_MCAST_WANT_ALL_UNSNOOPABLES) &&
++@@ -585,7 +592,10 @@ static void batadv_mcast_want_unsnoop_update(struct batadv_priv *bat_priv,
++ 		atomic_dec(&bat_priv->mcast.num_want_all_unsnoopables);
++ 
++ 		spin_lock_bh(&bat_priv->mcast.want_lists_lock);
++-		hlist_del_rcu(&orig->mcast_want_all_unsnoopables_node);
+++		/* flag checks above + mcast_handler_lock prevents this */
+++		BUG_ON(hlist_unhashed(node));
+++
+++		hlist_del_init_rcu(node);
++ 		spin_unlock_bh(&bat_priv->mcast.want_lists_lock);
++ 	}
++ }
++@@ -598,19 +608,26 @@ static void batadv_mcast_want_unsnoop_update(struct batadv_priv *bat_priv,
++  *
++  * If the BATADV_MCAST_WANT_ALL_IPV4 flag of this originator, orig, has
++  * toggled then this method updates counter and list accordingly.
+++ *
+++ * Caller needs to hold orig->mcast_handler_lock.
++  */
++ static void batadv_mcast_want_ipv4_update(struct batadv_priv *bat_priv,
++ 					  struct batadv_orig_node *orig,
++ 					  uint8_t mcast_flags)
++ {
+++	struct hlist_node *node = &orig->mcast_want_all_ipv4_node;
+++	struct hlist_head *head = &bat_priv->mcast.want_all_ipv4_list;
+++
++ 	/* switched from flag unset to set */
++ 	if (mcast_flags & BATADV_MCAST_WANT_ALL_IPV4 &&
++ 	    !(orig->mcast_flags & BATADV_MCAST_WANT_ALL_IPV4)) {
++ 		atomic_inc(&bat_priv->mcast.num_want_all_ipv4);
++ 
++ 		spin_lock_bh(&bat_priv->mcast.want_lists_lock);
++-		hlist_add_head_rcu(&orig->mcast_want_all_ipv4_node,
++-				   &bat_priv->mcast.want_all_ipv4_list);
+++		/* flag checks above + mcast_handler_lock prevents this */
+++		BUG_ON(!hlist_unhashed(node));
+++
+++		hlist_add_head_rcu(node, head);
++ 		spin_unlock_bh(&bat_priv->mcast.want_lists_lock);
++ 	/* switched from flag set to unset */
++ 	} else if (!(mcast_flags & BATADV_MCAST_WANT_ALL_IPV4) &&
++@@ -618,7 +635,10 @@ static void batadv_mcast_want_ipv4_update(struct batadv_priv *bat_priv,
++ 		atomic_dec(&bat_priv->mcast.num_want_all_ipv4);
++ 
++ 		spin_lock_bh(&bat_priv->mcast.want_lists_lock);
++-		hlist_del_rcu(&orig->mcast_want_all_ipv4_node);
+++		/* flag checks above + mcast_handler_lock prevents this */
+++		BUG_ON(hlist_unhashed(node));
+++
+++		hlist_del_init_rcu(node);
++ 		spin_unlock_bh(&bat_priv->mcast.want_lists_lock);
++ 	}
++ }
++@@ -631,19 +651,26 @@ static void batadv_mcast_want_ipv4_update(struct batadv_priv *bat_priv,
++  *
++  * If the BATADV_MCAST_WANT_ALL_IPV6 flag of this originator, orig, has
++  * toggled then this method updates counter and list accordingly.
+++ *
+++ * Caller needs to hold orig->mcast_handler_lock.
++  */
++ static void batadv_mcast_want_ipv6_update(struct batadv_priv *bat_priv,
++ 					  struct batadv_orig_node *orig,
++ 					  uint8_t mcast_flags)
++ {
+++	struct hlist_node *node = &orig->mcast_want_all_ipv6_node;
+++	struct hlist_head *head = &bat_priv->mcast.want_all_ipv6_list;
+++
++ 	/* switched from flag unset to set */
++ 	if (mcast_flags & BATADV_MCAST_WANT_ALL_IPV6 &&
++ 	    !(orig->mcast_flags & BATADV_MCAST_WANT_ALL_IPV6)) {
++ 		atomic_inc(&bat_priv->mcast.num_want_all_ipv6);
++ 
++ 		spin_lock_bh(&bat_priv->mcast.want_lists_lock);
++-		hlist_add_head_rcu(&orig->mcast_want_all_ipv6_node,
++-				   &bat_priv->mcast.want_all_ipv6_list);
+++		/* flag checks above + mcast_handler_lock prevents this */
+++		BUG_ON(!hlist_unhashed(node));
+++
+++		hlist_add_head_rcu(node, head);
++ 		spin_unlock_bh(&bat_priv->mcast.want_lists_lock);
++ 	/* switched from flag set to unset */
++ 	} else if (!(mcast_flags & BATADV_MCAST_WANT_ALL_IPV6) &&
++@@ -651,7 +678,10 @@ static void batadv_mcast_want_ipv6_update(struct batadv_priv *bat_priv,
++ 		atomic_dec(&bat_priv->mcast.num_want_all_ipv6);
++ 
++ 		spin_lock_bh(&bat_priv->mcast.want_lists_lock);
++-		hlist_del_rcu(&orig->mcast_want_all_ipv6_node);
+++		/* flag checks above + mcast_handler_lock prevents this */
+++		BUG_ON(hlist_unhashed(node));
+++
+++		hlist_del_init_rcu(node);
++ 		spin_unlock_bh(&bat_priv->mcast.want_lists_lock);
++ 	}
++ }
++@@ -674,6 +704,11 @@ static void batadv_mcast_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
++ 	uint8_t mcast_flags = BATADV_NO_FLAGS;
++ 	bool orig_initialized;
++ 
+++	if (orig_mcast_enabled && tvlv_value &&
+++	    (tvlv_value_len >= sizeof(mcast_flags)))
+++		mcast_flags = *(uint8_t *)tvlv_value;
+++
+++	spin_lock_bh(&orig->mcast_handler_lock);
++ 	orig_initialized = orig->capa_initialized & BATADV_ORIG_CAPA_HAS_MCAST;
++ 
++ 	/* If mcast support is turned on decrease the disabled mcast node
++@@ -698,15 +733,12 @@ static void batadv_mcast_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
++ 
++ 	set_bit(BATADV_ORIG_CAPA_HAS_MCAST, &orig->capa_initialized);
++ 
++-	if (orig_mcast_enabled && tvlv_value &&
++-	    (tvlv_value_len >= sizeof(mcast_flags)))
++-		mcast_flags = *(uint8_t *)tvlv_value;
++-
++ 	batadv_mcast_want_unsnoop_update(bat_priv, orig, mcast_flags);
++ 	batadv_mcast_want_ipv4_update(bat_priv, orig, mcast_flags);
++ 	batadv_mcast_want_ipv6_update(bat_priv, orig, mcast_flags);
++ 
++ 	orig->mcast_flags = mcast_flags;
+++	spin_unlock_bh(&orig->mcast_handler_lock);
++ }
++ 
++ /**
++@@ -740,6 +772,8 @@ void batadv_mcast_purge_orig(struct batadv_orig_node *orig)
++ {
++ 	struct batadv_priv *bat_priv = orig->bat_priv;
++ 
+++	spin_lock_bh(&orig->mcast_handler_lock);
+++
++ 	if (!(orig->capabilities & BATADV_ORIG_CAPA_HAS_MCAST) &&
++ 	    orig->capa_initialized & BATADV_ORIG_CAPA_HAS_MCAST)
++ 		atomic_dec(&bat_priv->mcast.num_disabled);
++@@ -747,4 +781,6 @@ void batadv_mcast_purge_orig(struct batadv_orig_node *orig)
++ 	batadv_mcast_want_unsnoop_update(bat_priv, orig, BATADV_NO_FLAGS);
++ 	batadv_mcast_want_ipv4_update(bat_priv, orig, BATADV_NO_FLAGS);
++ 	batadv_mcast_want_ipv6_update(bat_priv, orig, BATADV_NO_FLAGS);
+++
+++	spin_unlock_bh(&orig->mcast_handler_lock);
++ }
++diff --git a/originator.c b/originator.c
++index e3900e4..a2ba182 100644
++--- a/originator.c
+++++ b/originator.c
++@@ -658,11 +658,15 @@ struct batadv_orig_node *batadv_orig_node_new(struct batadv_priv *bat_priv,
++ 	INIT_HLIST_HEAD(&orig_node->neigh_list);
++ 	INIT_LIST_HEAD(&orig_node->vlan_list);
++ 	INIT_HLIST_HEAD(&orig_node->ifinfo_list);
+++	INIT_HLIST_NODE(&orig_node->mcast_want_all_unsnoopables_node);
+++	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv4_node);
+++	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv6_node);
++ 	spin_lock_init(&orig_node->bcast_seqno_lock);
++ 	spin_lock_init(&orig_node->neigh_list_lock);
++ 	spin_lock_init(&orig_node->tt_buff_lock);
++ 	spin_lock_init(&orig_node->tt_lock);
++ 	spin_lock_init(&orig_node->vlan_list_lock);
+++	spin_lock_init(&orig_node->mcast_handler_lock);
++ 
++ 	batadv_nc_init_orig(orig_node);
++ 
++diff --git a/types.h b/types.h
++index c6ec558..65dc6bf 100644
++--- a/types.h
+++++ b/types.h
++@@ -204,6 +204,7 @@ struct batadv_orig_bat_iv {
++  * @batadv_dat_addr_t:  address of the orig node in the distributed hash
++  * @last_seen: time when last packet from this node was received
++  * @bcast_seqno_reset: time when the broadcast seqno window was reset
+++ * @mcast_handler_lock: synchronizes mcast-capability and -flag changes
++  * @mcast_flags: multicast flags announced by the orig node
++  * @mcast_want_all_unsnoop_node: a list node for the
++  *  mcast.want_all_unsnoopables list
++@@ -251,6 +252,8 @@ struct batadv_orig_node {
++ 	unsigned long last_seen;
++ 	unsigned long bcast_seqno_reset;
++ #ifdef CONFIG_BATMAN_ADV_MCAST
+++	/* synchronizes mcast tvlv specific orig changes */
+++	spinlock_t mcast_handler_lock;
++ 	uint8_t mcast_flags;
++ 	struct hlist_node mcast_want_all_unsnoopables_node;
++ 	struct hlist_node mcast_want_all_ipv4_node;
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0008-batman-adv-Fix-compile-error-on-deactivated-MCAST-fe.patch b/batman-adv/patches/0008-batman-adv-Fix-compile-error-on-deactivated-MCAST-fe.patch
+new file mode 100644
+index 0000000..e0bfa70
+--- /dev/null
++++ b/batman-adv/patches/0008-batman-adv-Fix-compile-error-on-deactivated-MCAST-fe.patch
+@@ -0,0 +1,58 @@
++From 256776ef8562744f90ac9379364df4cf88291b49 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
++Date: Thu, 18 Jun 2015 06:47:19 +0200
++Subject: [PATCH 08/10] batman-adv: Fix compile error on deactivated MCAST
++ feature
++MIME-Version: 1.0
++Content-Type: text/plain; charset=UTF-8
++Content-Transfer-Encoding: 8bit
++
++Some members of "struct batadv_orig_node" are not available if compiling
++without the multicast optimizations feature.
++
++Fix this by moving their initialization into the right #ifdef's.
++
++Fixes: 7f220ed1f063 ("batman-adv: Fix potential synchronization issues in mcast tvlv handler")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++---
++ originator.c | 9 +++++----
++ 1 file changed, 5 insertions(+), 4 deletions(-)
++
++diff --git a/originator.c b/originator.c
++index a2ba182..a5276db 100644
++--- a/originator.c
+++++ b/originator.c
++@@ -658,15 +658,11 @@ struct batadv_orig_node *batadv_orig_node_new(struct batadv_priv *bat_priv,
++ 	INIT_HLIST_HEAD(&orig_node->neigh_list);
++ 	INIT_LIST_HEAD(&orig_node->vlan_list);
++ 	INIT_HLIST_HEAD(&orig_node->ifinfo_list);
++-	INIT_HLIST_NODE(&orig_node->mcast_want_all_unsnoopables_node);
++-	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv4_node);
++-	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv6_node);
++ 	spin_lock_init(&orig_node->bcast_seqno_lock);
++ 	spin_lock_init(&orig_node->neigh_list_lock);
++ 	spin_lock_init(&orig_node->tt_buff_lock);
++ 	spin_lock_init(&orig_node->tt_lock);
++ 	spin_lock_init(&orig_node->vlan_list_lock);
++-	spin_lock_init(&orig_node->mcast_handler_lock);
++ 
++ 	batadv_nc_init_orig(orig_node);
++ 
++@@ -682,8 +678,13 @@ struct batadv_orig_node *batadv_orig_node_new(struct batadv_priv *bat_priv,
++ 	orig_node->last_seen = jiffies;
++ 	reset_time = jiffies - 1 - msecs_to_jiffies(BATADV_RESET_PROTECTION_MS);
++ 	orig_node->bcast_seqno_reset = reset_time;
+++
++ #ifdef CONFIG_BATMAN_ADV_MCAST
++ 	orig_node->mcast_flags = BATADV_NO_FLAGS;
+++	INIT_HLIST_NODE(&orig_node->mcast_want_all_unsnoopables_node);
+++	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv4_node);
+++	INIT_HLIST_NODE(&orig_node->mcast_want_all_ipv6_node);
+++	spin_lock_init(&orig_node->mcast_handler_lock);
++ #endif
++ 
++ 	/* create a vlan object for the "untagged" LAN */
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0009-batman-adv-fix-kernel-crash-due-to-missing-NULL-chec.patch b/batman-adv/patches/0009-batman-adv-fix-kernel-crash-due-to-missing-NULL-chec.patch
+new file mode 100644
+index 0000000..0fc7f4e
+--- /dev/null
++++ b/batman-adv/patches/0009-batman-adv-fix-kernel-crash-due-to-missing-NULL-chec.patch
+@@ -0,0 +1,93 @@
++From 2c2dfd886a400057ccbc66f1507c94ed909d2a89 Mon Sep 17 00:00:00 2001
++From: Marek Lindner <mareklindner@neomailbox.ch>
++Date: Tue, 9 Jun 2015 21:24:36 +0800
++Subject: [PATCH 09/10] batman-adv: fix kernel crash due to missing NULL checks
++
++batadv_softif_vlan_get() may return NULL which has to be verified
++by the caller.
++
++Fixes: 9729d20 ("batman-adv: fix TT VLAN inconsistency on VLAN re-add")
++
++Reported-by: Ryan Thompson <ryan@eero.com>
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++Acked-by: Antonio Quartulli <antonio@meshcoding.com>
++---
++ soft-interface.c    |  3 +++
++ translation-table.c | 19 +++++++++++++++----
++ 2 files changed, 18 insertions(+), 4 deletions(-)
++
++diff --git a/soft-interface.c b/soft-interface.c
++index da89336..7841a4b 100644
++--- a/soft-interface.c
+++++ b/soft-interface.c
++@@ -455,6 +455,9 @@ out:
++  */
++ void batadv_softif_vlan_free_ref(struct batadv_softif_vlan *vlan)
++ {
+++	if (!vlan)
+++		return;
+++
++ 	if (atomic_dec_and_test(&vlan->refcount)) {
++ 		spin_lock_bh(&vlan->bat_priv->softif_vlan_list_lock);
++ 		hlist_del_rcu(&vlan->list);
++diff --git a/translation-table.c b/translation-table.c
++index e95a424..807a4e6 100644
++--- a/translation-table.c
+++++ b/translation-table.c
++@@ -26,6 +26,7 @@
++ #include "bridge_loop_avoidance.h"
++ #include "multicast.h"
++ 
+++#include <linux/bug.h>
++ #include <linux/crc32c.h>
++ 
++ /* hash class keys */
++@@ -575,6 +576,9 @@ bool batadv_tt_local_add(struct net_device *soft_iface, const uint8_t *addr,
++ 
++ 	/* increase the refcounter of the related vlan */
++ 	vlan = batadv_softif_vlan_get(bat_priv, vid);
+++	if (WARN(!vlan, "adding TT local entry %pM to non-existent VLAN %d",
+++		 addr, BATADV_PRINT_VID(vid)))
+++		goto out;
++ 
++ 	batadv_dbg(BATADV_DBG_TT, bat_priv,
++ 		   "Creating new local tt entry: %pM (vid: %d, ttvn: %d)\n",
++@@ -1047,6 +1051,9 @@ uint16_t batadv_tt_local_remove(struct batadv_priv *bat_priv,
++ 
++ 	/* decrease the reference held for this vlan */
++ 	vlan = batadv_softif_vlan_get(bat_priv, vid);
+++	if (!vlan)
+++		goto out;
+++
++ 	batadv_softif_vlan_free_ref(vlan);
++ 	batadv_softif_vlan_free_ref(vlan);
++ 
++@@ -1147,8 +1154,10 @@ static void batadv_tt_local_table_free(struct batadv_priv *bat_priv)
++ 			/* decrease the reference held for this vlan */
++ 			vlan = batadv_softif_vlan_get(bat_priv,
++ 						      tt_common_entry->vid);
++-			batadv_softif_vlan_free_ref(vlan);
++-			batadv_softif_vlan_free_ref(vlan);
+++			if (vlan) {
+++				batadv_softif_vlan_free_ref(vlan);
+++				batadv_softif_vlan_free_ref(vlan);
+++			}
++ 
++ 			batadv_tt_local_entry_free_ref(tt_local);
++ 		}
++@@ -3188,8 +3197,10 @@ static void batadv_tt_local_purge_pending_clients(struct batadv_priv *bat_priv)
++ 
++ 			/* decrease the reference held for this vlan */
++ 			vlan = batadv_softif_vlan_get(bat_priv, tt_common->vid);
++-			batadv_softif_vlan_free_ref(vlan);
++-			batadv_softif_vlan_free_ref(vlan);
+++			if (vlan) {
+++				batadv_softif_vlan_free_ref(vlan);
+++				batadv_softif_vlan_free_ref(vlan);
+++			}
++ 
++ 			batadv_tt_local_entry_free_ref(tt_local);
++ 		}
++-- 
++2.1.4
++
+diff --git a/batman-adv/patches/0010-batman-adv-protect-tt_local_entry-from-concurrent-de.patch b/batman-adv/patches/0010-batman-adv-protect-tt_local_entry-from-concurrent-de.patch
+new file mode 100644
+index 0000000..ed90549
+--- /dev/null
++++ b/batman-adv/patches/0010-batman-adv-protect-tt_local_entry-from-concurrent-de.patch
+@@ -0,0 +1,55 @@
++From af912d77181f252e6fdd324592d006e30bc82909 Mon Sep 17 00:00:00 2001
++From: Marek Lindner <mareklindner@neomailbox.ch>
++Date: Wed, 17 Jun 2015 20:01:36 +0800
++Subject: [PATCH 10/10] batman-adv: protect tt_local_entry from concurrent
++ delete events
++
++The tt_local_entry deletion performed in batadv_tt_local_remove() was neither
++protecting against simultaneous deletes nor checking whether the element was
++still part of the list before calling hlist_del_rcu().
++
++Replacing the hlist_del_rcu() call with batadv_hash_remove() provides adequate
++protection via hash spinlocks as well as an is-element-still-in-hash check to
++avoid 'blind' hash removal.
++
++Fixes: 2443ba3 ("batman-adv: roaming handling mechanism redesign")
++
++Reported-by: alfonsname@web.de
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++Acked-by: Antonio Quartulli <antonio@meshcoding.com>
++---
++ translation-table.c | 11 ++++++++++-
++ 1 file changed, 10 insertions(+), 1 deletion(-)
++
++diff --git a/translation-table.c b/translation-table.c
++index 807a4e6..dfe8896 100644
++--- a/translation-table.c
+++++ b/translation-table.c
++@@ -1019,6 +1019,7 @@ uint16_t batadv_tt_local_remove(struct batadv_priv *bat_priv,
++ 	struct batadv_tt_local_entry *tt_local_entry;
++ 	uint16_t flags, curr_flags = BATADV_NO_FLAGS;
++ 	struct batadv_softif_vlan *vlan;
+++	void *tt_entry_exists;
++ 
++ 	tt_local_entry = batadv_tt_local_hash_find(bat_priv, addr, vid);
++ 	if (!tt_local_entry)
++@@ -1046,7 +1047,15 @@ uint16_t batadv_tt_local_remove(struct batadv_priv *bat_priv,
++ 	 * immediately purge it
++ 	 */
++ 	batadv_tt_local_event(bat_priv, tt_local_entry, BATADV_TT_CLIENT_DEL);
++-	hlist_del_rcu(&tt_local_entry->common.hash_entry);
+++
+++	tt_entry_exists = batadv_hash_remove(bat_priv->tt.local_hash,
+++					     batadv_compare_tt,
+++					     batadv_choose_tt,
+++					     &tt_local_entry->common);
+++	if (!tt_entry_exists)
+++		goto out;
+++
+++	/* extra call to free the local tt entry */
++ 	batadv_tt_local_entry_free_ref(tt_local_entry);
++ 
++ 	/* decrease the reference held for this vlan */
++-- 
++2.1.4
++
+-- 
+2.1.4
+
