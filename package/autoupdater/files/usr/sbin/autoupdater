@@ -114,7 +114,7 @@ fetch_firmware() {
   wget -T 120 -O$fw_image "${MIRROR}/${fw_file}" &> /dev/null
 
   if test $? -ne 0; then
-    echo "Error downloading image from $MIRROR" >&2
+    echo "Cannot contact update server: $MIRROR" >&2
     return 1
   fi
 
