@@ -1,4 +1,4 @@
-From d06cb6fd6fc3748b20e3314cb660a9329eeeb394 Mon Sep 17 00:00:00 2001
+From 1d210a4d46a996c92bd3754b61a82c6742e7b1ab Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Fri, 3 Apr 2015 21:57:11 +0200
 Subject: [PATCH 3/6] batman-adv: add no_rebroadcast feature to netifd script

@@ -1,4 +1,4 @@
-From 242aa3613f8a0231eeeaa66904a8f5db5fb6a8cf Mon Sep 17 00:00:00 2001
+From 66f1cf995408cfbd7ae3b32385b08eed8da03808 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Mon, 15 Jun 2015 00:23:47 +0200
 Subject: [PATCH 5/6] alfred: upgrade package to latest release 2015.0
