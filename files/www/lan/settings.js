@@ -79,6 +79,11 @@ function appendSetting(p, path, value, mode)
 			b = append_radio(p, "Bandbreitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Bandbreitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
+		if(cfg == "fastd") {
+			b = append_radio(p, "Fastd VPN", id, value, [["An", "1"], ["Aus", "0"]]);
+			addClass(b.lastChild, "adv_hide");
+			addHelpText(b, "Eine VPN-Verbindung zum Server \xfcber WAN aufbauen (per fastd).");
+		}
 		break;
 	case "publish_map":
 		b = append_radio(p, "Zur Karte beitragen", id, value, [["Ja", "1"], ["Nein", "0"]]);
@@ -173,6 +178,12 @@ function rebuild_general()
 		appendSetting(tfs, ['simple-tc', i, "enabled"], t[i]["enabled"]);
 		appendSetting(tfs, ['simple-tc', i, "limit_ingress"], t[i]["limit_ingress"]);
 		appendSetting(tfs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
+	}
+
+	if('fastd' in uci) {
+		var a = uci.fastd;
+		var i = firstSectionID(a, "fastd");
+		appendSetting(gfs, ['fastd', i, "enabled"], a[i]["enabled"]);
 	}
 }
 

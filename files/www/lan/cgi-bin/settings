@@ -10,6 +10,7 @@ case "$GET_func" in
 		uci export -qn autoupdater
 		uci export -qn simple-tc
 		uci export -qn autoupdater
+		uci export -qn fastd
 
 		ula_prefix="$(uci get -q network.globals.ula_prefix)"
 		echo "package network"
