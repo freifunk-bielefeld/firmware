@@ -300,24 +300,24 @@ initial_setup()
 	cp /etc/config/network /etc/config/network_defaults
 
 	#reduce NDP traffic
-	cat >> /etc/sysctl.conf <<  EOF
+	cat >> /etc/sysctl.conf <<-  EOF
 
-# increase neighbor table timings by a factor of 10
-net.ipv6.neigh.default.gc_interval=300
-net.ipv6.neigh.default.gc_stale_time=600
-net.ipv6.neigh.default.base_reachable_time_ms=300
+	# increase neighbor table timings by a factor of 10
+	net.ipv6.neigh.default.gc_interval=300
+	net.ipv6.neigh.default.gc_stale_time=600
+	net.ipv6.neigh.default.base_reachable_time_ms=300
 
-# by default, either accept_ra or forwarding is enabled
-# disable both here, since OpenWrt handles both apart from the Linux kernel
-net.ipv6.conf.all.accept_ra=0
-net.ipv6.conf.default.accept_ra=0
-net.ipv6.conf.br-freifunk.forwarding=0
-net.ipv6.conf.br-lan.forwarding=0
+	# by default, either accept_ra or forwarding is enabled
+	# disable both here, since OpenWrt handles both apart from the Linux kernel
+	net.ipv6.conf.all.accept_ra=0
+	net.ipv6.conf.default.accept_ra=0
+	net.ipv6.conf.br-freifunk.forwarding=0
+	net.ipv6.conf.br-lan.forwarding=0
 
-#reboot on out of memory
-vm.panic_on_oom=1
+	#reboot on out of memory
+	vm.panic_on_oom=1
 
-EOF
+	EOF
 
 	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 
@@ -369,13 +369,14 @@ update_041_to_042()
 	sed -i "/net.ipv6.conf.br-freifunk.forwarding.*/d" /etc/sysctl.conf
 	sed -i "/net.ipv6.conf.br-lan.forwarding.*/d" /etc/sysctl.conf
 
-	cat >> /etc/sysctl.conf <<  EOF
+	cat >> /etc/sysctl.conf <<-  EOF
 
-# increase neighbor table timings by a factor of 10
-net.ipv6.neigh.default.gc_interval=300
-net.ipv6.neigh.default.gc_stale_time=600
-net.ipv6.neigh.default.base_reachable_time_ms=300
-EOF
+	# increase neighbor table timings by a factor of 10
+	net.ipv6.neigh.default.gc_interval=300
+	net.ipv6.neigh.default.gc_stale_time=600
+	net.ipv6.neigh.default.base_reachable_time_ms=300
+
+	EOF
 }
 
 update_042_to_043() {
