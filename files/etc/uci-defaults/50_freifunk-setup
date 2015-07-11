@@ -122,11 +122,13 @@ initial_local_node_setup()
 
 	local ula_prefix="$(uci get network.globals.ula_prefix)"
 	local addr6="${ula_prefix%%::*}::0"
+	local addr4="10.26.127.1"
+	local mac="16:41:95:40:f7:dc"
 	local s
 
 	s='local_node_dev'
 	uci set network.$s='device'
-	uci set network.$s.macaddr='16:41:95:40:f7:dc'
+	uci set network.$s.macaddr="$mac"
 	uci set network.$s.ifname='br-freifunk'
 	uci set network.$s.name='local-node'
 	uci set network.$s.type='macvlan'
@@ -152,13 +154,24 @@ initial_local_node_setup()
 	uci set network.$s.gateway='::'
 	uci set network.$s.interface='freifunk'
 
-	s='local_node'
-	uci set firewall.$s='zone'
-	uci set firewall.$s.name='local_node'
-	uci set firewall.$s.input='ACCEPT'
-	uci set firewall.$s.forward='REJECT'
-	uci add_list firewall.$s.network='local_node'
-	uci set firewall.$s.output='ACCEPT'
+	cat >> /etc/firewall.user <<-  EOF
+
+	#isolate local-node addresses based on MAC
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -d $mac -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -d $mac -j DROP
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -s $mac -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -s $mac -j DROP
+
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv4 --ip-destination $addr4 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv4 --ip-destination $addr4 -j DROP
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4 -j DROP
+
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv6 --ip6-destination $addr6 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-destination $addr6 -j DROP
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv6 --ip6-source $addr6 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-source $addr6 -j DROP
+	EOF
 }
 
 initial_wan_setup()
