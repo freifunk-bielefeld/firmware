@@ -81,8 +81,8 @@ function appendSetting(p, path, value, mode)
 		}
 		if(cfg == "fastd") {
 			b = append_radio(p, "Fastd VPN", id, value, [["An", "1"], ["Aus", "0"]]);
-			addClass(b.lastChild, "adv_hide");
 			addHelpText(b, "Eine VPN-Verbindung zum Server \xfcber WAN aufbauen (per fastd).");
+			addClass(b, "adv_hide");
 		}
 		break;
 	case "publish_map":

@@ -41,7 +41,6 @@ initial_wifi_setup()
 			uci set wireless.$ds.channel=1
 		fi
 
-		uci set wireless.$ds.txpower='-'
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
 

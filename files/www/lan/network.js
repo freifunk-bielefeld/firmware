@@ -24,7 +24,7 @@ var txpower_choices = [
 ["5 dBm (3 mW)", "5"],
 ["4 dBm (2 mW)", "4"],
 ["0 dBm (1 mW)", "0"],
-["default", "-"]
+["default", "undefined"]
 ];
 
 function init()
@@ -87,9 +87,10 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
 		break;
 	case "txpower":
+		value = value ? value : 'undefined';
 		b = append_selection(p, "txpower", id, value, txpower_choices);
-		addClass(b.lastChild, "adv_hide");
 		addHelpText(b, "Die Sendeleistung in dBm. Achtung! Beim Tausch der Antennen muss die Sendeleistung entsprechend angepasst werden!");
+		addClass(b, "adv_hide");
 		break;
 	case "mode":
 		if(!inArray(mode, ["wan", "none"]))
@@ -388,6 +389,8 @@ function rebuild_wifi()
 
 		for(var sid in obj)
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
+
+		appendSetting(fs, ['wireless', dev, 'txpower'], obj['txpower']);
 
 		var lan_help = "<b>LAN</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
 		var freifunk_help = "<b>Freifunk</b>: Der WLAN-Zugang zum Freifunk-Netz.";
