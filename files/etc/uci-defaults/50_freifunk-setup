@@ -7,6 +7,9 @@ exec >/root/freifunk_setup.log 2>&1
 
 . /lib/functions.sh
 
+random_mac() {
+	echo -n 02; dd bs=1 count=5 if=/dev/random 2>/dev/null | hexdump -v -e '/1 ":%02x"'
+}
 
 initial_wifi_setup()
 {
@@ -121,7 +124,7 @@ initial_local_node_setup()
 
 	local ula_prefix="$(uci get network.globals.ula_prefix)"
 	local addr6="${ula_prefix%%::*}::0"
-	local addr4="10.26.127.1"
+	local addr4="10.26.127.0"
 	local mac="16:41:95:40:f7:dc"
 	local s
 
@@ -135,14 +138,14 @@ initial_local_node_setup()
 	s='local_node'
 	uci set network.$s='interface'
 	uci set network.$s.ifname='local-node'
-	uci set network.$s.ipaddr="10.26.127.1"
+	uci set network.$s.ipaddr="$addr4"
 	uci set network.$s.ip6addr="$addr6/128"
 	uci set network.$s.netmask='255.255.255.255'
 	uci set network.$s.proto='static'
 
 	s='local_node_route4'
 	uci set network.$s='route'
-	uci set network.$s.target="10.26.127.0"
+	uci set network.$s.target="10.26.0.0"
 	uci set network.$s.gateway='0.0.0.0'
 	uci set network.$s.netmask="255.255.192.0"
 	uci set network.$s.interface='freifunk'
@@ -152,6 +155,17 @@ initial_local_node_setup()
 	uci set network.$s.target="$ula_prefix"
 	uci set network.$s.gateway='::'
 	uci set network.$s.interface='freifunk'
+
+	s='local_node'
+	uci set firewall.$s='zone'
+	uci set firewall.$s.name='local_node'
+	uci set firewall.$s.input='ACCEPT'
+	uci set firewall.$s.forward='REJECT'
+	uci add_list firewall.$s.network='local_node'
+	uci set firewall.$s.output='ACCEPT'
+
+#echo 0 > /proc/sys/net/ipv6/conf/local-node/accept_ra
+#disable dad?
 
 	cat >> /etc/firewall.user <<-  EOF
 
@@ -185,6 +199,7 @@ initial_wan_setup()
 	uci set network.wan.type="bridge"
 	uci set network.wan.ifname="$wan_interfaces"
 	uci set network.wan.proto="dhcp"
+	uci set network.wan.macaddr="$(random_mac)"
 	uci set network.wan.bridge_empty="1"
 
 	uci set network.wan6="interface"
@@ -225,12 +240,12 @@ initial_setup()
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
 	#get a unique MAC address to identify the node
-	local mac=$(cat /sys/class/ieee80211/phy0/macaddress)
+	local mac="$(cat /sys/class/ieee80211/phy0/macaddress)"
 	if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
-		mac=$(cat /sys/class/net/eth0/address)
+		mac="$(cat /sys/class/net/eth0/address)"
 		if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
 			#random MAC address
-			mac=$(echo -n 02; dd bs=1 count=5 if=/dev/random 2>/dev/null | hexdump -v -e '/1 ":%02X"')
+			mac="$(random_mac)"
 		fi
 	fi
 
@@ -435,17 +450,62 @@ update_043_to_044()
 
 update_044_to_050()
 {
+	#keep previous HTTPS certs
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
 	#restore LED settings
-	local hostname="$(uci get system.@system[0].hostname)"
-	cp /rom/etc/config/system /etc/config/
-	uci set system.@system[0].hostname="$hostname"
+	sh  /rom/etc/uci-defaults/01_leds
 
+	#use new fastd config
+	cp /rom/etc/config/fastd /etc/config/
+
+	#forgot to change last time
 	sed -i "s/192.168.132.1/10.26.127.0/" /etc/hosts
 
+	if [ "$(uci get -q network.freifunk.ipaddr)" = "10.26.127.0" ]; then
+		uci delete network.freifunk.ipaddr
+	fi
+
+	#add local_node interface
+	firewall_add_local_node() {
+		local cfg="$1" name
+		config_get name $cfg 'name'
+
+		if [ "$name" = "freifunk" ]; then
+			uci add_list firewall.$cfg.network=local_node
+		fi
+	}
+
+	config_load firewall
+	config_foreach firewall_add_local_node 'zone'
+
+	#use fresh firewall.user
+	cp /rom/etc/firewall.user /etc/
+
+	#apply local node settings
 	initial_local_node_setup
+
+	cat >> /etc/sysctl.conf <<-  EOF
+
+	# by default, either accept_ra or forwarding is enabled
+	# disable both here, since OpenWrt handles both apart from the Linux kernel
+	net.ipv6.conf.all.accept_ra=0
+	net.ipv6.conf.default.accept_ra=0
+	net.ipv6.conf.br-freifunk.forwarding=0
+	net.ipv6.conf.br-lan.forwarding=0
+
+	#reboot on out of memory
+	vm.panic_on_oom=1
+
+	EOF
+
+	#set a static random mac address for wan
+	if [ -z "$(uci get -q network.wan.macaddr)" ]; then
+		uci -q set network.wan.macaddr="$(random_mac)"
+	fi
+
+	uci commit system
 	uci commit network
 	uci commit firewall
 }
