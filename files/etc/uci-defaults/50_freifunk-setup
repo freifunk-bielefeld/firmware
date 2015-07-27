@@ -8,7 +8,7 @@ exec >/root/freifunk_setup.log 2>&1
 . /lib/functions.sh
 
 random_mac() {
-	echo -n 02; dd bs=1 count=5 if=/dev/random 2>/dev/null | hexdump -v -e '/1 ":%02x"'
+	echo -n 02; dd bs=1 count=5 if=/dev/urandom 2>/dev/null | hexdump -v -e '/1 ":%02x"'
 }
 
 initial_wifi_setup()
