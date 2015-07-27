@@ -84,8 +84,9 @@ initial_lan_setup()
 	uci set network.lan="interface"
 	uci set network.lan.type="bridge"
 	uci set network.lan.ifname="$lan_interfaces"
-	uci set network.lan.ipaddr="192.168.133.1"
 	uci delete -q network.lan.ip6addr
+	uci delete -q network.lan.ipaddr
+	uci add_list network.lan.ipaddr="192.168.133.1"
 	uci set network.lan.proto=static
 	uci set network.lan.netmask="255.255.255.0"
 	uci set network.lan.igmp_snooping="0"
@@ -105,6 +106,7 @@ initial_freifunk_setup()
 	uci set network.freifunk.ifname="$freifunk_interfaces"
 	uci set network.freifunk.macaddr="$mac"
 	uci delete -q network.freifunk.ip6addr
+	uci delete -q network.freifunk.ipaddr
 	uci set network.freifunk.proto=static
 	uci set network.freifunk.netmask="255.255.192.0"
 	uci set network.freifunk.igmp_snooping="0"
@@ -420,6 +422,16 @@ update_044_to_050()
 
 	#use fresh firewall.user
 	cp /rom/etc/firewall.user /etc/
+
+	#make sure ipaddr/ip6addr are lists
+	for s in freifunk lan; do
+		local ipaddr="$(uci get -q network.$s.ipaddr)"
+		local ip6addr="$(uci get -q network.$s.ip6addr)"
+		uci delete -q network.$s.ipaddr
+		uci delete -q network.$s.ip6addr
+		[ -n "$ipaddr" ] && uci add_list network.$s.ipaddr="$ipaddr"
+		[ -n "$ip6addr" ] && uci add_list network.$s.ip6addr="$ip6addr"
+	done
 
 	#apply local node settings
 	initial_local_node_setup
