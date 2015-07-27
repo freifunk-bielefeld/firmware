@@ -108,7 +108,6 @@ config zone
 	option name		freifunk
 	list network		freifunk
 	list network		freifunk6
-	list network		local_node
 	option input		ACCEPT
 	option output		ACCEPT
 	option forward		REJECT
