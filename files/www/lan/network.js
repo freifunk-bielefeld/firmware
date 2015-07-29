@@ -61,7 +61,7 @@ function getChangeModeAction(ifname)
 {
 	return function(e) {
 		var src = (e.target || e.srcElement);
-		var mode = src.value;
+		var mode = (src.data || src.value);
 		delNetSection(ifname);
 		addNetSection(ifname, mode);
 	};
@@ -424,7 +424,7 @@ function rebuild_wifi()
 		onDesc(mode_checks, "INPUT", function(e) {
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
-				var mode = src.value;
+				var mode = (src.data || src.value);
 
 				if(src.checked) {
 					if(obj.type != "mac80211")
@@ -450,7 +450,7 @@ function apply_port_action(switch_root)
 			//uncheck all in same column
 			onDesc(switch_root, "INPUT", function(e) {
 				var src = (e.target || e.srcElement);
-				if(e.value == port && e != dst) {
+				if((e.data || e.value) == port && e != dst) {
 					e.checked = false;
 					while(e != document) {
 						if(e.onchange) {
@@ -666,7 +666,7 @@ function append_vlan_buttons(parent, switch_root, switch_device)
 		var all_unchecked = true;
 		var vlan_root = $("network#"+switch_root.lastChild.id+"#ports");
 		onDesc(vlan_root, "INPUT", function(e) {
-			if(isNaN(e.value) || !e.checked) //ignore tagged and unchecked port
+			if(isNaN((e.data || e.value)) || !e.checked) //ignore tagged and unchecked port
 				return;
 			all_unchecked = false;
 			return false;

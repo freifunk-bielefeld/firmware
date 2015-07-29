@@ -38,7 +38,7 @@ function getChangeModeAction(ifname)
 {
 	return function(e) {
 		var src = (e.target || e.srcElement);
-		var mode = src.value;
+		var mode = (src.data || src.value);
 		delNetSection(ifname);
 		addNetSection(ifname, mode);
 	};
