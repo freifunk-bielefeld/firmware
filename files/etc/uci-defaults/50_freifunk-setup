@@ -410,8 +410,9 @@ update_044_to_050()
 	#restore LED settings
 	sh  /rom/etc/uci-defaults/01_leds
 
-	#use new fastd config
+	#use new fastd config and dhcp
 	cp /rom/etc/config/fastd /etc/config/
+	cp /rom/etc/config/dhcp /etc/config/
 
 	#forgot to change last time
 	sed -i "s/192.168.132.1/10.26.127.0/" /etc/hosts
