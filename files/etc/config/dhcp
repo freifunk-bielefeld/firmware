@@ -14,8 +14,6 @@ config dnsmasq lan
 	option resolvfile '/tmp/resolv.conf.auto'
 	option add_local_domain '0'
 	option add_local_hostname '0'
-	option bind_dynamic '1'
-	list interface 'br-lan'
 
 config odhcpd 'odhcpd'
 	option maindhcp '0'
@@ -33,4 +31,8 @@ config dhcp
 
 config dhcp wan
 	option interface wan
+	option ignore 1
+
+config dhcp freifunk
+	option interface freifunk
 	option ignore 1
