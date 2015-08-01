@@ -37,10 +37,22 @@ define Package/freifunk-debug
 	SECTION:=base
 	CATEGORY:=Freifunk
 	DEFAULT:=n
-	TITLE:=Freifunk-Bielefeld with debug tools
+	TITLE:=With debug tools
 	DEPENDS:=+freifunk-basic \
 		+@KMOD_BATMAN_ADV_DEBUG_LOG +iperf +tcpdump-mini
 endef
 
+define Package/freifunk-usb-storage
+	SECTION:=base
+	CATEGORY:=Freifunk
+	DEFAULT:=n
+	TITLE:=With USB storage support
+	DEPENDS:=+freifunk-basic \
+		+kmod-usb-storage +block-mount \
+		+block-hotplug +kmod-fs-ext4 +kmod-fs-vfat \
+		+kmod-nls-cp437 +kmod-nls-iso8859-1
+endef
+
 $(eval $(call BuildPackage,freifunk-basic))
 $(eval $(call BuildPackage,freifunk-debug))
+$(eval $(call BuildPackage,freifunk-usb-storage))
