@@ -466,7 +466,7 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.5.0-dev"
+	local to_version="0.5.0"
 
 	update_version() {
 		uci set -q freifunk.@settings[0].version="$to_version"
