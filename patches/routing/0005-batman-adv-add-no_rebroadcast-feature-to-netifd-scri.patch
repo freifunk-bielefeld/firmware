@@ -1,7 +1,7 @@
-From 1d210a4d46a996c92bd3754b61a82c6742e7b1ab Mon Sep 17 00:00:00 2001
+From 29e74745a4451b827e152c6c272a4f21f8f9f1a0 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Fri, 3 Apr 2015 21:57:11 +0200
-Subject: [PATCH 3/6] batman-adv: add no_rebroadcast feature to netifd script
+Subject: [PATCH 5/5] batman-adv: add no_rebroadcast feature to netifd script
 
 ---
  batman-adv/files/lib/netifd/proto/batadv.sh | 7 +++++--

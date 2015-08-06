@@ -1,17 +1,15 @@
-From 66f1cf995408cfbd7ae3b32385b08eed8da03808 Mon Sep 17 00:00:00 2001
+From cc281cf08f722ebe66c5404bf46bb19eb4edd83a Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Mon, 15 Jun 2015 00:23:47 +0200
-Subject: [PATCH 5/6] alfred: upgrade package to latest release 2015.0
+Date: Thu, 6 Aug 2015 20:45:49 +0200
+Subject: [PATCH 2/5] alfred: upgrade package to latest release 2015.1
 
 ---
- alfred/Makefile                                   |  9 +++--
- alfred/files/alfred.init                          | 49 ++++++++++++++---------
- alfred/patches/0001-alfred-adjust-intervals.patch | 15 -------
- 3 files changed, 34 insertions(+), 39 deletions(-)
- delete mode 100644 alfred/patches/0001-alfred-adjust-intervals.patch
+ alfred/Makefile          |  9 +++++----
+ alfred/files/alfred.init | 49 ++++++++++++++++++++++++++++--------------------
+ 2 files changed, 34 insertions(+), 24 deletions(-)
 
 diff --git a/alfred/Makefile b/alfred/Makefile
-index dade218..3fccbb9 100644
+index dade218..8f49b5a 100644
 --- a/alfred/Makefile
 +++ b/alfred/Makefile
 @@ -11,9 +11,9 @@ include $(TOPDIR)/rules.mk
@@ -19,10 +17,10 @@ index dade218..3fccbb9 100644
  #
  PKG_NAME:=alfred
 -PKG_VERSION:=2014.4.0
-+PKG_VERSION:=2015.0
++PKG_VERSION:=2015.1
  PKG_RELEASE:=0
 -PKG_MD5SUM:=053cb5d9e7ca9384598e82944343dea2
-+PKG_MD5SUM:=53e2436dbc506e69f9675b69385ae131
++PKG_MD5SUM:=fcce70cd8da764ee91c8cd2cbfa14362
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
@@ -125,27 +123,6 @@ index b777b53..5ce06c0 100755
  	echo "${initscript}: starting alfred"
  	SERVICE_PID_FILE="$pid_file_alfred"
  	service_start /usr/sbin/alfred ${alfred_args}
-diff --git a/alfred/patches/0001-alfred-adjust-intervals.patch b/alfred/patches/0001-alfred-adjust-intervals.patch
-deleted file mode 100644
-index e8ffd3a..0000000
---- a/alfred/patches/0001-alfred-adjust-intervals.patch
-+++ /dev/null
-@@ -1,15 +0,0 @@
----- a/alfred.h
--+++ b/alfred.h
--@@ -30,10 +30,10 @@
-- #include "list.h"
-- #include "packet.h"
-- 
---#define ALFRED_INTERVAL			10
--+#define ALFRED_INTERVAL			60
-- #define ALFRED_IF_CHECK_INTERVAL	60
-- #define ALFRED_REQUEST_TIMEOUT		10
---#define ALFRED_SERVER_TIMEOUT		60
--+#define ALFRED_SERVER_TIMEOUT		180
-- #define ALFRED_DATA_TIMEOUT		600
-- #define ALFRED_SOCK_PATH		"/var/run/alfred.sock"
-- #define NO_FILTER			-1
 -- 
 2.1.4
 
