@@ -77,8 +77,9 @@ initial_wifi_setup()
 
 initial_lan_setup()
 {
-	local lan_interfaces="$1"
 	echo "(I) Setup lan network."
+
+	local lan_interfaces="$1"
 
 	uci delete -q network.lan
 	uci set network.lan="interface"
@@ -96,15 +97,16 @@ initial_lan_setup()
 
 initial_freifunk_setup()
 {
-	local freifunk_interfaces="$1" mac="$2"
-
 	echo "(I) Setup freifunk network."
+
+	local freifunk_interfaces="$1"
+	local freifunk_mac="$2"	
 
 	uci delete -q network.freifunk
 	uci set network.freifunk="interface"
 	uci set network.freifunk.type="bridge"
 	uci set network.freifunk.ifname="$freifunk_interfaces"
-	uci set network.freifunk.macaddr="$mac"
+	uci set network.freifunk.macaddr="$freifunk_mac"
 	uci delete -q network.freifunk.ip6addr
 	uci delete -q network.freifunk.ipaddr
 	uci set network.freifunk.proto=static
@@ -142,8 +144,10 @@ initial_local_node_setup()
 
 initial_wan_setup()
 {
-	local wan_interfaces="$1"
 	echo "(I) Setup WAN network."
+
+	local wan_interfaces="$1"
+	local wan_mac="$2"
 
 	uci -q delete network.wan
 	uci -q delete network.wan6
@@ -152,7 +156,7 @@ initial_wan_setup()
 	uci set network.wan.type="bridge"
 	uci set network.wan.ifname="$wan_interfaces"
 	uci set network.wan.proto="dhcp"
-	uci set network.wan.macaddr="$(random_mac)"
+	uci set network.wan.macaddr="$wan_mac"
 	uci set network.wan.bridge_empty="1"
 
 	uci set network.wan6="interface"
@@ -202,11 +206,12 @@ initial_setup()
 		fi
 	fi
 
+	local mac_ga="$mac"
 	#translate to local administered mac
 	a=${mac%%:*} #cut out first hex
 	a=$((0x$a | 2)) #set second bit to 1
 	a=`printf '%02x\n' $a` #convert to hex
-	mac="$a:${mac#*:}" #reassemble mac
+	local mac_la="$a:${mac#*:}" #reassemble mac
 
 	echo "(I) MAC: '$mac'"
 
@@ -239,13 +244,13 @@ initial_setup()
 	# P U B L I C  S E T U P #
 	# ------------------------------------- #
 
-	initial_freifunk_setup "bat0" "$mac"
+	initial_freifunk_setup "bat0" "$mac_la"
 
 	# ------------------------------------- #
 	# W A N  S E T U P #
 	# ------------------------------------- #
 
-	initial_wan_setup "$wan_interface"
+	initial_wan_setup "$wan_interface" "$mac_ga"
 
 	# ------------------------------------- #
 	# B A T M A N  S E T U P #
@@ -451,9 +456,19 @@ update_044_to_050()
 
 	EOF
 
-	#set a static random mac address for wan
+	#set a static MAC address for WAN
+	echo "(I) Set static MAC for WAN"
 	if [ -z "$(uci get -q network.wan.macaddr)" ]; then
-		uci -q set network.wan.macaddr="$(random_mac)"
+		#get the MAC for WAN that was used previously
+		local mac="$(cat /sys/class/ieee80211/phy0/macaddress)"
+		if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
+			mac="$(cat /sys/class/net/eth0/address)"
+			if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
+				#random MAC address
+				mac="$(random_mac)"
+			fi
+		fi
+		uci -q set network.wan.macaddr="$mac"
 	fi
 
 	uci commit system
