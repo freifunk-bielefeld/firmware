@@ -537,6 +537,7 @@ start()
 
 	/etc/init.d/fastd disable
 	/etc/init.d/telnet disable
+	/etc/init.d/alfred enable
 	/etc/init.d/simple-radvd enable
 	/etc/init.d/freifunk_init enable
 
