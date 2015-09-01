@@ -520,7 +520,7 @@ start()
 			update_044_to_050
 			update_version
 			;;
-		"0.4.4" | "0.4.5")
+		"0.4.4")
 			echo "(I) Apply update."
 			update_044_to_050
 			update_version
