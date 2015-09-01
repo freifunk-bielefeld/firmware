@@ -209,7 +209,7 @@ initial_setup()
 	local mac_ga="$mac"
 	#translate to local administered mac
 	a=${mac%%:*} #cut out first hex
-	a=$((0x$a | 2)) #set second bit to 1
+	a=$((0x$a ^ 2)) #flip second bit
 	a=`printf '%02x\n' $a` #convert to hex
 	local mac_la="$a:${mac#*:}" #reassemble mac
 
