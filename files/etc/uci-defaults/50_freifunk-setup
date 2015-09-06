@@ -503,7 +503,7 @@ update_044_to_050()
 		path="$(uci get -q wireless.$device.path)"
 
 		#change to 802.11s if supported (mac80211 and atheros driver)
-		if [ "${path/ath}" != "$path" -a "$mode" = "adhoc" ]; then
+		if [ "$(driver_supports_mesh $path)" = "yes"  -a "$mode" = "adhoc" ]; then
 			echo "(I) Change $network from adhoc to 802.11s"
 
 			uci delete -q wireless.$cfg.ssid
