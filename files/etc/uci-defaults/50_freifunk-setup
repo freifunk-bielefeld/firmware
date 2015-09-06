@@ -15,14 +15,11 @@ initial_wifi_setup()
 {
 	echo "(I) Setup /etc/config/wireless"
 
-	#default SSID
+	#AP default SSID
 	local ap_ssid="$(uci get freifunk.@settings[0].community).freifunk.net"
 
-	#add batman version to the 802.11s or AdHoc interface SSID
-	local ah_ssid="$(uci get freifunk.@settings[0].default_ah_ssid)"
-
-	#default BSSID
-	local ah_bssid="$(uci get freifunk.@settings[0].default_ah_bssid)"
+	#802.11s default mesh id
+	local mesh_id="$(uci get freifunk.@settings[0].default_mesh_id)"
 
 	#delete all wifi interfaces
 	while uci -q delete wireless.@wifi-iface[0]; do :; done
@@ -52,7 +49,7 @@ initial_wifi_setup()
 		uci set $h.device="$wifi_device"
 		uci set $h.mode="mesh"
 		uci set $h.network="${wifi_device}_mesh"
-		uci set $h.mesh_id="$ah_ssid"
+		uci set $h.mesh_id="$mesh_id"
 		uci set $h.mesh_fwding=0
 
 		n=network.`uci get $h.network`
@@ -188,8 +185,8 @@ initial_setup()
 	local lan_interface=$(uci get -q network.lan.ifname)
 	echo "(I) LAN interface: '$lan_interface'"
 
-	local ah_ssid=$(uci get -q freifunk.@settings[0].default_ah_ssid)
-	echo "(I) Mesh ID: '$ah_ssid'"
+	local mesh_id=$(uci get -q freifunk.@settings[0].default_mesh_id)
+	echo "(I) Mesh ID: '$mesh_id'"
 
 	echo "(I) Set empty root password."
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
@@ -474,7 +471,9 @@ update_044_to_050()
 		uci -q set network.wan.macaddr="$mac"
 	fi
 
-	local default_ah_ssid=$(uci get freifunk.@settings[0].default_ah_ssid)
+	uci delete freifunk.@settings[0].default_ah_ssid
+	uci delete freifunk.@settings[0].default_ah_bssid
+	uci set freifunk.@settings[0].default_mesh_id="mesh_v15"
 
 	#adhoc => 802.11s
 	wireless_adhoc_to_mesh() {
@@ -491,7 +490,7 @@ update_044_to_050()
 		uci delete -q wireless.$cfg.hidden
 
 		uci set wireless.$cfg.mode="mesh"
-		uci set wireless.$cfg.mesh_id="$default_ah_ssid"
+		uci set wireless.$cfg.mesh_id="$(uci get freifunk.@settings[0].default_mesh_id)"
 		uci set wireless.$cfg.mesh_fwding="0"
 	}
 

@@ -188,7 +188,6 @@ function getWifiMode(id)
 	if(obj.network == "freifunk") return "freifunk";
 	if(obj.network == "lan") return "lan";
 	if(obj.network == "wan") return "wan";
-	if(obj.mode == "adhoc") return "mesh";
 	if(obj.mode == "mesh") return "mesh";
 
 	return "none";
@@ -350,7 +349,7 @@ function addWifiSection(device, mode)
 	case "mesh":
 		var net = ifname.replace(".", "_");
 		//802.11s
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_ah_ssid,"mesh_fwding":0,"network":net};
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_mesh_id,"mesh_fwding":0,"network":net};
 		//connected via option network
 		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
