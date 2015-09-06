@@ -295,6 +295,15 @@ initial_setup()
 		uci commit network
 	fi
 
+	#special Archer C7 v2 switch fixup for the webui
+	if [ "$(cat /tmp/sysinfo/model)" = "TP-Link Archer C7 v2" ]; then
+		uci set network.@switch_vlan[-2].ports="2 3 4 5 0t"
+		uci set network.@switch_vlan[-1].ports="1 6 0t"
+		uci set network.lan.ifname="eth1.1"
+		uci set network.wan.ifname="eth1.2"
+		uci commit network
+	fi
+
 	#allow access of the local node using a common IP address
 	initial_local_node_setup
 

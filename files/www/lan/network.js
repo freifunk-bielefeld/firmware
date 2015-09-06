@@ -601,6 +601,10 @@ function collect_switch_info(device)
 		case 'tp-link-cpe520-v1-0':
 			obj.port_map = [['_',0], ['lan0',5], ['lan1',4]];
 			break;
+		case 'tp-link-archer-c7-v2':
+			obj.port_map = [['_',0], ['WAN',1], ['LAN1',2], ['LAN2',3], ['LAN3',4], ['LAN4',5]];
+			obj.ifname = "eth1";
+			break;
 	}
 
 	//create generic ports string
