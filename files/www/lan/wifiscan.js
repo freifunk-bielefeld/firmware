@@ -1,10 +1,8 @@
 
 function fetch(regex, data)
 {
-	var array = [];
-	while(item = regex.exec(data))
-		array.push(item[1]);
-	return array;
+	var result = data.match(regex);
+	return result ? result[1] : "";
 }
 
 function append_td(tr, value) {
@@ -17,21 +15,34 @@ function wifi_scan()
 	var device = s.options[s.selectedIndex].value;
 
 	send("/cgi-bin/misc", {func:'wifiscan', device:device}, function(data) {
-		var ssids = fetch(/SSID: (.*)\n/g, data);
-		var channels = fetch(/channel (.*)\n/g, data);
-		var signals = fetch(/signal: (.*)\n/g, data);
-		var capabilities = fetch(/capability: (.*)\n/g, data);
-
 		var tbody = $("wifiscan_tbody");
 		removeChilds(tbody);
 
-		for(var i = 0; i < ssids.length; ++i)
+		var items = data.split(/BSS /).filter(Boolean);
+		for(var i = 0; i < items.length; ++i)
 		{
+			var item = items[i];
+			var ssid = fetch(/SSID: (.*)\n/, item);
+			var channel = fetch(/channel (.*)\n/, item);
+			var signal = fetch(/signal: (.*)\n/, item);
+			var capability = fetch(/capability: (.*)\n/, item);
+			var mesh_id = fetch(/MESH ID: (.*)\n/, item);
+
 			var tr = append(tbody, 'tr');
-			append_td(tr, ssids[i]);
-			append_td(tr, channels[i]);
-			append_td(tr, signals[i]);
-			append_td(tr, /IBSS/.test(capabilities[i]) ? "  adhoc" : "  ap");
+			append_td(tr, mesh_id ? mesh_id : ssid);
+			append_td(tr, channel);
+			append_td(tr, signal);
+
+			//determine the wifi mode
+			if(mesh_id) {
+				append_td(tr, "  802.11s");
+			} else  if(/IBSS/.test(capability)) {
+				append_td(tr, "  AdHoc");
+			} else  if(/ESS/.test(capability)) {
+				append_td(tr, "  AccessPoint");
+			} else {
+				append_td(tr, "  ???");
+			}
 		}
 
 		var table = $('wifiscan_table');
