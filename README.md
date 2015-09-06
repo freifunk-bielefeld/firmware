@@ -9,8 +9,8 @@ Included is Internet connectivity and a web interface.
 To build the firmware you need a Unix console to enter commands into.
 Install dependencies for the build environment (Debian/Ubuntu):
 
-    sudo apt-get install subversion g++ zlib1g-dev build-essential git
-    sudo apt-get install libncurses5-dev gawk gettext unzip file libssl-dev
+    sudo apt-get install subversion g++ zlib1g-dev build-essential git python
+    sudo apt-get install libncurses5-dev gawk gettext unzip file libssl-dev wget
 
 Build commands for the console:
 
