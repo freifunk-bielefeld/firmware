@@ -331,10 +331,6 @@ function randomString(length) {
 	return str;
 }
 
-function driver_supports_mesh(driver) {
-       return /ath9k$|ar933x_wmac$|ar934x_wmac$|qca955x_wmac$|qca953x_wmac$/.test(driver);
-}
-
 function addWifiSection(device, mode)
 {
 	var w = uci.wireless;
@@ -353,13 +349,8 @@ function addWifiSection(device, mode)
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		if(driver_supports_mesh(w[device].path)) {
-			//802.11s
-			w[id] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_ah_ssid,"mesh_fwding":0,"network":net};
-		} else {
-			//adhoc
-			w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":s.default_ah_ssid,"bssid":s.default_ah_bssid,"hidden":1,"network":net};
-		}
+		//802.11s
+		w[id] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_ah_ssid,"mesh_fwding":0,"network":net};
 		//connected via option network
 		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;

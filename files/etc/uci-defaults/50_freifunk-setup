@@ -11,18 +11,6 @@ random_mac() {
 	echo -n 02; dd bs=1 count=5 if=/dev/urandom 2>/dev/null | hexdump -v -e '/1 ":%02x"'
 }
 
-#check if the wifi driver supports 802.11s
-driver_supports_mesh() {
-	case $1 in
-	*ath9k|*ar933x_wmac|*ar934x_wmac|*qca955x_wmac|*qca953x_wmac)
-		echo "yes"
-		;;
-	*)
-		echo "no"
-		;;
-	esac
-}
-
 initial_wifi_setup()
 {
 	echo "(I) Setup /etc/config/wireless"
@@ -60,26 +48,12 @@ initial_wifi_setup()
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
 
-		if [ "$(driver_supports_mesh $wifi_path)" = "yes" ]; then
-			echo "(I) Setup 802.11s interface for device '${wifi_device}'"
-
-			h=wireless.`uci add wireless wifi-iface`
-			uci set $h.device="$wifi_device"
-			uci set $h.mode="mesh"
-			uci set $h.network="${wifi_device}_mesh"
-			uci set $h.mesh_id="$ah_ssid"
-			uci set $h.mesh_fwding=0
-		else
-			echo "(I) Setup AdHoc mesh interface for device '${wifi_device}'"
-
-			h=wireless.`uci add wireless wifi-iface`
-			uci set $h.device="$wifi_device"
-			uci set $h.mode="adhoc"
-			uci set $h.network="${wifi_device}_mesh"
-			uci set $h.ssid="$ah_ssid"
-			uci set $h.bssid="$ah_bssid"
-			uci set $h.hidden=1
-		fi
+		h=wireless.`uci add wireless wifi-iface`
+		uci set $h.device="$wifi_device"
+		uci set $h.mode="mesh"
+		uci set $h.network="${wifi_device}_mesh"
+		uci set $h.mesh_id="$ah_ssid"
+		uci set $h.mesh_fwding=0
 
 		n=network.`uci get $h.network`
 		uci set $n="interface"
@@ -509,20 +483,16 @@ update_044_to_050()
 		config_get device $cfg "device"
 		config_get mode $cfg "mode"
 		config_get network $cfg "network"
-		path="$(uci get -q wireless.$device.path)"
 
-		#change to 802.11s if supported (mac80211 and atheros driver)
-		if [ "$(driver_supports_mesh $path)" = "yes"  -a "$mode" = "adhoc" ]; then
-			echo "(I) Change $network from adhoc to 802.11s"
+		echo "(I) Change $network from adhoc to 802.11s"
 
-			uci delete -q wireless.$cfg.ssid
-			uci delete -q wireless.$cfg.bssid
-			uci delete -q wireless.$cfg.hidden
+		uci delete -q wireless.$cfg.ssid
+		uci delete -q wireless.$cfg.bssid
+		uci delete -q wireless.$cfg.hidden
 
-			uci set wireless.$cfg.mode="mesh"
-			uci set wireless.$cfg.mesh_id="$default_ah_ssid"
-			uci set wireless.$cfg.mesh_fwding="0"
-		fi
+		uci set wireless.$cfg.mode="mesh"
+		uci set wireless.$cfg.mesh_id="$default_ah_ssid"
+		uci set wireless.$cfg.mesh_fwding="0"
 	}
 
 	config_load wireless
