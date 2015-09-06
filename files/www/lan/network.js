@@ -112,6 +112,12 @@ function appendSetting(p, path, value, mode)
 	case "hwmode":
 		b = append_label(p, "Modus", "802."+value);
 		break;
+	case "mesh_id":
+		b = append_input(p, "Mesh ID", id, value);
+		if(!inArray(mode, ["wan", "lan", "none"]))
+			addClass(b.lastChild, "adv_disable");
+		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "Mesh ID ist ung\xfcltig.");
+		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
 		if(!inArray(mode, ["wan", "lan", "none"]))
@@ -183,6 +189,7 @@ function getWifiMode(id)
 	if(obj.network == "lan") return "lan";
 	if(obj.network == "wan") return "wan";
 	if(obj.mode == "adhoc") return "mesh";
+	if(obj.mode == "mesh") return "mesh";
 
 	return "none";
 }
@@ -324,6 +331,10 @@ function randomString(length) {
 	return str;
 }
 
+function driver_supports_mesh(driver) {
+       return /ath9k$|ar933x_wmac$|ar934x_wmac$|qca955x_wmac$|qca953x_wmac$/.test(driver);
+}
+
 function addWifiSection(device, mode)
 {
 	var w = uci.wireless;
@@ -342,7 +353,13 @@ function addWifiSection(device, mode)
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":s.default_ah_ssid,"bssid":s.default_ah_bssid,"hidden":1,"network":net};
+		if(driver_supports_mesh(w[device].path)) {
+			//802.11s
+			w[id] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_ah_ssid,"mesh_fwding":0,"network":net};
+		} else {
+			//adhoc
+			w[id] = {"device":device,"stype":"wifi-iface","mode":"adhoc","ssid":s.default_ah_ssid,"bssid":s.default_ah_bssid,"hidden":1,"network":net};
+		}
 		//connected via option network
 		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;

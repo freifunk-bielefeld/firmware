@@ -11,6 +11,18 @@ random_mac() {
 	echo -n 02; dd bs=1 count=5 if=/dev/urandom 2>/dev/null | hexdump -v -e '/1 ":%02x"'
 }
 
+#check if the wifi driver supports 802.11s
+driver_supports_mesh() {
+	case $1 in
+	*ath9k|*ar933x_wmac|*ar934x_wmac|*qca955x_wmac|*qca953x_wmac)
+		echo "yes"
+		;;
+	*)
+		echo "no"
+		;;
+	esac
+}
+
 initial_wifi_setup()
 {
 	echo "(I) Setup /etc/config/wireless"
@@ -18,11 +30,11 @@ initial_wifi_setup()
 	#default SSID
 	local ap_ssid="$(uci get freifunk.@settings[0].community).freifunk.net"
 
-	#add batman version to the AdHoc interface SSID
-	local ah_ssid=`uci get freifunk.@settings[0].default_ah_ssid`
+	#add batman version to the 802.11s or AdHoc interface SSID
+	local ah_ssid="$(uci get freifunk.@settings[0].default_ah_ssid)"
 
 	#default BSSID
-	local ah_bssid=`uci get freifunk.@settings[0].default_ah_bssid`
+	local ah_bssid="$(uci get freifunk.@settings[0].default_ah_bssid)"
 
 	#delete all wifi interfaces
 	while uci -q delete wireless.@wifi-iface[0]; do :; done
@@ -32,6 +44,7 @@ initial_wifi_setup()
 		local ds="$1" #device section
 		local ah_ok=0 ap_ok=0 #interface status
 		local wifi_device=`uci get -q wireless.$ds.device`
+		local wifi_path=`uci get -q wireless.$ds.path`
 		local h n p
 
 		[ -z "$wifi_device" ] && wifi_device="$ds"
@@ -47,14 +60,26 @@ initial_wifi_setup()
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
 
-		#add AdHoc interface for meshing
-		h=wireless.`uci add wireless wifi-iface`
-		uci set $h.device="$wifi_device"
-		uci set $h.mode=adhoc
-		uci set $h.network="${wifi_device}_mesh"
-		uci set $h.ssid="$ah_ssid"
-		uci set $h.bssid="$ah_bssid"
-		uci set $h.hidden=1
+		if [ "$(driver_supports_mesh $wifi_path)" = "yes" ]; then
+			echo "(I) Setup 802.11s interface for device '${wifi_device}'"
+
+			h=wireless.`uci add wireless wifi-iface`
+			uci set $h.device="$wifi_device"
+			uci set $h.mode="mesh"
+			uci set $h.network="${wifi_device}_mesh"
+			uci set $h.mesh_id="$ah_ssid"
+			uci set $h.mesh_fwding=0
+		else
+			echo "(I) Setup AdHoc mesh interface for device '${wifi_device}'"
+
+			h=wireless.`uci add wireless wifi-iface`
+			uci set $h.device="$wifi_device"
+			uci set $h.mode="adhoc"
+			uci set $h.network="${wifi_device}_mesh"
+			uci set $h.ssid="$ah_ssid"
+			uci set $h.bssid="$ah_bssid"
+			uci set $h.hidden=1
+		fi
 
 		n=network.`uci get $h.network`
 		uci set $n="interface"
@@ -181,7 +206,6 @@ initial_wan_setup()
 
 initial_setup()
 {
-	local version="$1"
 	local prefix="fdef:17a0:ffb1:300::/64"
 
 	local wan_interface=$(uci get -q network.wan.ifname)
@@ -190,8 +214,8 @@ initial_setup()
 	local lan_interface=$(uci get -q network.lan.ifname)
 	echo "(I) LAN interface: '$lan_interface'"
 
-	local ah_ssid="mesh_v"`dmesg | sed -n -r "s/.*compatibility version ([0-9]+).*/\1/p"`
-	echo "(I) AdHoc SSID: '$ah_ssid'"
+	local ah_ssid=$(uci get -q freifunk.@settings[0].default_ah_ssid)
+	echo "(I) Mesh ID: '$ah_ssid'"
 
 	echo "(I) Set empty root password."
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
@@ -220,13 +244,6 @@ initial_setup()
 	uci set -q network.globals="globals"
 	uci set network.globals.ula_prefix="$prefix"
 	echo "10.26.127.0 node" >> /etc/hosts
-
-	# ------------------------------------- #
-	# F R E I F U N K  S E T U P #
-	# ------------------------------------- #
-
-	uci set freifunk.@settings[0].default_ah_ssid="$ah_ssid"
-	uci set freifunk.@settings[0].version="$version"
 
 	# ------------------------------------------- #
 	# S E T U P  W I R E L E S S #
@@ -429,6 +446,9 @@ update_044_to_050()
 	#use fresh firewall.user
 	cp /rom/etc/firewall.user /etc/
 
+	#needs to be updated manually
+	cp /rom/etc/profile /etc/
+
 	#make sure ipaddr/ip6addr are lists
 	for s in freifunk lan; do
 		local ipaddr="$(uci get -q network.$s.ipaddr)"
@@ -471,7 +491,37 @@ update_044_to_050()
 		uci -q set network.wan.macaddr="$mac"
 	fi
 
+	local default_ah_ssid=$(uci get freifunk.@settings[0].default_ah_ssid)
+
+	#adhoc => 802.11s
+	wireless_adhoc_to_mesh() {
+		local cfg="$1" mode device network ssid path
+
+		config_get device $cfg "device"
+		config_get mode $cfg "mode"
+		config_get network $cfg "network"
+		path="$(uci get -q wireless.$device.path)"
+
+		#change to 802.11s if supported (mac80211 and atheros driver)
+		if [ "${path/ath}" != "$path" -a "$mode" = "adhoc" ]; then
+			echo "(I) Change $network from adhoc to 802.11s"
+
+			uci delete -q wireless.$cfg.ssid
+			uci delete -q wireless.$cfg.bssid
+			uci delete -q wireless.$cfg.hidden
+
+			uci set wireless.$cfg.mode="mesh"
+			uci set wireless.$cfg.mesh_id="$default_ah_ssid"
+			uci set wireless.$cfg.mesh_fwding="0"
+		fi
+	}
+
+	config_load wireless
+	config_foreach wireless_adhoc_to_mesh wifi-iface
+
+	uci commit freifunk
 	uci commit system
+	uci commit wireless
 	uci commit network
 	uci commit firewall
 }
@@ -481,7 +531,13 @@ start()
 	echo "(I) Start freifunk_setup"
 
 	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="0.5.0"
+	local to_version="$(uci get -c /rom/etc/config -q freifunk.@settings[0].version)"
+
+	#marker to check if the setup has already been run before
+	if [ -n "$(uci get -q freifunk.@settings[0].first_boot)" ]; then
+		uci delete -q freifunk.@settings[0].first_boot
+		from_version=""
+	fi
 
 	update_version() {
 		uci set -q freifunk.@settings[0].version="$to_version"
@@ -527,7 +583,7 @@ start()
 			;;
 		"")
 			echo "(I) Start initial setup."
-			initial_setup "$to_version"
+			initial_setup
 			update_version
 			;;
 		*)

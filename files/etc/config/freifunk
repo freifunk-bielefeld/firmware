@@ -4,11 +4,12 @@ config settings
 	option geo ''
 	option contact ''
 	option community 'bielefeld'
-	option version '' #will be set on first boot
+	option version '0.5.0-dev'
 	option publish_map '1'
 	option access_from 'lan'
 	option service_link ''
 	option service_label ''
 	option service_display_max 0
-	option default_ah_ssid ''
+	option default_ah_ssid 'mesh_v15'
 	option default_ah_bssid '12:C0:FF:EE:C0:DE'
+	option first_boot '1'
