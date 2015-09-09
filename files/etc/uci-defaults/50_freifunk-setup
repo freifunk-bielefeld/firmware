@@ -483,15 +483,17 @@ update_044_to_050()
 		config_get mode $cfg "mode"
 		config_get network $cfg "network"
 
-		echo "(I) Change $network from adhoc to 802.11s"
+		if [ "$mode" = "adhoc" ]; then
+			echo "(I) Change $network from adhoc to 802.11s"
 
-		uci delete -q wireless.$cfg.ssid
-		uci delete -q wireless.$cfg.bssid
-		uci delete -q wireless.$cfg.hidden
+			uci delete -q wireless.$cfg.ssid
+			uci delete -q wireless.$cfg.bssid
+			uci delete -q wireless.$cfg.hidden
 
-		uci set wireless.$cfg.mode="mesh"
-		uci set wireless.$cfg.mesh_id="$(uci get freifunk.@settings[0].default_mesh_id)"
-		uci set wireless.$cfg.mesh_fwding="0"
+			uci set wireless.$cfg.mode="mesh"
+			uci set wireless.$cfg.mesh_id="$(uci get freifunk.@settings[0].default_mesh_id)"
+			uci set wireless.$cfg.mesh_fwding="0"
+		fi
 	}
 
 	config_load wireless
