@@ -110,7 +110,14 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^[\S]{8,32}$/, "Bitte nur ein Passwort aus mindestens acht sichbaren Zeichen verwenden.");
 		break;
 	case "hwmode":
-		b = append_label(p, "Modus", "802."+value);
+		if(value == "11g") {
+			value = "802.11g (2.4 GHz)";
+		} else if(value == "11a") {
+			value = "802.11a (5 GHz)";
+		} else {
+			value = "802." + value;
+		}
+		b = append_label(p, "Modus", value);
 		break;
 	case "mesh_id":
 		b = append_input(p, "Mesh ID", id, value);
