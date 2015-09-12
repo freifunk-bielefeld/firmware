@@ -13,6 +13,10 @@ print() {
 if [ "$1" = "-p" ]; then
 	content="$(print)"
 	if [ -n "$content" ]; then
+		#make sure alfred is running
+		pidof alfred > /dev/null || /etc/init.d/alfred start
+
+		#publish content via alfred
 		echo "$content" | alfred -s 91
 		echo "service published"
 	else
