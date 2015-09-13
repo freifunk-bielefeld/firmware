@@ -88,8 +88,8 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "txpower":
 		value = value ? value : 'undefined';
-		b = append_selection(p, "txpower", id, value, txpower_choices);
-		addHelpText(b, "Die Sendeleistung in dBm. Achtung! Beim Tausch der Antennen muss die Sendeleistung entsprechend angepasst werden!");
+		b = append_selection(p, "Sendeleistung", id, value, txpower_choices);
+		addHelpText(b, "Die Sendeleistung in dBm. Strahlungsleistung = Sendeleistung - Kabeld\xe4mpfung + Antennengewinn.\nAndere Werte m\xfcssen manuell eingetragen werden. Achtung! Beim Tausch der Antennen muss die Sendeleistung entsprechend angepasst werden!");
 		addClass(b, "adv_hide");
 		break;
 	case "mode":
