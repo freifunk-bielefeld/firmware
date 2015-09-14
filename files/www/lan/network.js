@@ -579,7 +579,7 @@ function collect_switch_info(device)
 			break;
 		case 'tp-link-tl-wr841n-nd-v8':
 			obj.ifname = "eth1";
-			obj.port_map = [['_',0], ['1',4], ['2',1], ['3',2], ['4',3]];
+			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
 			break;
 		case 'tp-link-tl-wr842n-nd-v2':
 			obj.ifname = "eth1";
