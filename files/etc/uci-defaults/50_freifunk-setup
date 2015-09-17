@@ -489,6 +489,7 @@ update_044_to_050()
 			uci delete -q wireless.$cfg.ssid
 			uci delete -q wireless.$cfg.bssid
 			uci delete -q wireless.$cfg.hidden
+			uci delete -q wireless.$cfg.mcast_rate
 
 			uci set wireless.$cfg.mode="mesh"
 			uci set wireless.$cfg.mesh_id="$(uci get freifunk.@settings[0].default_mesh_id)"
