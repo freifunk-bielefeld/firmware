@@ -24,7 +24,7 @@ var txpower_choices = [
 ["5 dBm (3 mW)", "5"],
 ["4 dBm (2 mW)", "4"],
 ["0 dBm (1 mW)", "0"],
-["default", "undefined"]
+["auto", "auto"]
 ];
 
 function init()
@@ -403,8 +403,6 @@ function rebuild_wifi()
 
 		for(var sid in obj)
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
-
-		appendSetting(fs, ['wireless', dev, 'txpower'], obj['txpower']);
 
 		var lan_help = "<b>LAN</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
 		var freifunk_help = "<b>Freifunk</b>: Der WLAN-Zugang zum Freifunk-Netz.";

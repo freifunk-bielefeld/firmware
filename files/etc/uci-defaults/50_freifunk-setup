@@ -497,8 +497,18 @@ update_044_to_050()
 		fi
 	}
 
+	#set txpower for the web ui to show a selection
+	wireless_set_txpower() {
+		local cfg="$1" txpower
+
+		config_get txpower $cfg "txpower"
+
+		[ -n "$txpower" ] || uci set wireless.$cfg.txpower="auto"
+	}
+
 	config_load wireless
 	config_foreach wireless_adhoc_to_mesh wifi-iface
+	config_foreach wireless_set_txpower wifi-device
 
 	uci commit freifunk
 	uci commit system
