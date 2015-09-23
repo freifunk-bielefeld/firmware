@@ -1,0 +1,27 @@
+From 1028be0d8e95fe1cda1e53f06c1724990dfdc5a2 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Wed, 23 Sep 2015 20:38:29 +0200
+Subject: [PATCH 2/2] give modloader more time to load modules
+
+otherwise wifi detect will not detect all wifi cards (e.g for TP-Link Archer)
+and /etc/config/wireless will not be fully initialized
+---
+ package/base-files/files/etc/init.d/boot | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/package/base-files/files/etc/init.d/boot b/package/base-files/files/etc/init.d/boot
+index a53be74..771cf38 100755
+--- a/package/base-files/files/etc/init.d/boot
++++ b/package/base-files/files/etc/init.d/boot
+@@ -39,7 +39,7 @@ boot() {
+ 	/sbin/kmodloader
+ 
+ 	# allow wifi modules time to settle
+-	sleep 1
++	sleep 3
+ 
+ 	/sbin/wifi detect > /tmp/wireless.tmp
+ 	[ -s /tmp/wireless.tmp ] && {
+-- 
+2.1.4
+
