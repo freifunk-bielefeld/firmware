@@ -45,21 +45,25 @@ initial_wifi_setup()
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
 
-		h=wireless.`uci add wireless wifi-iface`
+		#mesh interface
+		h="wireless.${wifi_device}_mesh"
+		uci set $h="wifi-iface"
 		uci set $h.device="$wifi_device"
 		uci set $h.mode="mesh"
 		uci set $h.network="${wifi_device}_mesh"
 		uci set $h.mesh_id="$mesh_id"
 		uci set $h.mesh_fwding=0
 
-		n=network.`uci get $h.network`
+		#additional config for mesh interface
+		n="network.${wifi_device}_mesh"
 		uci set $n="interface"
 		uci set $n.mtu=1406
 		uci set $n.proto="batadv"
 		uci set $n.mesh="bat0"
 
-		#add AccessPoint for clients
-		p=wireless.`uci add wireless wifi-iface`
+		#ap interface
+		p="wireless.${wifi_device}_ap"
+		uci set $p="wifi-iface"
 		uci set $p.device="$wifi_device"
 		uci set $p.mode=ap
 		uci set $p.network=freifunk
@@ -506,9 +510,22 @@ update_044_to_050()
 		[ -n "$txpower" ] || uci set wireless.$cfg.txpower="auto"
 	}
 
+	#set name for interface section
+	#this enables us to correlate it
+	#with the "wifi status" output
+	wireless_set_name() {
+		local cfg="$1" device mode
+
+		config_get device $cfg "device"
+		config_get mode $cfg "mode"
+
+		uci rename wireless.$1="${device}_${mode}"
+	}
+
 	config_load wireless
 	config_foreach wireless_adhoc_to_mesh wifi-iface
 	config_foreach wireless_set_txpower wifi-device
+	config_foreach wireless_set_name wifi-iface
 
 	uci commit freifunk
 	uci commit system
