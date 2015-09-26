@@ -4,6 +4,8 @@ All required uci packages are stored variable uci.
 The GUI code displayes and manipulated this variable.
 */
 var uci = {};
+var wifi_status = {};
+
 var gid = 0;
 var net_options = [["LAN", "lan"], ["Freifunk", "freifunk"], ["Mesh", "mesh"], ["WAN", "wan"], ["None", "none"]];
 var txpower_choices = [
@@ -29,6 +31,8 @@ var txpower_choices = [
 
 function init()
 {
+send("/cgi-bin/misc", { func : "wifi_status" }, function(data) {
+	wifi_status = JSON.parse(data);
 	send("/cgi-bin/network", { func : "get_settings" }, function(data) {
 		uci = fromUCI(data);
 		rebuild_other();
@@ -37,6 +41,7 @@ function init()
 		rebuild_switches();
 		adv_apply();
 	});
+});
 }
 
 function updateFrom(src)
@@ -391,6 +396,23 @@ function delWifiSection(dev, mode)
 	});
 }
 
+function getWifiInterfaceState(dev, wid)  {
+	var obj = wifi_status[dev];
+
+	if(!obj.up) {
+		return "Inaktiv";
+	}
+
+	var interfaces = obj['interfaces'];
+	for(var i = 0; interfaces && i < interfaces.length; i++) {
+		var e = interfaces[i];
+		if(e.section == wid) {
+			return ('ifname' in e) ? "Aktiv" : "Fehler";
+		}
+	}
+	return "Unbekannt";
+}
+
 function rebuild_wifi()
 {
 	var root = $("wireless");
@@ -421,6 +443,10 @@ function rebuild_wifi()
 
 			for(var opt in wobj)
 				appendSetting(entry, ["wireless", wid, opt], wobj[opt], mode);
+
+			var state = getWifiInterfaceState(dev, wid);
+			var b = append_label(entry, "Status", state);
+			addHelpText(b, "Funktioniert das Interface? Manche WLAN-Treiber k\xf6nnen z.B kein AccessPoint und Mesh gleichzeitig.");
 
 			if(mode == "none")
 			{
