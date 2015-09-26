@@ -7,8 +7,8 @@ case $GET_func in
 		reboot
 		echo "(I) Bitte warten. Neustart wird durchgef&#252;hrt..."
 	;;
-	wifiscan_info)
-		uci export -qn wireless
+	wifi_status)
+		wifi status
 	;;
 	wifiscan)
 		iw dev "$GET_device" scan 2> /dev/null | grep '^BSS \|SSID\|set: channel\|signal\|capability\|MESH ID'

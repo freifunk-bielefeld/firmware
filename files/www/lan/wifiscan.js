@@ -63,22 +63,15 @@ function add_list_entry(device, ifname) {
 * represented as the first interface found.
 */
 function init() {
-	send("/cgi-bin/misc", {func:'wifiscan_info'}, function(data) {
-		var uci = fromUCI(data);
-		config_foreach(uci.wireless, "wifi-device", function(device, sobj) {
-			var found = false;
-			config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
-				if(sobj.device == device && sobj.ifname) {
-					add_entry(device, sobj.ifname);
-					found = true;
-					return 1;
-				}
-			});
-
-			if(!found) switch(device) {
-				case "radio0": add_list_entry(device, "wlan0"); break;
-				case "radio1": add_list_entry(device, "wlan1"); break;
-			}
-		});
+        send("/cgi-bin/misc", {func:'wifi_status'}, function(data) {
+                var data = JSON.parse(data);
+                for(var device in data) {
+                        var interfaces = data[device].interfaces;
+                        if(interfaces.length == 0)
+                                continue;
+                        var ifname = interfaces[0].ifname ;
+                        if(typeof(ifname) == 'string')
+                                add_list_entry(device, ifname);
+                }
 	});
 }
