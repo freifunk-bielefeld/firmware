@@ -53,6 +53,8 @@ initial_wifi_setup()
 		uci set $h.network="${wifi_device}_mesh"
 		uci set $h.mesh_id="$mesh_id"
 		uci set $h.mesh_fwding=0
+		#not a valid value, but will cause it to be ignored
+		uci set $h.txpower='auto'
 
 		#additional config for mesh interface
 		n="network.${wifi_device}_mesh"
@@ -537,6 +539,25 @@ update_044_to_050()
 	uci commit firewall
 }
 
+update_050_to_051()
+{
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	#set txpower for the web ui to show a selection (again)
+	wireless_set_txpower() {
+		local cfg="$1" txpower
+
+		config_get txpower $cfg "txpower"
+
+		[ -n "$txpower" ] || uci set wireless.$cfg.txpower="auto"
+	}
+
+	config_load wireless
+	config_foreach wireless_set_txpower wifi-device
+	uci commit wireless
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -590,6 +611,11 @@ start()
 		"0.4.4")
 			echo "(I) Apply update."
 			update_044_to_050
+			update_version
+			;;
+		"0.5.0")
+			echo "(I) Apply update."
+			update_050_to_051
 			update_version
 			;;
 		"")
