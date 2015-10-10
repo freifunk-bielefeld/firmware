@@ -319,7 +319,10 @@ update_050_to_051()
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
 	#update autoupdater
+	local updater_enabled=$(uci get autoupdater.settings.enabled)
 	cp /rom/etc/config/autoupdater /etc/config/autoupdater
+	uci set autoupdater.settings.enabled="$updater_enabled"
+	uci commit autoupdater
 
 	#set txpower for the web ui to show a selection (again)
 	wireless_set_txpower() {
