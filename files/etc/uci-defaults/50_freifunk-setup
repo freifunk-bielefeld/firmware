@@ -333,8 +333,17 @@ update_050_to_051()
 		[ -n "$txpower" ] || uci set wireless.$cfg.txpower="auto"
 	}
 
+	#make sure the is no macaddr set, some drivers have problems
+	wireless_remove_macaddr() {
+		local cfg="$1" macaddr
+
+		config_get macaddr $cfg "macaddr"
+		[ -n "$macaddr" ] && uci delete wireless.$cfg.macaddr
+	}
+
 	config_load wireless
 	config_foreach wireless_set_txpower wifi-device
+	config_foreach wireless_remove_macaddr wifi-iface
 	uci commit wireless
 }
 
