@@ -348,7 +348,6 @@ function addWifiSection(device, mode)
 	var n = uci.network;
 	var s = config_find(uci.freifunk, {"stype" : "settings"});
 	var ifname = device+"_"+mode;
-	var id = "cfg"+(++gid);
 
 	//add section to /etc/config/wireless
 	switch(mode)
@@ -356,21 +355,21 @@ function addWifiSection(device, mode)
 	case "wan":
 		//We need WDS for this interface to be bridged into br-wan. WDS is not standardized.
 		//WDS is only easily configurable for 'mac80211' type devices (e.g. Atheros wireless chipsets).
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "wds":"1", "network":"wan"};
+		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "wds":"1", "network":"wan"};
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
 		//802.11s
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_mesh_id,"mesh_fwding":0,"network":net};
+		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_mesh_id,"mesh_fwding":0,"network":net};
 		//connected via option network
 		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
 	case "freifunk":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":(s.community+".freifunk.net"),"network":"freifunk"};
+		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":(s.community+".freifunk.net"),"network":"freifunk"};
 		break;
 	case "lan":
-		w[id] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"lan"};
+		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"ap","ssid":"MyNetwork","key":randomString(10),"encryption":"psk2","network":"lan"};
 		break;
 	default:
 		return alert("mode error '"+mode+"' "+device);
