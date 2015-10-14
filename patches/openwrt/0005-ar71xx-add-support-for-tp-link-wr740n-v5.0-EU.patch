@@ -1,0 +1,46 @@
+From 75c96840adfbf8882651e9d780ad0d90341c0a25 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Sun, 21 Jun 2015 22:50:48 +0200
+Subject: [PATCH 05/17] ar71xx: add support for tp-link wr740n v5.0 (EU)
+
+TP-Link ships wr740n v5.0 to Romania (so probably everywhere except
+China) with 4 MB flash and 32 MB memory (confirmed by their local
+support). This patch adds support for the v5.0 clone of v4, i just
+tested it on my own v5.0 router and it works.
+
+Signed-off-by: Daniel Petre <daniel.petre@posteo.net>
+---
+ target/linux/ar71xx/image/Makefile | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
+index 8b7b91f..57ab1d1 100644
+--- a/target/linux/ar71xx/image/Makefile
++++ b/target/linux/ar71xx/image/Makefile
+@@ -484,6 +484,14 @@ define Device/tl-wr740n-v4
+     CONSOLE := ttyATH0,115200
+ endef
+ 
++define Device/tl-wr740n-v5
++    $(Device/tplink-4mlzma)
++    BOARDNAME := TL-WR741ND-v4
++    DEVICE_PROFILE := TLWR740
++    TPLINK_HWID := 0x07400005
++    CONSOLE := ttyATH0,115200
++endef
++
+ define Device/tl-wr741nd-v1
+     $(Device/tplink-4m)
+     BOARDNAME := TL-WR741ND
+@@ -513,7 +521,7 @@ define Device/tl-wr743nd-v2
+     TPLINK_HWID := 0x07430002
+     CONSOLE := ttyATH0,115200
+ endef
+-TARGET_DEVICES += tl-wr740n-v4 tl-wr741nd-v1 tl-wr741nd-v2 tl-wr741nd-v4 tl-wr743nd-v2
++TARGET_DEVICES += tl-wr740n-v4 tl-wr740n-v5 tl-wr741nd-v1 tl-wr741nd-v2 tl-wr741nd-v4 tl-wr743nd-v2
+ 
+ define Device/tl-wr841n-v8
+     $(Device/tplink-4mlzma)
+-- 
+2.1.4
+
