@@ -321,7 +321,7 @@ function delNetSection(ifname)
 	var n = uci.network;
 
 	config_foreach(n, "interface", function(id, obj) {
-		if(obj.ifname == ifname && obj.type != "bridge")
+		if(obj.ifname == ifname && !inArray(id, ['wan', 'lan', 'freifunk']))
 			delete n[id];
 	});
 
@@ -353,9 +353,8 @@ function addWifiSection(device, mode)
 	switch(mode)
 	{
 	case "wan":
-		//We need WDS for this interface to be bridged into br-wan. WDS is not standardized.
-		//WDS is only easily configurable for 'mac80211' type devices (e.g. Atheros wireless chipsets).
-		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "wds":"1", "network":"wan"};
+		//only works if interface is not in a bridge!
+		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "network":"wan"};
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
@@ -410,6 +409,28 @@ function getWifiInterfaceState(dev, wid)  {
 		}
 	}
 	return "Unbekannt";
+}
+
+function countWifi(mode) {
+	var n = 0;
+	config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
+                if(getWifiMode(wid) == mode) n++;
+        });
+	return n;
+}
+
+function countOther(mode) {
+	return split(uci['network'][mode]['ifname']).length;
+}
+
+// Make sure we use only one interface for WAN
+// when using WAN of Wifi. Otherwise it won't work.
+function setWanMode(mode) {
+	var changed = (uci['network']['wan']['mode'] == mode);
+	if(mode == 'static' || mode == 'bridge') {
+		uci['network']['wan']['mode'] = mode;
+		uci['network'].pchanged = changed;
+	}
 }
 
 function rebuild_wifi()
@@ -771,13 +792,46 @@ function rebuild_switches()
 	});
 }
 
+/*
+WAN over wifi works only if the wifi interface
+is not in a bridge. Switch to static in this case.
+Also check if there are other WAN interfaces
+since only a bridge would support that.
+*/
+function checkWifiWan() {
+	var pre_mode = uci.network.wan.type;
+	var new_mode = 'bridge';
+	var wifi_num = countWifi('wan');
+	var other_num = countOther('wan');
+
+	if(wifi_num) {
+		if(other_num + wifi_num > 1) {
+			return false;
+		}
+		new_mode = 'static';
+	}
+
+	if(pre_mode != new_mode) {
+		uci.network.wan.type = new_mode;
+		uci.network.pchanged = true;
+	}
+
+	return true;
+}
+
 function save_data()
 {
+	if(!checkWifiWan()) {
+		alert("WAN \xfcber WLAN funktioniert nur wenn dieser als einziger Anschluss f\xfcr WAN verwendet wird! Bitte korrigieren.");
+		return;
+	}
+
 	for(var name in uci)
 	{
 		var obj = uci[name];
 		if(!obj.pchanged)
 			continue;
+
 		var data = toUCI(obj);
 		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data },
 			function(data) {

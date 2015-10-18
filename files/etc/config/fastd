@@ -2,7 +2,6 @@
 config fastd 'default'
 	option enabled 1
 	option syslog_level 'warn'
-	list bind 'any interface "br-wan"'
 	list method 'salsa2012+umac'
 	option secure_handshakes 1
 	option hide_ip_addresses '1'
