@@ -18,11 +18,13 @@ function wifi_scan()
 		var tbody = $("wifiscan_tbody");
 		removeChilds(tbody);
 
-		var items = data.split(/BSS /).filter(Boolean);
+		data = data.replace(/BSS /g, "|BSS ");
+		var items = data.split("|").filter(Boolean);
 		for(var i = 0; i < items.length; ++i)
 		{
 			var item = items[i];
 			var ssid = fetch(/SSID: (.*)\n/, item);
+			var bss = fetch(/BSS (..:..:..:..:..:..).*\n/, item);
 			var channel = fetch(/channel (.*)\n/, item);
 			var signal = fetch(/signal: (.*)\n/, item);
 			var capability = fetch(/capability: (.*)\n/, item);
@@ -30,6 +32,7 @@ function wifi_scan()
 
 			var tr = append(tbody, 'tr');
 			append_td(tr, mesh_id ? mesh_id : ssid);
+			append_td(tr, bss);
 			append_td(tr, channel);
 			append_td(tr, signal);
 
