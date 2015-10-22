@@ -184,7 +184,7 @@ initial_wan_setup()
 
 initial_setup()
 {
-	local prefix="fdef:17a0:ffb1:300::/64"
+	local prefix="fdef:17a0:ffb1:400::/64"
 
 	local wan_interface=$(uci get -q network.wan.ifname)
 	echo "(I) WAN interface: '$wan_interface'"

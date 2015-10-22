@@ -1,13 +1,13 @@
 config autoupdater settings
 	option enabled 1
-	option branch "stable"
+	option branch "bielefeld"
 
 config branch stable
 	# The branch name given in the manifest
 	option name 'stable'
 
-	list mirror 'http://[fdef:17a0:ffb1:300::4]/freifunk/firmware/autoupdater'
-	list mirror 'http://[fdef:17a0:ffb1:300::5]/freifunk/firmware/autoupdater'
+	list mirror 'http://[fdef:17a0:ffb1:400::4]/freifunk/firmware/autoupdater'
+	list mirror 'http://[fdef:17a0:ffb1:400::5]/freifunk/firmware/autoupdater'
 	
 	#Delay excution of the autoupdater for at most fetch_delay seconds.
 	#This spreads the load of the server when all nodes start

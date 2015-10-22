@@ -10,5 +10,5 @@ config settings
 	option service_link ''
 	option service_label ''
 	option service_display_max 0
-	option default_mesh_id 'mesh_v15'
+	option default_mesh_id 'ffbi_mesh_v15'
 	option first_boot '1'
