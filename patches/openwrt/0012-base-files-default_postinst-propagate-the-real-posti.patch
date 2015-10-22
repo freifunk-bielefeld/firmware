@@ -1,7 +1,7 @@
-From 55cf6fcf1b88ec0f6ae2df8426f3b403ef17eb7b Mon Sep 17 00:00:00 2001
+From 7b611459fd58efa2ba23e9994a2a764a3373b661 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 7 Aug 2015 18:45:42 +0200
-Subject: [PATCH 12/17] base-files: default_postinst: propagate the real
+Subject: [PATCH 12/18] base-files: default_postinst: propagate the real
  postinst return code
 
 Using the postinst script for sanity checks and expecting opkg to fail

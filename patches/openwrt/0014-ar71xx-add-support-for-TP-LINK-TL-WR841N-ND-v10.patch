@@ -1,17 +1,17 @@
-From ce5301e5b52073b9f662c55ba2b26f451c6850c2 Mon Sep 17 00:00:00 2001
+From c0e3a7da424200871c70864fea43ca2997719438 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 11 Oct 2015 18:00:27 +0200
-Subject: [PATCH 14/17] ar71xx: add support for TP-LINK TL-WR841N/ND v10
+Subject: [PATCH 14/18] ar71xx: add support for TP-LINK TL-WR841N/ND v10
 
 ---
  target/linux/ar71xx/image/Makefile | 9 ++++++++-
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index dec8644..aa31174 100644
+index 8a25832..3a17420 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
-@@ -545,6 +545,13 @@ define Device/tl-wr841n-v9
+@@ -562,6 +562,13 @@ define Device/tl-wr841n-v9
      TPLINK_HWID := 0x08410009
  endef
  
@@ -25,7 +25,7 @@ index dec8644..aa31174 100644
  define Device/tl-wr842n-v2
      $(Device/tplink-8mlzma)
      BOARDNAME := TL-WR842N-v2
-@@ -565,7 +572,7 @@ define Device/tl-wr847n-v8
+@@ -582,7 +589,7 @@ define Device/tl-wr847n-v8
      DEVICE_PROFILE := TLWR841
      TPLINK_HWID := 0x08470008
  endef

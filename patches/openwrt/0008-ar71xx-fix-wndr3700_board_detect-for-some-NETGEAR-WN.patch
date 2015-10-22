@@ -1,7 +1,7 @@
-From 411724cd28900603403980b759f7e5aff7c0b1b9 Mon Sep 17 00:00:00 2001
+From 24b4fcfe6256adf40f65f4c036f9d2ceea9eac39 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 23 Jul 2015 01:31:05 +0200
-Subject: [PATCH 08/17] ar71xx: fix wndr3700_board_detect for some NETGEAR
+Subject: [PATCH 08/18] ar71xx: fix wndr3700_board_detect for some NETGEAR
  WNDR3700v2
 
 There are a few NETGEAR devices which don't terminate the model name in the
@@ -17,7 +17,7 @@ definitely work like this, even when awk supports locales and LANG is set).
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index ed89cfb..e659adc 100755
+index 839abc7..af92b01 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -38,7 +38,7 @@ wndr3700_board_detect() {

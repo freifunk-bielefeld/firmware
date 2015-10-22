@@ -1,7 +1,7 @@
-From 75c96840adfbf8882651e9d780ad0d90341c0a25 Mon Sep 17 00:00:00 2001
+From 909f437fa6251d589135a0f03570cd4fb61ba3d8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 21 Jun 2015 22:50:48 +0200
-Subject: [PATCH 05/17] ar71xx: add support for tp-link wr740n v5.0 (EU)
+Subject: [PATCH 05/18] ar71xx: add support for tp-link wr740n v5.0 (EU)
 
 TP-Link ships wr740n v5.0 to Romania (so probably everywhere except
 China) with 4 MB flash and 32 MB memory (confirmed by their local
@@ -14,10 +14,10 @@ Signed-off-by: Daniel Petre <daniel.petre@posteo.net>
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 8b7b91f..57ab1d1 100644
+index 013a215..37ce8a4 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
-@@ -484,6 +484,14 @@ define Device/tl-wr740n-v4
+@@ -501,6 +501,14 @@ define Device/tl-wr740n-v4
      CONSOLE := ttyATH0,115200
  endef
  
@@ -32,7 +32,7 @@ index 8b7b91f..57ab1d1 100644
  define Device/tl-wr741nd-v1
      $(Device/tplink-4m)
      BOARDNAME := TL-WR741ND
-@@ -513,7 +521,7 @@ define Device/tl-wr743nd-v2
+@@ -530,7 +538,7 @@ define Device/tl-wr743nd-v2
      TPLINK_HWID := 0x07430002
      CONSOLE := ttyATH0,115200
  endef
