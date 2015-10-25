@@ -118,6 +118,17 @@ set_ula() {
 	uci add_list network.freifunk.ip6addr="$(ula_addr $ula_prefix $macaddr)/64"
 }
 
+set_hostname()
+{
+	local hostname="$(uci get -q system.@system[0].hostname)"
+	local name="$(uci get -q freifunk.@settings[0].name)"
+
+	if [ -n "$name" -a "$hostname" != "$name" ]; then
+		uci set system.@system[0].hostname="$name"
+		uci commit system
+	fi
+}
+
 start()
 {
 	exec >/tmp/freifunk_init.log 2>&1
@@ -127,6 +138,7 @@ start()
 	set_ula
 	#set_macs
 	set_access
+	set_hostname
 
 	echo "(I) Freifunk: done freifunk_init"
 }
