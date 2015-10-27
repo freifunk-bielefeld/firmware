@@ -10,7 +10,7 @@ config fastd 'default'
 	option status_socket '/var/run/fastd.status'
 	option mode 'tap'
 	option interface 'fastd_mesh'
-	option mtu 1406
+	option mtu 1312
 	option forward 0
 	option secret 'generate'
 	option packet_mark 1
