@@ -131,7 +131,7 @@ initial_local_node_setup()
 
 	local ula_prefix="$(uci get network.globals.ula_prefix)"
 	local addr6="${ula_prefix%%::*}::0"
-	local addr4="10.26.127.0"
+	local addr4="10.29.127.0"
 
 	uci add_list network.freifunk.ipaddr="$addr4"
 
