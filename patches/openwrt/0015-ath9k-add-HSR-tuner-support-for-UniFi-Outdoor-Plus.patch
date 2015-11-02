@@ -1,7 +1,7 @@
-From 749af8a5dd003c2b94300cbefe42369d45487efc Mon Sep 17 00:00:00 2001
+From 503e8fa579064780ed6cdf47e937d3876cc695a7 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 3 Sep 2015 23:50:51 +0200
-Subject: [PATCH 13/18] ath9k: add HSR tuner support for UniFi Outdoor Plus
+Subject: [PATCH 15/25] ath9k: add HSR tuner support for UniFi Outdoor Plus
 
 Patch-by: Stefan Rompf <stefan@loplof.de>
 ---

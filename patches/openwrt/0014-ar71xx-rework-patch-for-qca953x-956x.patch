@@ -1,7 +1,7 @@
-From 760425a30c6b3edf6b1fd94d46f9592a1fcee19a Mon Sep 17 00:00:00 2001
+From 0b51d1b110e620b445413eac46c41ca3de1ebdc3 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 6 Aug 2015 03:01:47 +0200
-Subject: [PATCH 11/18] ar71xx: rework patch for qca953x/956x
+Subject: [PATCH 14/25] ar71xx: rework patch for qca953x/956x
 
 Patch cherry-picked from the following location:
 https://www.codeaurora.org/cgit/quic/qsdk/oss/system/openwrt/commit/?h=release/coconut_ioe4531_2.0&id=5c357bf6c763e4140dddcc9a3bc5f005525a9c0e
@@ -20,9 +20,9 @@ Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 ---
  .../linux/ar71xx/files/arch/mips/ath79/dev-eth.c   |  18 +-
  ...07-MIPS-ath79-add-support-for-QCA953x-SoC.patch | 326 +++++++++++++++++++--
- ...35-MIPS-ath79-add-support-for-QCA956x-SoC.patch | 171 ++++-------
+ ...35-MIPS-ath79-add-support-for-QCA956x-SoC.patch | 123 ++------
  .../736-MIPS-ath79-fix-chained-irq-disable.patch   |  21 +-
- 4 files changed, 379 insertions(+), 157 deletions(-)
+ 4 files changed, 355 insertions(+), 133 deletions(-)
 
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 index ae3db4c..ff94e2e 100644
@@ -110,7 +110,7 @@ index ae3db4c..ff94e2e 100644
  			break;
  
 diff --git a/target/linux/ar71xx/patches-3.18/707-MIPS-ath79-add-support-for-QCA953x-SoC.patch b/target/linux/ar71xx/patches-3.18/707-MIPS-ath79-add-support-for-QCA953x-SoC.patch
-index b44e884..d541939 100644
+index 5041619..403897a 100644
 --- a/target/linux/ar71xx/patches-3.18/707-MIPS-ath79-add-support-for-QCA953x-SoC.patch
 +++ b/target/linux/ar71xx/patches-3.18/707-MIPS-ath79-add-support-for-QCA953x-SoC.patch
 @@ -44,7 +44,7 @@ meaning of the bits CPUCLK_FROM_CPUPLL and DDRCLK_FROM_DDRPLL is reversed.
@@ -601,38 +601,10 @@ index b44e884..d541939 100644
  +++ b/arch/mips/include/asm/mach-ath79/ath79.h
  @@ -32,6 +32,7 @@ enum ath79_soc_type {
 diff --git a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
-index 8f15790..027163f 100644
+index 491a7aa..2bdc744 100644
 --- a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 +++ b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
-@@ -1,3 +1,27 @@
-+--- a/arch/mips/ath79/Kconfig
-++++ b/arch/mips/ath79/Kconfig
-+@@ -1213,6 +1213,12 @@ config SOC_QCA955X
-+ 	select PCI_AR724X if PCI
-+ 	def_bool n
-+ 
-++config SOC_QCA956X
-++	select USB_ARCH_HAS_EHCI
-++	select HW_HAS_PCI
-++	select PCI_AR724X if PCI
-++	def_bool n
-++
-+ config ATH79_DEV_M25P80
-+ 	select ATH79_DEV_SPI
-+ 	def_bool n
-+@@ -1250,7 +1256,7 @@ config ATH79_DEV_USB
-+ 	def_bool n
-+ 
-+ config ATH79_DEV_WMAC
-+-	depends on (SOC_AR913X || SOC_AR933X || SOC_AR934X || SOC_QCA953X || SOC_QCA955X)
-++	depends on (SOC_AR913X || SOC_AR933X || SOC_AR934X || SOC_QCA953X || SOC_QCA955X || SOC_QCA956X)
-+ 	def_bool n
-+ 
-+ config ATH79_NVRAM
- --- a/arch/mips/ath79/clock.c
- +++ b/arch/mips/ath79/clock.c
- @@ -520,6 +520,100 @@ static void __init qca955x_clocks_init(v
-@@ -142,74 +166,9 @@
+@@ -142,74 +142,9 @@
   		ath79_uart_data[0].uartclk = uart_clk_rate;
   		platform_device_register(&ath79_uart_device);
   	} else if (soc_is_ar933x()) {
@@ -708,7 +680,7 @@ index 8f15790..027163f 100644
   			   &ath79_ehci_pdata_v2, sizeof(ath79_ehci_pdata_v2));
   }
   
-@@ -229,8 +188,8 @@
+@@ -229,8 +164,8 @@
   void __init ath79_register_usb(void)
   {
   	if (soc_is_ar71xx())
@@ -719,7 +691,7 @@ index 8f15790..027163f 100644
   	else if (soc_is_qca955x())
   		qca955x_usb_setup();
  +	else if (soc_is_qca9561())
-@@ -291,9 +250,9 @@
+@@ -291,9 +226,9 @@
   	    soc_is_ar913x() ||
   	    soc_is_ar933x())
   		reg = AR71XX_GPIO_REG_FUNC;
@@ -731,7 +703,7 @@ index 8f15790..027163f 100644
   		reg = AR934X_GPIO_REG_FUNC;
   	else
   		BUG();
-@@ -326,7 +285,7 @@
+@@ -326,7 +261,7 @@
   		ath79_misc_irq_chip.irq_ack = ar724x_misc_irq_ack;
   	else
   		BUG();
@@ -740,7 +712,7 @@ index 8f15790..027163f 100644
   	irq_set_chained_handler(ATH79_CPU_IRQ(3), qca955x_ip3_irq_dispatch);
   }
   
-@@ -406,15 +365,13 @@
+@@ -406,15 +341,13 @@
  +
  +	for (i = ATH79_IP2_IRQ_BASE;
  +	     i < ATH79_IP2_IRQ_BASE + ATH79_IP2_IRQ_COUNT; i++)
@@ -758,7 +730,7 @@ index 8f15790..027163f 100644
  +
  +	irq_set_chained_handler(ATH79_CPU_IRQ(3), qca956x_ip3_irq_dispatch);
  +
-@@ -426,7 +383,7 @@
+@@ -426,7 +359,7 @@
   asmlinkage void plat_irq_dispatch(void)
   {
   	unsigned long pending;
@@ -767,7 +739,7 @@ index 8f15790..027163f 100644
   	} else if (soc_is_qca955x()) {
   		ath79_ip2_handler = ath79_default_ip2_handler;
   		ath79_ip3_handler = ath79_default_ip3_handler;
-@@ -436,37 +393,13 @@
+@@ -436,8 +369,8 @@
   	} else {
   		BUG();
   	}
@@ -778,35 +750,6 @@ index 8f15790..027163f 100644
   	else if (soc_is_qca955x())
   		qca955x_irq_init();
  +	else if (soc_is_qca956x())
- +		qca956x_irq_init();
-  }
----- a/arch/mips/ath79/Kconfig
--+++ b/arch/mips/ath79/Kconfig
--@@ -1248,6 +1248,12 @@ config SOC_QCA955X
-- 	select PCI_AR724X if PCI
-- 	def_bool n
-- 
--+config SOC_QCA956X
--+	select USB_ARCH_HAS_EHCI
--+	select HW_HAS_PCI
--+	select PCI_AR724X if PCI
--+	def_bool n
--+
-- config ATH79_DEV_M25P80
-- 	select ATH79_DEV_SPI
-- 	def_bool n
--@@ -1285,7 +1291,7 @@ config ATH79_DEV_USB
-- 	def_bool n
-- 
-- config ATH79_DEV_WMAC
---	depends on (SOC_AR913X || SOC_AR933X || SOC_AR934X || SOC_QCA953X || SOC_QCA955X)
--+	depends on (SOC_AR913X || SOC_AR933X || SOC_AR934X || SOC_QCA953X || SOC_QCA955X || SOC_QCA956X)
-- 	def_bool n
-- 
-- config ATH79_NVRAM
- --- a/arch/mips/ath79/pci.c
- +++ b/arch/mips/ath79/pci.c
- @@ -68,6 +68,21 @@ static const struct ath79_pci_irq qca955
 @@ -519,7 +452,7 @@
   		return -ENODEV;
  --- a/arch/mips/ath79/setup.c

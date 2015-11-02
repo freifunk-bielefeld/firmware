@@ -1,7 +1,7 @@
-From d35763357970ab802ad5ac7bcef44a24d779c3f2 Mon Sep 17 00:00:00 2001
+From 32bc27934bd40af518aa0220a3e7675cb5c131d3 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 15 Oct 2015 21:01:25 +0200
-Subject: [PATCH 16/18] tools/firmware-utils: tplink-safeloader: fix
+Subject: [PATCH 19/25] tools/firmware-utils: tplink-safeloader: fix
  support-list format, clean up vendor information
 
 The first 4 bytes of the support list and the vendor information are

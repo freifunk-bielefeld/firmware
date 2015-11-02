@@ -1,7 +1,7 @@
-From 909f437fa6251d589135a0f03570cd4fb61ba3d8 Mon Sep 17 00:00:00 2001
+From 5aba34f207f4f9000690caa4b4766edb151613fb Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 21 Jun 2015 22:50:48 +0200
-Subject: [PATCH 05/18] ar71xx: add support for tp-link wr740n v5.0 (EU)
+Subject: [PATCH 06/25] ar71xx: add support for tp-link wr740n v5.0 (EU)
 
 TP-Link ships wr740n v5.0 to Romania (so probably everywhere except
 China) with 4 MB flash and 32 MB memory (confirmed by their local
