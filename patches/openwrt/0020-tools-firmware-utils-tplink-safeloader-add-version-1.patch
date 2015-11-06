@@ -1,7 +1,7 @@
-From a53c7094ecde9a0aaeab562e5e37792d042aecf2 Mon Sep 17 00:00:00 2001
+From 727e5ffbd36c98b2ddf27195204d30c83d9e3311 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 15 Oct 2015 21:56:40 +0200
-Subject: [PATCH 20/25] tools/firmware-utils: tplink-safeloader: add version
+Subject: [PATCH 20/26] tools/firmware-utils: tplink-safeloader: add version
  1.1 support to CPE210/220/510/520
 
 The hardware is identical to version 1.0, add the new models to the support

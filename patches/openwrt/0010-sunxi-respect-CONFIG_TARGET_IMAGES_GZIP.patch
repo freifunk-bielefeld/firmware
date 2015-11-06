@@ -1,7 +1,7 @@
-From ced22d9503dd0714c329881f0acd042e337ed454 Mon Sep 17 00:00:00 2001
+From 0eb779bc1157850ec00003dbf011f9a38435ba7e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jul 2015 22:13:59 +0200
-Subject: [PATCH 10/25] sunxi: respect CONFIG_TARGET_IMAGES_GZIP
+Subject: [PATCH 10/26] sunxi: respect CONFIG_TARGET_IMAGES_GZIP
 
 The ext4 images are huge uncompressed.
 ---

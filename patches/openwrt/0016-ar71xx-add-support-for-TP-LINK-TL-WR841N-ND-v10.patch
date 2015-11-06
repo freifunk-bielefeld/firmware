@@ -1,7 +1,7 @@
-From ea6fd22b98d5a88a8ec305e2f1be86ac2fe5763e Mon Sep 17 00:00:00 2001
+From 3ccb88f0f4866198585af58289e8da363f2772a7 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 11 Oct 2015 18:00:27 +0200
-Subject: [PATCH 16/25] ar71xx: add support for TP-LINK TL-WR841N/ND v10
+Subject: [PATCH 16/26] ar71xx: add support for TP-LINK TL-WR841N/ND v10
 
 ---
  target/linux/ar71xx/image/Makefile | 9 ++++++++-

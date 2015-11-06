@@ -1,7 +1,7 @@
-From 9e1ee0696dc204915cb3ba1db99932206cfd6399 Mon Sep 17 00:00:00 2001
+From 71f8266a9e8170ffb0f6edf4200c6fac9864a23f Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 2 Nov 2015 02:02:02 +0100
-Subject: [PATCH 22/25] ipv6: fix crash on ICMPv6 redirects with
+Subject: [PATCH 22/26] ipv6: fix crash on ICMPv6 redirects with
  prohibited/blackholed source
 
 There are other error values besides ip6_null_entry that can be returned by

@@ -1,7 +1,7 @@
-From 73afc2bb5119358aafa78469ef38ded6e4cf72d0 Mon Sep 17 00:00:00 2001
+From 097cac089d12d5cef6eae3394851a37f2549bf0d Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 23 Dec 2014 18:57:16 +0100
-Subject: [PATCH 03/25] mac80211: backport from trunk r47249
+Subject: [PATCH 03/26] mac80211: backport from trunk r47249
 
 ---
  package/kernel/mac80211/Makefile                   | 2696 ++++++++++----------

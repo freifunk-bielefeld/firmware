@@ -1,7 +1,7 @@
-From 972e2962fe9b8227e8722fb3a3ae49bd84b10b7b Mon Sep 17 00:00:00 2001
+From fcfdbb5cdf1246a5327506ad29e84160624cb9b2 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 21 Jun 2015 22:48:04 +0200
-Subject: [PATCH 07/25] ar71xx: add support for TL-WR741ND v5
+Subject: [PATCH 07/26] ar71xx: add support for TL-WR741ND v5
 
 This device is identical to the TL-WR740N v5, it even uses the same HWID (which
 wasn't the case for older TL-WR741ND revisions).

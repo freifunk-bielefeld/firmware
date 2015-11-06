@@ -1,7 +1,7 @@
-From 8811fd523e03fe88f5527930e771068205b063e3 Mon Sep 17 00:00:00 2001
+From a5912b99f9ac45a1aef8ab152c735aa749733bd6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 20 May 2015 23:10:36 +0200
-Subject: [PATCH 04/25] mac80211: ath10k: allow simultaneous AP+IBSS
+Subject: [PATCH 04/26] mac80211: ath10k: allow simultaneous AP+IBSS
 
 ---
  .../mac80211/patches/950-ath10k_AP_IBSS.patch      | 32 ++++++++++++++++++++++

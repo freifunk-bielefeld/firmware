@@ -1,7 +1,7 @@
-From 1af9ed1ca0faaa9a8dc67206b8a6e7edefc2611e Mon Sep 17 00:00:00 2001
+From 0282ff2a2c9a10c217acdc63d91a5a2215c41d9b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 22 Oct 2015 00:33:25 +0200
-Subject: [PATCH 21/25] ar71xx: fix ath79_soc_rev value for QCA9531 ver. 2
+Subject: [PATCH 21/26] ar71xx: fix ath79_soc_rev value for QCA9531 ver. 2
 
 ath9k expects to get revision id 2 for the QCA9531 ver. 2 rev. 0. This
 fixes the very low TX power on some devices like the TP-LINK

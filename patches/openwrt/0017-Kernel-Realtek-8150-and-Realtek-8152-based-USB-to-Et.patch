@@ -1,7 +1,7 @@
-From 17f1e6c2f6fe5d430f1b70641b533798aa639ab8 Mon Sep 17 00:00:00 2001
+From 80cba93b92f03149b421fcb470513c91ebd7ce99 Mon Sep 17 00:00:00 2001
 From: Andre Kasper <andre.kasper@gmx.de>
 Date: Mon, 12 Oct 2015 02:31:05 +0200
-Subject: [PATCH 17/25] Kernel: Realtek 8150 and Realtek 8152 based
+Subject: [PATCH 17/26] Kernel: Realtek 8150 and Realtek 8152 based
  USB-to-Ethernet converters
 
 This patch adds the kernel modules to for the very common Realtek RTL8150 and Realtek 8152 based USB-to-Ethernet converters.
