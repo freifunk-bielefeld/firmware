@@ -4,7 +4,7 @@ config settings
 	option geo ''
 	option contact ''
 	option community 'bielefeld'
-	option version '0.5.1-dev'
+	option version '0.5.1'
 	option publish_map '1'
 	option access_from 'lan'
 	option service_link ''
