@@ -44,6 +44,8 @@ initial_wifi_setup()
 
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
+		#not a valid value, but will be ignored otherwise
+		uci set wireless.$ds.txpower='auto'
 
 		#mesh interface
 		h="wireless.${wifi_device}_mesh"
@@ -53,8 +55,7 @@ initial_wifi_setup()
 		uci set $h.network="${wifi_device}_mesh"
 		uci set $h.mesh_id="$mesh_id"
 		uci set $h.mesh_fwding=0
-		#not a valid value, but will cause it to be ignored
-		uci set $h.txpower='auto'
+
 
 		#additional config for mesh interface
 		n="network.${wifi_device}_mesh"
