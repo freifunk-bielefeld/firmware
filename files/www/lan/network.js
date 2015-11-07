@@ -611,6 +611,7 @@ function collect_switch_info(device)
 			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', 5]];
 			break;
 		case 'tp-link-tl-wr1043n-nd-v2':
+		case 'tp-link-tl-wr1043n-nd-v3':
 			obj.port_map = [['WAN',5], ['1',4], ['2',3], ['3',2], ['4',1],['_', 0]];
 			obj.ifname = "eth1";
 			break;
@@ -635,6 +636,10 @@ function collect_switch_info(device)
 			break;
 		case 'tp-link-tl-wr842n-nd-v1':
 		case 'tp-link-tl-mr3420-v1':
+			obj.port_map = [['_',0], ['1',1], ['2',2], ['3',3], ['4',4]];
+			break;
+		case 'tp-link-tl-wr941n-nd-v6':
+			obj.ifname = "eth1";
 			obj.port_map = [['_',0], ['1',1], ['2',2], ['3',3], ['4',4]];
 			break;
 		case 'tp-link-cpe210-v1-0':
