@@ -1,4 +1,4 @@
-From a2d3908a37b8f0f10d7c19a729729c797ea82667 Mon Sep 17 00:00:00 2001
+From 9eff60956315448623f9c46315b654561aeb20ee Mon Sep 17 00:00:00 2001
 From: Andreas Ziegler <github@andreas-ziegler.de>
 Date: Thu, 5 Nov 2015 15:48:09 +0100
 Subject: [PATCH 26/26] ar71xx: add support for TP-Link TL-WR1043ND v3
