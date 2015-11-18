@@ -1,10 +1,10 @@
-From 097cac089d12d5cef6eae3394851a37f2549bf0d Mon Sep 17 00:00:00 2001
+From 11aa427b1b6423b90474430f0fd61f9ccc68fac6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 23 Dec 2014 18:57:16 +0100
-Subject: [PATCH 03/26] mac80211: backport from trunk r47249
+Subject: [PATCH 03/28] mac80211: backport from trunk r47249
 
 ---
- package/kernel/mac80211/Makefile                   | 2696 ++++++++++----------
+ package/kernel/mac80211/Makefile                   | 2694 ++++++++++----------
  .../mac80211/files/lib/netifd/wireless/mac80211.sh |    6 +-
  package/kernel/mac80211/files/regdb.txt            |  126 +-
  .../kernel/mac80211/patches/001-fix_build.patch    |   12 +-
@@ -243,7 +243,7 @@ Subject: [PATCH 03/26] mac80211: backport from trunk r47249
  .../patches/930-ath10k_add_tpt_led_trigger.patch   |    4 +-
  .../940-mwl8k_init_devices_synchronously.patch     |   20 +
  .../patches/001-backport_ieee80211_hw_set.patch    |   12 -
- 239 files changed, 5501 insertions(+), 15002 deletions(-)
+ 239 files changed, 5500 insertions(+), 15001 deletions(-)
  delete mode 100644 package/kernel/mac80211/patches/004-backports_debugfs_fix.patch
  delete mode 100644 package/kernel/mac80211/patches/008-fix_netdev_unregister.patch
  delete mode 100644 package/kernel/mac80211/patches/020-add_mpls_h.patch
@@ -420,7 +420,7 @@ Subject: [PATCH 03/26] mac80211: backport from trunk r47249
  delete mode 100644 package/kernel/mt76/patches/001-backport_ieee80211_hw_set.patch
 
 diff --git a/package/kernel/mac80211/Makefile b/package/kernel/mac80211/Makefile
-index a1eedce..f332cbd 100644
+index a1eedce..566e156 100644
 --- a/package/kernel/mac80211/Makefile
 +++ b/package/kernel/mac80211/Makefile
 @@ -10,11 +10,11 @@ include $(INCLUDE_DIR)/kernel.mk
@@ -483,15 +483,6 @@ index a1eedce..f332cbd 100644
  endef
  
  define KernelPackage/cfg80211
-@@ -79,7 +91,7 @@ endef
- define KernelPackage/mac80211
-   $(call KernelPackage/mac80211/Default)
-   TITLE:=Linux 802.11 Wireless Networking Stack
--  DEPENDS+= +kmod-crypto-core +kmod-crypto-arc4 +kmod-crypto-aes +kmod-cfg80211 +hostapd-common
-+  DEPENDS+= +kmod-cfg80211 +hostapd-common
-   KCONFIG:=\
- 	CONFIG_AVERAGE=y
-   FILES:= $(PKG_BUILD_DIR)/net/mac80211/mac80211.ko
 @@ -109,8 +121,8 @@ Generic IEEE 802.11 Networking Stack (mac80211)
  endef
  

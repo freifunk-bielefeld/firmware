@@ -1,7 +1,7 @@
-From 493148da785649488b468c6dc547b01469b53fd5 Mon Sep 17 00:00:00 2001
+From 0e1c4c3c445399c1e76ed1ab5bcbaaefa2f644a8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 15 Oct 2015 20:03:51 +0200
-Subject: [PATCH 18/26] tools/firmware-utils: tplink-safeloader: clean up code
+Subject: [PATCH 18/28] tools/firmware-utils: tplink-safeloader: clean up code
 
 There is no reason for the internal functions not to be static.
 

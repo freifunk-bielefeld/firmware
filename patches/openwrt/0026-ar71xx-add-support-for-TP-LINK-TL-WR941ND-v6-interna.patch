@@ -1,7 +1,7 @@
-From 6089167cc84c300391eec2b019bc5b195a10c853 Mon Sep 17 00:00:00 2001
+From 9dbd72905acdfb790545fb2131d1d4234e3c2209 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 2 Nov 2015 19:21:20 +0100
-Subject: [PATCH 25/26] ar71xx: add support for TP-LINK TL-WR941ND v6
+Subject: [PATCH 26/28] ar71xx: add support for TP-LINK TL-WR941ND v6
  (international version)
 
 ---

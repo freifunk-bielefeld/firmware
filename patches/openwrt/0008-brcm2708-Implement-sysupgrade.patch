@@ -1,7 +1,7 @@
-From 6e091b80853162e2e99dbb8b09aed0769afe5640 Mon Sep 17 00:00:00 2001
+From 8cf452ccab22b1e92c2b974b5a02e59d25ec8694 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 17 Jul 2015 20:51:23 +0200
-Subject: [PATCH 08/26] brcm2708: Implement sysupgrade
+Subject: [PATCH 08/28] brcm2708: Implement sysupgrade
 
 Implement sysupgrade for Raspberry Pi, similar to the way it is done on x86:
 The config files are saved in the boot partition and moved to where they are

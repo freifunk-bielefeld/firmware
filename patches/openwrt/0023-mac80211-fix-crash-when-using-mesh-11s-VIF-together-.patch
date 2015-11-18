@@ -1,7 +1,7 @@
-From c25e10f754af3a6eeb080ee862872e236c4579a5 Mon Sep 17 00:00:00 2001
+From 5f69626867ae33c24073639d66551b6a1ec7fd20 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 24 Oct 2015 21:53:10 +0200
-Subject: [PATCH 23/26] mac80211: fix crash when using mesh (11s) VIF together
+Subject: [PATCH 23/28] mac80211: fix crash when using mesh (11s) VIF together
  with another VIF
 
 Using a 802.11s mesh VIF together with a different VIF (e.g. IBSS) led to
