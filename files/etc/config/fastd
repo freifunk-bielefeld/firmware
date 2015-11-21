@@ -44,3 +44,11 @@ config peer 'vpn6'
 	list remote 'ipv4 "vpn6.freifunk-bielefeld.de" port 1245'
 	option float 0
 
+config peer 'vpn7'
+        option enabled 1'
+        option net 'default'
+        option group 'backbone'
+        option key '8b29a9e9e355016d18a378021321b3da1ee29dba8c5abc47460940c804d50570'
+        option remote 'ipv4 "vpn7.freifunk-bielefeld.de" port 1245'
+        option float 0
+
