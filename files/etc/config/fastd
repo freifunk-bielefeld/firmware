@@ -1,10 +1,10 @@
 
 config fastd 'default'
-	option enabled 1
+	option enabled '1'
 	option syslog_level 'warn'
 	option bind 'any interface "br-wan"'
 	list method 'salsa2012+umac'
-	option secure_handshakes 1
+	option secure_handshakes '1'
 	option hide_ip_addresses '1'
 	option hide_mac_addresses '1'
 	option status_socket '/var/run/fastd.status'
@@ -21,34 +21,34 @@ config peer_group 'backbone'
 	option peer_limit '1'
 
 config peer 'vpn1'
-	option enabled 1
+	option enabled '1'
 	option net 'default'
 	option group 'backbone'
 	option key 'd7822baec77e7f6572ae9298b5506191e00f9eeaac1db4aba6e3c280678cac3c'
 	list remote 'ipv4 "vpn1.freifunk-bielefeld.de" port 1245'
-	option float 0
+	option float '0'
 
 config peer 'vpn2'
-	option enabled 1
+	option enabled '1'
 	option net 'default'
 	option group 'backbone'
 	option key '5369f843d41a89c107fe1839b1683e14869046252bb7af734f7d67b2711dd9cc'
 	list remote 'ipv4 "vpn2.freifunk-bielefeld.de" port 1245'
-	option float 0
+	option float '0'
 
 config peer 'vpn6'
-	option enabled 1
+	option enabled '1'
 	option net 'default'
 	option group 'backbone'
 	option key '949ced1433a3ec8920e18efd01e30c7cc0a52a72454619cfe878d4e4fd5e7440'
 	list remote 'ipv4 "vpn6.freifunk-bielefeld.de" port 1245'
-	option float 0
+	option float '0'
 
 config peer 'vpn7'
-        option enabled 1'
+        option enabled '1'
         option net 'default'
         option group 'backbone'
         option key '8b29a9e9e355016d18a378021321b3da1ee29dba8c5abc47460940c804d50570'
         option remote 'ipv4 "vpn7.freifunk-bielefeld.de" port 1245'
-        option float 0
+        option float '0'
 
