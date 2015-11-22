@@ -1,0 +1,6 @@
+#!/bin/sh
+
+[ "$DEVICE" = "br-wan" ] || exit 0
+
+[ "$ACTION" = "ifup" ] && /etc/init.d/zerotier start
+[ "$ACTION" = "ifdown" ] && /etc/init.d/zerotier stop

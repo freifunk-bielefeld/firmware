@@ -2,6 +2,6 @@
 config 'alfred' 'alfred'
 	option interface 'br-freifunk'
 	option mode 'slave'
-	option batmanif 'bat0'
+	option batmanif 'none'
 	option start_vis '0'
 	option run_facters '0'

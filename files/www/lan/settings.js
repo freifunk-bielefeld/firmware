@@ -79,9 +79,9 @@ function appendSetting(p, path, value, mode)
 			b = append_radio(p, "Bandbreitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Bandbreitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
-		if(cfg == "fastd") {
-			b = append_radio(p, "Fastd VPN", id, value, [["An", "1"], ["Aus", "0"]]);
-			addHelpText(b, "Eine VPN-Verbindung zum Server \xfcber WAN aufbauen (per fastd).");
+		if(cfg == "zerotier") {
+			b = append_radio(p, "ZeroTier VPN", id, value, [["An", "1"], ["Aus", "0"]]);
+			addHelpText(b, "Eine VPN-Verbindung zum Server \xfcber WAN aufbauen (per ZeroTier).");
 			addClass(b, "adv_hide");
 		}
 		break;
@@ -179,11 +179,11 @@ function rebuild_general()
 		appendSetting(tfs, ['simple-tc', i, "limit_ingress"], t[i]["limit_ingress"]);
 		appendSetting(tfs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
 	}
-
-	if('fastd' in uci) {
-		var a = uci.fastd;
-		var i = firstSectionID(a, "fastd");
-		appendSetting(gfs, ['fastd', i, "enabled"], a[i]["enabled"]);
+	
+	if('zerotier' in uci) {
+		var a = uci.zerotier;
+		var i = firstSectionID(a, "zerotier");
+		appendSetting(gfs, ['zerotier', i, "enabled"], a[i]["enabled"]);
 	}
 }
 

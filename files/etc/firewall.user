@@ -7,17 +7,19 @@ iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-
 ebtables -F
 ebtables -X
 
-#drop router advertisments from this router
-ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
-
 #create chain (drop packets at end)
 ebtables -N MULTICAST_OUT -P DROP
 
-#filter multicast/broadcast on bat0 into chain
-ebtables -A FORWARD --logical-out br-freifunk -o bat0 -d Multicast -j MULTICAST_OUT
-ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -d Multicast -j MULTICAST_OUT
-ebtables -A FORWARD --logical-out br-freifunk -o bat0 -d Broadcast -j MULTICAST_OUT
-ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -d Broadcast -j MULTICAST_OUT
+for ifce in bat0 zt0; do
+	#drop router advertisments from this router
+	ebtables -A OUTPUT --logical-out br-freifunk -o $ifce -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
+
+	#filter multicast/broadcast on bat0/zt0 into chain
+	ebtables -A FORWARD --logical-out br-freifunk -o $ifce -d Multicast -j MULTICAST_OUT
+	ebtables -A OUTPUT --logical-out br-freifunk -o $ifce -d Multicast -j MULTICAST_OUT
+	ebtables -A FORWARD --logical-out br-freifunk -o $ifce -d Broadcast -j MULTICAST_OUT
+	ebtables -A OUTPUT --logical-out br-freifunk -o $ifce -d Broadcast -j MULTICAST_OUT
+done
 
 #limit multicast packets
 ebtables -A MULTICAST_OUT --limit 100/sec

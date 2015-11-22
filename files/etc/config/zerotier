@@ -1,0 +1,5 @@
+
+config zerotier freifunk
+	option enabled 1
+	option secret 'generate' # generate secret on first start
+	list join '8856c2e21ca1ebee'

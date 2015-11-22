@@ -231,7 +231,7 @@ function rebuild_assignment()
 	var fs = append_section(root, "Anschl\xfcsse");
 	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
 
-	var ignore = ["local-node", "fastd_mesh", "bat0", "lo"];
+	var ignore = ["local-node", "zt0", "bat0", "lo"];
 	var ifnames = [];
 
 	//collect all interfaces

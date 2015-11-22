@@ -49,7 +49,7 @@ print 'uptime' "${uptime##*up}"
 print 'uname' "$(uname -s -m -r)"
 print 'date' "$(date)"
 
-if [ $(sockread /var/run/fastd.status < /dev/null 2> /dev/null | grep  -c '"connection": {') -gt 0 ]; then
+if [ $(zerotier-cli info 2> /dev/null | grep -c 'ONLINE') -gt 0 ]; then
 	print 'has_vpn' 'Ja'
 else
 	print 'has_vpn' 'Nein'
@@ -64,7 +64,7 @@ fi
 print 'node_count' "$((`cat /sys/kernel/debug/batman_adv/bat0/transtable_global | grep '^ [^ ]' | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))"
 print 'neigh_count' "$(cat /sys/kernel/debug/batman_adv/bat0/originators | grep '^[0-9a-f]' | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null)"
 print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"
-print 'fastd_version' "$(fastd --version 2> /dev/null | cut -d' ' -f 2)"
+print 'zerotier_version' "$(zerotier-one -v 2> /dev/null)"
 print 'batman_version' "$(cat /sys/module/batman_adv/version 2> /dev/null)"
 print 'openwrt_version' "$DISTRIB_DESCRIPTION"
 name="$(uci get -q freifunk.@settings[0].name)"
