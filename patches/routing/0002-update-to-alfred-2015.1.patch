@@ -1,7 +1,7 @@
-From cc281cf08f722ebe66c5404bf46bb19eb4edd83a Mon Sep 17 00:00:00 2001
+From d1376aae848df7d6beb3a0c48aa2e4d99ecfdf0f Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Thu, 6 Aug 2015 20:45:49 +0200
-Subject: [PATCH 2/5] alfred: upgrade package to latest release 2015.1
+Date: Sat, 21 Nov 2015 15:07:24 +0100
+Subject: [PATCH 2/6] update to alfred 2015.1
 
 ---
  alfred/Makefile          |  9 +++++----

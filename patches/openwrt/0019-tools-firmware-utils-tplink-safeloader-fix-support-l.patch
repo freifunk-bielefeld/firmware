@@ -1,4 +1,4 @@
-From f5af9a19d8a00811c20c618a2f8ad244c2ba4b12 Mon Sep 17 00:00:00 2001
+From a42e693ae14811ea7ff28f6a2c361568d6332e8c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 15 Oct 2015 21:01:25 +0200
 Subject: [PATCH 19/28] tools/firmware-utils: tplink-safeloader: fix

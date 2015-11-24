@@ -1,4 +1,4 @@
-From b78987422ba90c5a96ac64f2a8c8d8d981527ef1 Mon Sep 17 00:00:00 2001
+From b15041263c96256a5843782a0666f84e763fbe49 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 21 Jun 2015 22:50:48 +0200
 Subject: [PATCH 06/28] ar71xx: add support for tp-link wr740n v5.0 (EU)

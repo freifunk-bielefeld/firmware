@@ -1,4 +1,4 @@
-From 85e000698c54db6bbd853ddb073834752c93248f Mon Sep 17 00:00:00 2001
+From 324d1f0b778368480de9d58e44acb29e7de6a1cd Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 11 Oct 2015 18:00:27 +0200
 Subject: [PATCH 17/28] ar71xx: add support for TP-LINK TL-WR841N/ND v10

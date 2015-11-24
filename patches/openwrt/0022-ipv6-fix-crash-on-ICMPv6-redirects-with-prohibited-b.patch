@@ -1,4 +1,4 @@
-From 0276654fb8fecf7fe99e1b3d051a6d411847269a Mon Sep 17 00:00:00 2001
+From 94fb8600af478d1dc8e0cac02a8a64c3fc116df0 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 2 Nov 2015 02:02:02 +0100
 Subject: [PATCH 22/28] ipv6: fix crash on ICMPv6 redirects with

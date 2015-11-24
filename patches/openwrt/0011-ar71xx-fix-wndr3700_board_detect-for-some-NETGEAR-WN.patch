@@ -1,4 +1,4 @@
-From cf9f81da271149e36eb1ff69f9b5201b4bade7da Mon Sep 17 00:00:00 2001
+From fc41bb0eff109e1b147c494c4a10da0b7256b431 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 23 Jul 2015 01:31:05 +0200
 Subject: [PATCH 11/28] ar71xx: fix wndr3700_board_detect for some NETGEAR

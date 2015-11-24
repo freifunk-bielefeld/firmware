@@ -1,4 +1,4 @@
-From 8cf452ccab22b1e92c2b974b5a02e59d25ec8694 Mon Sep 17 00:00:00 2001
+From 6ccda79dd47a72215afe64d601cc4658157d9875 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 17 Jul 2015 20:51:23 +0200
 Subject: [PATCH 08/28] brcm2708: Implement sysupgrade

@@ -1,4 +1,4 @@
-From 12327390af6940b13a5642a74ed431f6f94c4fc9 Mon Sep 17 00:00:00 2001
+From ba87ea362e5b0e05e0f6cb4e19da41a21fb2b370 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 6 Aug 2015 03:01:47 +0200
 Subject: [PATCH 15/28] ar71xx: rework patch for qca953x/956x

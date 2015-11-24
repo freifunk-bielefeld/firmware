@@ -1,4 +1,4 @@
-From f212b5622038d72edfe1a908a5e4d203f9c7e6b1 Mon Sep 17 00:00:00 2001
+From c9eba4d23aee9b31d0554842082b9c722b9c9ed7 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 21 Jun 2015 22:48:04 +0200
 Subject: [PATCH 07/28] ar71xx: add support for TL-WR741ND v5

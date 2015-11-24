@@ -1,4 +1,4 @@
-From 11aa427b1b6423b90474430f0fd61f9ccc68fac6 Mon Sep 17 00:00:00 2001
+From 80e42df809fc1edcf02c5434a23bd0934df738ed Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 23 Dec 2014 18:57:16 +0100
 Subject: [PATCH 03/28] mac80211: backport from trunk r47249

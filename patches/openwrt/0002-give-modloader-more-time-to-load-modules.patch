@@ -1,4 +1,4 @@
-From 1a0d8d08a706711cded7d354845e40f5116d8bca Mon Sep 17 00:00:00 2001
+From ed69c17507482bbd34a6080475ec2e5a10ed7ede Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 23 Sep 2015 20:38:29 +0200
 Subject: [PATCH 02/28] give modloader more time to load modules

@@ -1,4 +1,4 @@
-From 3bab94598e7244120f50134974af239d2d5cdfee Mon Sep 17 00:00:00 2001
+From c4e26cdae5f67ee3e13e71c3cd2c127b2af4fc05 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jul 2015 22:01:02 +0200
 Subject: [PATCH 09/28] sunxi: fix uboot install location

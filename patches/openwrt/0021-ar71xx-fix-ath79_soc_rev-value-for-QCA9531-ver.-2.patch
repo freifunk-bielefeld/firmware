@@ -1,4 +1,4 @@
-From 523d0947376a24ac1e401c4469c37673e9a921f2 Mon Sep 17 00:00:00 2001
+From 8b7257f2066c26ed7953a0771975c14176d6d655 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 22 Oct 2015 00:33:25 +0200
 Subject: [PATCH 21/28] ar71xx: fix ath79_soc_rev value for QCA9531 ver. 2

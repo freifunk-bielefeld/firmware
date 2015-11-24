@@ -1,4 +1,4 @@
-From 85bf1c78b8a9ebd4c154f541381d4721511324b0 Mon Sep 17 00:00:00 2001
+From df20def80132e803aa9537f858f69ba04c3b19d1 Mon Sep 17 00:00:00 2001
 From: Nils Schneider <nils@nilsschneider.net>
 Date: Fri, 24 Jul 2015 21:52:12 +0200
 Subject: [PATCH 12/28] mac80211: set mcast-rate for mesh point interfaces

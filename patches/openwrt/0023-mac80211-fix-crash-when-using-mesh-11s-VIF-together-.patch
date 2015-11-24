@@ -1,4 +1,4 @@
-From 5f69626867ae33c24073639d66551b6a1ec7fd20 Mon Sep 17 00:00:00 2001
+From bb84e2257881211cced43f32d331b3c29bd5fbb7 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 24 Oct 2015 21:53:10 +0200
 Subject: [PATCH 23/28] mac80211: fix crash when using mesh (11s) VIF together
