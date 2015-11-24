@@ -1,7 +1,7 @@
-From 6c06f0cbf64b8f82d2265c9bb8236519b6b10109 Mon Sep 17 00:00:00 2001
+From 1a0d8d08a706711cded7d354845e40f5116d8bca Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 23 Sep 2015 20:38:29 +0200
-Subject: [PATCH 02/26] give modloader more time to load modules
+Subject: [PATCH 02/28] give modloader more time to load modules
 
 otherwise wifi detect will not detect all wifi cards (e.g for TP-Link Archer)
 and /etc/config/wireless will not be fully initialized

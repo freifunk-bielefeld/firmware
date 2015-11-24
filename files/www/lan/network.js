@@ -411,10 +411,14 @@ function getWifiInterfaceState(dev, wid)  {
 	return "Unbekannt";
 }
 
-function countWifi(mode) {
+//wmanode is optional and can be ap or sta
+function countWifi(mode, wmode) {
 	var n = 0;
 	config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
-                if(getWifiMode(wid) == mode) n++;
+		if(wmode && wobj['mode'] != wmode) {
+			return;
+		}
+		if(getWifiMode(wid) == mode) n++;
         });
 	return n;
 }
@@ -806,11 +810,9 @@ since only a bridge would support that.
 function checkWifiWan() {
 	var pre_mode = uci.network.wan.type;
 	var new_mode = 'bridge';
-	var wifi_num = countWifi('wan');
-	var other_num = countOther('wan');
 
-	if(wifi_num) {
-		if(other_num + wifi_num > 1) {
+	if(countWifi('wan', 'sta')) {
+		if((countWifi('wan') + countOther('wan')) > 1) {
 			return false;
 		}
 		new_mode = 'static';

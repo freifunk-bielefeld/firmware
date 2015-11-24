@@ -1,7 +1,7 @@
-From ba8b1f19fa046a410452145920900c0e059f41f3 Mon Sep 17 00:00:00 2001
+From 12327390af6940b13a5642a74ed431f6f94c4fc9 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 6 Aug 2015 03:01:47 +0200
-Subject: [PATCH 14/26] ar71xx: rework patch for qca953x/956x
+Subject: [PATCH 15/28] ar71xx: rework patch for qca953x/956x
 
 Patch cherry-picked from the following location:
 https://www.codeaurora.org/cgit/quic/qsdk/oss/system/openwrt/commit/?h=release/coconut_ioe4531_2.0&id=5c357bf6c763e4140dddcc9a3bc5f005525a9c0e
