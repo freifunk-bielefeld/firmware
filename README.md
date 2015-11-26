@@ -14,13 +14,13 @@ Install dependencies for the build environment (Debian/Ubuntu):
 
 Build commands for the console:
 
-    git clone -b development git://git.openwrt.org/15.05/openwrt.git
+    git clone git://git.openwrt.org/15.05/openwrt.git
     cd openwrt
     
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     
-    git clone https://github.com/freifunk-bielefeld/firmware.git
+    git clone -b development https://github.com/freifunk-bielefeld/firmware.git
     cp -rf firmware/files firmware/package .
     git am --whitespace=nowarn firmware/patches/openwrt/*.patch
     cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
