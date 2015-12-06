@@ -1,7 +1,7 @@
-From c3827953093314912457b9d620cf71b92faf1e7c Mon Sep 17 00:00:00 2001
+From c7a61400af8b9ef220a0a2212d9db83c476ddd15 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 27 Jul 2015 20:42:50 +0200
-Subject: [PATCH 13/28] hostapd: prevent channel switch for 5GHz
+Subject: [PATCH 12/24] hostapd: prevent channel switch for 5GHz
 
 hostapd would switch the primary and secondary channel on 5GHz networks in
 certain circumstances, completely breaking the adhoc interfaces of the WLAN

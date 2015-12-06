@@ -1,7 +1,7 @@
-From 9806c429eeb8554fe12bbd5ac30ce43454e33c63 Mon Sep 17 00:00:00 2001
+From 26cc3905fae90150a40bad942c516bdb69e6ee89 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 2 Nov 2015 19:21:20 +0100
-Subject: [PATCH 26/28] ar71xx: add support for TP-LINK TL-WR941ND v6
+Subject: [PATCH 22/24] ar71xx: add support for TP-LINK TL-WR941ND v6
  (international version)
 
 ---
@@ -53,7 +53,7 @@ index 5241db2..11b3fa0 100644
  	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
  	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:green:wlan" "phy0tpt"
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-index 5c38c54..2f0855c 100755
+index 8143d2d..5a74461 100755
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 @@ -226,6 +226,7 @@ tl-mr3420-v2 |\

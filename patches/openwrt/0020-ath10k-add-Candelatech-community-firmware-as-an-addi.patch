@@ -1,7 +1,7 @@
-From 108610f1d7c9f23320798434dd59367962a49355 Mon Sep 17 00:00:00 2001
+From ce1c94f391bd884e9f99dcdcd6004888a4ab7e83 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 10 Mar 2015 13:17:14 +0100
-Subject: [PATCH 24/28] ath10k: add Candelatech community firmware as an
+Subject: [PATCH 20/24] ath10k: add Candelatech community firmware as an
  additional choice
 
 ---

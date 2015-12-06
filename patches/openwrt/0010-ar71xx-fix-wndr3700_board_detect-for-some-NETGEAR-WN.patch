@@ -1,7 +1,7 @@
-From fc41bb0eff109e1b147c494c4a10da0b7256b431 Mon Sep 17 00:00:00 2001
+From a484052c424202f2ae20c9bdd989917ef155e631 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 23 Jul 2015 01:31:05 +0200
-Subject: [PATCH 11/28] ar71xx: fix wndr3700_board_detect for some NETGEAR
+Subject: [PATCH 10/24] ar71xx: fix wndr3700_board_detect for some NETGEAR
  WNDR3700v2
 
 There are a few NETGEAR devices which don't terminate the model name in the

@@ -1,7 +1,7 @@
-From 4d6aea97253e4a1f83cbf66480843ee50f3a1b00 Mon Sep 17 00:00:00 2001
+From 3d81658ece7edd945a0a114cb2a6939b032bad6f Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 1 Sep 2015 19:59:16 +0200
-Subject: [PATCH 25/28] mac80211: ath9k: add correct MAC/BB name for ar9561
+Subject: [PATCH 21/24] mac80211: ath9k: add correct MAC/BB name for ar9561
 
 ---
  ...-ath9k_add-correct-MAC-BB-name-for-ar9561.patch | 25 ++++++++++++++++++++++

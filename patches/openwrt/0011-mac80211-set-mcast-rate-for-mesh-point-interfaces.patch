@@ -1,7 +1,7 @@
-From df20def80132e803aa9537f858f69ba04c3b19d1 Mon Sep 17 00:00:00 2001
+From f2aa28152e4f11d57831c9f93aaa121d0117a9d2 Mon Sep 17 00:00:00 2001
 From: Nils Schneider <nils@nilsschneider.net>
 Date: Fri, 24 Jul 2015 21:52:12 +0200
-Subject: [PATCH 12/28] mac80211: set mcast-rate for mesh point interfaces
+Subject: [PATCH 11/24] mac80211: set mcast-rate for mesh point interfaces
 
 In order to set the multicast rate for mesh point interfaces the "mesh join"
 was made explicit and moved to mac80211_setup_vif(), similar to how it is

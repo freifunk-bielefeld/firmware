@@ -1,7 +1,7 @@
-From e2fbc836b24b7ccb5640ddd893d1ed65cd94956b Mon Sep 17 00:00:00 2001
+From d40fa04ff91e0bdd78e2ce876ddb6cf809be670e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 20 May 2015 23:15:20 +0200
-Subject: [PATCH 05/28] iwinfo: update NanoStation (Loco) txpower offsets
+Subject: [PATCH 05/24] iwinfo: update NanoStation (Loco) txpower offsets
 
 ---
  .../iwinfo/patches/001-update_nanostation_offsets.patch    | 14 ++++++++++++++

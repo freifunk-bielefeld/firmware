@@ -1,7 +1,7 @@
-From c4e26cdae5f67ee3e13e71c3cd2c127b2af4fc05 Mon Sep 17 00:00:00 2001
+From c25dd684e5528a633f529e01d7245f7ac1510d00 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jul 2015 22:01:02 +0200
-Subject: [PATCH 09/28] sunxi: fix uboot install location
+Subject: [PATCH 08/24] sunxi: fix uboot install location
 
 Install uboot files to KERNEL_BUILD_DIR instead of BIN_DIR to fix the
 ImageBuilder. Similar fixes are necessary for many (all?) other uboot
