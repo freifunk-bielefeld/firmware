@@ -142,6 +142,24 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
 		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
 		break;
+	case "mesh_on_wan":
+		b = append_radio(p, "Mesh-On-WAN", id, value, [["Ja", "1"], ["Nein", "0"]]);
+		onDesc(b, "INPUT", function(e) {
+			e.onclick = function(e) {
+				var src = (e.target || e.srcElement);
+				var val = (src.data || src.value);
+				if(val != value)
+				{
+					if(val == "1") {
+						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0"};
+					} else {
+						delete uci.network['wan_mesh'];
+					}
+					uci.network.pchanged = true;
+				}
+			}
+		});
+		break;
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		break;
@@ -215,8 +233,8 @@ function rebuild_other()
 
 	if('network' in uci) {
 		var n = uci['network'];
-		var b = appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
-		if(b) show(root);
+		appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
+		appendSetting(fs, ['network', 'freifunk', "mesh_on_wan"], n['freifunk']["mesh_on_wan"]);
 	}
 
 	addClass(root, "adv_hide");
