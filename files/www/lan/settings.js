@@ -70,6 +70,13 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^$|^[\-\^'\w\.\:\[\]\(\)\/ &@\+\u0080-\u00FF]{0,32}$/, "Ung\xfcltige Eingabe.");
 		addHelpText(b, "Kontaktdaten f\xfcr die \xf6ffentliche Freifunk-Karte und Statusseite. Falls ihr euch von anderen Leuten kontaktieren lassen wollt (z.B. \"info@example.com\").");
 		break;
+	case "community_url":
+		b = append_input(p, "Community-Webseite", id, value);
+		b.lastChild.placeholder = "http://www.freifunk-bielefeld.de";
+		addClass(b, "adv_hide");
+		addInputCheck(b.lastChild, /^$|^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/, "Ung\xfcltige URL.");
+		addHelpText(b, "Webseite der Community, zu der dieser Knoten geh\xf6rt.");
+		break;
 	case "enabled":
 		if(cfg == "autoupdater") {
 			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
@@ -158,6 +165,7 @@ function rebuild_general()
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
 		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
 		appendSetting(gfs, ['freifunk', i, "contact"], f[i]["contact"]);
+		appendSetting(rfs, ['freifunk', i, "community_url"], f[i]["community_url"]);
 		appendSetting(rfs, ['freifunk', i, "community"], f[i]["community"]);
 		appendSetting(gfs, ['freifunk', i, "publish_map"], f[i]["publish_map"]);
 		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
@@ -204,3 +212,4 @@ function save_data()
 		);
 	}
 }
+
