@@ -14,7 +14,7 @@
 <body>
 	<div class="header">
 		<div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
-			<a class="pure-menu-heading" href="http://<% echo -n $(uci get -q freifunk.@settings[0].community) %>.freifunk.net"><% echo -n $(uci get -q freifunk.@settings[0].community) %>.freifunk.net</a>
+			<a class="pure-menu-heading" href="<% echo -n $(uci get -q freifunk.@settings[0].community_url) %>"><% echo -n $(uci get -q freifunk.@settings[0].community_url) | cut -d\/ -f3 %></a>
 			<ul>
 <%
 contact="$(uci get -q freifunk.@settings[0].contact)"
@@ -77,3 +77,4 @@ fi
 	</div>
 </body>
 </html>
+
