@@ -379,7 +379,7 @@ function addWifiSection(device, mode)
 		//802.11s
 		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_mesh_id,"mesh_fwding":0,"network":net};
 		//connected via option network
-		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
+		n[net] = {"stype":"interface","mtu":"1532","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
 	case "freifunk":
