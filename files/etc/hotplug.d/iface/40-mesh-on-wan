@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Block batman-adv packets on wifi interfaces used for wan.
+# Only needed to ease wifi airtime when mesh on wan is activated.
+
+[ $(uci get -q network.freifunk.mesh_on_wan) -eq 1 ] || exit 0 
+
+[ "$ACTION" = "ifup" -a "$INTERFACE" = "wan" ] || exit 0
+
+[ -d "/sys/class/net/$DEVICE/wireless" ] && {
+	ebtables -A FORWARD -p 0x4305 -o $DEVICE -j DROP
+	ebtables -A OUTPUT -p 0x4305 -o $DEVICE -j DROP
+}
