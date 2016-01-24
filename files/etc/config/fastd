@@ -52,7 +52,7 @@ config peer 'vpn7'
         option remote 'ipv4 "vpn7.freifunk-bielefeld.de" port 1245'
         option float '0'
 
-config peer 'vpn7'
+config peer 'vpn8'
 	option enabled '1'
 	option net 'default'
 	option group 'backbone'
