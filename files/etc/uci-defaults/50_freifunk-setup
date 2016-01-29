@@ -60,7 +60,7 @@ initial_wifi_setup()
 		#additional config for mesh interface
 		n="network.${wifi_device}_mesh"
 		uci set $n="interface"
-		uci set $n.mtu=1406
+		uci set $n.mtu=1532
 		uci set $n.proto="batadv"
 		uci set $n.mesh="bat0"
 

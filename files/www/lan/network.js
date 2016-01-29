@@ -142,6 +142,24 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
 		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
 		break;
+	case "mesh_on_wan":
+		b = append_radio(p, "Mesh-On-WAN", id, value, [["Ja", "1"], ["Nein", "0"]]);
+		onDesc(b, "INPUT", function(e) {
+			e.onclick = function(e) {
+				var src = (e.target || e.srcElement);
+				var val = (src.data || src.value);
+				if(val != value)
+				{
+					if(val == "1") {
+						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0"};
+					} else {
+						delete uci.network['wan_mesh'];
+					}
+					uci.network.pchanged = true;
+				}
+			}
+		});
+		break;
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		break;
@@ -215,8 +233,8 @@ function rebuild_other()
 
 	if('network' in uci) {
 		var n = uci['network'];
-		var b = appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
-		if(b) show(root);
+		appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
+		appendSetting(fs, ['network', 'freifunk', "mesh_on_wan"], n['freifunk']["mesh_on_wan"]);
 	}
 
 	addClass(root, "adv_hide");
@@ -361,7 +379,7 @@ function addWifiSection(device, mode)
 		//802.11s
 		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_mesh_id,"mesh_fwding":0,"network":net};
 		//connected via option network
-		n[net] = {"stype":"interface","mtu":"1406","proto":"batadv","mesh":"bat0"};
+		n[net] = {"stype":"interface","mtu":"1532","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
 	case "freifunk":
@@ -631,6 +649,7 @@ function collect_switch_info(device)
 			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
 			break;
 		case 'tp-link-tl-wr842n-nd-v2':
+		case 'tp-link-tl-wr941n-nd-v6':
 			obj.ifname = "eth1";
 			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
 			break;
@@ -642,10 +661,6 @@ function collect_switch_info(device)
 		case 'tp-link-tl-mr3420-v1':
 			obj.port_map = [['_',0], ['1',1], ['2',2], ['3',3], ['4',4]];
 			break;
-		case 'tp-link-tl-wr941n-nd-v6':
-			obj.ifname = "eth1";
-			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
-			break;
 		case 'tp-link-cpe210-v1-0':
 		case 'tp-link-cpe220-v1-0':
 		case 'tp-link-cpe510-v1-0':
@@ -655,6 +670,11 @@ function collect_switch_info(device)
 		case 'tp-link-archer-c7-v2':
 			obj.port_map = [['_',0], ['WAN',1], ['LAN1',2], ['LAN2',3], ['LAN3',4], ['LAN4',5]];
 			obj.ifname = "eth1";
+			break;
+		case 'd-link-dir-615-d':
+		case 'd-link-dir-615-h1':
+		case 'd-link-dir-615-h2':
+			obj.port_map = [['1',3], ['2',2], ['3',1], ['4',0], ['Internet',4], ['_',5]];
 			break;
 	}
 
