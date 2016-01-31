@@ -250,6 +250,15 @@ function rebuild_assignment()
 	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
 
 	var ignore = ["local-node", "fastd_mesh", "bat0", "lo"];
+        switch (uci.misc.data.model)
+        {
+                case 'tp-link-tl-wr941n-nd-v1':
+		case 'tp-link-tl-wr941n-nd-v2':
+		case 'tp-link-tl-wr941n-nd-v3':
+                        ignore.push("eth0");
+                        break;
+        }
+
 	var ifnames = [];
 
 	//collect all interfaces
