@@ -151,7 +151,7 @@ function appendSetting(p, path, value, mode)
 				if(val != value)
 				{
 					if(val == "1") {
-						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0"};
+						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0", "mesh_no_rebroadcast" : "1"};
 					} else {
 						delete uci.network['wan_mesh'];
 					}
