@@ -1,15 +1,15 @@
-From d1376aae848df7d6beb3a0c48aa2e4d99ecfdf0f Mon Sep 17 00:00:00 2001
+From 959ef0637e1d01f03d3648185cb45eff166a3090 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Sat, 21 Nov 2015 15:07:24 +0100
-Subject: [PATCH 2/6] update to alfred 2015.1
+Date: Tue, 9 Feb 2016 21:46:46 +0100
+Subject: [PATCH 4/6] update to alfred 2016.0
 
 ---
- alfred/Makefile          |  9 +++++----
- alfred/files/alfred.init | 49 ++++++++++++++++++++++++++++--------------------
- 2 files changed, 34 insertions(+), 24 deletions(-)
+ alfred/Makefile          |  9 +++---
+ alfred/files/alfred.init | 74 +++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 59 insertions(+), 24 deletions(-)
 
 diff --git a/alfred/Makefile b/alfred/Makefile
-index dade218..8f49b5a 100644
+index dade218..504fddd 100644
 --- a/alfred/Makefile
 +++ b/alfred/Makefile
 @@ -11,9 +11,9 @@ include $(TOPDIR)/rules.mk
@@ -17,10 +17,10 @@ index dade218..8f49b5a 100644
  #
  PKG_NAME:=alfred
 -PKG_VERSION:=2014.4.0
-+PKG_VERSION:=2015.1
++PKG_VERSION:=2015.2
  PKG_RELEASE:=0
 -PKG_MD5SUM:=053cb5d9e7ca9384598e82944343dea2
-+PKG_MD5SUM:=fcce70cd8da764ee91c8cd2cbfa14362
++PKG_MD5SUM:=e50bd17753f824fa24d3914259ab0395
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
@@ -44,10 +44,10 @@ index dade218..8f49b5a 100644
  TARGET_CFLAGS  += -ffunction-sections -fdata-sections -flto
  TARGET_LDFLAGS += -Wl,--gc-sections -fuse-linker-plugin
 diff --git a/alfred/files/alfred.init b/alfred/files/alfred.init
-index b777b53..5ce06c0 100755
+index b777b53..4c9a9e1 100755
 --- a/alfred/files/alfred.init
 +++ b/alfred/files/alfred.init
-@@ -16,10 +16,27 @@ pid_file_alfred="/var/run/alfred.pid"
+@@ -16,10 +16,52 @@ pid_file_alfred="/var/run/alfred.pid"
  pid_file_vis="/var/run/batadv-vis.pid"
  enable=0
  vis_enable=0
@@ -73,10 +73,35 @@ index b777b53..5ce06c0 100755
 +	fi
 +}
 +
++wait_for_ll_address()
++{
++	local iface="$1"
++	local timeout=30
++
++	echo "${initscript}: waiting $timeout secs for $iface address..."
++	for i in $(seq $timeout); do
++		# We look for
++		# - the link-local address (starts with fe80)
++		# - without tentative flag (bit 0x40 in the flags field; the first char of the flags field begins 38 columns after the fe80 prefix
++		# - on interface $iface
++		if awk '
++			BEGIN { RET=1 }
++			/^fe80.{37} [012389ab]/ { if ($6 == "'"$iface"'") RET=0 }
++			END { exit RET }
++		' /proc/net/if_inet6; then
++			return
++		fi
++		sleep 1
++	done
++
++	echo "${initscript}: $iface address not detected, alfred not starting."
++	exit 1
++}
++
  alfred_start()
  {
  	local args=""
-@@ -41,14 +58,20 @@ alfred_start()
+@@ -41,14 +83,20 @@ alfred_start()
  	config_get batmanif "$section" batmanif
  	append args "-b $batmanif"
  
@@ -84,7 +109,7 @@ index b777b53..5ce06c0 100755
 +		wait_for_dir "$batmanif" "/sys/class/net/$batmanif/mesh"
 +	fi
 +
-+	wait_for_dir "$interface" "/sys/class/net/$interface/"
++	wait_for_ll_address "$interface"
 +
  	append alfred_args "$args"
  	enable=1
@@ -102,7 +127,7 @@ index b777b53..5ce06c0 100755
  
  	config_get_bool run_facters "$section" run_facters 0
  
-@@ -64,20 +87,6 @@ start()
+@@ -64,20 +112,6 @@ start()
  		exit 0
  	fi
  
