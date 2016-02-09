@@ -3,11 +3,16 @@
 # Block batman-adv packets on wifi interfaces used for wan.
 # Only needed to ease wifi airtime when mesh on wan is activated.
 
-[ $(uci get -q network.freifunk.mesh_on_wan) -eq 1 ] || exit 0 
+[ $(uci get -q network.freifunk.mesh_on_wan) -eq 1 ] || exit 0
 
 [ "$ACTION" = "ifup" -a "$INTERFACE" = "wan" ] || exit 0
 
-[ -d "/sys/class/net/$DEVICE/wireless" ] && {
-	ebtables -A FORWARD -p 0x4305 -o $DEVICE -j DROP
-	ebtables -A OUTPUT -p 0x4305 -o $DEVICE -j DROP
-}
+ifnames=`ls /sys/class/net/br-wan/ | awk '/lower_wlan/ {print substr($1,7)}'`
+
+[ -n "$ifnames" ] || exit 0
+
+for ifname in $ifnames; do
+        ebtables -A FORWARD -p 0x4305 -o $ifname -j DROP
+        ebtables -A OUTPUT -p 0x4305 -o $ifname -j DROP
+done
+
