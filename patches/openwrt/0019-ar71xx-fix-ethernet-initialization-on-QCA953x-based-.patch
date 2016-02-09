@@ -1,7 +1,7 @@
-From d0eb627ea1a37cbf572fd81c8f99563ae76ccf7b Mon Sep 17 00:00:00 2001
+From a1798c6857944ae8584e8b9d197647b8e799c515 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 6 Aug 2015 03:01:38 +0200
-Subject: [PATCH 13/24] ar71xx: fix ethernet initialization on QCA953x-based
+Subject: [PATCH 19/40] ar71xx: fix ethernet initialization on QCA953x-based
  boards (TP-Link TL-WR841N/ND v9, Compex WPJ531)
 
 The initialization routines for these boards were relying on some (wrong)

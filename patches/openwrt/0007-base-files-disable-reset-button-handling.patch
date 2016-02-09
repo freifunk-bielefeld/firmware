@@ -1,0 +1,40 @@
+From 31a364117389f8652731e5fbbe3398b3097bac14 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Sat, 21 Mar 2015 16:40:52 +0100
+Subject: [PATCH 07/40] base-files: disable reset button handling
+
+This conflicts with our reset button usage.
+---
+ package/base-files/files/etc/rc.button/reset | 20 --------------------
+ 1 file changed, 20 deletions(-)
+ delete mode 100755 package/base-files/files/etc/rc.button/reset
+
+diff --git a/package/base-files/files/etc/rc.button/reset b/package/base-files/files/etc/rc.button/reset
+deleted file mode 100755
+index 3e24146..0000000
+--- a/package/base-files/files/etc/rc.button/reset
++++ /dev/null
+@@ -1,20 +0,0 @@
+-#!/bin/sh
+-
+-[ "${ACTION}" = "released" ] || exit 0
+-
+-. /lib/functions.sh
+-
+-logger "$BUTTON pressed for $SEEN seconds"
+-
+-if [ "$SEEN" -lt 1 ]
+-then
+-	echo "REBOOT" > /dev/console
+-	sync
+-	reboot
+-elif [ "$SEEN" -gt 5 ]
+-then
+-	echo "FACTORY RESET" > /dev/console
+-	jffs2reset -y && reboot &
+-fi
+-
+-return 0
+-- 
+2.1.4
+

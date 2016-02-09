@@ -1,7 +1,7 @@
-From bef84bf16c2bc5434a7bb2ed1194123cecf3e129 Mon Sep 17 00:00:00 2001
+From dd609be374281558ae14bce846af2e82f1ee4ab8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 21 Jun 2015 22:50:48 +0200
-Subject: [PATCH 06/24] ar71xx: add support for tp-link wr740n v5.0 (EU)
+Subject: [PATCH 13/40] ar71xx: add support for tp-link wr740n v5.0 (EU)
 
 TP-Link ships wr740n v5.0 to Romania (so probably everywhere except
 China) with 4 MB flash and 32 MB memory (confirmed by their local
@@ -14,7 +14,7 @@ Signed-off-by: Daniel Petre <daniel.petre@posteo.net>
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 95d9a08..2a87ab5 100644
+index 4336697..1fe88d5 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -501,6 +501,14 @@ define Device/tl-wr740n-v4

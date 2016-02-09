@@ -1,23 +1,23 @@
-From 5b4942954d112e64a2cec06e01f3dbc303681777 Mon Sep 17 00:00:00 2001
+From 08b03dccf51df5e0a6a53a5a31e8ee27f5de71ab Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 3 Sep 2015 23:50:51 +0200
-Subject: [PATCH 14/24] ath9k: add HSR tuner support for UniFi Outdoor Plus
+Subject: [PATCH 25/40] ath9k: add HSR tuner support for UniFi Outdoor Plus
 
 Patch-by: Stefan Rompf <stefan@loplof.de>
 ---
- .../mac80211/patches/931-ubnt-uap-plus-hsr.patch   | 353 +++++++++++++++++++++
+ .../mac80211/patches/931-ubnt-uap-plus-hsr.patch   | 346 +++++++++++++++++++++
  .../608-MIPS-ath79-ubnt-xm-add-more-boards.patch   |   1 +
  .../patches-3.18/150-ath9k_ubnt_hsr_filter.patch   |  16 +
- 3 files changed, 370 insertions(+)
+ 3 files changed, 363 insertions(+)
  create mode 100644 package/kernel/mac80211/patches/931-ubnt-uap-plus-hsr.patch
  create mode 100644 target/linux/generic/patches-3.18/150-ath9k_ubnt_hsr_filter.patch
 
 diff --git a/package/kernel/mac80211/patches/931-ubnt-uap-plus-hsr.patch b/package/kernel/mac80211/patches/931-ubnt-uap-plus-hsr.patch
 new file mode 100644
-index 0000000..4cd6faf
+index 0000000..4533335
 --- /dev/null
 +++ b/package/kernel/mac80211/patches/931-ubnt-uap-plus-hsr.patch
-@@ -0,0 +1,353 @@
+@@ -0,0 +1,346 @@
 +--- a/drivers/net/wireless/ath/ath9k/channel.c
 ++++ b/drivers/net/wireless/ath/ath9k/channel.c
 +@@ -15,6 +15,8 @@
@@ -274,7 +274,7 @@ index 0000000..4cd6faf
 ++
 +--- /dev/null
 ++++ b/drivers/net/wireless/ath/ath9k/hsr.h
-+@@ -0,0 +1,40 @@
++@@ -0,0 +1,33 @@
 ++/*
 ++ * The MIT License (MIT)
 ++ *
@@ -302,17 +302,10 @@ index 0000000..4cd6faf
 ++#ifndef HSR_H_
 ++#define HSR_H_
 ++
-++#ifdef CPTCFG_ATH9K_UBNTHSR
 ++void hsr_init(struct ath_hw* ah);
 ++int hsr_disable(struct ath_hw* ah);
 ++int hsr_enable(struct ath_hw* ah, int bw, int fq);
 ++int hsr_status(struct ath_hw* ah);
-++#else
-++static inline void hsr_init(struct ath_hw* ah) {}
-++static inline int hsr_disable(struct ath_hw* ah) { return 0; }
-++static inline int hsr_enable(struct ath_hw* ah, int bw, int fq) { return 0; }
-++static inline int hsr_status(struct ath_hw* ah) { return 0; }
-++#endif
 ++
 ++#endif /* HSR_H_ */
 +--- a/drivers/net/wireless/ath/ath9k/main.c

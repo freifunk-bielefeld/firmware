@@ -1,7 +1,7 @@
-From cdd66bbc286153ad742401eca5915c8825e28d1d Mon Sep 17 00:00:00 2001
+From e1797c2e149d94db905888e9cc8bc50abfa59815 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 18 Nov 2015 02:01:55 +0100
-Subject: [PATCH 24/24] ar71xx: backport ath10k calibration data load changes
+Subject: [PATCH 34/40] ar71xx: backport ath10k calibration data load changes
 
 The mac80211 update makes is necessary to backport this change as well for
 ath10k to load.
