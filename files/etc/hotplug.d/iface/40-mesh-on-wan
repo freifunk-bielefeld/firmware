@@ -3,8 +3,6 @@
 # Block batman-adv packets on wifi interfaces used for wan.
 # Only needed to ease wifi airtime when mesh on wan is activated.
 
-[ $(uci get -q network.freifunk.mesh_on_wan) -eq 1 ] || exit 0
-
 [ "$ACTION" = "ifup" -a "$INTERFACE" = "wan" ] || exit 0
 
 ifnames=`ls /sys/class/net/br-wan/ | awk '/lower_wlan/ {print substr($1,7)}'`
