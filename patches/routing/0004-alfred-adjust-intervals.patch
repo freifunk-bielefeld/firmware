@@ -1,7 +1,7 @@
-From 9b6017d0f96335f7bf0e8e2e07bea13303a795e5 Mon Sep 17 00:00:00 2001
+From b5a735a76a8d13a600e6f4de882ba464b51806ab Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 7 Jan 2015 16:45:09 +0100
-Subject: [PATCH 6/6] alfred: adjust intervals
+Subject: [PATCH 4/6] alfred: adjust intervals
 
 ---
  alfred/patches/0001-alfred-adjust-intervals.patch | 15 +++++++++++++++
