@@ -1,0 +1,27 @@
+From 960b0f6b0e780941b289f551714762d6ef87cf86 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Thu, 19 Nov 2015 23:29:17 +0100
+Subject: [PATCH 35/40] ar71xx: fix AR71XX_MODEL on TP-Link TL-WR703N
+
+The hwid check was wrong, causing the AR71XX_MODEL value to end with a
+space (as $hwver was unset).
+---
+ target/linux/ar71xx/base-files/lib/ar71xx.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+index 46af69a..d0abf42 100755
+--- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
++++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+@@ -123,7 +123,7 @@ tplink_board_detect() {
+ 	"3C0002"*)
+ 		model="MINIBOX_V1"
+ 		;;
+-	"070300"*)
++	"070301"*)
+ 		model="TP-Link TL-WR703N"
+ 		;;
+ 	"071000"*)
+-- 
+2.1.4
+

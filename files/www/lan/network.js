@@ -151,7 +151,7 @@ function appendSetting(p, path, value, mode)
 				if(val != value)
 				{
 					if(val == "1") {
-						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0"};
+						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0", "mesh_no_rebroadcast" : "1"};
 					} else {
 						delete uci.network['wan_mesh'];
 					}
@@ -159,6 +159,7 @@ function appendSetting(p, path, value, mode)
 				}
 			}
 		});
+		addHelpText(b, "Diese Funktion schickt die Mesh-Pakete auf das Netz am WAN-Anschluss. Bitte beachten, dass diese Broadcast-Pakete im WAN-Netz befindliche WLAN APs negativ beeinflusst.");
 		break;
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
@@ -250,6 +251,15 @@ function rebuild_assignment()
 	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
 
 	var ignore = ["local-node", "fastd_mesh", "bat0", "lo"];
+        switch (uci.misc.data.model)
+        {
+                case 'tp-link-tl-wr941n-nd-v1':
+		case 'tp-link-tl-wr941n-nd-v2':
+		case 'tp-link-tl-wr941n-nd-v3':
+                        ignore.push("eth0");
+                        break;
+        }
+
 	var ifnames = [];
 
 	//collect all interfaces
