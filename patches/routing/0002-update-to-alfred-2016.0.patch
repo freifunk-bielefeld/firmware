@@ -1,7 +1,7 @@
-From 959ef0637e1d01f03d3648185cb45eff166a3090 Mon Sep 17 00:00:00 2001
+From 188d6c34b57a5a8480b4471a8a9c48099724c2ba Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 9 Feb 2016 21:46:46 +0100
-Subject: [PATCH 4/6] update to alfred 2016.0
+Subject: [PATCH 2/6] update to alfred 2016.0
 
 ---
  alfred/Makefile          |  9 +++---

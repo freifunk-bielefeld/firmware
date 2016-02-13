@@ -1,7 +1,7 @@
-From 3b68755814fbf97c57a07b513242585224158215 Mon Sep 17 00:00:00 2001
+From 0f2cdc465c994ff0985a3168b287a6e6fb345295 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 9 Feb 2016 21:47:45 +0100
-Subject: [PATCH 5/6] update batctl to 2016.0
+Subject: [PATCH 3/6] update batctl to 2016.0
 
 ---
  batctl/Makefile | 8 ++++----

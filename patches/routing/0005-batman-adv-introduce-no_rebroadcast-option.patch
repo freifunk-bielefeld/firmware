@@ -1,12 +1,12 @@
-From e6e62dce2df29c2a2d955e0aadb9374c3cc17fd2 Mon Sep 17 00:00:00 2001
+From d81af6c16a07fdbc59f8ecedc8df696b0bfe7a25 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 2 Apr 2015 20:24:14 +0200
-Subject: [PATCH 2/6] batman-adv: introduce 'no_rebroadcast' option
+Subject: [PATCH 5/6] batman-adv: introduce 'no_rebroadcast' option
 
 ---
  batman-adv/files/lib/netifd/proto/batadv.sh        |   7 +-
- ...atman-adv-introduce-no_rebroadcast-option.patch | 172 +++++++++++++++++++++
- 2 files changed, 177 insertions(+), 2 deletions(-)
+ ...atman-adv-introduce-no_rebroadcast-option.patch | 185 +++++++++++++++++++++
+ 2 files changed, 190 insertions(+), 2 deletions(-)
  create mode 100644 batman-adv/patches/1001-batman-adv-introduce-no_rebroadcast-option.patch
 
 diff --git a/batman-adv/files/lib/netifd/proto/batadv.sh b/batman-adv/files/lib/netifd/proto/batadv.sh
@@ -37,12 +37,12 @@ index 632a209..01f567f 100644
  }
 diff --git a/batman-adv/patches/1001-batman-adv-introduce-no_rebroadcast-option.patch b/batman-adv/patches/1001-batman-adv-introduce-no_rebroadcast-option.patch
 new file mode 100644
-index 0000000..f461ddc
+index 0000000..3324102
 --- /dev/null
 +++ b/batman-adv/patches/1001-batman-adv-introduce-no_rebroadcast-option.patch
-@@ -0,0 +1,172 @@
-+From a20c87779270f509227feecc4487e36a7d850c0f Mon Sep 17 00:00:00 2001
-+Message-Id: <a20c87779270f509227feecc4487e36a7d850c0f.1438892883.git.mschiffer@universe-factory.net>
+@@ -0,0 +1,185 @@
++From bb9feeed3b49a55034cce90be996b11cd095b1ce Mon Sep 17 00:00:00 2001
++Message-Id: <bb9feeed3b49a55034cce90be996b11cd095b1ce.1454958586.git.mschiffer@universe-factory.net>
 +From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@web.de>
 +Date: Tue, 24 Sep 2013 04:36:27 +0200
 +Subject: [PATCH 1/2] batman-adv: introduce 'no_rebroadcast' option
@@ -77,6 +77,8 @@ index 0000000..f461ddc
 + net/batman-adv/types.h                             |  1 +
 + 5 files changed, 76 insertions(+)
 +
++diff --git a/Documentation/ABI/testing/sysfs-class-net-batman-adv b/Documentation/ABI/testing/sysfs-class-net-batman-adv
++index 7f34a95..cf7fe00 100644
 +--- a/Documentation/ABI/testing/sysfs-class-net-batman-adv
 ++++ b/Documentation/ABI/testing/sysfs-class-net-batman-adv
 +@@ -13,3 +13,13 @@ Description:
@@ -93,9 +95,11 @@ index 0000000..f461ddc
 ++                and symmetric only, for instance point-to-point wifi longshots
 ++                or wired links. Using this option wrongly is going to
 ++                break your mesh network, use at your own risk!
++diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
++index aea4d06..66a703d 100644
 +--- a/net/batman-adv/hard-interface.c
 ++++ b/net/batman-adv/hard-interface.c
-+@@ -639,6 +639,8 @@ batadv_hardif_add_interface(struct net_d
++@@ -657,6 +657,8 @@ batadv_hardif_add_interface(struct net_device *net_dev)
 + 	/* extra reference for return */
 + 	atomic_set(&hard_iface->refcount, 2);
 + 
@@ -104,9 +108,11 @@ index 0000000..f461ddc
 + 	batadv_check_known_mac_addr(hard_iface->net_dev);
 + 	list_add_tail_rcu(&hard_iface->list, &batadv_hardif_list);
 + 
++diff --git a/net/batman-adv/send.c b/net/batman-adv/send.c
++index c188f46..145f7cb 100644
 +--- a/net/batman-adv/send.c
 ++++ b/net/batman-adv/send.c
-+@@ -531,6 +531,10 @@ static void batadv_send_outstanding_bcas
++@@ -535,6 +535,10 @@ static void batadv_send_outstanding_bcast_packet(struct work_struct *work)
 + 		if (forw_packet->num_packets >= hard_iface->num_bcasts)
 + 			continue;
 + 
@@ -117,9 +123,11 @@ index 0000000..f461ddc
 + 		/* send a copy of the saved skb */
 + 		skb1 = skb_clone(forw_packet->skb, GFP_ATOMIC);
 + 		if (skb1)
++diff --git a/net/batman-adv/sysfs.c b/net/batman-adv/sysfs.c
++index f38d7b7..600633c 100644
 +--- a/net/batman-adv/sysfs.c
 ++++ b/net/batman-adv/sysfs.c
-+@@ -129,6 +129,17 @@ struct batadv_attribute batadv_attr_vlan
++@@ -131,6 +131,17 @@ struct batadv_attribute batadv_attr_vlan_##_name = {	\
 + 	.store  = _store,				\
 + }
 + 
@@ -137,7 +145,7 @@ index 0000000..f461ddc
 + /* Use this, if you have customized show and store functions */
 + #define BATADV_ATTR(_name, _mode, _show, _store)	\
 + struct batadv_attribute batadv_attr_##_name = {		\
-+@@ -239,6 +250,52 @@ ssize_t batadv_show_vlan_##_name(struct
++@@ -241,6 +252,52 @@ ssize_t batadv_show_vlan_##_name(struct kobject *kobj,			\
 + 	static BATADV_ATTR_VLAN(_name, _mode, batadv_show_vlan_##_name,	\
 + 				batadv_store_vlan_##_name)
 + 
@@ -189,8 +197,8 @@ index 0000000..f461ddc
 ++
 + static int batadv_store_bool_attr(char *buff, size_t count,
 + 				  struct net_device *net_dev,
-+ 				  const char *attr_name, atomic_t *attr)
-+@@ -863,10 +920,12 @@ static ssize_t batadv_show_iface_status(
++ 				  const char *attr_name, atomic_t *attr,
++@@ -870,10 +927,12 @@ static ssize_t batadv_show_iface_status(struct kobject *kobj,
 + static BATADV_ATTR(mesh_iface, S_IRUGO | S_IWUSR, batadv_show_mesh_iface,
 + 		   batadv_store_mesh_iface);
 + static BATADV_ATTR(iface_status, S_IRUGO, batadv_show_iface_status, NULL);
@@ -203,16 +211,21 @@ index 0000000..f461ddc
 + 	NULL,
 + };
 + 
++diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
++index 5e8c8df..913f104 100644
 +--- a/net/batman-adv/types.h
 ++++ b/net/batman-adv/types.h
-+@@ -115,6 +115,7 @@ struct batadv_hard_iface {
-+ 	struct batadv_hard_iface_bat_iv bat_iv;
-+ 	struct work_struct cleanup_work;
-+ 	struct dentry *debug_dir;
++@@ -120,6 +120,7 @@ struct batadv_hard_iface {
++ 	struct hlist_head neigh_list;
++ 	/* neigh_list_lock protects: neigh_list */
++ 	spinlock_t neigh_list_lock;
 ++	atomic_t no_rebroadcast;
 + };
 + 
 + /**
++-- 
++2.7.0
++
 -- 
 2.1.4
 
