@@ -331,7 +331,7 @@ function addNetSection(ifname, mode)
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
+		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0","mesh_no_rebroadcast":"1"};
 		break;
 	case "none":
 		var net = ifname.replace(".", "_");
