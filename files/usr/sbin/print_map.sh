@@ -40,11 +40,11 @@ print_all() {
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 
 	if [ $map_level -gt 1 ]; then
-		echo -n "\"loadavg\" : \"$(uptime | awk '{print($NF)}')\", "
-		echo -n "\"uptime\" : \"$(cat /proc/uptime | awk '{print($1)}')\", "
+		echo -n "\"loadavg\" : $(uptime | awk '{print($NF)}'), "
+		echo -n "\"uptime\" : $(cat /proc/uptime | awk '{print($1)}'), "
 		echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
-		echo -n "\"rootfs_usage\" : \"$(rootfs_usage)\", "
-		echo -n "\"memory_usage\" : \"$(memory_usage)\", "
+		echo -n "\"rootfs_usage\" : $(rootfs_usage), "
+		echo -n "\"memory_usage\" : $(memory_usage), "
 	fi
 
 	echo -n "\"links\" : ["
