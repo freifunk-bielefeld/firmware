@@ -30,8 +30,8 @@ print_all() {
 	echo -n "{"
 
 	if [ -n "$longitude" -a -n "$latitude" ]; then
-		echo -n "\"longitude\" : \"$longitude\", "
-		echo -n "\"latitude\" : \"$latitude\", "
+		echo -n "\"longitude\" : $longitude, "
+		echo -n "\"latitude\" : $latitude, "
 	fi
 
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
