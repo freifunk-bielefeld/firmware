@@ -52,11 +52,17 @@ function appendSetting(p, path, value, mode)
 	var name = path[path.length-1];
 	switch(name)
 	{
-	case "geo":
-		b = append_input(p, "GPS-Koordinaten", id, value);
-		b.lastChild.placeholder = "52.02713078 8.52829987";
-		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8} {1,3}\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
-		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
+	case "latitude":
+		b = append_input(p, "Breitengrad", id, value);
+		b.lastChild.placeholder = "52.xxx";
+		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
+		addHelpText(b, "GPRS-Koordinate dieses Knotens auf der Freifunk-Karte.");
+		break;
+	case "longitude":
+		b = append_input(p, "L\xe4ngengrad", id, value);
+		b.lastChild.placeholder = "8.xxx";
+		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
+		addHelpText(b, "GPRS-Koordinate dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
@@ -163,7 +169,8 @@ function rebuild_general()
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
-		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
+		appendSetting(gfs, ['freifunk', i, "longitude"], f[i]["longitude"]);
+		appendSetting(gfs, ['freifunk', i, "latitude"], f[i]["latitude"]);
 		appendSetting(gfs, ['freifunk', i, "contact"], f[i]["contact"]);
 		appendSetting(rfs, ['freifunk', i, "community_url"], f[i]["community_url"]);
 		appendSetting(rfs, ['freifunk', i, "community"], f[i]["community"]);

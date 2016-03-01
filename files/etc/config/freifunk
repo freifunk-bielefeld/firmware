@@ -1,7 +1,8 @@
 
 config settings
 	option name ''
-	option geo ''
+	option longitude ''
+	option latitude ''
 	option contact ''
 	option community 'bielefeld'
 	option version '0.5.1'

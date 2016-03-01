@@ -2,20 +2,50 @@
 
 #Print out local connection data for map creation
 
-print() {
+map_level="$(uci get -q freifunk.@settings[0].publish_map 2> /dev/null)"
+
+memory_usage()
+{
+	meminfo=$(cat /proc/meminfo)
+	free=$(echo "$meminfo" | awk /^MemFree:/'{print($2)}')
+	buffers=$(echo "$meminfo" | awk /^Buffers:/'{print($2)}')
+	cached=$(echo "$meminfo" | awk /^Cached:/'{print($2)}')
+	total=$(echo "$meminfo" | awk /^MemTotal:/'{print($2)}')
+	echo $free $buffers $cached $total | awk '{ printf("%f", 1 - ($1 + $2 + $3) / $4)}'
+}
+
+rootfs_usage()
+{
+	df / | awk '/^rootfs/{print($5/100)}'
+}
+
+print_all() {
 	local community="$(uci get -q freifunk.@settings[0].community 2> /dev/null)"
 	local version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
 	local name="$(uci get -q freifunk.@settings[0].name 2> /dev/null)"
-	local geo="$(uci get -q freifunk.@settings[0].geo 2> /dev/null)"
+	local longitude="$(uci get -q freifunk.@settings[0].longitude 2> /dev/null)"
+	local latitude="$(uci get -q freifunk.@settings[0].latitude 2> /dev/null)"
 	local contact="$(uci get -q freifunk.@settings[0].contact 2> /dev/null)"
 
 	echo -n "{"
 
-	[ -n "$geo" ] && echo -n "\"geo\" : \"$geo\", "
+	if [ -n "$longitude" -a -n "$latitude" ]; then
+		echo -n "\"longitude\" : \"$longitude\", "
+		echo -n "\"latitude\" : \"$latitude\", "
+	fi
+
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 	[ -n "$contact" ] && echo -n "\"contact\" : \"$contact\", "
 	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
+
+	if [ $map_level -gt 1 ]; then
+		echo -n "\"loadavg\" : \"$(uptime | awk '{print($NF)}')\", "
+		echo -n "\"uptime\" : \"$(cat /proc/uptime | awk '{print($1)}')\", "
+		echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
+		echo -n "\"rootfs_usage\" : \"$(rootfs_usage)\", "
+		echo -n "\"memory_usage\" : \"$(memory_usage)\", "
+	fi
 
 	echo -n "\"links\" : ["
 
@@ -36,10 +66,9 @@ print() {
 }
 
 if [ "$1" = "-p" ]; then
-	publish_map="$(uci get -q freifunk.@settings[0].publish_map 2> /dev/null)"
-	[ "$publish_map" != "1" ] && exit 0
+	[ $map_level -eq 0 ] && exit 0
 
-	content="$(print)"
+	content="$(print_all)"
 	if [ -n "$content" ]; then
 		#make sure alfred is running
 		pidof alfred > /dev/null || /etc/init.d/alfred start
@@ -51,5 +80,5 @@ if [ "$1" = "-p" ]; then
 		echo "nothing published"
 	fi
 else
-	print
+	print_all
 fi
