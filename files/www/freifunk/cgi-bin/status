@@ -83,8 +83,9 @@ echo '	<div class="content">'
 echo '		<h2 class="content-subhead">Nachbarknoten:</h2>'
 echo '		<ul>'
 
-if [ $(cat /sys/kernel/debug/batman_adv/bat0/neighbors | head -3 | grep "No batman nodes in range" -c) -eq 0 ]; then
-	for mac in $(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2) print($2)}'); do
+macs="$(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2 && NF==3) print($2)}')"
+if [ -n "$macs" ]; then
+	for mac in $macs; do
 		echo "			<li><h3><a href=\"http://[$(ula_addr $ula_prefix $mac)]\">$mac</a></h3></li>"
 	done
 else
