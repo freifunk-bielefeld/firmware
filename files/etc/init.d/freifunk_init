@@ -75,8 +75,7 @@ set_macs() {
 
 #create an IPv6 ULA-address based on EUI-64
 ula_addr() {
-	local prefix=$1
-	local mac=$2
+	local prefix=$1 mac=$2 a=""
 
 	# translate to local administered mac
 	a=${mac%%:*} #cut out first hex
