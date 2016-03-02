@@ -3,6 +3,6 @@
 
 [ "$ACTION" = "ifup" -a "$INTERFACE" = "wan" ] || exit 0
 
-uci set fastd.default.bind="any interface \"$DEVICE\"'"
+uci set fastd.default.bind="any interface \"$DEVICE\""
 
 /etc/init.d/fastd start
