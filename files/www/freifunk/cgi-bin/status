@@ -58,23 +58,58 @@ echo "		<h1>$(uci get -q freifunk.@settings[0].name)</h1>"
 		</div>
 	</div>
 
-	<div class="content">
 <%
+ula_addr()
+{
+	local prefix=$1 mac=$2 a=""
+
+	# translate to local administered mac
+	a=${mac%%:*} #cut out first hex
+	a=$((0x$a ^ 2)) #invert second least significant bit
+	a=$(printf '%02x\n' $a) #convert back to hex
+	mac="$a:${mac#*:}" #reassemble mac
+
+	mac=${mac//:/} # remove ':'
+	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
+	mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
+
+	# assemble IPv6 address
+	echo "${prefix%%::*}:${mac%?}"
+}
+
+ula_prefix="$(uci get network.globals.ula_prefix)"
+
+echo '	<div class="content">'
+echo '		<h2 class="content-subhead">Nachbarknoten:</h2>'
+echo '		<ul>'
+
+if [ $(cat /sys/kernel/debug/batman_adv/bat0/neighbors | wc -l) -gt 2 ]; then
+	for mac in $(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2) print($2)}'); do
+		echo "			<li><h3><a href=\"http://[$(ula_addr $ula_prefix $mac)]\">$mac</a></h3></li>"
+	done
+else
+	echo '			<li><h3>Keine Nachbarn gefunden.</h3></li>'
+fi
+
+echo '		</ul>'
+echo '	</div>'
+
+
 max=$(uci get -q freifunk.@settings[0].service_display_max)
 if [ -n "$max" -a "$max" != "0" ]; then
-	ula_prefix="$(uci get network.globals.ula_prefix)"
 	addr_prefix="${ula_prefix%%::*}:"
 
-	echo '<h2 class="content-subhead">Liste lokaler Angebote im Freifunk-Netz:</h2>'
-	echo '<ul>'
+	echo '	<div class="content">'
+	echo '		<h2 class="content-subhead">Liste lokaler Angebote im Freifunk-Netz:</h2>'
+	echo '		<ul>'
 	link_list=$(
-		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' -v addr_prefix="$addr_prefix" '{ if($5 == "link" && match($7, "^[][ #[:alnum:]_\/.:]{1,128}$") && $9 == "label" && match($11, "^[][ [:alnum:]_\/.:]{1,32}$") && match($7, addr_prefix "|\.ff[a-z]{0,3}")) printf("	<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
+		printf "$(alfred -r 91 | head -$max)" | awk -F'["\\]+' -v addr_prefix="$addr_prefix" '{ if($5 == "link" && match($7, "^[][ #[:alnum:]_\/.:]{1,128}$") && $9 == "label" && match($11, "^[][ [:alnum:]_\/.:]{1,32}$") && match($7, addr_prefix "|\.ff[a-z]{0,3}")) printf("			<li><h3><a href=\"%s\">%s</a></h3></li>\n", $7, $11) }'
 	)
-	[ -n "$link_list" ] && echo "$link_list" || echo '	<li><h3>Keine Angebote gefunden.</h3></li>'
-	echo '</ul>'
+	[ -n "$link_list" ] && echo "$link_list" || echo '		<li><h3>Keine Angebote gefunden.</h3></li>'
+	echo '		</ul>'
+	echo '	</div>'
 fi
 %>
-	</div>
 </body>
 </html>
 
