@@ -85,8 +85,10 @@ echo '		<ul>'
 
 macs="$(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2 && NF==3) print($2)}')"
 if [ -n "$macs" ]; then
+	i=1
 	for mac in $macs; do
-		echo "			<li><h3><a href=\"http://[$(ula_addr $ula_prefix $mac)]\">$mac</a></h3></li>"
+		echo "			<li><h3><a href=\"http://[$(ula_addr $ula_prefix $mac)]\">Nachbarknoten $i</a></h3></li>"
+		i=$((i+1))
 	done
 else
 	echo '			<li><h3>Keine Nachbarn gefunden.</h3></li>'
