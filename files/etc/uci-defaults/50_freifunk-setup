@@ -117,7 +117,6 @@ initial_freifunk_setup()
 	uci set network.freifunk.igmp_snooping="0"
 	uci set network.freifunk.force_link="1"
 	uci set network.freifunk.bridge_empty="1"
-	uci set network.freifunk.mesh_on_wan='0'
 
 	uci set network.freifunk6="interface"
 	uci set network.freifunk6.ifname="@freifunk"

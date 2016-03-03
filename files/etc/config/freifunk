@@ -12,4 +12,5 @@ config settings
 	option service_label ''
 	option service_display_max 0
 	option default_mesh_id 'mesh_v15'
+	option mesh_on_wan '0'
 	option first_boot '1'
