@@ -1,7 +1,7 @@
-From ef2837bbf6a561de50cb6a06d6b31cabd8710f4c Mon Sep 17 00:00:00 2001
+From b5208eb82618631c19302402baf2e3048e9db023 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 6 Aug 2014 19:12:00 +0200
-Subject: [PATCH 04/40] procd: add support for alternative rc.d directories
+Subject: [PATCH 04/16] procd: add support for alternative rc.d directories
 
 ---
  ...-support-for-alternative-rc.d-directories.patch | 97 ++++++++++++++++++++++

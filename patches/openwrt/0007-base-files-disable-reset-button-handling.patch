@@ -1,7 +1,7 @@
-From 31a364117389f8652731e5fbbe3398b3097bac14 Mon Sep 17 00:00:00 2001
+From fc7449677b553efa0d46299e207d45415c3fe383 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 21 Mar 2015 16:40:52 +0100
-Subject: [PATCH 07/40] base-files: disable reset button handling
+Subject: [PATCH 07/16] base-files: disable reset button handling
 
 This conflicts with our reset button usage.
 ---

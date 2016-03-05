@@ -1,7 +1,7 @@
-From 88d60ed00463b6212e340447aacc259dea86bce6 Mon Sep 17 00:00:00 2001
+From 99abbf02513c368b97499897d3fcf931f62e9a22 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 4 Jan 2016 10:22:52 +0100
-Subject: [PATCH 38/40] kernel: fs, seq_file: fallback to vmalloc instead of
+Subject: [PATCH 15/16] kernel: fs, seq_file: fallback to vmalloc instead of
  oom kill processes
 
 ---
