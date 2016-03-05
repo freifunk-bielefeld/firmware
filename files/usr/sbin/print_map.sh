@@ -2,8 +2,6 @@
 
 #Print out local connection data for map creation
 
-map_level="$(uci get -q freifunk.@settings[0].publish_map 2> /dev/null)"
-
 memory_usage()
 {
 	meminfo=$(cat /proc/meminfo)
@@ -19,7 +17,7 @@ rootfs_usage()
 	df / | awk '/^rootfs/{print($5/100)}'
 }
 
-print_all() {
+print_basic() {
 	local community="$(uci get -q freifunk.@settings[0].community 2> /dev/null)"
 	local version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
 	local name="$(uci get -q freifunk.@settings[0].name 2> /dev/null)"
@@ -27,27 +25,14 @@ print_all() {
 	local latitude="$(uci get -q freifunk.@settings[0].latitude 2> /dev/null)"
 	local contact="$(uci get -q freifunk.@settings[0].contact 2> /dev/null)"
 
-	echo -n "{"
+	[ -n "$contact" ] && echo -n "\"contact\" : \"$contact\", "
+	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
+	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
+	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 
 	if [ -n "$longitude" -a -n "$latitude" ]; then
 		echo -n "\"longitude\" : $longitude, "
 		echo -n "\"latitude\" : $latitude, "
-	fi
-
-	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
-	[ -n "$contact" ] && echo -n "\"contact\" : \"$contact\", "
-	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
-	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
-
-	if [ $map_level -gt 1 ]; then
-		echo -n "\"loadavg\" : $(uptime | awk '{print($NF)}'), "
-		echo -n "\"uptime\" : $(cat /proc/uptime | awk '{print($1)}'), "
-		echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
-		echo -n "\"rootfs_usage\" : $(rootfs_usage), "
-		echo -n "\"memory_usage\" : $(memory_usage), "
-		echo -n "\"addresses\" : ["
-		ip -6 address show dev br-freifunk 2> /dev/null | tr '/' ' ' | awk 'BEGIN{i=0} /inet/ { if($2 !~ /^fe80/) { printf("%s\"%s\"", (i ? ", " : ""), $2); i=1; }}'
-		echo -n "], "
 	fi
 
 	echo -n "\"links\" : ["
@@ -63,15 +48,56 @@ print_all() {
 	done
 
 	echo -n '], '
+
 	mac=$(uci get -q network.freifunk.macaddr)
 	cat /sys/kernel/debug/batman_adv/bat0/transtable_local 2> /dev/null | tr '\t/[]()' ' ' | awk -v mac=$mac 'BEGIN{ c=0; } { if($1 == "*" && $2 != mac && $4 ~ /^[.NW]+$/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}'
+}
+
+print_more() {
+	echo -n "\"loadavg\" : $(uptime | awk '{print($NF)}'), "
+	echo -n "\"uptime\" : $(cat /proc/uptime | awk '{print($1)}'), "
+	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
+
+	print_basic
+}
+
+print_all() {
+	echo -n "\"rootfs_usage\" : $(rootfs_usage), "
+	echo -n "\"memory_usage\" : $(memory_usage), "
+	echo -n "\"addresses\" : ["
+	ip -6 address show dev br-freifunk 2> /dev/null | tr '/' ' ' | awk 'BEGIN{i=0} /inet/ { if($2 !~ /^fe80/) { printf("%s\"%s\"", (i ? ", " : ""), $2); i=1; }}'
+	echo -n "], "
+
+	print_more
+}
+
+print() {
+	echo -n "{"
+
+	case $1 in
+		"basic")
+			print_basic
+			;;
+		"more")
+			print_more
+			;;
+		"all")
+			print_all
+			;;
+		*)
+			;;
+    esac
+
 	echo -n '}'
 }
 
-if [ "$1" = "-p" ]; then
-	[ $map_level -eq 0 ] && exit 0
 
-	content="$(print_all)"
+map_level="$(uci get -q freifunk.@settings[0].publish_map 2> /dev/null)"
+
+if [ "$1" = "-p" ]; then
+	[ $map_level = "none" ] && exit 0
+
+	content="$(print $map_level)"
 	if [ -n "$content" ]; then
 		#make sure alfred is running
 		pidof alfred > /dev/null || /etc/init.d/alfred start
@@ -83,5 +109,5 @@ if [ "$1" = "-p" ]; then
 		echo "nothing published"
 	fi
 else
-	print_all
+	print $map_level
 fi
