@@ -100,7 +100,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "publish_map":
 		b = append_radio(p, "Zur Karte beitragen", id, value, [["Nichts", "none"], ["Wenig", "basic"], ["Viel", "more"], ["Alles", "all"]]);
-		addHelpText(b, "Soll dieser Knoten auf der Knotenkarte angezeigt werden?");
+		addHelpText(b, "Mit wievielen Daten soll dieser Knoten zur Knotenkarte beitragen? (Wenig: Name/Version/Position/Kontakt, Viel: Modell/Uptime/CPU-Auslastung, Alles: Speicherauslastung/IP-Adressen)");
 		break;
 	case "limit_egress":
 		b = append_input(p, "Freifunk Upload", id, value);
