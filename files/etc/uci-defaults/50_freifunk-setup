@@ -359,6 +359,9 @@ update_051_to_052()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
+	# update fastd configuration
+	cp /rom/etc/config/fastd /etc/config/fastd
+
 	local geo="$(uci get freifunk.@settings[0].geo)"
 	local publish_map="$(uci get freifunk.@settings[0].publish_map)"
 
