@@ -6,7 +6,7 @@ config settings
 	option contact ''
 	option community 'bielefeld'
 	option version '0.5.2'
-	option publish_map '1'
+	option publish_map 'basic'
 	option allow_access_from 'lan'
 	option service_link ''
 	option service_label ''
