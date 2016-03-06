@@ -112,7 +112,7 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^\d+$/, "Download ist ung\xfcltig.");
 		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandbreitenkontrolle.");
 		break;
-	case "access_from":
+	case "allow_access_from":
 		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["LAN","lan"], ["Freifunk","freifunk"]]);
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
@@ -175,7 +175,7 @@ function rebuild_general()
 		appendSetting(rfs, ['freifunk', i, "community_url"], f[i]["community_url"]);
 		appendSetting(rfs, ['freifunk', i, "community"], f[i]["community"]);
 		appendSetting(gfs, ['freifunk', i, "publish_map"], f[i]["publish_map"]);
-		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
+		appendSetting(gfs, ['freifunk', i, "allow_access_from"], f[i]["allow_access_from"]);
 		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);
 		appendSetting(rfs, ['freifunk', i, "service_link"], f[i]["service_link"]);
 		appendSetting(rfs, ['freifunk', i, "service_display_max"], f[i]["service_display_max"]);

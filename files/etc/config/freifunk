@@ -7,7 +7,7 @@ config settings
 	option community 'bielefeld'
 	option version '0.5.2'
 	option publish_map '1'
-	option access_from 'lan'
+	option allow_access_from 'lan'
 	option service_link ''
 	option service_label ''
 	option service_display_max 0
