@@ -353,6 +353,39 @@ update_050_to_051()
 	uci commit wireless
 }
 
+update_051_to_052()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	local geo="$(uci get freifunk.@settings[0].geo)"
+	local publish_map="$(uci get freifunk.@settings[0].publish_map)"
+
+	# replace geo by latitude / longitude
+	[  -n "$geo" ] && {
+		uci set freifunk.@settings[0].latitude="${geo%% *}"
+		uci set freifunk.@settings[0].longitude="${geo##* }"
+		uci delete freifunk.@settings[0].geo
+	}
+
+	# change publish_map values
+	if [ "$publish_map" = "0" ]; then
+		uci set freifunk.@settings[0].publish_map="none"
+	else
+		uci set freifunk.@settings[0].publish_map="basic"
+	fi
+
+	# introduce new setting
+	uci set freifunk.@settings[0].mesh_on_wan=0
+
+	# rename option access_from to allow_access_from
+	uci rename freifunk.@settings[0].access_from=allow_access_from
+
+	uci commit freifunk
+}
+
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -376,6 +409,12 @@ start()
 		"0.5.0")
 			echo "(I) Apply update."
 			update_050_to_051
+			update_051_to_052
+			update_version
+			;;
+		"0.5.1")
+			echo "(I) Apply update."
+			update_051_to_052
 			update_version
 			;;
 		"")
