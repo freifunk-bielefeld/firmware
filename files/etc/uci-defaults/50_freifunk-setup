@@ -386,8 +386,21 @@ update_051_to_052()
 	uci rename freifunk.@settings[0].access_from=allow_access_from
 
 	uci commit freifunk
-}
 
+	# set batman-adv mtu for wireless interfaces
+	network_set_mesh_mtu() {
+		local cfg="$1" network
+
+		config_get network $cfg "network"
+		if [ -n "$network" -a "$(uci get -q network.$network.proto)" = "batadv" ]; then
+			uci set network.$network.mtu=1532
+		fi
+	}
+
+	config_load wireless
+	config_foreach network_set_mesh_mtu wifi-iface
+	uci commit network
+}
 
 start()
 {
