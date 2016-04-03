@@ -1,7 +1,7 @@
-From 83c1625b3e6e0484b259e6035b260b28848b4370 Mon Sep 17 00:00:00 2001
+From edc18801f00ee9cdae6e59b4839f6b51212ed818 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 9 Feb 2016 18:22:29 +0100
-Subject: [PATCH 08/16] ath10k-firmware: add Candela Technologies firmware for
+Subject: [PATCH 08/27] ath10k-firmware: add Candela Technologies firmware for
  QCA988X
 
 ---
