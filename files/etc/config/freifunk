@@ -13,4 +13,5 @@ config settings
 	option service_display_max 0
 	option default_mesh_id 'mesh_v15'
 	option mesh_on_wan '0'
+	option community_url 'http://freifunk-bielefeld.de'
 	option first_boot '1'

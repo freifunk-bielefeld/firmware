@@ -385,6 +385,9 @@ update_051_to_052()
 	# rename option access_from to allow_access_from
 	uci rename freifunk.@settings[0].access_from=allow_access_from
 
+	# add community_url variable
+	uci set freifunk.@settings[0].community_url="http://freifunk-bielefeld.de"
+
 	uci commit freifunk
 
 	# set batman-adv mtu for wireless interfaces
