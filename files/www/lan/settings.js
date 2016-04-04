@@ -78,7 +78,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "community_url":
 		b = append_input(p, "Community-Webseite", id, value);
-		b.lastChild.placeholder = "http://www.freifunk-bielefeld.de";
+		b.lastChild.placeholder = "http://muster.de";
 		addClass(b, "adv_hide");
 		addInputCheck(b.lastChild, /^$|^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/, "Ung\xfcltige URL.");
 		addHelpText(b, "Webseite der Community, zu der dieser Knoten geh\xf6rt.");
