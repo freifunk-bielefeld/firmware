@@ -123,7 +123,7 @@ set_hostname()
 	local name="$(uci get -q freifunk.@settings[0].name)"
 
 	#sanitize name
-	name="$(echo -n \"$name\" | sed -e 's/[^a-z0-9]//g' -e 's/^[0-9]//g')"
+	name="$(echo -n \"$name\" | sed -e 's/[^A-Za-z0-9]//g' -e 's/^[0-9]//g')"
 
 	if [ -n "$name" -a "$hostname" != "$name" ]; then
 		uci set system.@system[0].hostname="$name"
