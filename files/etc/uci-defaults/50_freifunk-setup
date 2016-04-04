@@ -353,7 +353,7 @@ update_050_to_051()
 	uci commit wireless
 }
 
-update_051_to_052()
+update_051_to_060()
 {
 	# preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
@@ -428,12 +428,12 @@ start()
 		"0.5.0")
 			echo "(I) Apply update."
 			update_050_to_051
-			update_051_to_052
+			update_051_to_060
 			update_version
 			;;
 		"0.5.1")
 			echo "(I) Apply update."
-			update_051_to_052
+			update_051_to_060
 			update_version
 			;;
 		"")
