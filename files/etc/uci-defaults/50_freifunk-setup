@@ -117,7 +117,6 @@ initial_freifunk_setup()
 	uci set network.freifunk.igmp_snooping="0"
 	uci set network.freifunk.force_link="1"
 	uci set network.freifunk.bridge_empty="1"
-	uci set network.freifunk.mesh_on_wan='0'
 
 	uci set network.freifunk6="interface"
 	uci set network.freifunk6.ifname="@freifunk"
@@ -354,6 +353,58 @@ update_050_to_051()
 	uci commit wireless
 }
 
+update_051_to_060()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	# update fastd configuration
+	cp /rom/etc/config/fastd /etc/config/fastd
+
+	local geo="$(uci get freifunk.@settings[0].geo)"
+	local publish_map="$(uci get freifunk.@settings[0].publish_map)"
+
+	# replace geo by latitude / longitude
+	[  -n "$geo" ] && {
+		uci set freifunk.@settings[0].latitude="${geo%% *}"
+		uci set freifunk.@settings[0].longitude="${geo##* }"
+		uci delete freifunk.@settings[0].geo
+	}
+
+	# change publish_map values
+	if [ "$publish_map" = "0" ]; then
+		uci set freifunk.@settings[0].publish_map="none"
+	else
+		uci set freifunk.@settings[0].publish_map="basic"
+	fi
+
+	# introduce new setting
+	uci set freifunk.@settings[0].mesh_on_wan=0
+
+	# rename option access_from to allow_access_from
+	uci rename freifunk.@settings[0].access_from=allow_access_from
+
+	# add community_url variable
+	uci set freifunk.@settings[0].community_url="http://freifunk-bielefeld.de"
+
+	uci commit freifunk
+
+	# set batman-adv mtu for wireless interfaces
+	network_set_mesh_mtu() {
+		local cfg="$1" network
+
+		config_get network $cfg "network"
+		if [ -n "$network" -a "$(uci get -q network.$network.proto)" = "batadv" ]; then
+			uci set network.$network.mtu=1532
+		fi
+	}
+
+	config_load wireless
+	config_foreach network_set_mesh_mtu wifi-iface
+	uci commit network
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -377,6 +428,12 @@ start()
 		"0.5.0")
 			echo "(I) Apply update."
 			update_050_to_051
+			update_051_to_060
+			update_version
+			;;
+		"0.5.1")
+			echo "(I) Apply update."
+			update_051_to_060
 			update_version
 			;;
 		"")
@@ -399,5 +456,6 @@ start()
 }
 
 start
+sync
 
 exit 0

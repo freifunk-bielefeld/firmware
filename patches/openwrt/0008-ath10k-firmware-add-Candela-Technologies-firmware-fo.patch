@@ -1,18 +1,19 @@
-From df2209f9cb2be047b603edb260115a1ea0bb428d Mon Sep 17 00:00:00 2001
+From edc18801f00ee9cdae6e59b4839f6b51212ed818 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 9 Feb 2016 18:22:29 +0100
-Subject: [PATCH 10/40] ath10k-firmware: add Candela Technologies firmware for
+Subject: [PATCH 08/27] ath10k-firmware: add Candela Technologies firmware for
  QCA988X
 
 ---
  package/firmware/ath10k-firmware/Makefile | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ package/kernel/mac80211/Makefile          |  2 +-
+ 2 files changed, 32 insertions(+), 1 deletion(-)
 
 diff --git a/package/firmware/ath10k-firmware/Makefile b/package/firmware/ath10k-firmware/Makefile
-index 882294c..c6e6f2d 100644
+index b03d644..7d4d449 100644
 --- a/package/firmware/ath10k-firmware/Makefile
 +++ b/package/firmware/ath10k-firmware/Makefile
-@@ -46,6 +46,26 @@ define Download/ath10k-firmware-qca988x
+@@ -44,6 +44,26 @@ define Download/ath10k-firmware-qca988x
  endef
  $(eval $(call Download,ath10k-firmware-qca988x))
  
@@ -39,7 +40,7 @@ index 882294c..c6e6f2d 100644
  define Package/ath10k-firmware-qca99x0
  $(Package/ath10k-firmware-default)
    TITLE:=ath10k firmware for QCA99x0 devices
-@@ -81,6 +101,16 @@ define Package/ath10k-firmware-qca988x/install
+@@ -79,6 +99,16 @@ define Package/ath10k-firmware-qca988x/install
  		$(1)/lib/firmware/ath10k/QCA988X/hw2.0/firmware-5.bin
  endef
  
@@ -56,13 +57,26 @@ index 882294c..c6e6f2d 100644
  define Package/ath10k-firmware-qca6174/install
  	$(INSTALL_DIR) $(1)/lib/firmware/ath10k
  	$(CP) $(PKG_BUILD_DIR)/QCA6174 $(1)/lib/firmware/ath10k/
-@@ -100,5 +130,6 @@ define Package/ath10k-firmware-qca99x0/install
+@@ -98,5 +128,6 @@ define Package/ath10k-firmware-qca99x0/install
  endef
  
  $(eval $(call BuildPackage,ath10k-firmware-qca988x))
 +$(eval $(call BuildPackage,ath10k-firmware-qca988x-ct))
  $(eval $(call BuildPackage,ath10k-firmware-qca99x0))
  $(eval $(call BuildPackage,ath10k-firmware-qca6174))
+diff --git a/package/kernel/mac80211/Makefile b/package/kernel/mac80211/Makefile
+index 30da1cf..cd8d670 100644
+--- a/package/kernel/mac80211/Makefile
++++ b/package/kernel/mac80211/Makefile
+@@ -247,7 +247,7 @@ define KernelPackage/ath10k
+   $(call KernelPackage/mac80211/Default)
+   TITLE:=Atheros 802.11ac wireless cards support
+   URL:=https://wireless.wiki.kernel.org/en/users/Drivers/ath10k
+-  DEPENDS+= @PCI_SUPPORT +kmod-ath +@DRIVER_11N_SUPPORT +@DRIVER_11W_SUPPORT +@KERNEL_RELAY +ath10k-firmware-qca988x
++  DEPENDS+= @PCI_SUPPORT +kmod-ath +@DRIVER_11N_SUPPORT +@DRIVER_11W_SUPPORT +@KERNEL_RELAY
+   FILES:= \
+ 	$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath10k/ath10k_core.ko \
+ 	$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath10k/ath10k_pci.ko
 -- 
 2.1.4
 

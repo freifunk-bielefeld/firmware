@@ -13,6 +13,19 @@ default_gw() {
 	ip -$1 route list 0/0 dev $2 2> /dev/null | awk '{print($3); exit(0)}'
 }
 
+memory_usage_percent() {
+	meminfo=$(cat /proc/meminfo)
+	free=$(echo "$meminfo" | awk /^MemFree:/'{print($2)}')
+	buffers=$(echo "$meminfo" | awk /^Buffers:/'{print($2)}')
+	cached=$(echo "$meminfo" | awk /^Cached:/'{print($2)}')
+	total=$(echo "$meminfo" | awk /^MemTotal:/'{print($2)}')
+	echo $free $buffers $cached $total | awk '{ printf("%u%%", 100 * (1 - ($1 + $2 + $3) / $4))}'
+}
+
+rootfs_usage_percent() {
+	df / | awk '/^rootfs/{print($5)}'
+}
+
 print() {
 	echo "	option $1 '$2'"
 }
@@ -21,6 +34,11 @@ printList() {
 	for item in $2; do
 		echo "	list $1 '$item'"
 	done
+}
+
+vpn_server() {
+	local vpn=$(sockread /var/run/fastd.status < /dev/null 2> /dev/null | sed 's/\(.*\)"name": "\([^"]*\)"\(.*\)established\(.*\)/\2/g')
+	echo "${vpn:--}"
 }
 
 #get physical device by config section
@@ -43,17 +61,14 @@ printList 'wan_addr4' "$(addr 4 $wan)"
 printList 'wan_addr6' "$(addr 6 $wan)"
 
 up="$(uptime)"
-print 'load' "${up##*:}"
 uptime="${up%%,*}"
+print 'load' "${up##*:}"
 print 'uptime' "${uptime##*up}"
+print 'memory_usage' "$(memory_usage_percent)"
+print 'rootfs_usage' "$(rootfs_usage_percent)"
 print 'uname' "$(uname -s -m -r)"
 print 'date' "$(date)"
-
-if [ $(sockread /var/run/fastd.status < /dev/null 2> /dev/null | grep  -c '"connection": {') -gt 0 ]; then
-	print 'has_vpn' 'Ja'
-else
-	print 'has_vpn' 'Nein'
-fi
+print 'vpn_server' "$(vpn_server)"
 
 if [ -n "$(default_gw 4 $wan)" -o  -n "$(default_gw 6 $wan)" ]; then
 	print 'has_internet' 'Ja'

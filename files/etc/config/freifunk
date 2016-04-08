@@ -1,14 +1,17 @@
 
 config settings
 	option name ''
-	option geo ''
+	option longitude ''
+	option latitude ''
 	option contact ''
 	option community 'bielefeld'
-	option version '0.5.1'
-	option publish_map '1'
-	option access_from 'lan'
+	option version '0.6.0'
+	option publish_map 'basic'
+	option allow_access_from 'lan'
 	option service_link ''
 	option service_label ''
 	option service_display_max 0
 	option default_mesh_id 'ffbi_mesh_v15'
+	option mesh_on_wan '0'
+	option community_url 'http://freifunk-bielefeld.de'
 	option first_boot '1'

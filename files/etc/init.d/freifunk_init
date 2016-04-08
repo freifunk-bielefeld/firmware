@@ -6,9 +6,9 @@ START=19
 #allow/block access via ssh/https from lan/wan/freifunk
 set_access() {
 	local src port default_target target
-	local access_from=`uci get -q freifunk.@settings[0].access_from`
+	local from=`uci get -q freifunk.@settings[0].allow_access_from`
 
-	echo "(I) Freifunk: access_from: '$access_from'"
+	echo "(I) Freifunk: allow_access_from: '$from'"
 
 	#remove existing rules
 	for src in wan lan freifunk; do
@@ -33,7 +33,7 @@ set_access() {
 	for src in wan lan freifunk; do
 		default_target=""
 		config_foreach find_default_target 'zone' $src
-		list_contains access_from "$src" && target=ACCEPT || target=REJECT
+		list_contains from "$src" && target=ACCEPT || target=REJECT
 		[ "$target" = "$default_target" ] && continue
 		for port in 22 443; do
 			local s="firewall.${src}${port}"
@@ -75,8 +75,7 @@ set_macs() {
 
 #create an IPv6 ULA-address based on EUI-64
 ula_addr() {
-	local prefix=$1
-	local mac=$2
+	local prefix=$1 mac=$2 a=""
 
 	# translate to local administered mac
 	a=${mac%%:*} #cut out first hex
@@ -124,7 +123,7 @@ set_hostname()
 	local name="$(uci get -q freifunk.@settings[0].name)"
 
 	#sanitize name
-	name="$(echo -n \"$name\" | sed -e 's/[^a-z0-9]//g' -e 's/^[0-9]//g')"
+	name="$(echo -n \"$name\" | sed -e 's/[^A-Za-z0-9]//g' -e 's/^[0-9]//g')"
 
 	if [ -n "$name" -a "$hostname" != "$name" ]; then
 		uci set system.@system[0].hostname="$name"

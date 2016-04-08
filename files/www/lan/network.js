@@ -235,7 +235,12 @@ function rebuild_other()
 	if('network' in uci) {
 		var n = uci['network'];
 		appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
-		appendSetting(fs, ['network', 'freifunk', "mesh_on_wan"], n['freifunk']["mesh_on_wan"]);
+	}
+
+	if('freifunk' in uci) {
+		var f = uci.freifunk;
+		var i = firstSectionID(f, "settings");
+		appendSetting(fs, ['freifunk', i, "mesh_on_wan"], f[i]["mesh_on_wan"]);
 	}
 
 	addClass(root, "adv_hide");
@@ -331,7 +336,7 @@ function addNetSection(ifname, mode)
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
+		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0","mesh_no_rebroadcast":"1"};
 		break;
 	case "none":
 		var net = ifname.replace(".", "_");

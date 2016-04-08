@@ -52,11 +52,17 @@ function appendSetting(p, path, value, mode)
 	var name = path[path.length-1];
 	switch(name)
 	{
-	case "geo":
-		b = append_input(p, "GPS-Koordinaten", id, value);
-		b.lastChild.placeholder = "52.02713078 8.52829987";
-		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8} {1,3}\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
-		addHelpText(b, "Die Koordinaten dieses Knotens auf der Freifunk-Karte (z.B. \"52.02713078 8.52829987\").");
+	case "latitude":
+		b = append_input(p, "Breitengrad", id, value);
+		b.lastChild.placeholder = "52.xxx";
+		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
+		addHelpText(b, "GPRS-Koordinate dieses Knotens auf der Freifunk-Karte.");
+		break;
+	case "longitude":
+		b = append_input(p, "L\xe4ngengrad", id, value);
+		b.lastChild.placeholder = "8.xxx";
+		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
+		addHelpText(b, "GPRS-Koordinate dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
@@ -72,7 +78,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "community_url":
 		b = append_input(p, "Community-Webseite", id, value);
-		b.lastChild.placeholder = "http://www.freifunk-bielefeld.de";
+		b.lastChild.placeholder = "http://muster.de";
 		addClass(b, "adv_hide");
 		addInputCheck(b.lastChild, /^$|^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/, "Ung\xfcltige URL.");
 		addHelpText(b, "Webseite der Community, zu der dieser Knoten geh\xf6rt.");
@@ -93,8 +99,8 @@ function appendSetting(p, path, value, mode)
 		}
 		break;
 	case "publish_map":
-		b = append_radio(p, "Zur Karte beitragen", id, value, [["Ja", "1"], ["Nein", "0"]]);
-		addHelpText(b, "Soll dieser Knoten auf der Knotenkarte angezeigt werden?");
+		b = append_radio(p, "Zur Karte beitragen", id, value, [["Nichts", "none"], ["Wenig", "basic"], ["Mehr", "more"], ["Alles", "all"]]);
+		addHelpText(b, "Mit wievielen Daten soll dieser Knoten zur Knotenkarte beitragen? (Wenig: Name/Version/Position/Kontakt, Mehr: Modell/Uptime/CPU-Auslastung, Alles: Speicherauslastung/IP-Adressen)");
 		break;
 	case "limit_egress":
 		b = append_input(p, "Freifunk Upload", id, value);
@@ -106,7 +112,7 @@ function appendSetting(p, path, value, mode)
 		addInputCheck(b.lastChild, /^\d+$/, "Download ist ung\xfcltig.");
 		addHelpText(b, "Maximaler Download in KBit/s f\xfcr die Bandbreitenkontrolle.");
 		break;
-	case "access_from":
+	case "allow_access_from":
 		b = append_check(p, "SSH/HTTPS Zugriff", id, split(value), [["WAN","wan"], ["LAN","lan"], ["Freifunk","freifunk"]]);
 		addHelpText(b, "Zugang zur Konfiguration \xfcber verschiedene Anschl\xfcsse/Netzwerke erm\xf6glichen.")
 		break;
@@ -163,12 +169,13 @@ function rebuild_general()
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
-		appendSetting(gfs, ['freifunk', i, "geo"], f[i]["geo"]);
+		appendSetting(gfs, ['freifunk', i, "longitude"], f[i]["longitude"]);
+		appendSetting(gfs, ['freifunk', i, "latitude"], f[i]["latitude"]);
 		appendSetting(gfs, ['freifunk', i, "contact"], f[i]["contact"]);
 		appendSetting(rfs, ['freifunk', i, "community_url"], f[i]["community_url"]);
 		appendSetting(rfs, ['freifunk', i, "community"], f[i]["community"]);
 		appendSetting(gfs, ['freifunk', i, "publish_map"], f[i]["publish_map"]);
-		appendSetting(gfs, ['freifunk', i, "access_from"], f[i]["access_from"]);
+		appendSetting(gfs, ['freifunk', i, "allow_access_from"], f[i]["allow_access_from"]);
 		appendSetting(rfs, ['freifunk', i, "service_label"], f[i]["service_label"]);
 		appendSetting(rfs, ['freifunk', i, "service_link"], f[i]["service_link"]);
 		appendSetting(rfs, ['freifunk', i, "service_display_max"], f[i]["service_display_max"]);
