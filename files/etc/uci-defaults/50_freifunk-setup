@@ -402,6 +402,20 @@ update_051_to_060()
 
 	config_load wireless
 	config_foreach network_set_mesh_mtu wifi-iface
+
+	remove_ula() {
+		case "$1" in
+			*ff:fe*)
+				uci del_list network.freifunk.ip6addr="$1"
+				;;
+		esac
+	}
+
+	#remobe hard stored ula address
+	config_load network
+	config_list_foreach freifunk ip6addr remove_ula
+
+
 	uci commit network
 }
 
