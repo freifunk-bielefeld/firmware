@@ -362,8 +362,8 @@ update_051_to_060()
 	# update fastd configuration
 	cp /rom/etc/config/fastd /etc/config/fastd
 
-	local geo="$(uci get freifunk.@settings[0].geo)"
-	local publish_map="$(uci get freifunk.@settings[0].publish_map)"
+	local geo="$(uci get -q freifunk.@settings[0].geo)"
+	local publish_map="$(uci get -q freifunk.@settings[0].publish_map)"
 
 	# replace geo by latitude / longitude
 	[  -n "$geo" ] && {
