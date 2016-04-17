@@ -73,50 +73,6 @@ set_macs() {
 	config_foreach wireless_set_macaddr wifi-iface
 }
 
-#create an IPv6 ULA-address based on EUI-64
-ula_addr() {
-	local prefix=$1 mac=$2 a=""
-
-	# translate to local administered mac
-	a=${mac%%:*} #cut out first hex
-	a=$((0x$a ^ 2)) #invert second least significant bit
-	a=$(printf '%02x\n' $a) #convert back to hex
-	mac="$a:${mac#*:}" #reassemble mac
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
-
-#set the ULA IPv6 address for br-freifunk based on macaddr
-set_ula() {
-	local ula_prefix macaddr
-
-	config_load network
-
-	config_get ula_prefix globals "ula_prefix"
-	config_get macaddr freifunk "macaddr"
-
-	remove_ula() {
-		case "$1" in
-			*ff:fe*)
-				uci del_list network.freifunk.ip6addr="$1"
-				;;
-		esac
-	}
-
-	if [ -z "macaddr" ]; then
-		macaddr="$(random_mac)"
-		uci set network.freifunk.macaddr="$macaddr"
-	fi
-
-	config_list_foreach freifunk ip6addr remove_ula
-	uci add_list network.freifunk.ip6addr="$(ula_addr $ula_prefix $macaddr)/64"
-}
-
 set_hostname()
 {
 	local hostname="$(uci get -q system.@system[0].hostname)"
@@ -137,7 +93,6 @@ start()
 
 	echo "(I) Freifunk: start freifunk_init"
 
-	set_ula
 	#set_macs
 	set_access
 	set_hostname
