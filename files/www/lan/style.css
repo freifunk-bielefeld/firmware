@@ -114,6 +114,10 @@ option {
 	padding-right: 1em;
 }
 
+button {
+	margin: 0.2em;
+}
+
 .radio_option div {
 	float: left;
 	white-space: nowrap;
