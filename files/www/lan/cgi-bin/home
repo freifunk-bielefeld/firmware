@@ -37,7 +37,7 @@ printList() {
 }
 
 vpn_server() {
-	local vpn=$(sockread /var/run/fastd.status < /dev/null 2> /dev/null | sed 's/\(.*\)"name": "\([^"]*\)"\(.*\)established\(.*\)/\2/g')
+	local vpn=$(sockread /var/run/fastd.status < /dev/null 2> /dev/null | grep 'established' | sed 's/\(.*\)"name": "\([^"]*\)"\(.*\)established\(.*\)/\2/g')
 	echo "${vpn:--}"
 }
 
