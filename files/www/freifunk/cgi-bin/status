@@ -59,19 +59,7 @@ echo "		<h1>$(uci get -q freifunk.@settings[0].name)</h1>"
 	</div>
 
 <%
-ula_addr()
-{
-	local prefix=$1 mac=$2 a=""
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
-
-ula_prefix="$(uci get network.globals.ula_prefix)"
+. /lib/ff_shared.sh
 
 echo '	<div class="content">'
 echo '		<h2 class="content-subhead">Nachbarknoten:</h2>'
@@ -81,7 +69,7 @@ macs="$(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2 && NF==3
 if [ -n "$macs" ]; then
 	i=1
 	for mac in $macs; do
-		echo "			<li><h3><a href=\"http://[$(ula_addr $ula_prefix $mac)]\">Nachbarknoten $i</a></h3></li>"
+		echo "			<li><h3><a href=\"http://[$(ula_addr $mac)]\">Nachbarknoten $i</a></h3></li>"
 		i=$((i+1))
 	done
 else
