@@ -416,7 +416,6 @@ update_051_to_060()
 	config_load network
 	config_list_foreach freifunk ip6addr remove_ula
 
-
 	uci commit network
 }
 
