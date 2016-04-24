@@ -1,11 +1,15 @@
 #!/usr/bin/haserl
 <% echo -en "content-type: text/html\r\n\r\n" %>
 <!DOCTYPE html>
-<html lang="de"><head>
+<html lang="de">
+<head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>info</title>
+<%
+name="$(uci get -q freifunk.@settings[0].name)"
+echo -n "<title>Freifunk${name:+ - $name}</title>"
+%>
 	<link rel="stylesheet" href="/css/pure-min.css">
 	<link rel="stylesheet" href="/css/side-menu.css">
 	<link rel="stylesheet" href="/css/grids-responsive-min.css">
