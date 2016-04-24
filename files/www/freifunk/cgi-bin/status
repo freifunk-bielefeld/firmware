@@ -69,7 +69,7 @@ macs="$(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2 && NF==3
 if [ -n "$macs" ]; then
 	i=1
 	for mac in $macs; do
-		echo "			<li><h3><a href=\"http://[$(ula_addr $mac)]\">Nachbarknoten $i</a></h3></li>"
+		echo "			<li><h3><a href=\"http://[$(ula_addr $mac)]\" class=\"neighbor\">Nachbarknoten $i</a></h3></li>"
 		i=$((i+1))
 	done
 else
@@ -95,5 +95,37 @@ if [ -n "$max" -a "$max" != "0" ]; then
 	echo '	</div>'
 fi
 %>
+
+<script>
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // XHR for Chrome/Firefox/Opera/Safari.
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    // XDomainRequest for IE.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    // CORS not supported.
+    xhr = null;
+  }
+  return xhr;
+}
+
+var neighbors = document.getElementsByClassName("neighbor");
+Array.prototype.forEach.call(neighbors, function(el) {
+	var xhr = createCORSRequest('GET', el.href + "/cgi-bin/data");
+	xhr.onload = function() {
+		var json = JSON.parse(xhr.responseText);
+		if('name' in json) {
+			el.textContent = json.name;
+		}
+	};
+
+	xhr.send();
+});
+</script>
+
 </body>
 </html>

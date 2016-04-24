@@ -1,0 +1,9 @@
+#!/usr/bin/haserl
+<%
+# CORS response
+echo -en "Access-Control-Allow-Origin: *\r\n"
+echo -en "content-type: text/plain\r\n\r\n"
+
+/usr/sbin/print_map.sh
+%>
+
