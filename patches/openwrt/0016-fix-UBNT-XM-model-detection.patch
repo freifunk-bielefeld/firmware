@@ -1,7 +1,7 @@
-From b3e2a210c33f9f08a06d0bfd356180ad102c06d1 Mon Sep 17 00:00:00 2001
+From 5520bf3638563989ccf5a827dc37eb468a92276c Mon Sep 17 00:00:00 2001
 From: Neal Oakey <neal.oakey@bingo-ev.de>
 Date: Sun, 14 Feb 2016 20:58:20 +0100
-Subject: [PATCH 16/27] fix UBNT XM model detection
+Subject: [PATCH 16/32] fix UBNT XM model detection
 
 Signed-off-by: Neal Oakey <neal.oakey@bingo-ev.de>
 ---
@@ -77,5 +77,5 @@ index 5768286..7f50d8a 100755
  	*"Rocket M XW")
  		name="rocket-m-xw"
 -- 
-2.1.4
+2.8.0
 

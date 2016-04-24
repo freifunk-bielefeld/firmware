@@ -1,7 +1,7 @@
-From 6343f84eb23af957cc54acdc62208466a3b87227 Mon Sep 17 00:00:00 2001
+From 55c062f12ac58a58617552ebfcfc1e3d534d7c47 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 1 Apr 2016 23:21:32 +0200
-Subject: [PATCH 26/27] ar71xx: fix the revision of a few TP-LINK devices in
+Subject: [PATCH 25/32] ar71xx: fix the revision of a few TP-LINK devices in
  AR71XX_MODEL to match labels/image names
 
 Let's not confuse users about the revisions of their devices when we can
@@ -43,5 +43,5 @@ index 9d650a1..52ca255 100755
  	"084200"*)
  		model="TP-Link TL-WR842N/ND"
 -- 
-2.1.4
+2.8.0
 

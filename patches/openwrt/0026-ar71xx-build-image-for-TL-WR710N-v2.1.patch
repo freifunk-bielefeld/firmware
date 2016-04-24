@@ -1,7 +1,7 @@
-From 09d1b05e6b4695f030e2e0da00854b19ba120c1a Mon Sep 17 00:00:00 2001
+From a45c55aa577692159b5119f998239c3b452e3357 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 2 Apr 2016 00:56:50 +0200
-Subject: [PATCH 27/27] ar71xx: build image for TL-WR710N v2.1
+Subject: [PATCH 26/32] ar71xx: build image for TL-WR710N v2.1
 
 This patch just extends target/linux/ar71xx/image/Makefile to build
 images also for version 2.1 of TL-WR710N
@@ -44,5 +44,5 @@ index 1a399ab..9ac405c 100644
  define Device/tl-wr740n-v4
      $(Device/tplink-4mlzma)
 -- 
-2.1.4
+2.8.0
 

@@ -1,7 +1,7 @@
-From c3bbfb6a62fbe3a1213517242123113836be56c0 Mon Sep 17 00:00:00 2001
+From e517ad96cc18335d9f7ce0d4be0b349b42b7abb6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 1 Apr 2016 23:16:13 +0200
-Subject: [PATCH 24/27] ar71xx: check both HWID and HWREV on upgrades of
+Subject: [PATCH 23/32] ar71xx: check both HWID and HWREV on upgrades of
  TP-LINK devices
 
 There's no reason for us to be more lenient than the stock firmware, so
@@ -52,5 +52,5 @@ index 2fc1d10..420b794 100755
  		}
  
 -- 
-2.1.4
+2.8.0
 

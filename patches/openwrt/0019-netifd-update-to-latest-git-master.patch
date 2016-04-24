@@ -1,7 +1,7 @@
-From 5bb9af98ac85179575926235b5d6f2ab864b1401 Mon Sep 17 00:00:00 2001
+From 97d8592860b68918867cd938d82fb80a8b57b082 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 9 Mar 2016 06:46:44 +0100
-Subject: [PATCH 19/27] netifd: update to latest git master
+Subject: [PATCH 19/32] netifd: update to latest git master
 
 ---
  package/network/config/netifd/Makefile                 | 6 +++---
@@ -61,5 +61,5 @@ index af3aaa8..5515b91 100755
  		/sbin/wifi up "$dev"
  	done
 -- 
-2.1.4
+2.8.0
 

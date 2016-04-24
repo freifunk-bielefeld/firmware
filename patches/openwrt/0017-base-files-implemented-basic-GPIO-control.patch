@@ -1,7 +1,7 @@
-From 109340b8ba2b0e7c22d27536040cb20faf4ec543 Mon Sep 17 00:00:00 2001
+From 24f1eb42b8c3cf61012df678984141af329598d9 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 7 Mar 2016 06:07:21 +0100
-Subject: [PATCH 17/27] base-files: implemented basic GPIO control
+Subject: [PATCH 17/32] base-files: implemented basic GPIO control
 
 Internal GPIO pins are used for PoE passthrough setups in multi-port
 routers. This patch implemnets control over this hardware feature for
@@ -140,5 +140,5 @@ index 0000000..81d3982
 +
 +exit 0
 -- 
-2.1.4
+2.8.0
 
