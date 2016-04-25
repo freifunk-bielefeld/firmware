@@ -1,7 +1,7 @@
-From 188d6c34b57a5a8480b4471a8a9c48099724c2ba Mon Sep 17 00:00:00 2001
+From c1ca33524ad7acad23a9b3aec0e5efc25d859238 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 9 Feb 2016 21:46:46 +0100
-Subject: [PATCH 2/6] update to alfred 2016.0
+Subject: [PATCH 3/3] update to alfred 2016.0
 
 ---
  alfred/Makefile          |  9 +++---
@@ -149,5 +149,5 @@ index b777b53..4c9a9e1 100755
  	SERVICE_PID_FILE="$pid_file_alfred"
  	service_start /usr/sbin/alfred ${alfred_args}
 -- 
-2.1.4
+2.8.0
 
