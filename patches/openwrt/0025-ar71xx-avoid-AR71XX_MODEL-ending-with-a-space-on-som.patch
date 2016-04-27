@@ -1,7 +1,7 @@
-From 332194eecaa214c7cd0984f3f93235c9911dd1e1 Mon Sep 17 00:00:00 2001
+From 445efb0f0c94d15bfe55cb59039e563b0a6d9172 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 1 Apr 2016 23:19:16 +0200
-Subject: [PATCH 24/32] ar71xx: avoid AR71XX_MODEL ending with a space on some
+Subject: [PATCH 25/33] ar71xx: avoid AR71XX_MODEL ending with a space on some
  TP-LINK-like devices
 
 Instead of adding the space when combining $model and $hwver, add the space
@@ -16,7 +16,7 @@ Backport of r49106
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 7f50d8a..9d650a1 100755
+index e7b3cd2..180a075 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -133,7 +133,7 @@ tplink_board_detect() {

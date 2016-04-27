@@ -1,7 +1,7 @@
-From b6217eae50ec9730ad82046f3d2df44706332575 Mon Sep 17 00:00:00 2001
+From 787131e629810136fc820be7167fae6b59c3fb50 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:44:30 +0200
-Subject: [PATCH 28/32] tools: add tar host build, required for --sort=name
+Subject: [PATCH 29/33] tools: add tar host build, required for --sort=name
  which was only added in the latest version
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>

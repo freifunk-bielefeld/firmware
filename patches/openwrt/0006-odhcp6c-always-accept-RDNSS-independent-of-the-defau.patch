@@ -1,7 +1,7 @@
-From b9bbb3e9b79fb9b470b753da9847c6080b9f3eb9 Mon Sep 17 00:00:00 2001
+From 62c15f42cb902a5e2d9320e251b1929ce1f352f0 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 13 Nov 2014 01:17:24 +0100
-Subject: [PATCH 05/32] odhcp6c: always accept RDNSS, independent of the
+Subject: [PATCH 06/33] odhcp6c: always accept RDNSS, independent of the
  default router lifetime
 
 ---

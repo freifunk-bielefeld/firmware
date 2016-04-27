@@ -1,0 +1,1470 @@
+From 8df9cc973d729ccf6c0e78253a7c737b7ca04dee Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Wed, 27 Apr 2016 21:20:31 +0200
+Subject: [PATCH 03/33] Revert "iw: update to version 4.3, sync with trunk
+ r47782"
+
+This reverts commit ef4fd44d30e03fc2e2d88373bb98e8b4d973d4a1.
+---
+ package/network/utils/iw/Makefile                  |   4 +-
+ .../utils/iw/patches/001-nl80211_h_sync.patch      | 731 ++++++++++++++++++---
+ .../utils/iw/patches/120-antenna_gain.patch        |   3 +-
+ .../network/utils/iw/patches/200-reduce_size.patch | 190 +-----
+ .../patches/300-display_interface_TX_power.patch   |  32 -
+ .../utils/iw/patches/301-ibss_add_VHT80.patch      | 104 ---
+ .../iw/patches/302-ibss_use_MHz_instead_MHZ.patch  |  41 --
+ .../utils/iw/patches/303-mesh_add_VHT80.patch      | 170 -----
+ 8 files changed, 672 insertions(+), 603 deletions(-)
+ delete mode 100644 package/network/utils/iw/patches/300-display_interface_TX_power.patch
+ delete mode 100644 package/network/utils/iw/patches/301-ibss_add_VHT80.patch
+ delete mode 100644 package/network/utils/iw/patches/302-ibss_use_MHz_instead_MHZ.patch
+ delete mode 100644 package/network/utils/iw/patches/303-mesh_add_VHT80.patch
+
+diff --git a/package/network/utils/iw/Makefile b/package/network/utils/iw/Makefile
+index ad82081..05ecd8a 100644
+--- a/package/network/utils/iw/Makefile
++++ b/package/network/utils/iw/Makefile
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=iw
+-PKG_VERSION:=4.3
++PKG_VERSION:=3.17
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=https://www.kernel.org/pub/software/network/iw
+-PKG_MD5SUM:=7adec72e91ebdd9c55429fa34a23a6f5
++PKG_MD5SUM:=69c4a2f29cf560247febc6cad7161a72
+ 
+ PKG_MAINTAINER:=Felix Fietkau <nbd@openwrt.org>
+ PKG_LICENSE:=GPL-2.0
+diff --git a/package/network/utils/iw/patches/001-nl80211_h_sync.patch b/package/network/utils/iw/patches/001-nl80211_h_sync.patch
+index 7de2258..03a3d38 100644
+--- a/package/network/utils/iw/patches/001-nl80211_h_sync.patch
++++ b/package/network/utils/iw/patches/001-nl80211_h_sync.patch
+@@ -1,111 +1,672 @@
+ --- a/nl80211.h
+ +++ b/nl80211.h
+-@@ -10,6 +10,7 @@
+-  * Copyright 2008, 2009 Luis R. Rodriguez <lrodriguez@atheros.com>
+-  * Copyright 2008 Jouni Malinen <jouni.malinen@atheros.com>
+-  * Copyright 2008 Colin McCabe <colin@cozybit.com>
+-+ * Copyright 2015	Intel Deutschland GmbH
+-  *
+-  * Permission to use, copy, modify, and/or distribute this software for any
+-  * purpose with or without fee is hereby granted, provided that the above
+-@@ -328,7 +329,15 @@
+-  *	partial scan results may be available
+-  *
+-  * @NL80211_CMD_START_SCHED_SCAN: start a scheduled scan at certain
+-- *	intervals, as specified by %NL80211_ATTR_SCHED_SCAN_INTERVAL.
+-+ *	intervals and certain number of cycles, as specified by
+-+ *	%NL80211_ATTR_SCHED_SCAN_PLANS. If %NL80211_ATTR_SCHED_SCAN_PLANS is
+-+ *	not specified and only %NL80211_ATTR_SCHED_SCAN_INTERVAL is specified,
+-+ *	scheduled scan will run in an infinite loop with the specified interval.
+-+ *	These attributes are mutually exculsive,
+-+ *	i.e. NL80211_ATTR_SCHED_SCAN_INTERVAL must not be passed if
+-+ *	NL80211_ATTR_SCHED_SCAN_PLANS is defined.
+-+ *	If for some reason scheduled scan is aborted by the driver, all scan
+-+ *	plans are canceled (including scan plans that did not start yet).
+-  *	Like with normal scans, if SSIDs (%NL80211_ATTR_SCAN_SSIDS)
+-  *	are passed, they are used in the probe requests.  For
+-  *	broadcast, a broadcast SSID must be passed (ie. an empty
+-@@ -1761,6 +1770,22 @@ enum nl80211_commands {
+-  * @NL80211_ATTR_REG_INDOOR: flag attribute, if set indicates that the device
+-  *      is operating in an indoor environment.
+-  *
+-+ * @NL80211_ATTR_MAX_NUM_SCHED_SCAN_PLANS: maximum number of scan plans for
+-+ *	scheduled scan supported by the device (u32), a wiphy attribute.
+-+ * @NL80211_ATTR_MAX_SCAN_PLAN_INTERVAL: maximum interval (in seconds) for
+-+ *	a scan plan (u32), a wiphy attribute.
+-+ * @NL80211_ATTR_MAX_SCAN_PLAN_ITERATIONS: maximum number of iterations in
+-+ *	a scan plan (u32), a wiphy attribute.
+-+ * @NL80211_ATTR_SCHED_SCAN_PLANS: a list of scan plans for scheduled scan.
+-+ *	Each scan plan defines the number of scan iterations and the interval
+-+ *	between scans. The last scan plan will always run infinitely,
+-+ *	thus it must not specify the number of iterations, only the interval
+-+ *	between scans. The scan plans are executed sequentially.
+-+ *	Each scan plan is a nested attribute of &enum nl80211_sched_scan_plan.
++@@ -25,10 +25,30 @@
++  *
++  */
++ 
+++/*
+++ * This header file defines the userspace API to the wireless stack. Please
+++ * be careful not to break things - i.e. don't move anything around or so
+++ * unless you can demonstrate that it breaks neither API nor ABI.
+++ *
+++ * Additions to the API should be accompanied by actual implementations in
+++ * an upstream driver, so that example implementations exist in case there
+++ * are ever concerns about the precise semantics of the API or changes are
+++ * needed, and to ensure that code for dead (no longer implemented) API
+++ * can actually be identified and removed.
+++ * Nonetheless, semantics should also be documented carefully in this file.
+++ */
+++
++ #include <linux/types.h>
++ 
++ #define NL80211_GENL_NAME "nl80211"
++ 
+++#define NL80211_MULTICAST_GROUP_CONFIG		"config"
+++#define NL80211_MULTICAST_GROUP_SCAN		"scan"
+++#define NL80211_MULTICAST_GROUP_REG		"regulatory"
+++#define NL80211_MULTICAST_GROUP_MLME		"mlme"
+++#define NL80211_MULTICAST_GROUP_VENDOR		"vendor"
+++#define NL80211_MULTICAST_GROUP_TESTMODE	"testmode"
+++
++ /**
++  * DOC: Station handling
++  *
++@@ -173,8 +193,8 @@
++  *	%NL80211_ATTR_WIPHY and %NL80211_ATTR_WIPHY_NAME.
++  *
++  * @NL80211_CMD_GET_INTERFACE: Request an interface's configuration;
++- *	either a dump request on a %NL80211_ATTR_WIPHY or a specific get
++- *	on an %NL80211_ATTR_IFINDEX is supported.
+++ *	either a dump request for all interfaces or a specific get with a
+++ *	single %NL80211_ATTR_IFINDEX is supported.
++  * @NL80211_CMD_SET_INTERFACE: Set type of a virtual interface, requires
++  *	%NL80211_ATTR_IFINDEX and %NL80211_ATTR_IFTYPE.
++  * @NL80211_CMD_NEW_INTERFACE: Newly created virtual interface or response
++@@ -227,7 +247,11 @@
++  *	the interface identified by %NL80211_ATTR_IFINDEX.
++  * @NL80211_CMD_DEL_STATION: Remove a station identified by %NL80211_ATTR_MAC
++  *	or, if no MAC address given, all stations, on the interface identified
++- *	by %NL80211_ATTR_IFINDEX.
+++ *	by %NL80211_ATTR_IFINDEX. %NL80211_ATTR_MGMT_SUBTYPE and
+++ *	%NL80211_ATTR_REASON_CODE can optionally be used to specify which type
+++ *	of disconnection indication should be sent to the station
+++ *	(Deauthentication or Disassociation frame and reason code for that
+++ *	frame).
++  *
++  * @NL80211_CMD_GET_MPATH: Get mesh path attributes for mesh path to
++  * 	destination %NL80211_ATTR_MAC on the interface identified by
++@@ -248,7 +272,18 @@
++  *	%NL80211_ATTR_IFINDEX.
++  *
++  * @NL80211_CMD_GET_REG: ask the wireless core to send us its currently set
++- * 	regulatory domain.
+++ *	regulatory domain. If %NL80211_ATTR_WIPHY is specified and the device
+++ *	has a private regulatory domain, it will be returned. Otherwise, the
+++ *	global regdomain will be returned.
+++ *	A device will have a private regulatory domain if it uses the
+++ *	regulatory_hint() API. Even when a private regdomain is used the channel
+++ *	information will still be mended according to further hints from
+++ *	the regulatory core to help with compliance. A dump version of this API
+++ *	is now available which will returns the global regdomain as well as
+++ *	all private regdomains of present wiphys (for those that have it).
+++ *	If a wiphy is self-managed (%NL80211_ATTR_WIPHY_SELF_MANAGED_REG), then
+++ *	its private regdomain is the only valid one for it. The regulatory
+++ *	core is not used to help with compliance in this case.
++  * @NL80211_CMD_SET_REG: Set current regulatory domain. CRDA sends this command
++  *	after being queried by the kernel. CRDA replies by sending a regulatory
++  *	domain structure which consists of %NL80211_ATTR_REG_ALPHA set to our
++@@ -302,7 +337,9 @@
++  *	if passed, define which channels should be scanned; if not
++  *	passed, all channels allowed for the current regulatory domain
++  *	are used.  Extra IEs can also be passed from the userspace by
++- *	using the %NL80211_ATTR_IE attribute.
+++ *	using the %NL80211_ATTR_IE attribute.  The first cycle of the
+++ *	scheduled scan can be delayed by %NL80211_ATTR_SCHED_SCAN_DELAY
+++ *	is supplied.
++  * @NL80211_CMD_STOP_SCHED_SCAN: stop a scheduled scan. Returns -ENOENT if
++  *	scheduled scan is not running. The caller may assume that as soon
++  *	as the call returns, it is safe to start a new scheduled scan again.
++@@ -639,7 +676,18 @@
++  * @NL80211_CMD_CH_SWITCH_NOTIFY: An AP or GO may decide to switch channels
++  *	independently of the userspace SME, send this event indicating
++  *	%NL80211_ATTR_IFINDEX is now on %NL80211_ATTR_WIPHY_FREQ and the
++- *	attributes determining channel width.
+++ *	attributes determining channel width.  This indication may also be
+++ *	sent when a remotely-initiated switch (e.g., when a STA receives a CSA
+++ *	from the remote AP) is completed;
+++ *
+++ * @NL80211_CMD_CH_SWITCH_STARTED_NOTIFY: Notify that a channel switch
+++ *	has been started on an interface, regardless of the initiator
+++ *	(ie. whether it was requested from a remote device or
+++ *	initiated on our own).  It indicates that
+++ *	%NL80211_ATTR_IFINDEX will be on %NL80211_ATTR_WIPHY_FREQ
+++ *	after %NL80211_ATTR_CH_SWITCH_COUNT TBTT's.  The userspace may
+++ *	decide to react to this indication by requesting other
+++ *	interfaces to change channel as well.
++  *
++  * @NL80211_CMD_START_P2P_DEVICE: Start the given P2P Device, identified by
++  *	its %NL80211_ATTR_WDEV identifier. It must have been created with
++@@ -738,6 +786,31 @@
++  *	before removing a station entry entirely, or before disassociating
++  *	or similar, cleanup will happen in the driver/device in this case.
++  *
+++ * @NL80211_CMD_GET_MPP: Get mesh path attributes for mesh proxy path to
+++ *	destination %NL80211_ATTR_MAC on the interface identified by
+++ *	%NL80211_ATTR_IFINDEX.
+++ *
+++ * @NL80211_CMD_JOIN_OCB: Join the OCB network. The center frequency and
+++ *	bandwidth of a channel must be given.
+++ * @NL80211_CMD_LEAVE_OCB: Leave the OCB network -- no special arguments, the
+++ *	network is determined by the network interface.
+++ *
+++ * @NL80211_CMD_TDLS_CHANNEL_SWITCH: Start channel-switching with a TDLS peer,
+++ *	identified by the %NL80211_ATTR_MAC parameter. A target channel is
+++ *	provided via %NL80211_ATTR_WIPHY_FREQ and other attributes determining
+++ *	channel width/type. The target operating class is given via
+++ *	%NL80211_ATTR_OPER_CLASS.
+++ *	The driver is responsible for continually initiating channel-switching
+++ *	operations and returning to the base channel for communication with the
+++ *	AP.
+++ * @NL80211_CMD_TDLS_CANCEL_CHANNEL_SWITCH: Stop channel-switching with a TDLS
+++ *	peer given by %NL80211_ATTR_MAC. Both peers must be on the base channel
+++ *	when this command completes.
+++ *
+++ * @NL80211_CMD_WIPHY_REG_CHANGE: Similar to %NL80211_CMD_REG_CHANGE, but used
+++ *	as an event to indicate changes for devices with wiphy-specific regdom
+++ *	management.
+++ *
++  * @NL80211_CMD_MAX: highest used command number
++  * @__NL80211_CMD_AFTER_LAST: internal use
++  */
++@@ -912,6 +985,18 @@ enum nl80211_commands {
++ 	NL80211_CMD_ADD_TX_TS,
++ 	NL80211_CMD_DEL_TX_TS,
++ 
+++	NL80211_CMD_GET_MPP,
+++
+++	NL80211_CMD_JOIN_OCB,
+++	NL80211_CMD_LEAVE_OCB,
+++
+++	NL80211_CMD_CH_SWITCH_STARTED_NOTIFY,
+++
+++	NL80211_CMD_TDLS_CHANNEL_SWITCH,
+++	NL80211_CMD_TDLS_CANCEL_CHANNEL_SWITCH,
+++
+++	NL80211_CMD_WIPHY_REG_CHANGE,
+++
++ 	/* add new commands above here */
++ 
++ 	/* used to define NL80211_CMD_MAX below */
++@@ -1606,9 +1691,16 @@ enum nl80211_commands {
++  * @NL80211_ATTR_TDLS_PEER_CAPABILITY: flags for TDLS peer capabilities, u32.
++  *	As specified in the &enum nl80211_tdls_peer_capability.
++  *
++- * @NL80211_ATTR_IFACE_SOCKET_OWNER: flag attribute, if set during interface
+++ * @NL80211_ATTR_SOCKET_OWNER: Flag attribute, if set during interface
++  *	creation then the new interface will be owned by the netlink socket
++- *	that created it and will be destroyed when the socket is closed
+++ *	that created it and will be destroyed when the socket is closed.
+++ *	If set during scheduled scan start then the new scan req will be
+++ *	owned by the netlink socket that created it and the scheduled scan will
+++ *	be stopped when the socket is closed.
+++ *	If set during configuration of regulatory indoor operation then the
+++ *	regulatory indoor configuration would be owned by the netlink socket
+++ *	that configured the indoor setting, and the indoor operation would be
+++ *	cleared when the socket is closed.
++  *
++  * @NL80211_ATTR_TDLS_INITIATOR: flag attribute indicating the current end is
++  *	the TDLS link initiator.
++@@ -1638,6 +1730,40 @@ enum nl80211_commands {
++  * @NL80211_ATTR_SMPS_MODE: SMPS mode to use (ap mode). see
++  *	&enum nl80211_smps_mode.
++  *
+++ * @NL80211_ATTR_OPER_CLASS: operating class
+++ *
+++ * @NL80211_ATTR_MAC_MASK: MAC address mask
+++ *
+++ * @NL80211_ATTR_WIPHY_SELF_MANAGED_REG: flag attribute indicating this device
+++ *	is self-managing its regulatory information and any regulatory domain
+++ *	obtained from it is coming from the device's wiphy and not the global
+++ *	cfg80211 regdomain.
+++ *
+++ * @NL80211_ATTR_EXT_FEATURES: extended feature flags contained in a byte
+++ *	array. The feature flags are identified by their bit index (see &enum
+++ *	nl80211_ext_feature_index). The bit index is ordered starting at the
+++ *	least-significant bit of the first byte in the array, ie. bit index 0
+++ *	is located at bit 0 of byte 0. bit index 25 would be located at bit 1
+++ *	of byte 3 (u8 array).
+++ *
+++ * @NL80211_ATTR_SURVEY_RADIO_STATS: Request overall radio statistics to be
+++ *	returned along with other survey data. If set, @NL80211_CMD_GET_SURVEY
+++ *	may return a survey entry without a channel indicating global radio
+++ *	statistics (only some values are valid and make sense.)
+++ *	For devices that don't return such an entry even then, the information
+++ *	should be contained in the result as the sum of the respective counters
+++ *	over all channels.
+++ *
+++ * @NL80211_ATTR_SCHED_SCAN_DELAY: delay before a scheduled scan (or a
+++ *	WoWLAN net-detect scan) is started, u32 in seconds.
+++
+++ * @NL80211_ATTR_REG_INDOOR: flag attribute, if set indicates that the device
+++ *      is operating in an indoor environment.
+ + *
+ + * @NL80211_ATTR_WIPHY_ANTENNA_GAIN: Configured antenna gain. Used to reduce
+ + *	transmit power to stay within regulatory limits. u32, dBi.
+ + *
+-  * @NUM_NL80211_ATTR: total number of nl80211_attrs available
+++ * @NUM_NL80211_ATTR: total number of nl80211_attrs available
+   * @NL80211_ATTR_MAX: highest attribute number currently defined
+   * @__NL80211_ATTR_AFTER_LAST: internal use
+-@@ -2130,6 +2155,13 @@ enum nl80211_attrs {
++  */
++@@ -1973,7 +2099,7 @@ enum nl80211_attrs {
++ 
++ 	NL80211_ATTR_TDLS_PEER_CAPABILITY,
+  
+- 	NL80211_ATTR_REG_INDOOR,
++-	NL80211_ATTR_IFACE_SOCKET_OWNER,
+++	NL80211_ATTR_SOCKET_OWNER,
+  
+-+	NL80211_ATTR_MAX_NUM_SCHED_SCAN_PLANS,
+-+	NL80211_ATTR_MAX_SCAN_PLAN_INTERVAL,
+-+	NL80211_ATTR_MAX_SCAN_PLAN_ITERATIONS,
+-+	NL80211_ATTR_SCHED_SCAN_PLANS,
++ 	NL80211_ATTR_CSA_C_OFFSETS_TX,
++ 	NL80211_ATTR_MAX_CSA_COUNTERS,
++@@ -1990,15 +2116,35 @@ enum nl80211_attrs {
++ 
++ 	NL80211_ATTR_SMPS_MODE,
++ 
+++	NL80211_ATTR_OPER_CLASS,
+++
+++	NL80211_ATTR_MAC_MASK,
+++
+++	NL80211_ATTR_WIPHY_SELF_MANAGED_REG,
+++
+++	NL80211_ATTR_EXT_FEATURES,
+++
+++	NL80211_ATTR_SURVEY_RADIO_STATS,
+++
+++	NL80211_ATTR_NETNS_FD,
+++
+++	NL80211_ATTR_SCHED_SCAN_DELAY,
+++
+++	NL80211_ATTR_REG_INDOOR,
+ +
+ +	NL80211_ATTR_WIPHY_ANTENNA_GAIN,
+ +
+  	/* add attributes here, update the policy in nl80211.c */
+  
+  	__NL80211_ATTR_AFTER_LAST,
+-@@ -3364,6 +3396,9 @@ enum nl80211_bss_scan_width {
+-  *	(not present if no beacon frame has been received yet)
+-  * @NL80211_BSS_PRESP_DATA: the data in @NL80211_BSS_INFORMATION_ELEMENTS and
+-  *	@NL80211_BSS_TSF is known to be from a probe response (flag attribute)
+-+ * @NL80211_BSS_LAST_SEEN_BOOTTIME: CLOCK_BOOTTIME timestamp when this entry
+-+ *	was last updated by a received frame. The value is expected to be
+-+ *	accurate to about 10ms. (u64, nanoseconds)
+-  * @__NL80211_BSS_AFTER_LAST: internal
+-  * @NL80211_BSS_MAX: highest BSS attribute
+++	NUM_NL80211_ATTR = __NL80211_ATTR_AFTER_LAST,
++ 	NL80211_ATTR_MAX = __NL80211_ATTR_AFTER_LAST - 1
++ };
++ 
++ /* source-level API compatibility */
++ #define NL80211_ATTR_SCAN_GENERATION NL80211_ATTR_GENERATION
++ #define	NL80211_ATTR_MESH_PARAMS NL80211_ATTR_MESH_CONFIG
+++#define NL80211_ATTR_IFACE_SOCKET_OWNER NL80211_ATTR_SOCKET_OWNER
++ 
++ /*
++  * Allow user space programs to use #ifdef on new attributes by defining them
++@@ -2028,7 +2174,7 @@ enum nl80211_attrs {
++ 
++ #define NL80211_MAX_SUPP_RATES			32
++ #define NL80211_MAX_SUPP_HT_RATES		77
++-#define NL80211_MAX_SUPP_REG_RULES		32
+++#define NL80211_MAX_SUPP_REG_RULES		64
++ #define NL80211_TKIP_DATA_OFFSET_ENCR_KEY	0
++ #define NL80211_TKIP_DATA_OFFSET_TX_MIC_KEY	16
++ #define NL80211_TKIP_DATA_OFFSET_RX_MIC_KEY	24
++@@ -2064,6 +2210,8 @@ enum nl80211_attrs {
++  *	and therefore can't be created in the normal ways, use the
++  *	%NL80211_CMD_START_P2P_DEVICE and %NL80211_CMD_STOP_P2P_DEVICE
++  *	commands to create and destroy one
+++ * @NL80211_IF_TYPE_OCB: Outside Context of a BSS
+++ *	This mode corresponds to the MIB variable dot11OCBActivated=true
++  * @NL80211_IFTYPE_MAX: highest interface type number currently defined
++  * @NUM_NL80211_IFTYPES: number of defined interface types
++  *
++@@ -2083,6 +2231,7 @@ enum nl80211_iftype {
++ 	NL80211_IFTYPE_P2P_CLIENT,
++ 	NL80211_IFTYPE_P2P_GO,
++ 	NL80211_IFTYPE_P2P_DEVICE,
+++	NL80211_IFTYPE_OCB,
++ 
++ 	/* keep last */
++ 	NUM_NL80211_IFTYPES,
++@@ -2165,8 +2314,15 @@ struct nl80211_sta_flag_update {
++  * @NL80211_RATE_INFO_VHT_MCS: MCS index for VHT (u8)
++  * @NL80211_RATE_INFO_VHT_NSS: number of streams in VHT (u8)
++  * @NL80211_RATE_INFO_80_MHZ_WIDTH: 80 MHz VHT rate
++- * @NL80211_RATE_INFO_80P80_MHZ_WIDTH: 80+80 MHz VHT rate
+++ * @NL80211_RATE_INFO_80P80_MHZ_WIDTH: unused - 80+80 is treated the
+++ *	same as 160 for purposes of the bitrates
++  * @NL80211_RATE_INFO_160_MHZ_WIDTH: 160 MHz VHT rate
+++ * @NL80211_RATE_INFO_10_MHZ_WIDTH: 10 MHz width - note that this is
+++ *	a legacy rate and will be reported as the actual bitrate, i.e.
+++ *	half the base (20 MHz) rate
+++ * @NL80211_RATE_INFO_5_MHZ_WIDTH: 5 MHz width - note that this is
+++ *	a legacy rate and will be reported as the actual bitrate, i.e.
+++ *	a quarter of the base (20 MHz) rate
++  * @__NL80211_RATE_INFO_AFTER_LAST: internal use
++  */
++ enum nl80211_rate_info {
++@@ -2181,6 +2337,8 @@ enum nl80211_rate_info {
++ 	NL80211_RATE_INFO_80_MHZ_WIDTH,
++ 	NL80211_RATE_INFO_80P80_MHZ_WIDTH,
++ 	NL80211_RATE_INFO_160_MHZ_WIDTH,
+++	NL80211_RATE_INFO_10_MHZ_WIDTH,
+++	NL80211_RATE_INFO_5_MHZ_WIDTH,
++ 
++ 	/* keep last */
++ 	__NL80211_RATE_INFO_AFTER_LAST,
++@@ -2225,18 +2383,24 @@ enum nl80211_sta_bss_param {
++  *
++  * @__NL80211_STA_INFO_INVALID: attribute number 0 is reserved
++  * @NL80211_STA_INFO_INACTIVE_TIME: time since last activity (u32, msecs)
++- * @NL80211_STA_INFO_RX_BYTES: total received bytes (u32, from this station)
++- * @NL80211_STA_INFO_TX_BYTES: total transmitted bytes (u32, to this station)
++- * @NL80211_STA_INFO_RX_BYTES64: total received bytes (u64, from this station)
++- * @NL80211_STA_INFO_TX_BYTES64: total transmitted bytes (u64, to this station)
+++ * @NL80211_STA_INFO_RX_BYTES: total received bytes (MPDU length)
+++ *	(u32, from this station)
+++ * @NL80211_STA_INFO_TX_BYTES: total transmitted bytes (MPDU length)
+++ *	(u32, to this station)
+++ * @NL80211_STA_INFO_RX_BYTES64: total received bytes (MPDU length)
+++ *	(u64, from this station)
+++ * @NL80211_STA_INFO_TX_BYTES64: total transmitted bytes (MPDU length)
+++ *	(u64, to this station)
++  * @NL80211_STA_INFO_SIGNAL: signal strength of last received PPDU (u8, dBm)
++  * @NL80211_STA_INFO_TX_BITRATE: current unicast tx rate, nested attribute
++  * 	containing info as possible, see &enum nl80211_rate_info
++- * @NL80211_STA_INFO_RX_PACKETS: total received packet (u32, from this station)
++- * @NL80211_STA_INFO_TX_PACKETS: total transmitted packets (u32, to this
++- *	station)
++- * @NL80211_STA_INFO_TX_RETRIES: total retries (u32, to this station)
++- * @NL80211_STA_INFO_TX_FAILED: total failed packets (u32, to this station)
+++ * @NL80211_STA_INFO_RX_PACKETS: total received packet (MSDUs and MMPDUs)
+++ *	(u32, from this station)
+++ * @NL80211_STA_INFO_TX_PACKETS: total transmitted packets (MSDUs and MMPDUs)
+++ *	(u32, to this station)
+++ * @NL80211_STA_INFO_TX_RETRIES: total retries (MPDUs) (u32, to this station)
+++ * @NL80211_STA_INFO_TX_FAILED: total failed packets (MPDUs)
+++ *	(u32, to this station)
++  * @NL80211_STA_INFO_SIGNAL_AVG: signal strength average (u8, dBm)
++  * @NL80211_STA_INFO_LLID: the station's mesh LLID
++  * @NL80211_STA_INFO_PLID: the station's mesh PLID
++@@ -2260,6 +2424,16 @@ enum nl80211_sta_bss_param {
++  *	Same format as NL80211_STA_INFO_CHAIN_SIGNAL.
++  * @NL80211_STA_EXPECTED_THROUGHPUT: expected throughput considering also the
++  *	802.11 header (u32, kbps)
+++ * @NL80211_STA_INFO_RX_DROP_MISC: RX packets dropped for unspecified reasons
+++ *	(u64)
+++ * @NL80211_STA_INFO_BEACON_RX: number of beacons received from this peer (u64)
+++ * @NL80211_STA_INFO_BEACON_SIGNAL_AVG: signal strength average
+++ *	for beacons only (u8, dBm)
+++ * @NL80211_STA_INFO_TID_STATS: per-TID statistics (see &enum nl80211_tid_stats)
+++ *	This is a nested attribute where each the inner attribute number is the
+++ *	TID+1 and the special TID 16 (i.e. value 17) is used for non-QoS frames;
+++ *	each one of those is again nested with &enum nl80211_tid_stats
+++ *	attributes carrying the actual values.
++  * @__NL80211_STA_INFO_AFTER_LAST: internal
++  * @NL80211_STA_INFO_MAX: highest possible station info attribute
+   */
+-@@ -3383,6 +3418,7 @@ enum nl80211_bss {
+- 	NL80211_BSS_CHAN_WIDTH,
+- 	NL80211_BSS_BEACON_TSF,
+- 	NL80211_BSS_PRESP_DATA,
+-+	NL80211_BSS_LAST_SEEN_BOOTTIME,
++@@ -2292,6 +2466,10 @@ enum nl80211_sta_info {
++ 	NL80211_STA_INFO_CHAIN_SIGNAL,
++ 	NL80211_STA_INFO_CHAIN_SIGNAL_AVG,
++ 	NL80211_STA_INFO_EXPECTED_THROUGHPUT,
+++	NL80211_STA_INFO_RX_DROP_MISC,
+++	NL80211_STA_INFO_BEACON_RX,
+++	NL80211_STA_INFO_BEACON_SIGNAL_AVG,
+++	NL80211_STA_INFO_TID_STATS,
+  
+  	/* keep last */
+- 	__NL80211_BSS_AFTER_LAST,
+-@@ -4589,4 +4625,28 @@ enum nl80211_tdls_peer_capability {
+- 	NL80211_TDLS_PEER_WMM = 1<<2,
++ 	__NL80211_STA_INFO_AFTER_LAST,
++@@ -2299,6 +2477,31 @@ enum nl80211_sta_info {
+  };
+  
+-+/**
+-+ * enum nl80211_sched_scan_plan - scanning plan for scheduled scan
+-+ * @__NL80211_SCHED_SCAN_PLAN_INVALID: attribute number 0 is reserved
+-+ * @NL80211_SCHED_SCAN_PLAN_INTERVAL: interval between scan iterations. In
+-+ *	seconds (u32).
+-+ * @NL80211_SCHED_SCAN_PLAN_ITERATIONS: number of scan iterations in this
+-+ *	scan plan (u32). The last scan plan must not specify this attribute
+-+ *	because it will run infinitely. A value of zero is invalid as it will
+-+ *	make the scan plan meaningless.
+-+ * @NL80211_SCHED_SCAN_PLAN_MAX: highest scheduled scan plan attribute number
+-+ *	currently defined
+-+ * @__NL80211_SCHED_SCAN_PLAN_AFTER_LAST: internal use
++ /**
+++ * enum nl80211_tid_stats - per TID statistics attributes
+++ * @__NL80211_TID_STATS_INVALID: attribute number 0 is reserved
+++ * @NL80211_TID_STATS_RX_MSDU: number of MSDUs received (u64)
+++ * @NL80211_TID_STATS_TX_MSDU: number of MSDUs transmitted (or
+++ *	attempted to transmit; u64)
+++ * @NL80211_TID_STATS_TX_MSDU_RETRIES: number of retries for
+++ *	transmitted MSDUs (not counting the first attempt; u64)
+++ * @NL80211_TID_STATS_TX_MSDU_FAILED: number of failed transmitted
+++ *	MSDUs (u64)
+++ * @NUM_NL80211_TID_STATS: number of attributes here
+++ * @NL80211_TID_STATS_MAX: highest numbered attribute here
+ + */
+-+enum nl80211_sched_scan_plan {
+-+	__NL80211_SCHED_SCAN_PLAN_INVALID,
+-+	NL80211_SCHED_SCAN_PLAN_INTERVAL,
+-+	NL80211_SCHED_SCAN_PLAN_ITERATIONS,
+++enum nl80211_tid_stats {
+++	__NL80211_TID_STATS_INVALID,
+++	NL80211_TID_STATS_RX_MSDU,
+++	NL80211_TID_STATS_TX_MSDU,
+++	NL80211_TID_STATS_TX_MSDU_RETRIES,
+++	NL80211_TID_STATS_TX_MSDU_FAILED,
+ +
+ +	/* keep last */
+-+	__NL80211_SCHED_SCAN_PLAN_AFTER_LAST,
+-+	NL80211_SCHED_SCAN_PLAN_MAX =
+-+		__NL80211_SCHED_SCAN_PLAN_AFTER_LAST - 1
+++	NUM_NL80211_TID_STATS,
+++	NL80211_TID_STATS_MAX = NUM_NL80211_TID_STATS - 1
+ +};
+ +
+- #endif /* __LINUX_NL80211_H */
+++/**
++  * enum nl80211_mpath_flags - nl80211 mesh path flags
++  *
++  * @NL80211_MPATH_FLAG_ACTIVE: the mesh path is active
++@@ -2631,6 +2834,11 @@ enum nl80211_sched_scan_match_attr {
++  * @NL80211_RRF_AUTO_BW: maximum available bandwidth should be calculated
++  *	base on contiguous rules and wider channels will be allowed to cross
++  *	multiple contiguous/overlapping frequency ranges.
+++ * @NL80211_RRF_GO_CONCURRENT: See &NL80211_FREQUENCY_ATTR_GO_CONCURRENT
+++ * @NL80211_RRF_NO_HT40MINUS: channels can't be used in HT40- operation
+++ * @NL80211_RRF_NO_HT40PLUS: channels can't be used in HT40+ operation
+++ * @NL80211_RRF_NO_80MHZ: 80MHz operation not allowed
+++ * @NL80211_RRF_NO_160MHZ: 160MHz operation not allowed
++  */
++ enum nl80211_reg_rule_flags {
++ 	NL80211_RRF_NO_OFDM		= 1<<0,
++@@ -2643,11 +2851,18 @@ enum nl80211_reg_rule_flags {
++ 	NL80211_RRF_NO_IR		= 1<<7,
++ 	__NL80211_RRF_NO_IBSS		= 1<<8,
++ 	NL80211_RRF_AUTO_BW		= 1<<11,
+++	NL80211_RRF_GO_CONCURRENT	= 1<<12,
+++	NL80211_RRF_NO_HT40MINUS	= 1<<13,
+++	NL80211_RRF_NO_HT40PLUS		= 1<<14,
+++	NL80211_RRF_NO_80MHZ		= 1<<15,
+++	NL80211_RRF_NO_160MHZ		= 1<<16,
++ };
++ 
++ #define NL80211_RRF_PASSIVE_SCAN	NL80211_RRF_NO_IR
++ #define NL80211_RRF_NO_IBSS		NL80211_RRF_NO_IR
++ #define NL80211_RRF_NO_IR		NL80211_RRF_NO_IR
+++#define NL80211_RRF_NO_HT40		(NL80211_RRF_NO_HT40MINUS |\
+++					 NL80211_RRF_NO_HT40PLUS)
++ 
++ /* For backport compatibility with older userspace */
++ #define NL80211_RRF_NO_IR_ALL		(NL80211_RRF_NO_IR | __NL80211_RRF_NO_IBSS)
++@@ -2700,16 +2915,18 @@ enum nl80211_user_reg_hint_type {
++  * @NL80211_SURVEY_INFO_FREQUENCY: center frequency of channel
++  * @NL80211_SURVEY_INFO_NOISE: noise level of channel (u8, dBm)
++  * @NL80211_SURVEY_INFO_IN_USE: channel is currently being used
++- * @NL80211_SURVEY_INFO_CHANNEL_TIME: amount of time (in ms) that the radio
++- *	spent on this channel
++- * @NL80211_SURVEY_INFO_CHANNEL_TIME_BUSY: amount of the time the primary
+++ * @NL80211_SURVEY_INFO_TIME: amount of time (in ms) that the radio
+++ *	was turned on (on channel or globally)
+++ * @NL80211_SURVEY_INFO_TIME_BUSY: amount of the time the primary
++  *	channel was sensed busy (either due to activity or energy detect)
++- * @NL80211_SURVEY_INFO_CHANNEL_TIME_EXT_BUSY: amount of time the extension
+++ * @NL80211_SURVEY_INFO_TIME_EXT_BUSY: amount of time the extension
++  *	channel was sensed busy
++- * @NL80211_SURVEY_INFO_CHANNEL_TIME_RX: amount of time the radio spent
++- *	receiving data
++- * @NL80211_SURVEY_INFO_CHANNEL_TIME_TX: amount of time the radio spent
++- *	transmitting data
+++ * @NL80211_SURVEY_INFO_TIME_RX: amount of time the radio spent
+++ *	receiving data (on channel or globally)
+++ * @NL80211_SURVEY_INFO_TIME_TX: amount of time the radio spent
+++ *	transmitting data (on channel or globally)
+++ * @NL80211_SURVEY_INFO_TIME_SCAN: time the radio spent for scan
+++ *	(on this channel or globally)
++  * @NL80211_SURVEY_INFO_MAX: highest survey info attribute number
++  *	currently defined
++  * @__NL80211_SURVEY_INFO_AFTER_LAST: internal use
++@@ -2719,17 +2936,25 @@ enum nl80211_survey_info {
++ 	NL80211_SURVEY_INFO_FREQUENCY,
++ 	NL80211_SURVEY_INFO_NOISE,
++ 	NL80211_SURVEY_INFO_IN_USE,
++-	NL80211_SURVEY_INFO_CHANNEL_TIME,
++-	NL80211_SURVEY_INFO_CHANNEL_TIME_BUSY,
++-	NL80211_SURVEY_INFO_CHANNEL_TIME_EXT_BUSY,
++-	NL80211_SURVEY_INFO_CHANNEL_TIME_RX,
++-	NL80211_SURVEY_INFO_CHANNEL_TIME_TX,
+++	NL80211_SURVEY_INFO_TIME,
+++	NL80211_SURVEY_INFO_TIME_BUSY,
+++	NL80211_SURVEY_INFO_TIME_EXT_BUSY,
+++	NL80211_SURVEY_INFO_TIME_RX,
+++	NL80211_SURVEY_INFO_TIME_TX,
+++	NL80211_SURVEY_INFO_TIME_SCAN,
++ 
++ 	/* keep last */
++ 	__NL80211_SURVEY_INFO_AFTER_LAST,
++ 	NL80211_SURVEY_INFO_MAX = __NL80211_SURVEY_INFO_AFTER_LAST - 1
++ };
++ 
+++/* keep old names for compatibility */
+++#define NL80211_SURVEY_INFO_CHANNEL_TIME		NL80211_SURVEY_INFO_TIME
+++#define NL80211_SURVEY_INFO_CHANNEL_TIME_BUSY		NL80211_SURVEY_INFO_TIME_BUSY
+++#define NL80211_SURVEY_INFO_CHANNEL_TIME_EXT_BUSY	NL80211_SURVEY_INFO_TIME_EXT_BUSY
+++#define NL80211_SURVEY_INFO_CHANNEL_TIME_RX		NL80211_SURVEY_INFO_TIME_RX
+++#define NL80211_SURVEY_INFO_CHANNEL_TIME_TX		NL80211_SURVEY_INFO_TIME_TX
+++
++ /**
++  * enum nl80211_mntr_flags - monitor configuration flags
++  *
++@@ -2894,7 +3119,8 @@ enum nl80211_mesh_power_mode {
++  *
++  * @NL80211_MESHCONF_PLINK_TIMEOUT: If no tx activity is seen from a STA we've
++  *	established peering with for longer than this time (in seconds), then
++- *	remove it from the STA's list of peers.  Default is 30 minutes.
+++ *	remove it from the STA's list of peers. You may set this to 0 to disable
+++ *	the removal of the STA. Default is 30 minutes.
++  *
++  * @__NL80211_MESHCONF_ATTR_AFTER_LAST: internal use
++  */
++@@ -3166,6 +3392,9 @@ enum nl80211_bss {
++ /**
++  * enum nl80211_bss_status - BSS "status"
++  * @NL80211_BSS_STATUS_AUTHENTICATED: Authenticated with this BSS.
+++ *	Note that this is no longer used since cfg80211 no longer
+++ *	keeps track of whether or not authentication was done with
+++ *	a given BSS.
++  * @NL80211_BSS_STATUS_ASSOCIATED: Associated with this BSS.
++  * @NL80211_BSS_STATUS_IBSS_JOINED: Joined to this IBSS.
++  *
++@@ -3379,6 +3608,8 @@ enum nl80211_ps_state {
++  *	interval in which %NL80211_ATTR_CQM_TXE_PKTS and
++  *	%NL80211_ATTR_CQM_TXE_RATE must be satisfied before generating an
++  *	%NL80211_CMD_NOTIFY_CQM. Set to 0 to turn off TX error reporting.
+++ * @NL80211_ATTR_CQM_BEACON_LOSS_EVENT: flag attribute that's set in a beacon
+++ *	loss event
++  * @__NL80211_ATTR_CQM_AFTER_LAST: internal
++  * @NL80211_ATTR_CQM_MAX: highest key attribute
++  */
++@@ -3391,6 +3622,7 @@ enum nl80211_attr_cqm {
++ 	NL80211_ATTR_CQM_TXE_RATE,
++ 	NL80211_ATTR_CQM_TXE_PKTS,
++ 	NL80211_ATTR_CQM_TXE_INTVL,
+++	NL80211_ATTR_CQM_BEACON_LOSS_EVENT,
++ 
++ 	/* keep last */
++ 	__NL80211_ATTR_CQM_AFTER_LAST,
++@@ -3403,9 +3635,7 @@ enum nl80211_attr_cqm {
++  *      configured threshold
++  * @NL80211_CQM_RSSI_THRESHOLD_EVENT_HIGH: The RSSI is higher than the
++  *      configured threshold
++- * @NL80211_CQM_RSSI_BEACON_LOSS_EVENT: The device experienced beacon loss.
++- *	(Note that deauth/disassoc will still follow if the AP is not
++- *	available. This event might get used as roaming event, etc.)
+++ * @NL80211_CQM_RSSI_BEACON_LOSS_EVENT: (reserved, never sent)
++  */
++ enum nl80211_cqm_rssi_threshold_event {
++ 	NL80211_CQM_RSSI_THRESHOLD_EVENT_LOW,
++@@ -3492,6 +3722,8 @@ struct nl80211_pattern_support {
++  * @NL80211_WOWLAN_TRIG_ANY: wake up on any activity, do not really put
++  *	the chip into a special state -- works best with chips that have
++  *	support for low-power operation already (flag)
+++ *	Note that this mode is incompatible with all of the others, if
+++ *	any others are even supported by the device.
++  * @NL80211_WOWLAN_TRIG_DISCONNECT: wake up on disconnect, the way disconnect
++  *	is detected is implementation-specific (flag)
++  * @NL80211_WOWLAN_TRIG_MAGIC_PKT: wake up on magic packet (6x 0xff, followed
++@@ -3545,6 +3777,28 @@ struct nl80211_pattern_support {
++  * @NL80211_WOWLAN_TRIG_WAKEUP_TCP_NOMORETOKENS: For wakeup reporting only,
++  *	the TCP connection ran out of tokens to use for data to send to the
++  *	service
+++ * @NL80211_WOWLAN_TRIG_NET_DETECT: wake up when a configured network
+++ *	is detected.  This is a nested attribute that contains the
+++ *	same attributes used with @NL80211_CMD_START_SCHED_SCAN.  It
+++ *	specifies how the scan is performed (e.g. the interval, the
+++ *	channels to scan and the initial delay) as well as the scan
+++ *	results that will trigger a wake (i.e. the matchsets).  This
+++ *	attribute is also sent in a response to
+++ *	@NL80211_CMD_GET_WIPHY, indicating the number of match sets
+++ *	supported by the driver (u32).
+++ * @NL80211_WOWLAN_TRIG_NET_DETECT_RESULTS: nested attribute
+++ *	containing an array with information about what triggered the
+++ *	wake up.  If no elements are present in the array, it means
+++ *	that the information is not available.  If more than one
+++ *	element is present, it means that more than one match
+++ *	occurred.
+++ *	Each element in the array is a nested attribute that contains
+++ *	one optional %NL80211_ATTR_SSID attribute and one optional
+++ *	%NL80211_ATTR_SCAN_FREQUENCIES attribute.  At least one of
+++ *	these attributes must be present.  If
+++ *	%NL80211_ATTR_SCAN_FREQUENCIES contains more than one
+++ *	frequency, it means that the match occurred in more than one
+++ *	channel.
++  * @NUM_NL80211_WOWLAN_TRIG: number of wake on wireless triggers
++  * @MAX_NL80211_WOWLAN_TRIG: highest wowlan trigger attribute number
++  *
++@@ -3570,6 +3824,8 @@ enum nl80211_wowlan_triggers {
++ 	NL80211_WOWLAN_TRIG_WAKEUP_TCP_MATCH,
++ 	NL80211_WOWLAN_TRIG_WAKEUP_TCP_CONNLOST,
++ 	NL80211_WOWLAN_TRIG_WAKEUP_TCP_NOMORETOKENS,
+++	NL80211_WOWLAN_TRIG_NET_DETECT,
+++	NL80211_WOWLAN_TRIG_NET_DETECT_RESULTS,
++ 
++ 	/* keep last */
++ 	NUM_NL80211_WOWLAN_TRIG,
++@@ -4042,6 +4298,27 @@ enum nl80211_ap_sme_features {
++  *	multiplexing powersave, ie. can turn off all but one chain
++  *	and then wake the rest up as required after, for example,
++  *	rts/cts handshake.
+++ * @NL80211_FEATURE_SUPPORTS_WMM_ADMISSION: the device supports setting up WMM
+++ *	TSPEC sessions (TID aka TSID 0-7) with the %NL80211_CMD_ADD_TX_TS
+++ *	command. Standard IEEE 802.11 TSPEC setup is not yet supported, it
+++ *	needs to be able to handle Block-Ack agreements and other things.
+++ * @NL80211_FEATURE_MAC_ON_CREATE: Device supports configuring
+++ *	the vif's MAC address upon creation.
+++ *	See 'macaddr' field in the vif_params (cfg80211.h).
+++ * @NL80211_FEATURE_TDLS_CHANNEL_SWITCH: Driver supports channel switching when
+++ *	operating as a TDLS peer.
+++ * @NL80211_FEATURE_SCAN_RANDOM_MAC_ADDR: This device/driver supports using a
+++ *	random MAC address during scan (if the device is unassociated); the
+++ *	%NL80211_SCAN_FLAG_RANDOM_ADDR flag may be set for scans and the MAC
+++ *	address mask/value will be used.
+++ * @NL80211_FEATURE_SCHED_SCAN_RANDOM_MAC_ADDR: This device/driver supports
+++ *	using a random MAC address for every scan iteration during scheduled
+++ *	scan (while not associated), the %NL80211_SCAN_FLAG_RANDOM_ADDR may
+++ *	be set for scheduled scan and the MAC address mask/value will be used.
+++ * @NL80211_FEATURE_ND_RANDOM_MAC_ADDR: This device/driver supports using a
+++ *	random MAC address for every scan iteration during "net detect", i.e.
+++ *	scan in unassociated WoWLAN, the %NL80211_SCAN_FLAG_RANDOM_ADDR may
+++ *	be set for scheduled scan and the MAC address mask/value will be used.
++  */
++ enum nl80211_feature_flags {
++ 	NL80211_FEATURE_SK_TX_STATUS			= 1 << 0,
++@@ -4070,6 +4347,27 @@ enum nl80211_feature_flags {
++ 	NL80211_FEATURE_ACKTO_ESTIMATION		= 1 << 23,
++ 	NL80211_FEATURE_STATIC_SMPS			= 1 << 24,
++ 	NL80211_FEATURE_DYNAMIC_SMPS			= 1 << 25,
+++	NL80211_FEATURE_SUPPORTS_WMM_ADMISSION		= 1 << 26,
+++	NL80211_FEATURE_MAC_ON_CREATE			= 1 << 27,
+++	NL80211_FEATURE_TDLS_CHANNEL_SWITCH		= 1 << 28,
+++	NL80211_FEATURE_SCAN_RANDOM_MAC_ADDR		= 1 << 29,
+++	NL80211_FEATURE_SCHED_SCAN_RANDOM_MAC_ADDR	= 1 << 30,
+++	NL80211_FEATURE_ND_RANDOM_MAC_ADDR		= 1 << 31,
+++};
+++
+++/**
+++ * enum nl80211_ext_feature_index - bit index of extended features.
+++ * @NL80211_EXT_FEATURE_VHT_IBSS: This driver supports IBSS with VHT datarates.
+++ *
+++ * @NUM_NL80211_EXT_FEATURES: number of extended features.
+++ * @MAX_NL80211_EXT_FEATURES: highest extended feature index.
+++ */
+++enum nl80211_ext_feature_index {
+++	NL80211_EXT_FEATURE_VHT_IBSS,
+++
+++	/* add new features before the definition below */
+++	NUM_NL80211_EXT_FEATURES,
+++	MAX_NL80211_EXT_FEATURES = NUM_NL80211_EXT_FEATURES - 1
++ };
++ 
++ /**
++@@ -4118,11 +4416,21 @@ enum nl80211_connect_failed_reason {
++  *	dangerous because will destroy stations performance as a lot of frames
++  *	will be lost while scanning off-channel, therefore it must be used only
++  *	when really needed
+++ * @NL80211_SCAN_FLAG_RANDOM_ADDR: use a random MAC address for this scan (or
+++ *	for scheduled scan: a different one for every scan iteration). When the
+++ *	flag is set, depending on device capabilities the @NL80211_ATTR_MAC and
+++ *	@NL80211_ATTR_MAC_MASK attributes may also be given in which case only
+++ *	the masked bits will be preserved from the MAC address and the remainder
+++ *	randomised. If the attributes are not given full randomisation (46 bits,
+++ *	locally administered 1, multicast 0) is assumed.
+++ *	This flag must not be requested when the feature isn't supported, check
+++ *	the nl80211 feature flags for the device.
++  */
++ enum nl80211_scan_flags {
++ 	NL80211_SCAN_FLAG_LOW_PRIORITY			= 1<<0,
++ 	NL80211_SCAN_FLAG_FLUSH				= 1<<1,
++ 	NL80211_SCAN_FLAG_AP				= 1<<2,
+++	NL80211_SCAN_FLAG_RANDOM_ADDR			= 1<<3,
++ };
++ 
++ /**
+diff --git a/package/network/utils/iw/patches/120-antenna_gain.patch b/package/network/utils/iw/patches/120-antenna_gain.patch
+index 6a45c70..cf6a3fa 100644
+--- a/package/network/utils/iw/patches/120-antenna_gain.patch
++++ b/package/network/utils/iw/patches/120-antenna_gain.patch
+@@ -1,11 +1,12 @@
+ --- a/phy.c
+ +++ b/phy.c
+-@@ -524,3 +524,30 @@ COMMAND(set, antenna, "<bitmap> | all |
++@@ -495,3 +495,31 @@ COMMAND(set, antenna, "<bitmap> | all | 
+  	NL80211_CMD_SET_WIPHY, 0, CIB_PHY, handle_antenna,
+  	"Set a bitmap of allowed antennas to use for TX and RX.\n"
+  	"The driver may reject antenna configurations it cannot support.");
+ +
+ +static int handle_antenna_gain(struct nl80211_state *state,
+++			       struct nl_cb *cb,
+ +			       struct nl_msg *msg,
+ +			       int argc, char **argv,
+ +			       enum id_input id)
+diff --git a/package/network/utils/iw/patches/200-reduce_size.patch b/package/network/utils/iw/patches/200-reduce_size.patch
+index dea24fb..882cf89 100644
+--- a/package/network/utils/iw/patches/200-reduce_size.patch
++++ b/package/network/utils/iw/patches/200-reduce_size.patch
+@@ -2,56 +2,18 @@
+ +++ b/Makefile
+ @@ -15,8 +15,8 @@ CFLAGS += -Wall -Wundef -Wstrict-prototy
+  OBJS = iw.o genl.o event.o info.o phy.o \
+- 	interface.o ibss.o station.o survey.o util.o ocb.o \
+- 	mesh.o mpath.o mpp.o scan.o reg.o version.o \
++ 	interface.o ibss.o station.o survey.o util.o \
++ 	mesh.o mpath.o scan.o reg.o version.o \
+ -	reason.o status.o connect.o link.o offch.o ps.o cqm.o \
+--	bitrate.o wowlan.o coalesce.o roc.o p2p.o vendor.o
+-+	reason.o status.o link.o offch.o ps.o cqm.o \
+-+	bitrate.o vendor.o
++-	bitrate.o wowlan.o coalesce.o roc.o p2p.o
+++	reason.o status.o connect.o link.o ps.o \
+++	bitrate.o
+  OBJS += sections.o
+  
+  OBJS-$(HWSIM) += hwsim.o
+---- a/event.c
+-+++ b/event.c
+-@@ -342,6 +342,7 @@ static int print_event(struct nl_msg *ms
+- 	}
+- 
+- 	switch (gnlh->cmd) {
+-+#if 0
+- 	case NL80211_CMD_NEW_WIPHY:
+- 		printf("renamed to %s\n", nla_get_string(tb[NL80211_ATTR_WIPHY_NAME]));
+- 		break;
+-@@ -376,6 +377,7 @@ static int print_event(struct nl_msg *ms
+- 	case NL80211_CMD_SCHED_SCAN_RESULTS:
+- 		printf("got scheduled scan results\n");
+- 		break;
+-+#endif
+- 	case NL80211_CMD_REG_CHANGE:
+- 		printf("regulatory domain change: ");
+- 
+-@@ -454,6 +456,7 @@ static int print_event(struct nl_msg *ms
+- 		mac_addr_n2a(macbuf, nla_data(tb[NL80211_ATTR_MAC]));
+- 		printf("del station %s\n", macbuf);
+- 		break;
+-+#if 0
+- 	case NL80211_CMD_JOIN_IBSS:
+- 		mac_addr_n2a(macbuf, nla_data(tb[NL80211_ATTR_MAC]));
+- 		printf("IBSS %s joined\n", macbuf);
+-@@ -610,9 +613,9 @@ static int print_event(struct nl_msg *ms
+- 	case NL80211_CMD_DEL_WIPHY:
+- 		printf("delete wiphy\n");
+- 		break;
+-+#endif
+- 	default:
+--		printf("unknown event %d (%s)\n",
+--		       gnlh->cmd, command_name(gnlh->cmd));
+-+		printf("unknown event %d\n", gnlh->cmd);
+- 		break;
+- 	}
+- 
+ --- a/info.c
+ +++ b/info.c
+-@@ -219,6 +219,7 @@ next:
++@@ -207,6 +207,7 @@ next:
+  				}
+  			}
+  
+@@ -59,7 +21,7 @@
+  			if (tb_band[NL80211_BAND_ATTR_RATES]) {
+  			printf("\t\tBitrates (non-HT):\n");
+  			nla_for_each_nested(nl_rate, tb_band[NL80211_BAND_ATTR_RATES], rem_rate) {
+-@@ -235,6 +236,7 @@ next:
++@@ -223,6 +224,7 @@ next:
+  				printf("\n");
+  			}
+  			}
+@@ -67,7 +29,7 @@
+  		}
+  	}
+  
+-@@ -291,6 +293,7 @@ next:
++@@ -273,6 +275,7 @@ next:
+  		printf("\tCoverage class: %d (up to %dm)\n", coverage, 450 * coverage);
+  	}
+  
+@@ -75,7 +37,7 @@
+  	if (tb_msg[NL80211_ATTR_CIPHER_SUITES]) {
+  		int num = nla_len(tb_msg[NL80211_ATTR_CIPHER_SUITES]) / sizeof(__u32);
+  		int i;
+-@@ -302,6 +305,7 @@ next:
++@@ -284,6 +287,7 @@ next:
+  					cipher_name(ciphers[i]));
+  		}
+  	}
+@@ -83,7 +45,7 @@
+  
+  	if (tb_msg[NL80211_ATTR_WIPHY_ANTENNA_AVAIL_TX] &&
+  	    tb_msg[NL80211_ATTR_WIPHY_ANTENNA_AVAIL_RX])
+-@@ -321,11 +325,13 @@ next:
++@@ -303,11 +307,13 @@ next:
+  			printf("\t\t * %s\n", iftype_name(nla_type(nl_mode)));
+  	}
+  
+@@ -97,7 +59,7 @@
+  
+  	if (tb_msg[NL80211_ATTR_INTERFACE_COMBINATIONS]) {
+  		struct nlattr *nl_combi;
+-@@ -422,6 +428,7 @@ broken_combination:
++@@ -404,6 +410,7 @@ broken_combination:
+  			printf("\tinterface combinations are not supported\n");
+  	}
+  
+@@ -105,7 +67,7 @@
+  	if (tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS]) {
+  		printf("\tSupported commands:\n");
+  		nla_for_each_nested(nl_cmd, tb_msg[NL80211_ATTR_SUPPORTED_COMMANDS], rem_cmd)
+-@@ -518,6 +525,7 @@ broken_combination:
++@@ -496,6 +503,7 @@ broken_combination:
+  				printf("\t\t * wake up on TCP connection\n");
+  		}
+  	}
+@@ -113,7 +75,7 @@
+  
+  	if (tb_msg[NL80211_ATTR_ROAM_SUPPORT])
+  		printf("\tDevice supports roaming.\n");
+-@@ -554,6 +562,7 @@ broken_combination:
++@@ -532,6 +540,7 @@ broken_combination:
+  		}
+  	}
+  
+@@ -121,23 +83,23 @@
+  	if (tb_msg[NL80211_ATTR_FEATURE_FLAGS]) {
+  		unsigned int features = nla_get_u32(tb_msg[NL80211_ATTR_FEATURE_FLAGS]);
+  
+-@@ -612,6 +621,7 @@ broken_combination:
+- 		if (features & NL80211_FEATURE_TDLS_CHANNEL_SWITCH)
+- 			printf("\tDevice supports TDLS channel switching\n");
++@@ -584,6 +593,7 @@ broken_combination:
++ 		if (features & NL80211_FEATURE_DYNAMIC_SMPS)
++ 			printf("\tDevice supports dynamic SMPS\n");
+  	}
+ +#endif
+  
+- 	if (tb_msg[NL80211_ATTR_EXT_FEATURES]) {
+- 		struct nlattr *tb = tb_msg[NL80211_ATTR_EXT_FEATURES];
+-@@ -668,6 +678,7 @@ TOPLEVEL(list, NULL, NL80211_CMD_GET_WIP
++ 	if (tb_msg[NL80211_ATTR_TDLS_SUPPORT])
++ 		printf("\tDevice supports T-DLS.\n");
++@@ -633,6 +643,7 @@ TOPLEVEL(list, NULL, NL80211_CMD_GET_WIP
+  	 "List all wireless devices and their capabilities.");
+  TOPLEVEL(phy, NULL, NL80211_CMD_GET_WIPHY, NLM_F_DUMP, CIB_NONE, handle_info, NULL);
+  
+ +#if 0
+- static int handle_commands(struct nl80211_state *state, struct nl_msg *msg,
++ static int handle_commands(struct nl80211_state *state,
++ 			   struct nl_cb *cb, struct nl_msg *msg,
+  			   int argc, char **argv, enum id_input id)
+- {
+-@@ -679,6 +690,7 @@ static int handle_commands(struct nl8021
++@@ -645,6 +656,7 @@ static int handle_commands(struct nl8021
+  }
+  TOPLEVEL(commands, NULL, NL80211_CMD_GET_WIPHY, 0, CIB_NONE, handle_commands,
+  	 "list all known commands and their decimal & hex value");
+@@ -145,111 +107,3 @@
+  
+  static int print_feature_handler(struct nl_msg *msg, void *arg)
+  {
+---- a/scan.c
+-+++ b/scan.c
+-@@ -1081,6 +1081,7 @@ static void print_ht_op(const uint8_t ty
+- 	printf("\t\t * secondary channel offset: %s\n",
+- 		ht_secondary_offset[data[1] & 0x3]);
+- 	printf("\t\t * STA channel width: %s\n", sta_chan_width[(data[1] & 0x4)>>2]);
+-+	return;
+- 	printf("\t\t * RIFS: %d\n", (data[1] & 0x8)>>3);
+- 	printf("\t\t * HT protection: %s\n", protection[data[2] & 0x3]);
+- 	printf("\t\t * non-GF present: %d\n", (data[2] & 0x4) >> 2);
+-@@ -1312,6 +1313,13 @@ static void print_ie(const struct ie_pri
+- 
+- static const struct ie_print ieprinters[] = {
+- 	[0] = { "SSID", print_ssid, 0, 32, BIT(PRINT_SCAN) | BIT(PRINT_LINK), },
+-+	[45] = { "HT capabilities", print_ht_capa, 26, 26, BIT(PRINT_SCAN), },
+-+	[48] = { "RSN", print_rsn, 2, 255, BIT(PRINT_SCAN), },
+-+	[61] = { "HT operation", print_ht_op, 22, 22, BIT(PRINT_SCAN), },
+-+	[62] = { "Secondary Channel Offset", print_secchan_offs, 1, 1, BIT(PRINT_SCAN), },
+-+	[191] = { "VHT capabilities", print_vht_capa, 12, 255, BIT(PRINT_SCAN), },
+-+	[192] = { "VHT operation", print_vht_oper, 5, 255, BIT(PRINT_SCAN), },
+-+#if 0
+- 	[1] = { "Supported rates", print_supprates, 0, 255, BIT(PRINT_SCAN), },
+- 	[3] = { "DS Parameter set", print_ds, 1, 1, BIT(PRINT_SCAN), },
+- 	[5] = { "TIM", print_tim, 4, 255, BIT(PRINT_SCAN), },
+-@@ -1321,14 +1329,8 @@ static const struct ie_print ieprinters[
+- 	[32] = { "Power constraint", print_powerconstraint, 1, 1, BIT(PRINT_SCAN), },
+- 	[35] = { "TPC report", print_tpcreport, 2, 2, BIT(PRINT_SCAN), },
+- 	[42] = { "ERP", print_erp, 1, 255, BIT(PRINT_SCAN), },
+--	[45] = { "HT capabilities", print_ht_capa, 26, 26, BIT(PRINT_SCAN), },
+- 	[47] = { "ERP D4.0", print_erp, 1, 255, BIT(PRINT_SCAN), },
+- 	[74] = { "Overlapping BSS scan params", print_obss_scan_params, 14, 255, BIT(PRINT_SCAN), },
+--	[61] = { "HT operation", print_ht_op, 22, 22, BIT(PRINT_SCAN), },
+--	[62] = { "Secondary Channel Offset", print_secchan_offs, 1, 1, BIT(PRINT_SCAN), },
+--	[191] = { "VHT capabilities", print_vht_capa, 12, 255, BIT(PRINT_SCAN), },
+--	[192] = { "VHT operation", print_vht_oper, 5, 255, BIT(PRINT_SCAN), },
+--	[48] = { "RSN", print_rsn, 2, 255, BIT(PRINT_SCAN), },
+- 	[50] = { "Extended supported rates", print_supprates, 0, 255, BIT(PRINT_SCAN), },
+- 	[113] = { "MESH Configuration", print_mesh_conf, 7, 7, BIT(PRINT_SCAN), },
+- 	[114] = { "MESH ID", print_ssid, 0, 32, BIT(PRINT_SCAN) | BIT(PRINT_LINK), },
+-@@ -1336,6 +1338,7 @@ static const struct ie_print ieprinters[
+- 	[107] = { "802.11u Interworking", print_interworking, 0, 255, BIT(PRINT_SCAN), },
+- 	[108] = { "802.11u Advertisement", print_11u_advert, 0, 255, BIT(PRINT_SCAN), },
+- 	[111] = { "802.11u Roaming Consortium", print_11u_rcon, 0, 255, BIT(PRINT_SCAN), },
+-+#endif
+- };
+- 
+- static void print_wifi_wpa(const uint8_t type, uint8_t len, const uint8_t *data)
+-@@ -1767,6 +1770,7 @@ void print_ies(unsigned char *ie, int ie
+- 		    ieprinters[ie[0]].name &&
+- 		    ieprinters[ie[0]].flags & BIT(ptype)) {
+- 			print_ie(&ieprinters[ie[0]], ie[0], ie[1], ie + 2);
+-+#if 0
+- 		} else if (ie[0] == 221 /* vendor */) {
+- 			print_vendor(ie[1], ie + 2, unknown, ptype);
+- 		} else if (unknown) {
+-@@ -1776,6 +1780,7 @@ void print_ies(unsigned char *ie, int ie
+- 			for (i=0; i<ie[1]; i++)
+- 				printf(" %.2x", ie[2+i]);
+- 			printf("\n");
+-+#endif
+- 		}
+- 		ielen -= ie[1] + 2;
+- 		ie += ie[1] + 2;
+-@@ -1816,6 +1821,7 @@ static void print_capa_non_dmg(__u16 cap
+- 		printf(" ESS");
+- 	if (capa & WLAN_CAPABILITY_IBSS)
+- 		printf(" IBSS");
+-+#if 0
+- 	if (capa & WLAN_CAPABILITY_CF_POLLABLE)
+- 		printf(" CfPollable");
+- 	if (capa & WLAN_CAPABILITY_CF_POLL_REQUEST)
+-@@ -1844,6 +1850,7 @@ static void print_capa_non_dmg(__u16 cap
+- 		printf(" DelayedBACK");
+- 	if (capa & WLAN_CAPABILITY_IMM_BACK)
+- 		printf(" ImmediateBACK");
+-+#endif
+- }
+- 
+- static int print_bss_handler(struct nl_msg *msg, void *arg)
+-@@ -1922,8 +1929,10 @@ static int print_bss_handler(struct nl_m
+- 	if (bss[NL80211_BSS_FREQUENCY]) {
+- 		int freq = nla_get_u32(bss[NL80211_BSS_FREQUENCY]);
+- 		printf("\tfreq: %d\n", freq);
+-+#if 0
+- 		if (freq > 45000)
+- 			is_dmg = true;
+-+#endif
+- 	}
+- 	if (bss[NL80211_BSS_BEACON_INTERVAL])
+- 		printf("\tbeacon interval: %d TUs\n",
+---- a/util.c
+-+++ b/util.c
+-@@ -267,6 +267,7 @@ static const char *commands[NL80211_CMD_
+- 
+- static char cmdbuf[100];
+- 
+-+#if 0
+- const char *command_name(enum nl80211_commands cmd)
+- {
+- 	if (cmd <= NL80211_CMD_MAX && commands[cmd])
+-@@ -274,6 +275,7 @@ const char *command_name(enum nl80211_co
+- 	sprintf(cmdbuf, "Unknown command (%d)", cmd);
+- 	return cmdbuf;
+- }
+-+#endif
+- 
+- int ieee80211_channel_to_frequency(int chan, enum nl80211_band band)
+- {
+diff --git a/package/network/utils/iw/patches/300-display_interface_TX_power.patch b/package/network/utils/iw/patches/300-display_interface_TX_power.patch
+deleted file mode 100644
+index 574c490..0000000
+--- a/package/network/utils/iw/patches/300-display_interface_TX_power.patch
++++ /dev/null
+@@ -1,32 +0,0 @@
+-From: =?utf-8?q?Rafa=C5=82_Mi=C5=82ecki?= <zajec5@gmail.com>
+-Date: Tue, 1 Sep 2015 09:55:52 +0200
+-Subject: iw: display interface TX power if available
+-MIME-Version: 1.0
+-Content-Type: text/plain; charset="utf-8"
+-Content-Transfer-Encoding: 8bit
+-
+-Signed-off-by: Rafał Miłecki <zajec5@gmail.com>
+-[print dBm]
+-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+----
+- interface.c | 7 +++++++
+- 1 file changed, 7 insertions(+)
+-
+-diff --git a/interface.c b/interface.c
+-index 73ccecd..4f0821d 100644
+---- a/interface.c
+-+++ b/interface.c
+-@@ -368,6 +368,13 @@ static int print_iface_handler(struct nl_msg *msg, void *arg)
+- 		printf("\n");
+- 	}
+- 
+-+	if (tb_msg[NL80211_ATTR_WIPHY_TX_POWER_LEVEL]) {
+-+		uint32_t txp = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_TX_POWER_LEVEL]);
+-+
+-+		printf("%s\ttxpower %d.%.2d dBm\n",
+-+		       indent, txp / 100, txp % 100);
+-+	}
+-+
+- 	return NL_SKIP;
+- }
+- 
+diff --git a/package/network/utils/iw/patches/301-ibss_add_VHT80.patch b/package/network/utils/iw/patches/301-ibss_add_VHT80.patch
+deleted file mode 100644
+index 709fbb2..0000000
+--- a/package/network/utils/iw/patches/301-ibss_add_VHT80.patch
++++ /dev/null
+@@ -1,104 +0,0 @@
+-From: "Janusz.Dziedzic@tieto.com" <Janusz.Dziedzic@tieto.com>
+-Date: Thu, 10 Sep 2015 12:04:13 +0200
+-Subject: ibss: add VHT80 support for IBSS
+-
+-Add VHT80 support for IBSS.
+-
+-eg. iw wlan0 ibss join 5180 80MHZ
+-    iw wlan0 ibbs join 5220 80MHZ
+-
+-Signed-off-by: Janusz Dziedzic <janusz.dziedzic@tieto.com>
+-[fix formatting]
+-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+----
+- ibss.c | 49 +++++++++++++++++++++++++++++++++++++++++--------
+- 1 file changed, 41 insertions(+), 8 deletions(-)
+-
+-diff --git a/ibss.c b/ibss.c
+-index 7a0b707..a99a262 100644
+---- a/ibss.c
+-+++ b/ibss.c
+-@@ -16,6 +16,39 @@
+- 
+- SECTION(ibss);
+- 
+-+struct chanmode {
+-+	const char *name;
+-+	unsigned int width;
+-+	int freq1_diff;
+-+	int chantype; /* for older kernel */
+-+};
+-+
+-+static int get_cf1(const struct chanmode *chanmode, unsigned long freq)
+-+{
+-+	int cf1 = freq, j;
+-+	int vht80[] = { 5180, 5260, 5500, 5580, 5660, 5745 };
+-+
+-+	switch (chanmode->width) {
+-+	case NL80211_CHAN_WIDTH_80:
+-+	        /* setup center_freq1 */
+-+		for (j = 0; j < ARRAY_SIZE(vht80); j++) {
+-+			if (freq >= vht80[j] && freq < vht80[j] + 80)
+-+				break;
+-+		}
+-+
+-+		if (j == ARRAY_SIZE(vht80))
+-+			break;
+-+
+-+		cf1 = vht80[j] + 30;
+-+		break;
+-+	default:
+-+		cf1 = freq + chanmode->freq1_diff;
+-+		break;
+-+	}
+-+
+-+	return cf1;
+-+}
+-+
+- static int join_ibss(struct nl80211_state *state,
+- 		     struct nl_msg *msg,
+- 		     int argc, char **argv,
+-@@ -30,12 +63,8 @@ static int join_ibss(struct nl80211_state *state,
+- 	int bintval;
+- 	int i;
+- 	unsigned long freq;
+--	static const struct {
+--		const char *name;
+--		unsigned int width;
+--		int freq1_diff;
+--		int chantype; /* for older kernel */
+--	} *chanmode_selected = NULL, chanmode[] = {
+-+	const struct chanmode *chanmode_selected = NULL;
+-+	static const struct chanmode chanmode[] = {
+- 		{ .name = "HT20",
+- 		  .width = NL80211_CHAN_WIDTH_20,
+- 		  .freq1_diff = 0,
+-@@ -60,6 +89,10 @@ static int join_ibss(struct nl80211_state *state,
+- 		  .width = NL80211_CHAN_WIDTH_10,
+- 		  .freq1_diff = 0,
+- 		  .chantype = -1 },
+-+		{ .name = "80MHZ",
+-+		  .width = NL80211_CHAN_WIDTH_80,
+-+		  .freq1_diff = 0,
+-+		  .chantype = -1 },
+- 	};
+- 
+- 	if (argc < 2)
+-@@ -90,7 +123,7 @@ static int join_ibss(struct nl80211_state *state,
+- 			NLA_PUT_U32(msg, NL80211_ATTR_CHANNEL_WIDTH,
+- 				    chanmode_selected->width);
+- 			NLA_PUT_U32(msg, NL80211_ATTR_CENTER_FREQ1,
+--				    freq + chanmode_selected->freq1_diff);
+-+				    get_cf1(chanmode_selected, freq));
+- 			if (chanmode_selected->chantype != -1)
+- 				NLA_PUT_U32(msg,
+- 					    NL80211_ATTR_WIPHY_CHANNEL_TYPE,
+-@@ -192,7 +225,7 @@ COMMAND(ibss, leave, NULL,
+- 	NL80211_CMD_LEAVE_IBSS, 0, CIB_NETDEV, leave_ibss,
+- 	"Leave the current IBSS cell.");
+- COMMAND(ibss, join,
+--	"<SSID> <freq in MHz> [HT20|HT40+|HT40-|NOHT|5MHZ|10MHZ] [fixed-freq] [<fixed bssid>] [beacon-interval <TU>]"
+-+	"<SSID> <freq in MHz> [HT20|HT40+|HT40-|NOHT|5MHZ|10MHZ|80MHZ] [fixed-freq] [<fixed bssid>] [beacon-interval <TU>]"
+- 	" [basic-rates <rate in Mbps,rate2,...>] [mcast-rate <rate in Mbps>] "
+- 	"[key d:0:abcde]",
+- 	NL80211_CMD_JOIN_IBSS, 0, CIB_NETDEV, join_ibss,
+diff --git a/package/network/utils/iw/patches/302-ibss_use_MHz_instead_MHZ.patch b/package/network/utils/iw/patches/302-ibss_use_MHz_instead_MHZ.patch
+deleted file mode 100644
+index fc44427..0000000
+--- a/package/network/utils/iw/patches/302-ibss_use_MHz_instead_MHZ.patch
++++ /dev/null
+@@ -1,41 +0,0 @@
+-From: Johannes Berg <johannes.berg@intel.com>
+-Date: Fri, 18 Sep 2015 11:11:38 +0200
+-Subject: ibss: use correct "MHz" instead of "MHZ"
+-
+-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+----
+- ibss.c | 8 ++++----
+- 1 file changed, 4 insertions(+), 4 deletions(-)
+-
+-diff --git a/ibss.c b/ibss.c
+-index a99a262..23bda70 100644
+---- a/ibss.c
+-+++ b/ibss.c
+-@@ -81,15 +81,15 @@ static int join_ibss(struct nl80211_state *state,
+- 		  .width = NL80211_CHAN_WIDTH_20_NOHT,
+- 		  .freq1_diff = 0,
+- 		  .chantype = NL80211_CHAN_NO_HT },
+--		{ .name = "5MHZ",
+-+		{ .name = "5MHz",
+- 		  .width = NL80211_CHAN_WIDTH_5,
+- 		  .freq1_diff = 0,
+- 		  .chantype = -1 },
+--		{ .name = "10MHZ",
+-+		{ .name = "10MHz",
+- 		  .width = NL80211_CHAN_WIDTH_10,
+- 		  .freq1_diff = 0,
+- 		  .chantype = -1 },
+--		{ .name = "80MHZ",
+-+		{ .name = "80MHz",
+- 		  .width = NL80211_CHAN_WIDTH_80,
+- 		  .freq1_diff = 0,
+- 		  .chantype = -1 },
+-@@ -225,7 +225,7 @@ COMMAND(ibss, leave, NULL,
+- 	NL80211_CMD_LEAVE_IBSS, 0, CIB_NETDEV, leave_ibss,
+- 	"Leave the current IBSS cell.");
+- COMMAND(ibss, join,
+--	"<SSID> <freq in MHz> [HT20|HT40+|HT40-|NOHT|5MHZ|10MHZ|80MHZ] [fixed-freq] [<fixed bssid>] [beacon-interval <TU>]"
+-+	"<SSID> <freq in MHz> [HT20|HT40+|HT40-|NOHT|5MHz|10MHz|80MHz] [fixed-freq] [<fixed bssid>] [beacon-interval <TU>]"
+- 	" [basic-rates <rate in Mbps,rate2,...>] [mcast-rate <rate in Mbps>] "
+- 	"[key d:0:abcde]",
+- 	NL80211_CMD_JOIN_IBSS, 0, CIB_NETDEV, join_ibss,
+diff --git a/package/network/utils/iw/patches/303-mesh_add_VHT80.patch b/package/network/utils/iw/patches/303-mesh_add_VHT80.patch
+deleted file mode 100644
+index fe8dc21..0000000
+--- a/package/network/utils/iw/patches/303-mesh_add_VHT80.patch
++++ /dev/null
+@@ -1,170 +0,0 @@
+-From: Sven Eckelmann <sven@open-mesh.com>
+-Date: Tue, 24 Nov 2015 17:55:22 +0100
+-Subject: iw: add VHT80 support for 802.11s
+-
+-Support next to the non-HT/HT channel widths like HT20 or NOHT also VHT80
+-channels during the mesh join
+-
+-    iw dev mesh0 mesh join "meshnet" freq 5180 80MHz
+-
+-Signed-off-by: Sven Eckelmann <sven@open-mesh.com>
+----
+- ibss.c | 33 ---------------------------------
+- iw.h   |  9 +++++++++
+- mesh.c | 16 ++++++++--------
+- util.c | 26 ++++++++++++++++++++++++++
+- 4 files changed, 43 insertions(+), 41 deletions(-)
+-
+-diff --git a/ibss.c b/ibss.c
+-index 23bda70..ac06fc5 100644
+---- a/ibss.c
+-+++ b/ibss.c
+-@@ -16,39 +16,6 @@
+- 
+- SECTION(ibss);
+- 
+--struct chanmode {
+--	const char *name;
+--	unsigned int width;
+--	int freq1_diff;
+--	int chantype; /* for older kernel */
+--};
+--
+--static int get_cf1(const struct chanmode *chanmode, unsigned long freq)
+--{
+--	int cf1 = freq, j;
+--	int vht80[] = { 5180, 5260, 5500, 5580, 5660, 5745 };
+--
+--	switch (chanmode->width) {
+--	case NL80211_CHAN_WIDTH_80:
+--	        /* setup center_freq1 */
+--		for (j = 0; j < ARRAY_SIZE(vht80); j++) {
+--			if (freq >= vht80[j] && freq < vht80[j] + 80)
+--				break;
+--		}
+--
+--		if (j == ARRAY_SIZE(vht80))
+--			break;
+--
+--		cf1 = vht80[j] + 30;
+--		break;
+--	default:
+--		cf1 = freq + chanmode->freq1_diff;
+--		break;
+--	}
+--
+--	return cf1;
+--}
+--
+- static int join_ibss(struct nl80211_state *state,
+- 		     struct nl_msg *msg,
+- 		     int argc, char **argv,
+-diff --git a/iw.h b/iw.h
+-index cef9da8..8e1a37a 100644
+---- a/iw.h
+-+++ b/iw.h
+-@@ -59,6 +59,13 @@ struct cmd {
+- 	const struct cmd *parent;
+- };
+- 
+-+struct chanmode {
+-+	const char *name;
+-+	unsigned int width;
+-+	int freq1_diff;
+-+	int chantype; /* for older kernel */
+-+};
+-+
+- #define ARRAY_SIZE(ar) (sizeof(ar)/sizeof(ar[0]))
+- #define DIV_ROUND_UP(x, y) (((x) + (y - 1)) / (y))
+- 
+-@@ -174,6 +181,8 @@ void print_ies(unsigned char *ie, int ielen, bool unknown,
+- void parse_bitrate(struct nlattr *bitrate_attr, char *buf, int buflen);
+- void iw_hexdump(const char *prefix, const __u8 *data, size_t len);
+- 
+-+int get_cf1(const struct chanmode *chanmode, unsigned long freq);
+-+
+- #define SCHED_SCAN_OPTIONS "interval <in_msecs> [delay <in_secs>] " \
+- 	"[freqs <freq>+] [matches [ssid <ssid>]+]] [active [ssid <ssid>]+|passive] [randomise[=<addr>/<mask>]]"
+- int parse_sched_scan(struct nl_msg *msg, int *argc, char ***argv);
+-diff --git a/mesh.c b/mesh.c
+-index 0090530..930d58f 100644
+---- a/mesh.c
+-+++ b/mesh.c
+-@@ -439,12 +439,8 @@ static int join_mesh(struct nl80211_state *state,
+- 	int bintval, dtim_period, i, n_rates = 0;
+- 	char *end, *value = NULL, *sptr = NULL;
+- 	unsigned long freq = 0;
+--	static const struct {
+--		const char *name;
+--		unsigned int width;
+--		int freq1_diff;
+--		int chantype; /* for older kernel */
+--	} *chanmode_selected = NULL, chanmode[] = {
+-+	const struct chanmode *chanmode_selected = NULL;
+-+	static const struct chanmode chanmode[] = {
+- 		{ .name = "HT20",
+- 		  .width = NL80211_CHAN_WIDTH_20,
+- 		  .freq1_diff = 0,
+-@@ -461,6 +457,10 @@ static int join_mesh(struct nl80211_state *state,
+- 		  .width = NL80211_CHAN_WIDTH_20_NOHT,
+- 		  .freq1_diff = 0,
+- 		  .chantype = NL80211_CHAN_NO_HT },
+-+		{ .name = "80MHz",
+-+		  .width = NL80211_CHAN_WIDTH_80,
+-+		  .freq1_diff = 0,
+-+		  .chantype = -1 },
+- 	};
+- 
+- 	if (argc < 1)
+-@@ -497,7 +497,7 @@ static int join_mesh(struct nl80211_state *state,
+- 			NLA_PUT_U32(msg, NL80211_ATTR_CHANNEL_WIDTH,
+- 				    chanmode_selected->width);
+- 			NLA_PUT_U32(msg, NL80211_ATTR_CENTER_FREQ1,
+--				    freq + chanmode_selected->freq1_diff);
+-+				    get_cf1(chanmode_selected, freq));
+- 			if (chanmode_selected->chantype != -1)
+- 				NLA_PUT_U32(msg,
+- 					    NL80211_ATTR_WIPHY_CHANNEL_TYPE,
+-@@ -599,7 +599,7 @@ static int join_mesh(struct nl80211_state *state,
+-  nla_put_failure:
+- 	return -ENOBUFS;
+- }
+--COMMAND(mesh, join, "<mesh ID> [[freq <freq in MHz> <HT20|HT40+|HT40-|NOHT>]"
+-+COMMAND(mesh, join, "<mesh ID> [[freq <freq in MHz> <HT20|HT40+|HT40-|NOHT|80MHz>]"
+- 	" [basic-rates <rate in Mbps,rate2,...>]], [mcast-rate <rate in Mbps>]"
+- 	" [beacon-interval <time in TUs>] [dtim-period <value>]"
+- 	" [vendor_sync on|off] [<param>=<value>]*",
+-diff --git a/util.c b/util.c
+-index 4efc4c8..d75ffe0 100644
+---- a/util.c
+-+++ b/util.c
+-@@ -728,3 +728,29 @@ void iw_hexdump(const char *prefix, const __u8 *buf, size_t size)
+- 	}
+- 	printf("\n\n");
+- }
+-+
+-+int get_cf1(const struct chanmode *chanmode, unsigned long freq)
+-+{
+-+	int cf1 = freq, j;
+-+	int vht80[] = { 5180, 5260, 5500, 5580, 5660, 5745 };
+-+
+-+	switch (chanmode->width) {
+-+	case NL80211_CHAN_WIDTH_80:
+-+	        /* setup center_freq1 */
+-+		for (j = 0; j < ARRAY_SIZE(vht80); j++) {
+-+			if (freq >= vht80[j] && freq < vht80[j] + 80)
+-+				break;
+-+		}
+-+
+-+		if (j == ARRAY_SIZE(vht80))
+-+			break;
+-+
+-+		cf1 = vht80[j] + 30;
+-+		break;
+-+	default:
+-+		cf1 = freq + chanmode->freq1_diff;
+-+		break;
+-+	}
+-+
+-+	return cf1;
+-+}
+-- 
+2.8.0
+

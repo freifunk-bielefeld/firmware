@@ -1,7 +1,7 @@
-From a45c55aa577692159b5119f998239c3b452e3357 Mon Sep 17 00:00:00 2001
+From e96105ee34da31f2d2a2251740c8777c3803c947 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 2 Apr 2016 00:56:50 +0200
-Subject: [PATCH 26/32] ar71xx: build image for TL-WR710N v2.1
+Subject: [PATCH 27/33] ar71xx: build image for TL-WR710N v2.1
 
 This patch just extends target/linux/ar71xx/image/Makefile to build
 images also for version 2.1 of TL-WR710N
@@ -15,7 +15,7 @@ Backport of r47849
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 1a399ab..9ac405c 100644
+index 9a7acbd..d42ceef 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -476,6 +476,15 @@ define Device/tl-wr710n-v2

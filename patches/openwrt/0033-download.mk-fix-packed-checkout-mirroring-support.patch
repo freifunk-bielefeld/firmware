@@ -1,7 +1,7 @@
-From 2db1a578e78e319dcb203e87431107a1b1e89a8f Mon Sep 17 00:00:00 2001
+From 0b90afaed7f7c54c5799dadf18a0ee07423f8697 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:49:27 +0200
-Subject: [PATCH 32/32] download.mk: fix packed checkout mirroring support
+Subject: [PATCH 33/33] download.mk: fix packed checkout mirroring support
 
 Changeset r48416  broke the downloading of mirrored, packed scm checkouts.
 

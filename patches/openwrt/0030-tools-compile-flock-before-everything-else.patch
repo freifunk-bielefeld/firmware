@@ -1,7 +1,7 @@
-From 425c737c2fceb21ff0e6dfe7ee79bb396b0891af Mon Sep 17 00:00:00 2001
+From bc078944ea19c2ab234ee73c9035686408a3d0a6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:44:47 +0200
-Subject: [PATCH 29/32] tools: compile flock before everything else
+Subject: [PATCH 30/33] tools: compile flock before everything else
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
 

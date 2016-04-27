@@ -1,7 +1,7 @@
-From f43428d10b7a83e434f5f8438da92ca2a444232b Mon Sep 17 00:00:00 2001
+From db8c8021b9a49dc552410f3ffcd45e3fb27b5d88 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 30 Mar 2016 02:59:19 +0200
-Subject: [PATCH 22/32] Support LibreSSL as provider of openssl
+Subject: [PATCH 23/33] Support LibreSSL as provider of openssl
 
 The build scripts check for openssl by grepping the string "OpenSSL" in
 the output of openssl version command. LibreSSL fails this test as it

@@ -1,7 +1,7 @@
-From dda87285763abe114c412ea1229e027ad8209b82 Mon Sep 17 00:00:00 2001
+From 33dd582fce18a38b20756815076b7e80f5360503 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 29 Dec 2015 22:48:52 +0100
-Subject: [PATCH 14/32] lua: fix installation of headers for host build
+Subject: [PATCH 15/33] lua: fix installation of headers for host build
 
 ---
  package/utils/lua/Makefile | 1 +

@@ -1,7 +1,7 @@
-From 53252dc6d08f6c6591b330e2f2a73f93203688d5 Mon Sep 17 00:00:00 2001
+From 3a24cdc72d079ae4cfcdce60fd4f564d7ab9899c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 5 Apr 2016 20:30:56 +0200
-Subject: [PATCH 27/32] xtables-addons: build: fix configure compatiblity with
+Subject: [PATCH 28/33] xtables-addons: build: fix configure compatiblity with
  POSIX shells
 
 ---

@@ -1,7 +1,7 @@
-From 97d8592860b68918867cd938d82fb80a8b57b082 Mon Sep 17 00:00:00 2001
+From 8b82c3a8dc5fbf563ea479f7fb8f7a55e11ee793 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 9 Mar 2016 06:46:44 +0100
-Subject: [PATCH 19/32] netifd: update to latest git master
+Subject: [PATCH 20/33] netifd: update to latest git master
 
 ---
  package/network/config/netifd/Makefile                 | 6 +++---

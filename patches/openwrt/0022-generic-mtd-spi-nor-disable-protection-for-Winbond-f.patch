@@ -1,7 +1,7 @@
-From 8ac2d3434af2bff288d6437a9aeffbb8b1bdb07c Mon Sep 17 00:00:00 2001
+From eeab0dc98ea9cfb0f63016db0f218551243c1652 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 29 Mar 2016 21:58:53 +0200
-Subject: [PATCH 21/32] generic: mtd: spi-nor: disable protection for Winbond
+Subject: [PATCH 22/33] generic: mtd: spi-nor: disable protection for Winbond
  flash at startup
 
 ---

@@ -1,7 +1,7 @@
-From e84b31b26d20d2ab1abc09a9a50f91bc328b6b71 Mon Sep 17 00:00:00 2001
+From 047ed5b6567afc71378a1f6af83b08556b2d7265 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:45:44 +0200
-Subject: [PATCH 30/32] rules.mk: make the locked template available even if
+Subject: [PATCH 31/33] rules.mk: make the locked template available even if
  flock has not been built yet (fall back to unlocked shell command)
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
