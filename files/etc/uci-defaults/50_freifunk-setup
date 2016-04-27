@@ -419,6 +419,13 @@ update_051_to_060()
 	uci commit network
 }
 
+update_060_to_061()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -448,6 +455,11 @@ start()
 		"0.5.1")
 			echo "(I) Apply update."
 			update_051_to_060
+			update_version
+			;;
+		"0.6.0")
+			echo "(I) Apply update."
+			update_060_to_061
 			update_version
 			;;
 		"")
