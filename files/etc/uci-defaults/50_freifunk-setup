@@ -450,11 +450,13 @@ start()
 			echo "(I) Apply update."
 			update_050_to_051
 			update_051_to_060
+			update_060_to_061
 			update_version
 			;;
 		"0.5.1")
 			echo "(I) Apply update."
 			update_051_to_060
+			update_060_to_061
 			update_version
 			;;
 		"0.6.0")
