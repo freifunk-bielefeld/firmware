@@ -1,30 +1,43 @@
-From c1ca33524ad7acad23a9b3aec0e5efc25d859238 Mon Sep 17 00:00:00 2001
+From 44a516ce2bc99ee22cf63a810e9a4a4489c2ae62 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Tue, 9 Feb 2016 21:46:46 +0100
-Subject: [PATCH 3/3] update to alfred 2016.0
+Date: Sun, 1 May 2016 20:35:42 +0200
+Subject: [PATCH 1/4] alfred: update to 2016.1
 
 ---
- alfred/Makefile          |  9 +++---
+ alfred/Makefile          | 15 +++++-----
  alfred/files/alfred.init | 74 +++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 59 insertions(+), 24 deletions(-)
+ 2 files changed, 62 insertions(+), 27 deletions(-)
 
 diff --git a/alfred/Makefile b/alfred/Makefile
-index dade218..504fddd 100644
+index dade218..2e117b3 100644
 --- a/alfred/Makefile
 +++ b/alfred/Makefile
-@@ -11,9 +11,9 @@ include $(TOPDIR)/rules.mk
- # The latest alfred git hash in PKG_REV can be obtained from http://git.open-mesh.org/alfred.git
+@@ -8,15 +8,15 @@
+ include $(TOPDIR)/rules.mk
+ 
+ #
+-# The latest alfred git hash in PKG_REV can be obtained from http://git.open-mesh.org/alfred.git
++# The latest alfred git hash in PKG_REV can be obtained from https://git.open-mesh.org/alfred.git
  #
  PKG_NAME:=alfred
 -PKG_VERSION:=2014.4.0
-+PKG_VERSION:=2015.2
++PKG_VERSION:=2016.1
  PKG_RELEASE:=0
 -PKG_MD5SUM:=053cb5d9e7ca9384598e82944343dea2
-+PKG_MD5SUM:=e50bd17753f824fa24d3914259ab0395
++PKG_MD5SUM:=0caefc13ba631cba93b84d7f5685e8d0
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
- PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
-@@ -28,7 +28,7 @@ define Package/alfred
+-PKG_SOURCE_URL:=http://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
++PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+ PKG_LICENSE:=GPL-2.0
+ 
+ include $(INCLUDE_DIR)/package.mk
+@@ -24,11 +24,11 @@ include $(INCLUDE_DIR)/package.mk
+ init-y := alfred
+ 
+ define Package/alfred
+-  URL:=http://www.open-mesh.org/
++  URL:=https://www.open-mesh.org/
    SECTION:=net
    CATEGORY:=Network
    TITLE:=A.L.F.R.E.D. - Almighty Lightweight Fact Remote Exchange Daemon
