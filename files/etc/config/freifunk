@@ -5,7 +5,7 @@ config settings
 	option latitude ''
 	option contact ''
 	option community 'bielefeld'
-	option version '0.6.1'
+	option version '0.6.2'
 	option publish_map 'basic'
 	option allow_access_from 'lan'
 	option service_link ''
