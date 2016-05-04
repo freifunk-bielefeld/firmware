@@ -44,5 +44,5 @@ function init() {
 	addHelpText($("software"), "Einige installierte Softwareversionen.");
 	addHelpText($("freifunk_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
 	addHelpText($("lan_user_count"), "Die Anzahl der Nutzer an diesem Router in den letzten zwei Stunden.");
-	addHelpText($("has_vpn"), "Status der VPN-Verbindung zum Server im Internet.");
+	addHelpText($("vpn_server"), "Der VPN-Server im Internet, mit dem der Knoten verbunden ist.");
 }

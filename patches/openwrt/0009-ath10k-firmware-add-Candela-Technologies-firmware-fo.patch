@@ -1,7 +1,7 @@
-From edc18801f00ee9cdae6e59b4839f6b51212ed818 Mon Sep 17 00:00:00 2001
+From 5b14d3b0c59087d4d23dfdc5f871886a1d5b19fb Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 9 Feb 2016 18:22:29 +0100
-Subject: [PATCH 08/27] ath10k-firmware: add Candela Technologies firmware for
+Subject: [PATCH 09/33] ath10k-firmware: add Candela Technologies firmware for
  QCA988X
 
 ---
@@ -78,5 +78,5 @@ index 30da1cf..cd8d670 100644
  	$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath10k/ath10k_core.ko \
  	$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath10k/ath10k_pci.ko
 -- 
-2.1.4
+2.8.0
 

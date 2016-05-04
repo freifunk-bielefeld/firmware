@@ -23,6 +23,9 @@ case $GET_func in
 			echo "(E) Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
 		fi
 	;;
+	name)
+		uci get -q freifunk.@settings[0].name
+	;;
 	*)
 		echo "(E) misc: Invalid command: '$GET_func'"
 	;;

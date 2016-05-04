@@ -84,6 +84,9 @@ set_hostname()
 	if [ -n "$name" -a "$hostname" != "$name" ]; then
 		uci set system.@system[0].hostname="$name"
 		uci commit system
+
+		uci set network.wan.hostname="$name"
+		uci commit network
 	fi
 }
 

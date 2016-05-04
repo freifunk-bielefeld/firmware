@@ -1,7 +1,7 @@
-From 7a125b2e22a810f82755fe7c3c0c0f5ab316cb64 Mon Sep 17 00:00:00 2001
+From b73eb29c00d1f94afca2fbeba600f1ccdc168f19 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Mon, 26 Jan 2015 19:07:59 +0100
-Subject: [PATCH 01/27] busybox: make ntpd prefer IPv6 addresses
+Subject: [PATCH 01/33] busybox: make ntpd prefer IPv6 addresses
 
 ntpd uses host2sockaddr to get the first address returned by DNS and does so only once.
 Since the first address is often an IPv4 address, this causes ntpd to fail in IPv6 only environments.
@@ -91,5 +91,5 @@ index 0000000..1168261
 + 
 + #define PROBE_LOCAL_ADDR /* { len_and_sockaddr lsa; lsa.len = LSA_SIZEOF_SA; getsockname(p->query.fd, &lsa.u.sa, &lsa.len); } */
 -- 
-2.1.4
+2.8.0
 

@@ -1,7 +1,7 @@
-From b3e2a210c33f9f08a06d0bfd356180ad102c06d1 Mon Sep 17 00:00:00 2001
+From 1ccc18383eac7a66f707316a8d0319c92dc2878e Mon Sep 17 00:00:00 2001
 From: Neal Oakey <neal.oakey@bingo-ev.de>
 Date: Sun, 14 Feb 2016 20:58:20 +0100
-Subject: [PATCH 16/27] fix UBNT XM model detection
+Subject: [PATCH 17/33] fix UBNT XM model detection
 
 Signed-off-by: Neal Oakey <neal.oakey@bingo-ev.de>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Neal Oakey <neal.oakey@bingo-ev.de>
  1 file changed, 37 insertions(+)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 5768286..7f50d8a 100755
+index dab4d2c..e7b3cd2 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -64,6 +64,40 @@ wndr3700_board_detect() {
@@ -77,5 +77,5 @@ index 5768286..7f50d8a 100755
  	*"Rocket M XW")
  		name="rocket-m-xw"
 -- 
-2.1.4
+2.8.0
 

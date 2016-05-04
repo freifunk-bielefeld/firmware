@@ -1,11 +1,15 @@
 #!/usr/bin/haserl
 <% echo -en "content-type: text/html\r\n\r\n" %>
 <!DOCTYPE html>
-<html lang="de"><head>
+<html lang="de">
+<head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>info</title>
+<%
+name="$(uci get -q freifunk.@settings[0].name)"
+echo -n "<title>Freifunk${name:+ - $name}</title>"
+%>
 	<link rel="stylesheet" href="/css/pure-min.css">
 	<link rel="stylesheet" href="/css/side-menu.css">
 	<link rel="stylesheet" href="/css/grids-responsive-min.css">
@@ -59,19 +63,7 @@ echo "		<h1>$(uci get -q freifunk.@settings[0].name)</h1>"
 	</div>
 
 <%
-ula_addr()
-{
-	local prefix=$1 mac=$2 a=""
-
-	mac=${mac//:/} # remove ':'
-	mac=${mac:0:6}fffe${mac:6:6} # insert ffee
-	mac=$(echo $mac | sed 's/..../&:/g') # insert ':'
-
-	# assemble IPv6 address
-	echo "${prefix%%::*}:${mac%?}"
-}
-
-ula_prefix="$(uci get network.globals.ula_prefix)"
+. /lib/ff_shared.sh
 
 echo '	<div class="content">'
 echo '		<h2 class="content-subhead">Nachbarknoten:</h2>'
@@ -81,7 +73,7 @@ macs="$(cat /sys/kernel/debug/batman_adv/bat0/neighbors | awk '{if(NR>2 && NF==3
 if [ -n "$macs" ]; then
 	i=1
 	for mac in $macs; do
-		echo "			<li><h3><a href=\"http://[$(ula_addr $ula_prefix $mac)]\">Nachbarknoten $i</a></h3></li>"
+		echo "			<li><h3><a href=\"http://[$(ula_addr $mac)]\" class=\"neighbor\">Nachbarknoten $i</a></h3></li>"
 		i=$((i+1))
 	done
 else
@@ -107,5 +99,60 @@ if [ -n "$max" -a "$max" != "0" ]; then
 	echo '	</div>'
 fi
 %>
+
+<script>
+
+var own_data = <% /usr/sbin/print_map.sh %>;
+
+function createCORSRequest(method, url) {
+	var xhr = new XMLHttpRequest();
+	if ("withCredentials" in xhr) {
+		// XHR for Chrome/Firefox/Opera/Safari.
+		xhr.open(method, url, true);
+	} else if (typeof XDomainRequest != "undefined") {
+		// XDomainRequest for IE.
+		xhr = new XDomainRequest();
+		xhr.open(method, url);
+	} else {
+		// CORS not supported.
+		xhr = null;
+	}
+	return xhr;
+}
+
+var neighbors = document.getElementsByClassName("neighbor");
+Array.prototype.forEach.call(neighbors, function(el) {
+	var xhr = createCORSRequest('GET', el.href + "/cgi-bin/data");
+	xhr.onload = function() {
+		var neigh_data = JSON.parse(xhr.responseText);
+
+		// set node name
+		if('name' in neigh_data) {
+			el.textContent = neigh_data.name;
+		}
+
+		// add connection quality
+		var qual = -1;
+		if('links' in neigh_data && 'links' in own_data) {
+			Array.prototype.forEach.call(neigh_data.links, function(neigh_link) {
+				Array.prototype.forEach.call(own_data.links, function(own_link) {
+					if(own_link.dmac == neigh_link.smac) {
+						qual = Math.max(qual, own_link.qual, neigh_link.qual);
+					}
+				});
+			});
+		}
+
+		if(qual > 0)
+		{
+			var e = document.createTextNode(" (" + (100. * qual / 255.).toFixed(0) + "%)");
+			el.parentNode.appendChild(e);
+		}
+	};
+
+	xhr.send();
+});
+</script>
+
 </body>
 </html>

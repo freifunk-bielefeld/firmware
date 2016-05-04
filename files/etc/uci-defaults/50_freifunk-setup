@@ -264,23 +264,24 @@ initial_setup()
 	# M I S C  S E T U P #
 	# ------------------------------------- #
 
-	#special WR1043v2 switch fixup for the webui
-	if [ "$(cat /tmp/sysinfo/model)" = "TP-Link TL-WR1043N/ND v2" ]; then
-		uci set network.@switch_vlan[-2].ports="1 2 3 4 0t"
-		uci set network.@switch_vlan[-1].ports="5 0t"
-		uci set network.lan.ifname="eth1.1"
-		uci set network.wan.ifname="eth1.2"
-		uci commit network
-	fi
-
-	#special Archer C7 v2 switch fixup for the webui
-	if [ "$(cat /tmp/sysinfo/model)" = "TP-Link Archer C7 v2" ]; then
-		uci set network.@switch_vlan[-2].ports="2 3 4 5 0t"
-		uci set network.@switch_vlan[-1].ports="1 6 0t"
-		uci set network.lan.ifname="eth1.1"
-		uci set network.wan.ifname="eth1.2"
-		uci commit network
-	fi
+	case "$(cat /tmp/sysinfo/model)" in
+		"TP-Link TL-WR1043N/ND v2" | "TP-Link TL-WR1043N/ND v3")
+			#special WR1043v2 switch fixup for the webui
+			uci set network.@switch_vlan[-2].ports="1 2 3 4 0t"
+			uci set network.@switch_vlan[-1].ports="5 0t"
+			uci set network.lan.ifname="eth1.1"
+			uci set network.wan.ifname="eth1.2"
+			uci commit network
+			;;
+		"TP-Link Archer C7 v2")
+			#special Archer C7 v2 switch fixup for the webui
+			uci set network.@switch_vlan[-2].ports="2 3 4 5 0t"
+			uci set network.@switch_vlan[-1].ports="1 6 0t"
+			uci set network.lan.ifname="eth1.1"
+			uci set network.wan.ifname="eth1.2"
+			uci commit network
+			;;
+	esac
 
 	#allow access of the local node using a common IP address
 	initial_local_node_setup
@@ -362,8 +363,8 @@ update_051_to_060()
 	# update fastd configuration
 	cp /rom/etc/config/fastd /etc/config/fastd
 
-	local geo="$(uci get freifunk.@settings[0].geo)"
-	local publish_map="$(uci get freifunk.@settings[0].publish_map)"
+	local geo="$(uci get -q freifunk.@settings[0].geo)"
+	local publish_map="$(uci get -q freifunk.@settings[0].publish_map)"
 
 	# replace geo by latitude / longitude
 	[  -n "$geo" ] && {
@@ -415,8 +416,21 @@ update_051_to_060()
 	config_load network
 	config_list_foreach freifunk ip6addr remove_ula
 
-
 	uci commit network
+}
+
+update_060_to_061()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+}
+
+update_061_to_062()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 }
 
 start()
@@ -443,11 +457,26 @@ start()
 			echo "(I) Apply update."
 			update_050_to_051
 			update_051_to_060
+			update_060_to_061
+			update_061_to_062
 			update_version
 			;;
 		"0.5.1")
 			echo "(I) Apply update."
 			update_051_to_060
+			update_060_to_061
+			update_061_to_062
+			update_version
+			;;
+		"0.6.0")
+			echo "(I) Apply update."
+			update_060_to_061
+			update_061_to_062
+			update_version
+			;;
+		"0.6.1")
+			echo "(I) Apply update."
+			update_061_to_062
 			update_version
 			;;
 		"")

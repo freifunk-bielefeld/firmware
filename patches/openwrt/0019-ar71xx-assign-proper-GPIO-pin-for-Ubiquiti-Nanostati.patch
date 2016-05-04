@@ -1,7 +1,7 @@
-From 86eec02f01d40bdfbc0d0e97d3db15d3bb3e0c0f Mon Sep 17 00:00:00 2001
+From aa52f0b8d3df04c86901c788569144dc6ffa80a6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 7 Mar 2016 06:07:59 +0100
-Subject: [PATCH 18/27] ar71xx: assign proper GPIO pin for Ubiquiti Nanostation
+Subject: [PATCH 19/33] ar71xx: assign proper GPIO pin for Ubiquiti Nanostation
  models
 
 The GPIO pins for "POE passthrough" of Ubiquiti Nanostation models are the
@@ -36,5 +36,5 @@ index 81d3982..b41f275 100644
  cpe510)
  	ucidef_set_gpio_switch "poe_passthrough" "PoE Passthrough" "20"
 -- 
-2.1.4
+2.8.0
 

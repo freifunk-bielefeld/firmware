@@ -1,11 +1,10 @@
-From d783e5b069706b5ecfaa8933bc2e748ba1ac08ee Mon Sep 17 00:00:00 2001
+From 8df9cc973d729ccf6c0e78253a7c737b7ca04dee Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Mon, 11 Apr 2016 23:13:37 +0200
-Subject: [PATCH 28/28] Revert "iw: update to version 4.3, sync with trunk
+Date: Wed, 27 Apr 2016 21:20:31 +0200
+Subject: [PATCH 03/33] Revert "iw: update to version 4.3, sync with trunk
  r47782"
 
 This reverts commit ef4fd44d30e03fc2e2d88373bb98e8b4d973d4a1.
-iw 4.3 does not seem to find 802.11s networks.
 ---
  package/network/utils/iw/Makefile                  |   4 +-
  .../utils/iw/patches/001-nl80211_h_sync.patch      | 731 ++++++++++++++++++---

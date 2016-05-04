@@ -2,7 +2,7 @@
 
 <html>
 <head>
-<title>Freifunk</title>
+<title id="title">Freifunk</title>
 <meta charset="utf-8"/>
 <link rel="stylesheet" type="text/css" href="style.css" />
 <script src="shared.js"></script>
@@ -92,13 +92,21 @@ function reboot() {
 	});
 }
 
+function setTitle() {
+	send("/cgi-bin/misc", { func : "name" }, function(name) {
+		if(name.length) {
+			$("title").textContent += " - " + name;
+		}
+	});
+}
+
 function logout() {
 	window.location="https://none@" + window.location.host;
 }
 </script>
 
 </head>
-<body onload="preselect();">
+<body onload="preselect(); setTitle();">
 
 <ul id="globalnav">
 	<li><a href="home.html" id="first">Home</a></li>
