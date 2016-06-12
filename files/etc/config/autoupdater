@@ -1,6 +1,6 @@
 config autoupdater settings
 	option enabled 1
-	option branch "bielefeld"
+	option branch "stable
 
 config branch stable
 	# The branch name given in the manifest
