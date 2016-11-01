@@ -37,6 +37,15 @@ body {
 	text-align: center;
 }
 
+#wifiscan_table {
+	border: none;
+	white-space: nowrap;
+}
+
+#wifiscan_table td {
+	padding: 2px 10px;
+}
+
 #wifiscan td:nth-of-type(1) {
 	text-align: left;
 }
