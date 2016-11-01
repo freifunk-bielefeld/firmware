@@ -1,7 +1,7 @@
-From 54e63268f4a6bb6b801146338d342a878874373c Mon Sep 17 00:00:00 2001
+From a9a23332273142176e97f33035a3d4b08805a191 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 1 Nov 2016 01:56:36 +0100
-Subject: [PATCH 1/5] batman-adv: update to 2016.4
+Subject: [PATCH 1/6] batman-adv: update to 2016.4
 
 ---
  batman-adv/Config.in                               |   5 +
@@ -1929,5 +1929,5 @@ index fa61a1b..0000000
 - 
 - void batadv_schedule_bat_ogm(struct batadv_hard_iface *hard_iface)
 -- 
-2.10.1
+2.10.2
 

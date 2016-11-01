@@ -1,7 +1,7 @@
-From 79d5795448b3e68aa456978ddcb494abde13cdc1 Mon Sep 17 00:00:00 2001
+From c1b3fa1d3ae9fc58665fc40e8edabe846c63e51f Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 7 Jan 2015 16:45:09 +0100
-Subject: [PATCH 3/5] alfred: adjust intervals
+Subject: [PATCH 3/6] alfred: adjust intervals
 
 ---
  alfred/patches/0001-alfred-adjust-intervals.patch | 15 +++++++++++++++
@@ -30,5 +30,5 @@ index 0000000..a5860db
 + #define ALFRED_SOCK_PATH_DEFAULT	"/var/run/alfred.sock"
 + #define NO_FILTER			-1
 -- 
-2.10.1
+2.10.2
 

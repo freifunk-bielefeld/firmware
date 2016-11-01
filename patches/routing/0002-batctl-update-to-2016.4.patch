@@ -1,7 +1,7 @@
-From 3dfc908b11b87bd6d6dba703a2fb305fa8bbaada Mon Sep 17 00:00:00 2001
+From 7e0fa41d52097d440ccce54b29d6019c59b8be0d Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 1 Nov 2016 01:57:26 +0100
-Subject: [PATCH 2/5] batctl: update to 2016.4
+Subject: [PATCH 2/6] batctl: update to 2016.4
 
 ---
  batctl/Makefile | 9 +++++----
@@ -35,5 +35,5 @@ index 818e345..7ae81b5 100644
  MAKE_BATCTL_ARGS += \
          REVISION="$(PKG_BATCTL_SHORTREV)" \
 -- 
-2.10.1
+2.10.2
 

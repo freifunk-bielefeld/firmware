@@ -1,7 +1,7 @@
-From 79c357373b0c87308d4829733bfdf88e3cc4f7a2 Mon Sep 17 00:00:00 2001
+From 39d6496918c0c2df27ad2f31f45034dbbffc5262 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 6 Aug 2015 21:29:47 +0200
-Subject: [PATCH 5/5] batman-adv: decrease maximum fragment size
+Subject: [PATCH 5/6] batman-adv: decrease maximum fragment size
 
 ---
  ...batman-adv-decrease-maximum-fragment-size.patch | 28 ++++++++++++++++++++++
@@ -43,5 +43,5 @@ index 0000000..a97146b
 +2.8.3
 +
 -- 
-2.10.1
+2.10.2
 
