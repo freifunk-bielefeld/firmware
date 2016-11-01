@@ -7,6 +7,7 @@ if [ "$INTERFACE" = "bat0" ]; then
 	. /lib/ff_shared.sh
 
 	macaddr="$(cat /sys/kernel/debug/batman_adv/bat0/originators | awk -F'[/ ]' '{print $7; exit;}')"
-	ipaddr="$(ula_addr $macaddr)"
+	prefix="$(uci get network.globals.ula_prefix)"
+	ipaddr="$(ula_addr $prefix $macaddr)"
 	ip a a "$ipaddr/64" dev br-freifunk
 fi
