@@ -1,7 +1,7 @@
-From a1113cc23c97ec590bbce995f205e66727bb7607 Mon Sep 17 00:00:00 2001
+From 79d5795448b3e68aa456978ddcb494abde13cdc1 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 7 Jan 2015 16:45:09 +0100
-Subject: [PATCH 2/4] alfred: adjust intervals
+Subject: [PATCH 3/5] alfred: adjust intervals
 
 ---
  alfred/patches/0001-alfred-adjust-intervals.patch | 15 +++++++++++++++
@@ -10,13 +10,13 @@ Subject: [PATCH 2/4] alfred: adjust intervals
 
 diff --git a/alfred/patches/0001-alfred-adjust-intervals.patch b/alfred/patches/0001-alfred-adjust-intervals.patch
 new file mode 100644
-index 0000000..df70eea
+index 0000000..a5860db
 --- /dev/null
 +++ b/alfred/patches/0001-alfred-adjust-intervals.patch
 @@ -0,0 +1,15 @@
 +--- a/alfred.h
 ++++ b/alfred.h
-+@@ -33,10 +33,10 @@
++@@ -34,10 +34,10 @@
 + #include "list.h"
 + #include "packet.h"
 + 
@@ -30,5 +30,5 @@ index 0000000..df70eea
 + #define ALFRED_SOCK_PATH_DEFAULT	"/var/run/alfred.sock"
 + #define NO_FILTER			-1
 -- 
-2.8.0
+2.10.1
 
