@@ -1,0 +1,28 @@
+From 4d674db92dcbe198f16a7541c47724c9a1b5f0db Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Sun, 24 Apr 2016 08:48:45 +0200
+Subject: [PATCH 29/78] build: add locking for downloads (fixes race conditions
+ with multiple variants)
+
+Signed-off-by: Felix Fietkau <nbd@openwrt.org>
+
+Backport of r48416
+---
+ include/download.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/download.mk b/include/download.mk
+index e518cce..9176b11 100644
+--- a/include/download.mk
++++ b/include/download.mk
+@@ -182,6 +182,6 @@ define Download
+ 
+   $(DL_DIR)/$(FILE):
+ 	mkdir -p $(DL_DIR)
+-	$(if $(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/unknown))
++	$(call locked,$(if $(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/$(call dl_method,$(URL),$(PROTO))),$(DownloadMethod/unknown)),$(FILE))
+ 
+ endef
+-- 
+2.10.1
+
