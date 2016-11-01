@@ -14,8 +14,8 @@ Install dependencies for the build environment (Debian/Ubuntu):
 
 Build commands for the console:
 
-    git clone git://git.openwrt.org/15.05/openwrt.git
-    cd openwrt
+    git clone https://github.com/openwrt/openwrt.git && cd openwrt
+    git reset --hard b21852c60f82bbd53c19098fc0eb1f4cfccfaf35
     
     ./scripts/feeds update -a
     ./scripts/feeds install -a
