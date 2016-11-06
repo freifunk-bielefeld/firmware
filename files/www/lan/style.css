@@ -17,7 +17,6 @@ body {
 	color: #34495e;
 }
 
-
 /* specific */
 
 .mac {
@@ -129,6 +128,9 @@ button {
 	padding: 0.1em;
 	border-radius: 2px;
 	padding: 0.2em;
+}
+
+#body > button {
 	margin: 0.5em;
 }
 
