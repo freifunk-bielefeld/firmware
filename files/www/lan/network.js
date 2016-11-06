@@ -670,6 +670,7 @@ function collect_switch_info(device)
 			break;
 		case 'tp-link-tl-wr841n-nd-v9':
 		case 'tp-link-tl-wr841n-nd-v10':
+		case 'tp-link-tl-wr841n-nd-v11':
 			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
 			break;
 		case 'tp-link-tl-wr842n-nd-v1':
