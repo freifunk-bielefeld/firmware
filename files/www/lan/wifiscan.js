@@ -9,6 +9,18 @@ function append_td(tr, value) {
 	append(tr, 'td').innerHTML = value ? value : "?";
 }
 
+
+function signalToQuality(signal) {
+	var dBm = parseFloat(signal);
+	if(dBm <= -100) {
+		return 0;
+	} else if(dBm >= -50) {
+		return 100;
+	} else {
+		return (2 * (dBm + 100));
+	}
+}
+
 function wifi_scan()
 {
 	var s = $('wifiscan_selection');
@@ -34,7 +46,7 @@ function wifi_scan()
 			append_td(tr, mesh_id ? mesh_id : ssid);
 			append_td(tr, bss);
 			append_td(tr, channel);
-			append_td(tr, signal);
+			append_td(tr, signal + " (" + signalToQuality(signal) + "%)");
 
 			//determine the wifi mode
 			if(mesh_id) {
