@@ -82,6 +82,7 @@ function preselect() {
 		if(n.getAttribute("href") != '#')
 			n.onclick = nav_onclick;
 	});
+	// Select the first tab.
 	$("first").onclick();
 }
 
@@ -118,6 +119,9 @@ function logout() {
 	<li><a href="#" onclick="reboot()">Neustart</a></li>
 	<li><a href="#" onclick="logout()">Logout</a></li>
 	<li><a href="#" onclick="adv_toggle(this)">Erweitert: Aus</a></li>
+	<li class="icon">
+		<a href="#" style="font-size:15px;" onclick="$('globalnav').classList.toggle('responsive')">☰</a>
+	</li>
 </ul>
 <br>
 <pre id="msg" tabindex="-1"></pre>
