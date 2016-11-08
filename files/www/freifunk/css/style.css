@@ -1,3 +1,4 @@
+
 * {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -5,74 +6,158 @@
 }
 
 body {
-	line-height: 1.7em;
-	color: #7f8c8d;
 	font-size: 13px;
+	line-height: 1.7em;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-label {
+h1, h2, h3, h4, h5, h6, label {
 	color: #34495e;
 }
 
-.pure-img-responsive {
-	max-width: 100%;
-	height: auto;
+h2 {
+	font-size: 1.5em;
+	margin: .83em 0;
 }
 
-.pure-button {
-	background-color: #1f8dd6;
-	color: white;
-	padding: 0.5em 2em;
-	border-radius: 5px;
+h3 {
+	font-size: 1.17em;
+	margin: 1em 0;
 }
 
-a.pure-button-primary {
-	background: white;
-	color: #1f8dd6;
-	border-radius: 5px;
-	font-size: 120%;
-}
-
-.home-menu {
-	padding: 0.5em;
+.header {
+	margin: 0;
+	color: #333;
 	text-align: center;
+	padding: 2.5em 2em 0;
+	border-bottom: 1px solid #eee;
+}
+
+.header h1 {
+	margin: 0.2em 0;
+	font-size: 3em;
+	font-weight: 300;s
+}
+
+.header h2 {
+	font-weight: 300;
+	color: #ccc;
+	padding: 0;
+	margin-top: 0;
+}
+
+.pure-g {
+	text-align: center;
+	font-family: FreeSans,Arimo,"Droid Sans",Helvetica,Arial,sans-serif;
+	display: -webkit-flex;
+	-webkit-flex-flow: row wrap;
+}
+
+.pure-u-md-1-3 {
+	letter-spacing: normal;
+	word-spacing: normal;
+	vertical-align: top;
+	width: 33.3333%;
+}
+
+.menu {
+	border: 0;
+	border-bottom: 1px solid #b7b7b7;
+	padding: 0.5em;
 	box-shadow: 0 1px 1px rgba(0,0,0, 0.10);
-}
-
-.home-menu.pure-menu-open {
+	text-align: left;
 	background: #2d3e50;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
 }
 
-.home-menu .pure-menu-heading {
+.community {
+	text-transform: uppercase;
+}
+
+.menu li {
+	list-style-type: none;
+}
+
+.menu li a:hover, .menu li a:focus {
+	background: none;
+	color: #AECFE5;
+}
+
+.menu .community {
 	color: white;
 	font-weight: 400;
 	font-size: 120%;
 }
 
-.home-menu .pure-menu-selected a {
-	color: white;
+.menu li a {
+	padding: 5px 20px;
 }
 
-.home-menu a {
+.menu a {
 	color: #6FBEF3;
+	border: 1px solid transparent;
+	border-left: 0;
+	border-right: 0;
 }
 
-.home-menu li a:hover,
-.home-menu li a:focus {
-	background: none;
-	color: #AECFE5;
+.menu a, .menu .community {
+	display: block;
+	line-height: 1.5em;
+	text-decoration: none;
+	padding: 5px 20px;
+	white-space: nowrap;
 }
 
-.home-menu {
-	text-align: left;
+.menu > .community {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
 }
 
-.home-menu ul {
+.menu ul {
+	display: inline-block;
+	vertical-align: middle;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+	z-index: 1;
 	float: right;
+}
+
+.menu li {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.content {
+	margin: 0 auto;
+	padding: 0 2em;
+	max-width: 800px;
+	margin-bottom: 50px;
+	line-height: 1.6em;
+	color: #444;
+}
+
+.content-subhead {
+	margin: 50px 0 20px 0;
+	font-weight: 300;
+	color: #888;
+}
+
+.login-button {
+	background-color: #1f8dd6;
+	color: white;
+	padding: 0.5em 2em;
+	border-radius: 5px;
+	border: 0;
+	display: inline-block;
+	line-height: normal;
+	white-space: nowrap;
+	vertical-align: baseline;
+	text-align: center;
+	cursor: pointer;
+	user-select: none;
 }
