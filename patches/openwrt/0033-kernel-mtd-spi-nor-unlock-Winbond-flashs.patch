@@ -1,7 +1,7 @@
-From be183a899cb79784289d3ae343586891f98f5822 Mon Sep 17 00:00:00 2001
+From 5622901faabdc418424ea6150052a63747a62149 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 7 May 2016 00:29:06 +0200
-Subject: [PATCH 33/78] kernel: mtd: spi-nor: unlock Winbond flashs
+Subject: [PATCH 33/77] kernel: mtd: spi-nor: unlock Winbond flashs
 
 ---
  ...spi-nor-fix-Spansion-regressions-aliased-.patch | 46 ++++++++++++++++++++++
@@ -61,5 +61,5 @@ index 0000000..4682b7a
 + /*
 +  * Note on opcode nomenclature: some opcodes have a format like
 -- 
-2.10.1
+2.10.2
 

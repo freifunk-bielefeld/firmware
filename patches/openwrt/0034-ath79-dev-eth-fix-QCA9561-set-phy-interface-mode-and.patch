@@ -1,7 +1,7 @@
-From fc4d0eb775bb06911aa3b713691e2f376ef547c3 Mon Sep 17 00:00:00 2001
+From 8adaf59a17667c4a4d0e65f8925dcd70582b5637 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 20:59:44 +0200
-Subject: [PATCH 34/78] ath79: dev-eth: fix QCA9561 set phy interface mode and
+Subject: [PATCH 34/77] ath79: dev-eth: fix QCA9561 set phy interface mode and
  mask
 
 QCA9563 and QCA9561 are two series of Qualcomm SoC Dragonfly. The only different
@@ -50,5 +50,5 @@ index ff94e2e..31d2438 100644
  			pdata->reset_bit = AR933X_RESET_GE1_MAC |
  					   AR933X_RESET_GE1_MDIO;
 -- 
-2.10.1
+2.10.2
 

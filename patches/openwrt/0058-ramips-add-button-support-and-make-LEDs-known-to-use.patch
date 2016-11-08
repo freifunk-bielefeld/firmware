@@ -1,7 +1,7 @@
-From 6829cdc198533ebc3b613b87baf65b97ccd54507 Mon Sep 17 00:00:00 2001
+From f6c32f3b3e5af1bcd8521dd306be575fa107f76c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 30 Jun 2016 15:18:03 +0200
-Subject: [PATCH 58/78] ramips: add button support and make LEDs known to
+Subject: [PATCH 58/77] ramips: add button support and make LEDs known to
  userspace for DIR-860L B1
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
@@ -62,5 +62,5 @@ index 2582b3d..c0bcc86 100644
  	};
  };
 -- 
-2.10.1
+2.10.2
 

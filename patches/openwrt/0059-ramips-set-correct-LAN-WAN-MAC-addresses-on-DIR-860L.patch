@@ -1,7 +1,7 @@
-From 2c96a87ee41b00ffb5adf53d42fe18d1f732c6a4 Mon Sep 17 00:00:00 2001
+From d620e30afade9ba2ba9b89741f0282a8eb4b1361 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 30 Jun 2016 16:16:30 +0200
-Subject: [PATCH 59/78] ramips: set correct LAN/WAN MAC addresses on DIR-860L
+Subject: [PATCH 59/77] ramips: set correct LAN/WAN MAC addresses on DIR-860L
  B1
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
@@ -26,5 +26,5 @@ index a78912d..4e6e507 100755
  		wan_mac=$(mtd_get_mac_ascii config WAN_MAC_ADDR)
  		;;
 -- 
-2.10.1
+2.10.2
 

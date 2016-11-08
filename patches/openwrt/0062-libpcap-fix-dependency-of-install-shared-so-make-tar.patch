@@ -1,7 +1,7 @@
-From beeac813d64bb2b3f54cdacd2a5931417d4ae8b2 Mon Sep 17 00:00:00 2001
+From 215990a7b82d7f429797b26e98b0be37b0ce6144 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 21 Jul 2016 17:45:26 +0200
-Subject: [PATCH 63/78] libpcap: fix dependency of install-shared-so make
+Subject: [PATCH 62/77] libpcap: fix dependency of install-shared-so make
  target
 
 There seems to be a situation in which a rebuild of libpcap.so is triggered
@@ -49,5 +49,5 @@ index b294e51..f8df7f3 100644
   	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
  -	VER=`cat $(srcdir)/VERSION`; \
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From dc5b86e8be4f29166b1c88cd6c668922f44f4a7a Mon Sep 17 00:00:00 2001
+From c7e090f41516f3d35dba5d611060fc8ab215e9d9 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 30 Jun 2016 21:52:02 +0200
-Subject: [PATCH 56/78] mt76: fix build with kernel 3.18
+Subject: [PATCH 56/77] mt76: fix build with kernel 3.18
 
 ---
  package/kernel/mac80211/patches/945-netdev_alloc_frag.patch | 11 +++++++++++
@@ -40,5 +40,5 @@ index bd851e6..989ba0c 100644
  	$(PKG_BUILD_DIR)/mt76.ko \
  	$(PKG_BUILD_DIR)/mt76x2e.ko \
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From e89a225e2ce2cb1a2a705e3fad33bb1bbd95396a Mon Sep 17 00:00:00 2001
+From 112cfc75ece111fe075418ffa2ee8366b9024a2a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 22 Aug 2016 23:55:22 +0200
-Subject: [PATCH 71/78] ar71xx: Added support for TL-WA801NDv3
+Subject: [PATCH 70/77] ar71xx: Added support for TL-WA801NDv3
 
 Signed-off-by: Tiziano Bacocco <tizbac2@gmail.com>
 
@@ -18,10 +18,10 @@ Backport of OpenWrt r48705
  create mode 100644 target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wa801nd-v3.c
 
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-index dd6ca98..e6b129a 100755
+index 6c3ecf5..027a671 100755
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-@@ -376,6 +376,7 @@ wp543)
+@@ -377,6 +377,7 @@ wp543)
  	ucidef_set_interface_lan "eth0"
  	;;
  
@@ -30,10 +30,10 @@ index dd6ca98..e6b129a 100755
  	ucidef_set_interface_lan "eth1"
  	;;
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 47ddd56..7641e63 100755
+index 51102d6..83be329 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-@@ -835,6 +835,9 @@ ar71xx_board_detect() {
+@@ -838,6 +838,9 @@ ar71xx_board_detect() {
  	*"TL-WA801ND v2")
  		name="tl-wa801nd-v2"
  		;;
@@ -44,10 +44,10 @@ index 47ddd56..7641e63 100755
  		name="tl-wa901nd"
  		;;
 diff --git a/target/linux/ar71xx/config-3.18 b/target/linux/ar71xx/config-3.18
-index 0903ee9..c75833d 100644
+index d4d9273..d7cbe2e 100644
 --- a/target/linux/ar71xx/config-3.18
 +++ b/target/linux/ar71xx/config-3.18
-@@ -119,6 +119,7 @@ CONFIG_ATH79_MACH_TL_MR3020=y
+@@ -120,6 +120,7 @@ CONFIG_ATH79_MACH_TL_MR3020=y
  CONFIG_ATH79_MACH_TL_MR3X20=y
  CONFIG_ATH79_MACH_TL_WA701ND_V2=y
  CONFIG_ATH79_MACH_TL_WA7210N_V2=y
@@ -198,7 +198,7 @@ index 0000000..39cdb10
 +MIPS_MACHINE(ATH79_MACH_TL_WA801ND_V3, "TL-WA801ND-v3", "TP-LINK TL-WA801ND v3",
 +	     tl_wa801n_v3_setup);
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index b288a1d..dfc0d71 100644
+index bb2bb94..868a502 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -691,6 +691,13 @@ define Device/tl-wa801nd-v2
@@ -577,5 +577,5 @@ index 6df869d..9785a3f 100644
  }
 -
 -- 
-2.10.1
+2.10.2
 

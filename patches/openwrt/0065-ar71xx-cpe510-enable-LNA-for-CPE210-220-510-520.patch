@@ -1,7 +1,7 @@
-From 6752d74194b895ba60c1dd2f11f628c72d0025da Mon Sep 17 00:00:00 2001
+From 92222edb9fe1a8bc2260062dff85c5fbffd2cd53 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 9 Jun 2016 04:39:08 +0200
-Subject: [PATCH 66/78] ar71xx/cpe510: enable LNA for CPE210/220/510/520
+Subject: [PATCH 65/77] ar71xx/cpe510: enable LNA for CPE210/220/510/520
 
 The LNA improves the rx path. Within a simple test setup
 it improved the signal from -60dbm to -40dbm.
@@ -38,5 +38,5 @@ index 8bf5c0f..5cb052a 100644
  
  	ath79_register_mdio(1, 0);
 -- 
-2.10.1
+2.10.2
 

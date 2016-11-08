@@ -1,7 +1,7 @@
-From 6c2b77ec6fa8d11b91e328e57da5d555a5d34d45 Mon Sep 17 00:00:00 2001
+From f5e321b91427795134802fcab75831ff93a1568e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 22 Aug 2016 19:14:52 +0200
-Subject: [PATCH 70/78] dropbear: update to LEDE
+Subject: [PATCH 69/77] dropbear: update to LEDE
  277f85c21ae0ede4e15e66cbd801b9fb502531df
 
 Includes a few security updates and enables Curve25519 support.
@@ -453,5 +453,5 @@ index e2add94..da6b9ae 100644
   /* Some other defines (that mostly should be left alone) are defined
    * in sysoptions.h */
 -- 
-2.10.1
+2.10.2
 

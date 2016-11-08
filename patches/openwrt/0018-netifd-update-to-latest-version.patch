@@ -1,7 +1,7 @@
-From 831dd80907ec26e9cb02822f6afcdb3c9b425d77 Mon Sep 17 00:00:00 2001
+From 4f039a8eed8ad44f47e9d36a2fdc6418a7172ad2 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 29 Jul 2016 21:28:24 +0200
-Subject: [PATCH 18/78] netifd: update to latest version
+Subject: [PATCH 18/77] netifd: update to latest version
 
 ---
  package/network/config/netifd/Makefile                       |  6 +++---
@@ -108,5 +108,5 @@ index af3aaa8..5515b91 100755
  		/sbin/wifi up "$dev"
  	done
 -- 
-2.10.1
+2.10.2
 

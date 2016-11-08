@@ -1,7 +1,7 @@
-From ca675cca24c4a91610d3528588f83e84d9c05b65 Mon Sep 17 00:00:00 2001
+From fb07cc5a54647c341a36df76b6f5589ba413f906 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 20 May 2015 23:15:20 +0200
-Subject: [PATCH 10/78] iwinfo: update NanoStation (Loco) txpower offsets
+Subject: [PATCH 10/77] iwinfo: update NanoStation (Loco) txpower offsets
 
 ---
  .../iwinfo/patches/001-update_nanostation_offsets.patch    | 14 ++++++++++++++
@@ -29,5 +29,5 @@ index 0000000..1e13570
 + 0x168c 0x002a 0x0777 0xe805    5      0  "Ubiquiti" "Bullet M5"
 + 0x168c 0x002a 0x0777 0xe345    0      0  "Ubiquiti" "WispStation M5" /* ToDo: confirm offset */
 -- 
-2.10.1
+2.10.2
 

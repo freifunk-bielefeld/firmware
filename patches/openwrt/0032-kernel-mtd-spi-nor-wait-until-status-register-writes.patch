@@ -1,7 +1,7 @@
-From 5a6c625569bdf710ebbcc382af159d6b52ebde00 Mon Sep 17 00:00:00 2001
+From 5e0f0eb3576d63e2312e4d27316acc5c68518336 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 7 May 2016 00:17:55 +0200
-Subject: [PATCH 32/78] kernel: mtd: spi-nor: wait until status register writes
+Subject: [PATCH 32/77] kernel: mtd: spi-nor: wait until status register writes
  are ready
 
 ---
@@ -123,5 +123,5 @@ index 0000000..a0573d5
 + 
 + 	if (!mtd->name)
 -- 
-2.10.1
+2.10.2
 

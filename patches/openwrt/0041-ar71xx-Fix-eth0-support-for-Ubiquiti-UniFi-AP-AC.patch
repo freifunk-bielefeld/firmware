@@ -1,7 +1,7 @@
-From f98403b5db065c684ce903b9f7215a6651be0130 Mon Sep 17 00:00:00 2001
+From 0d72b11e57eb0559191e0d81e33c84cd20ce9954 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:02:55 +0200
-Subject: [PATCH 41/78] ar71xx: Fix eth0 support for Ubiquiti UniFi AP AC
+Subject: [PATCH 41/77] ar71xx: Fix eth0 support for Ubiquiti UniFi AP AC
 
 Fix eth0 support for the Ubiquiti UniFi AP AC
 Signed-off-by: Paul Wassi <p.wassi at gmx.at>
@@ -24,5 +24,5 @@ index 3617ca7..072cf12 100644
  	ath79_eth0_pll_data.pll_10 = 0x00001313;
  
 -- 
-2.10.1
+2.10.2
 

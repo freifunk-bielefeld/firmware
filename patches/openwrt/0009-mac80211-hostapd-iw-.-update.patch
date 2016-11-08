@@ -1,7 +1,7 @@
-From 043da5ee812397350b0ab506572e1ecdbbe5273d Mon Sep 17 00:00:00 2001
+From e7fd589c42a80d3b136a03adb951890ca40cffa3 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 11 Oct 2016 02:53:43 +0200
-Subject: [PATCH 09/78] mac80211, hostapd, iw, ...: update
+Subject: [PATCH 09/77] mac80211, hostapd, iw, ...: update
 
 The following package is updated to
 LEDE 6c2651566cce8f5b3a3d3b976439dee2bac5e07e:
@@ -242,7 +242,6 @@ LEDE 42f559ed70897a7b74dd3e6293b42e6d2e511eaa:
  .../patches/930-ath10k_add_tpt_led_trigger.patch   |   6 +-
  .../patches/936-ath10k_skip_otp_check.patch        |  51 ++
  package/kernel/mt76/Makefile                       |  23 +-
- package/kernel/mwlwifi/Makefile                    |   6 +-
  package/network/services/hostapd/Config.in         |   3 +-
  package/network/services/hostapd/Makefile          |  42 +-
  .../services/hostapd/files/hostapd-full.config     |   5 +-
@@ -311,7 +310,7 @@ LEDE 42f559ed70897a7b74dd3e6293b42e6d2e511eaa:
  .../ar71xx/files/arch/mips/ath79/dev-ap9x-pci.c    |  26 +
  .../ar71xx/files/arch/mips/ath79/dev-ap9x-pci.h    |  10 +
  .../generic/files/include/linux/ath9k_platform.h   |   9 +
- 292 files changed, 5484 insertions(+), 14519 deletions(-)
+ 291 files changed, 5481 insertions(+), 14516 deletions(-)
  delete mode 100644 package/kernel/acx-mac80211/patches/001-pci-mem-Fix-3.8-build.patch
  delete mode 100644 package/kernel/acx-mac80211/patches/003-Fix-3.10-build.patch
  delete mode 100644 package/kernel/acx-mac80211/patches/004-Fix-3.14-build.patch
@@ -20103,37 +20102,6 @@ index e49dd48..bd851e6 100644
  		$(PKG_BUILD_DIR)/firmware/mt7662_rom_patch.bin \
  		$(PKG_BUILD_DIR)/firmware/mt7662.bin \
  		$(1)/lib/firmware
-diff --git a/package/kernel/mwlwifi/Makefile b/package/kernel/mwlwifi/Makefile
-index f59943d..b36486d 100644
---- a/package/kernel/mwlwifi/Makefile
-+++ b/package/kernel/mwlwifi/Makefile
-@@ -8,7 +8,7 @@
- include $(TOPDIR)/rules.mk
- 
- PKG_NAME:=mwlwifi
--PKG_VERSION:=10.3.0.18-20160804
-+PKG_VERSION:=10.3.0.18-20160823-1
- PKG_RELEASE=1
- 
- PKG_LICENSE:=ISC
-@@ -17,7 +17,7 @@ PKG_LICENSE_FILES:=
- PKG_SOURCE_URL:=https://github.com/kaloz/mwlwifi
- PKG_SOURCE_PROTO:=git
- PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
--PKG_SOURCE_VERSION:=d48847cc83954930fdcd98818bbf33e75707b8e1
-+PKG_SOURCE_VERSION:=af606563453c819fac156faf2b15b9caef844329
- PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
- 
- PKG_MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
-@@ -29,7 +29,7 @@ include $(INCLUDE_DIR)/package.mk
- define KernelPackage/mwlwifi
-   SUBMENU:=Wireless Drivers
-   TITLE:=Marvell 88W8864 wireless driver
--  DEPENDS:=+kmod-mac80211 +@DRIVER_11N_SUPPORT @PCI_SUPPORT @TARGET_mvebu
-+  DEPENDS:=+kmod-mac80211 +@DRIVER_11N_SUPPORT +@DRIVER_11W_SUPPORT @PCI_SUPPORT @TARGET_mvebu
-   FILES:=$(PKG_BUILD_DIR)/mwlwifi.ko
-   AUTOLOAD:=$(call AutoLoad,50,mac80211 mwlwifi)
- endef
 diff --git a/package/network/services/hostapd/Config.in b/package/network/services/hostapd/Config.in
 index aee2a15..645888e 100644
 --- a/package/network/services/hostapd/Config.in
@@ -25211,5 +25179,5 @@ index 30ce216..2c19f3b 100644
  
  #endif /* _LINUX_ATH9K_PLATFORM_H */
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From 0a0f2e8434f16803ca1496985a287d352a544967 Mon Sep 17 00:00:00 2001
+From f1e560fa6bdbda1263a6aa8992f126a840350b87 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jun 2016 00:51:07 +0200
-Subject: [PATCH 52/78] linux: make IPv6 builtin if selected (saves >30KB)
+Subject: [PATCH 52/77] linux: make IPv6 builtin if selected (saves >30KB)
 
 Signed-off-by: Steven Barth <steven@midlink.org>
 
@@ -149,5 +149,5 @@ index 19a8df9..8fd51fe 100644
    VARIANT:=full
  endef
 -- 
-2.10.1
+2.10.2
 

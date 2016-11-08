@@ -1,7 +1,7 @@
-From 728c04f53e24fbf3075b958fc4df5df117349338 Mon Sep 17 00:00:00 2001
+From 8bdc2907d35a0f245cebaf44efe3f93a8e5d1a7a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 26 Jul 2014 06:10:23 +0200
-Subject: [PATCH 03/78] tools/Makefile: fix host tools build dependencies
+Subject: [PATCH 03/77] tools/Makefile: fix host tools build dependencies
 
 ---
  tools/Makefile | 10 ++++++++--
@@ -40,5 +40,5 @@ index d2fe2ff..c6cded8 100644
  # prerequisites for the individual targets
  $(curdir)/ := .config prereq
 -- 
-2.10.1
+2.10.2
 

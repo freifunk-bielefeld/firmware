@@ -1,7 +1,7 @@
-From 374a12438c272065c09fce63e10ce31c7a9aace8 Mon Sep 17 00:00:00 2001
+From 1ddd6b9f29603b996802425c77e72b43c9742a83 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:45:44 +0200
-Subject: [PATCH 28/78] rules.mk: make the locked template available even if
+Subject: [PATCH 28/77] rules.mk: make the locked template available even if
  flock has not been built yet (fall back to unlocked shell command)
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
@@ -36,5 +36,5 @@ index 9d0134d..ece5026 100644
  # Recursively copy paths into another directory, purge dangling
  # symlinks before.
 -- 
-2.10.1
+2.10.2
 

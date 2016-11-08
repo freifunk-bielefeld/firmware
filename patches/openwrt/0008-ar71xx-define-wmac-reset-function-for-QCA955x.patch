@@ -1,7 +1,7 @@
-From cce65f250b87115f95df46786503b1c635f501ca Mon Sep 17 00:00:00 2001
+From eded5b78750ccef1aea0cd9cc45a2bb129dff417 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 19 Jul 2016 17:48:53 +0200
-Subject: [PATCH 08/78] ar71xx: define wmac reset function for QCA955x
+Subject: [PATCH 08/77] ar71xx: define wmac reset function for QCA955x
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
@@ -89,5 +89,5 @@ index 0000000..4ac5acd
 +  * PLL block
 +  */
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From ebb8f66eaf9e1fd98350db0ce3403b6f09be7e32 Mon Sep 17 00:00:00 2001
+From 79e3fe167930a0917bd4e1703b9db77b27816c91 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 15 Jun 2016 19:31:49 +0200
-Subject: [PATCH 51/78] tools/cmake: fix parallel build with Make 4.2+
+Subject: [PATCH 51/77] tools/cmake: fix parallel build with Make 4.2+
 
 Avoid using the --parallel argument to the CMake bootstrap, as that doesn't
 allow us to remove the -j argument. Instead, pass the HOST_JOBS arguments
@@ -33,5 +33,5 @@ index 08e2b02..6c211de 100644
  
  $(eval $(call HostBuild))
 -- 
-2.10.1
+2.10.2
 

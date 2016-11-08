@@ -1,7 +1,7 @@
-From 73b899558d5c1683c80a7b2dcb35798d68398997 Mon Sep 17 00:00:00 2001
+From 4eef9450cccbcc0be1904e267a85435e9835272f Mon Sep 17 00:00:00 2001
 From: Neal Oakey <neal.oakey@bingo-ev.de>
 Date: Sun, 14 Feb 2016 20:58:20 +0100
-Subject: [PATCH 15/78] fix UBNT XM model detection
+Subject: [PATCH 15/77] fix UBNT XM model detection
 
 Signed-off-by: Neal Oakey <neal.oakey@bingo-ev.de>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Neal Oakey <neal.oakey@bingo-ev.de>
  1 file changed, 37 insertions(+)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 2f4b112..b220aad 100755
+index a9dca58..1985c88 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -64,6 +64,40 @@ wndr3700_board_detect() {
@@ -53,7 +53,7 @@ index 2f4b112..b220aad 100755
  cybertan_get_hw_magic() {
  	local part
  
-@@ -475,12 +509,14 @@ ar71xx_board_detect() {
+@@ -478,12 +512,14 @@ ar71xx_board_detect() {
  		;;
  	*"Bullet M")
  		name="bullet-m"
@@ -68,7 +68,7 @@ index 2f4b112..b220aad 100755
  		;;
  	*"Nanostation M XW")
  		name="nanostation-m-xw"
-@@ -682,6 +718,7 @@ ar71xx_board_detect() {
+@@ -685,6 +721,7 @@ ar71xx_board_detect() {
  		;;
  	*"Rocket M")
  		name="rocket-m"
@@ -77,5 +77,5 @@ index 2f4b112..b220aad 100755
  	*"Rocket M XW")
  		name="rocket-m-xw"
 -- 
-2.10.1
+2.10.2
 

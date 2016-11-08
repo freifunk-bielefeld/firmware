@@ -1,7 +1,7 @@
-From 4fd98dc2b377b74b0e82734ed0d4fb27f9e9825f Mon Sep 17 00:00:00 2001
+From cbc83a00b7866c66760e46498a4a365155efbaa5 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 5 Apr 2016 20:30:56 +0200
-Subject: [PATCH 25/78] xtables-addons: build: fix configure compatiblity with
+Subject: [PATCH 25/77] xtables-addons: build: fix configure compatiblity with
  POSIX shells
 
 ---
@@ -2033,5 +2033,5 @@ index d3b7caa..6a7a099 100644
 + 	IFS='.';
 + 	set x $krel;
 -- 
-2.10.1
+2.10.2
 

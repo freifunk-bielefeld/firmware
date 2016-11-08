@@ -1,7 +1,7 @@
-From b39d2e551c9f55fe4a6fec3a62a08d4344cb6b60 Mon Sep 17 00:00:00 2001
+From 2b0e5e90e02879edd56f25c6767329ce9c4d27e2 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 9 Jun 2016 05:02:18 +0200
-Subject: [PATCH 68/78] fw-utils/tplink-safeloader.c: Add support for Archer
+Subject: [PATCH 67/77] fw-utils/tplink-safeloader.c: Add support for Archer
  C2600
 
 Signed-off-by: Ash Benz <ash.benz@bk.ru>
@@ -192,5 +192,5 @@ index 77a894b..2e204aa 100644
  		error(1, 0, "unsupported board %s", board);
  
 -- 
-2.10.1
+2.10.2
 

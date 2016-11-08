@@ -1,7 +1,7 @@
-From b1b0d027a235f5b4a6028c3e07b0f919b7972df8 Mon Sep 17 00:00:00 2001
+From 17e076ab1bb32ebad1ed991dcab0571b0f5fb19b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 3 Jul 2016 19:15:49 +0200
-Subject: [PATCH 55/78] x86: stop relying on hexdump for image build signature
+Subject: [PATCH 55/77] x86: stop relying on hexdump for image build signature
 
 Use perl to generate random number instead.
 See https://github.com/freifunk-gluon/gluon/issues/811
@@ -27,5 +27,5 @@ index e7e02f1..6f64eba 100644
  ROOTPART:=$(if $(ROOTPART),$(ROOTPART),PARTUUID=$(SIGNATURE)-02)
  
 -- 
-2.10.1
+2.10.2
 

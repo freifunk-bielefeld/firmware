@@ -1,7 +1,7 @@
-From 0162b3b96e0252682e9f1efe66f3e2d262296690 Mon Sep 17 00:00:00 2001
+From cdafe8534bab4a6f06057fde4dc0ac072ca00836 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jun 2016 04:28:44 +0200
-Subject: [PATCH 53/78] package-ipkg.mk: fix Provides for packages with
+Subject: [PATCH 53/77] package-ipkg.mk: fix Provides for packages with
  multiple PROVIDES entries
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
@@ -25,5 +25,5 @@ index eb4c874..1830d64 100644
  )$$(call addfield,License,$$(PKG_LICENSE)
  )$$(call addfield,LicenseFiles,$$(PKG_LICENSE_FILES)
 -- 
-2.10.1
+2.10.2
 

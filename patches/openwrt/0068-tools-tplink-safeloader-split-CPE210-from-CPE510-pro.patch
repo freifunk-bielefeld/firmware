@@ -1,7 +1,7 @@
-From 2c43003a4b923c181cfc134cc8b295628d5b0793 Mon Sep 17 00:00:00 2001
+From c8680f0ea45a7240a53e1afbc0de324e2cf06fef Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 9 Jun 2016 05:03:35 +0200
-Subject: [PATCH 69/78] tools/tplink-safeloader: split CPE210 from CPE510
+Subject: [PATCH 68/77] tools/tplink-safeloader: split CPE210 from CPE510
  profile
 
 The CPE210 was still described for the OEM upgrade as compatible,
@@ -18,10 +18,10 @@ Backport of LEDE 824147960569f2c1cd22140c9074c62c3df911a5
  2 files changed, 24 insertions(+), 11 deletions(-)
 
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 33a2da5..b288a1d 100644
+index 75083f9..bb2bb94 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
-@@ -2109,7 +2109,7 @@ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V2,tl-wr1043nd-v2,TL-WR10
+@@ -2111,7 +2111,7 @@ $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V2,tl-wr1043nd-v2,TL-WR10
  $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR1043V3,tl-wr1043nd-v3,TL-WR1043ND-v2,ttyS0,115200,0x10430003,1,8M))
  $(eval $(call SingleProfile,TPLINK-LZMA,64kraw,TLWR2543,tl-wr2543-v1,TL-WR2543N,ttyS0,115200,0x25430001,1,8Mlzma,-v 3.13.99))
  
@@ -107,5 +107,5 @@ index 2e204aa..4938f74 100644
  		do_c2600(output, kernel_image, rootfs_image, rev, add_jffs2_eof, sysupgrade);
  	else
 -- 
-2.10.1
+2.10.2
 

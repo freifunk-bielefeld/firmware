@@ -1,7 +1,7 @@
-From aff2a59101096a12c85c12a0dec5137dc92643d6 Mon Sep 17 00:00:00 2001
+From bf60241932b68ae29794e0cbc28534261e150a28 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 29 May 2016 11:45:14 +0200
-Subject: [PATCH 47/78] ar71xx: WNR2200: fix for random WLAN MAC
+Subject: [PATCH 47/77] ar71xx: WNR2200: fix for random WLAN MAC
 
 Fix for invalid/random/duplicate WLAN MAC address in WNR2200.
 Permanent platform MAC is calculated and assigned during system startup.
@@ -89,5 +89,5 @@ index 5d23f21..37ffc4c 100644
  	ath79_register_leds_gpio(-1, ARRAY_SIZE(wnr2200_leds_gpio),
  					wnr2200_leds_gpio);
 -- 
-2.10.1
+2.10.2
 

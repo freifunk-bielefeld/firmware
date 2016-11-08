@@ -1,7 +1,7 @@
-From 4d674db92dcbe198f16a7541c47724c9a1b5f0db Mon Sep 17 00:00:00 2001
+From 82c62022edb6db2f034284bfca831eda56ba5795 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:48:45 +0200
-Subject: [PATCH 29/78] build: add locking for downloads (fixes race conditions
+Subject: [PATCH 29/77] build: add locking for downloads (fixes race conditions
  with multiple variants)
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
@@ -24,5 +24,5 @@ index e518cce..9176b11 100644
  
  endef
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From cd9e90c3c3752171fba1ce230e0a99ccefdc242d Mon Sep 17 00:00:00 2001
+From 7b5d4d1ebc62b7d85642a367af4438a111e7c451 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 29 May 2016 11:37:08 +0200
-Subject: [PATCH 46/78] ar71xx: Send power to USB port on WNR2200
+Subject: [PATCH 46/77] ar71xx: Send power to USB port on WNR2200
 
 This patch fixes ticket #15267 by enabling power on the
 WNR2200's USB port. At present, the USB port on the WNR2200
@@ -44,5 +44,5 @@ index 0087cac..5d23f21 100644
  	ath79_register_usb();
  }
 -- 
-2.10.1
+2.10.2
 

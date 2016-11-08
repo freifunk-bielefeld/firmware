@@ -1,7 +1,7 @@
-From 583f1815e5108d3b2a1bcf342e2d36d373b53803 Mon Sep 17 00:00:00 2001
+From a0c6f91854fd675f494f313f430a9344b4bc1481 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:00:41 +0200
-Subject: [PATCH 38/78] ar71xx: fix MDIO bus probe on QCA956x
+Subject: [PATCH 38/77] ar71xx: fix MDIO bus probe on QCA956x
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
 
@@ -25,5 +25,5 @@ index 2efb9c7..12a376e 100644
  	else
  		max_id = 0;
 -- 
-2.10.1
+2.10.2
 

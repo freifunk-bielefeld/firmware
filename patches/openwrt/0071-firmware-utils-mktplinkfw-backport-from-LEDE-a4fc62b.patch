@@ -1,7 +1,7 @@
-From 8e7a333bea05d13404a40c77b1d94a3347c2e7bc Mon Sep 17 00:00:00 2001
+From 4d4c490b45bad723a6d2e781b681c3d3ec09c83e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 28 Aug 2016 20:20:35 +0200
-Subject: [PATCH 72/78] firmware-utils: mktplinkfw: backport from LEDE
+Subject: [PATCH 71/77] firmware-utils: mktplinkfw: backport from LEDE
  a4fc62bc0ea4010ddbfbd738453c9db70988a57c
 
 ---
@@ -862,5 +862,5 @@ index 9785a3f..34e6546 100644
  			version = optarg;
  			break;
 -- 
-2.10.1
+2.10.2
 

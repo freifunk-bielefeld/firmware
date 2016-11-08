@@ -1,7 +1,7 @@
-From d2bdf0a60c9258e462fab16c518f83066fb8b08d Mon Sep 17 00:00:00 2001
+From cdcf220e2940e2321cfa34e738c07be2da94d049 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 22:18:40 +0200
-Subject: [PATCH 36/78] ar71xx: update QCA956x support
+Subject: [PATCH 36/77] ar71xx: update QCA956x support
 
 - separate qca956x and tp9343 (they use different IDs)
 - rename qca9561->qca956x for consistency
@@ -17,7 +17,7 @@ Backport of OpenWrt r47981
  2 files changed, 94 insertions(+), 48 deletions(-)
 
 diff --git a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
-index d3a14b2..61b8976 100644
+index 2bb4286..61b8976 100644
 --- a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 +++ b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 @@ -105,7 +105,7 @@
@@ -332,7 +332,7 @@ index d3a14b2..61b8976 100644
   /*
    * SPI block
    */
--@@ -766,6 +868,19 @@
+-@@ -774,6 +876,19 @@
 +@@ -766,6 +875,19 @@
   #define QCA953X_GPIO_OUT_MUX_LED_LINK4		44
   #define QCA953X_GPIO_OUT_MUX_LED_LINK5		45
@@ -341,7 +341,7 @@ index d3a14b2..61b8976 100644
   #define AR71XX_GPIO_COUNT		16
   #define AR7240_GPIO_COUNT		18
   #define AR7241_GPIO_COUNT		20
--@@ -774,6 +889,7 @@
+-@@ -782,6 +897,7 @@
 +@@ -774,6 +896,7 @@
   #define AR934X_GPIO_COUNT		23
   #define QCA953X_GPIO_COUNT		18
@@ -419,5 +419,5 @@ index a36b8c3..fa4eba2 100644
  +		BUG();
  +	}
 -- 
-2.10.1
+2.10.2
 

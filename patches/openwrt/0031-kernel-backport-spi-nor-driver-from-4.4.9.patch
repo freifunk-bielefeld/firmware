@@ -1,7 +1,7 @@
-From 1203b5830b96b391c3216fa11f3497b8570a9ac2 Mon Sep 17 00:00:00 2001
+From 4431bda33443ceba592cd70330a0fa8df8a052e4 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 7 May 2016 00:07:51 +0200
-Subject: [PATCH 31/78] kernel: backport spi-nor driver from 4.4.9
+Subject: [PATCH 31/77] kernel: backport spi-nor driver from 4.4.9
 
 ---
  ...low-to-pass-probe-types-via-platform-data.patch |    6 +-
@@ -2121,5 +2121,5 @@ index 1716e1c..8dc181a 100644
 + 	u8			erase_opcode;
 + 	u8			read_opcode;
 -- 
-2.10.1
+2.10.2
 

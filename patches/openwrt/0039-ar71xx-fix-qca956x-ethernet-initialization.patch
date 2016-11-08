@@ -1,7 +1,7 @@
-From 69e6b41f354383ffb640c6bb522571fda40d7740 Mon Sep 17 00:00:00 2001
+From e75f87852aa181cf654b38c7f71bbeface2b51e3 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:01:19 +0200
-Subject: [PATCH 39/78] ar71xx: fix qca956x ethernet initialization
+Subject: [PATCH 39/77] ar71xx: fix qca956x ethernet initialization
 
 Complete internal switch initialization for QCA956X.
 Set default mdio device if the interface mode of GE0 is not SGMII (fix ticket #21520).
@@ -67,5 +67,5 @@ index 12a376e..b43c80a 100644
  			pdata->mii_bus_dev = &ath79_mdio0_device.dev;
  			break;
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From ec8cdd2b273f94b04b7f62f4c6a6a1766e21e55a Mon Sep 17 00:00:00 2001
+From a162881b83eb19bb1bf2f913f4efc0fdfda7471a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:00:16 +0200
-Subject: [PATCH 37/78] ar71xx: fold patch
+Subject: [PATCH 37/77] ar71xx: fold patch
  622-MIPS-ath79-add-support-for-QCA956x-ethernet.patch into files/
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
@@ -180,5 +180,5 @@ index 31d2438..2efb9c7 100644
  			pdata->mii_bus_dev = &ath79_mdio1_device.dev;
  			break;
 -- 
-2.10.1
+2.10.2
 

@@ -1,7 +1,7 @@
-From 6633ecafc8d37e189fe10bfc7ebee579f885f5af Mon Sep 17 00:00:00 2001
+From d6fda6f06b51ef0b377757ebc1c314995c2a8f1b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 13 Oct 2016 10:01:19 +0200
-Subject: [PATCH 77/78] ath9k: remove intermediate queueing patch until it is
+Subject: [PATCH 75/77] ath9k: remove intermediate queueing patch until it is
  fixed properly
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
@@ -890,5 +890,5 @@ index f8b8f86..0000000
 - }
 - 
 -- 
-2.10.1
+2.10.2
 

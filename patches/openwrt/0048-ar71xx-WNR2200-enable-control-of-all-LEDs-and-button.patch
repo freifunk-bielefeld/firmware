@@ -1,7 +1,7 @@
-From 72fcc3fa52e7cd3b67b53892ef741398c715b370 Mon Sep 17 00:00:00 2001
+From e8f5caeedfe32e59e65b459c8c2ad4f450c94fe1 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 29 May 2016 11:50:03 +0200
-Subject: [PATCH 48/78] ar71xx: WNR2200: enable control of all LEDs and buttons
+Subject: [PATCH 48/77] ar71xx: WNR2200: enable control of all LEDs and buttons
 
 This patch provides full GPIO support for WNR2200 (LEDs and buttons).
 It exposes all LEDs to operating system, including Ethernet ones.
@@ -15,10 +15,10 @@ Backport of r49101
  2 files changed, 124 insertions(+), 36 deletions(-)
 
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
-index d7dc9a1..337000c 100644
+index f4d5234..b867796 100644
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
-@@ -592,6 +592,21 @@ wnr2000-v4)
+@@ -600,6 +600,21 @@ wnr2000-v4)
  	ucidef_set_led_usbdev "usb" "USB" "netgear:amber:status" "1-1"
  	;;
  
@@ -255,5 +255,5 @@ index 37ffc4c..258d254 100644
  	ath79_register_usb();
  }
 -- 
-2.10.1
+2.10.2
 
