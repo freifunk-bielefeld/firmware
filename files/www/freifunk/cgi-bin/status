@@ -15,29 +15,32 @@ echo -n "<title>Freifunk${name:+ - $name}</title>"
 <body>
 <div class="header">
 	<div class="menu">
-		<a class="community" href="<% echo -n $(uci get -q freifunk.@settings[0].community_url) %>"><% echo -n $(uci get -q freifunk.@settings[0].community_url) | cut -d\/ -f3 %></a>
-		<ul>
 <%
+url=$(uci get -q freifunk.@settings[0].community_url)
+community="$(echo -n $url | cut -d\/ -f3)"
+if [ -n "$url" -a -n "$community" ]; then
+	echo "		<a class=\"community\" href=\"$url\">$community</a>"
+fi
+
+echo "		<ul>"
+
 contact="$(uci get -q freifunk.@settings[0].contact)"
 if [ -n "$contact" ]; then
 	echo "			<li><a href='#'>Kontakt: $contact</a></li>"
 fi
 
-geo="$(uci get -q freifunk.@settings[0].geo)"
-if [ -n "$geo" ]; then
-	lat="${geo%% *}" lon="${geo##* }"
+lat="$(uci get -q freifunk.@settings[0].latitude)"
+lon="$(uci get -q freifunk.@settings[0].longitude)"
+if [ -n "$lat" -a -n "$lon" ]; then
 	echo "			<li><a href=\"https://www.openstreetmap.org?mlat=$lat&mlon=$lon&zoom=17\">Position: ${lat:0:8}N, ${lon:0:8}E</a></li>"
 fi
-%>
-			<li><form action="https://<% echo -n "$HTTP_HOST" %>"><button type="submit" class="login-button">Login</button></form></li>
+%>			<li><form action="https://<% echo -n "$HTTP_HOST" %>"><button type="submit" class="login-button">Login</button></form></li>
 		</ul>
 	</div>
 </div>
 <div class="header">
-<%
-echo "	<h1>$(uci get -q freifunk.@settings[0].name)</h1>"
-%>
-	<h2>Firmware Version <% echo -n $(uci get -q freifunk.@settings[0].version) %></h2>
+	<h1><% uci get -q freifunk.@settings[0].name | tr -d '\n' %></h1>
+	<h2>Firmware Version <% uci get -q freifunk.@settings[0].version | tr -d '\n' %></h2>
 </div>
 <div class="content">
 	<div class="pure-g">
