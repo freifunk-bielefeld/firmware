@@ -37,7 +37,7 @@ function wifi_scan()
 			var item = items[i];
 			var ssid = fetch(/SSID: (.*)\n/, item);
 			var bss = fetch(/BSS (..:..:..:..:..:..).*\n/, item);
-			var channel = fetch(/channel (.*)\n/, item);
+			var channel = fetch(/channel: (.*)\n/, item);
 			var signal = fetch(/signal: (.*)\n/, item);
 			var capability = fetch(/capability: (.*)\n/, item);
 			var mesh_id = fetch(/MESH ID: (.*)\n/, item);
