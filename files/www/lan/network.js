@@ -670,6 +670,7 @@ function collect_switch_info(device)
 			break;
 		case 'tp-link-tl-wr841n-nd-v9':
 		case 'tp-link-tl-wr841n-nd-v10':
+		case 'tp-link-tl-wr841n-nd-v11':
 			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
 			break;
 		case 'tp-link-tl-wr842n-nd-v1':
@@ -690,6 +691,9 @@ function collect_switch_info(device)
 		case 'd-link-dir-615-h1':
 		case 'd-link-dir-615-h2':
 			obj.port_map = [['1',3], ['2',2], ['3',1], ['4',0], ['Internet',4], ['_',5]];
+			break;
+		case 'd-link-dir-860l-b1':
+			obj.port_map = [['LAN1',4], ['LAN2',3], ['LAN3',2], ['LAN4',1], ['WAN',0], ['_',6]];
 			break;
 	}
 

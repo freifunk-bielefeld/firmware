@@ -9,14 +9,13 @@ li { list-style-type: none; }
 
 html {
 	font: 90%/1.3 arial,sans-serif;
-	padding:1em;
-	background:#fafafa;
+	background: #fafafa;
 }
 
 body {
 	font: normal 16px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
+	color: #34495e;
 }
-
 
 /* specific */
 
@@ -35,6 +34,15 @@ body {
 
 #wifiscan table {
 	text-align: center;
+}
+
+#wifiscan_table {
+	border: none;
+	white-space: nowrap;
+}
+
+#wifiscan_table td {
+	padding: 2px 10px;
 }
 
 #wifiscan td:nth-of-type(1) {
@@ -115,7 +123,16 @@ option {
 }
 
 button {
-	margin: 0.2em;
+	background-color: #b7e2fb;
+	color: #333;
+	padding: 0.1em;
+	border-radius: 2px;
+	padding: 0.2em;
+	margin: 0.1em;
+}
+
+#body > button {
+	margin: 0.5em;
 }
 
 .radio_option div {
@@ -150,81 +167,66 @@ button {
 /* navigation */
 
 #globalnav {
-	position: relative;
-	float: auto;
-	width: 98%;
-	padding: 0 0 1.75em 1em;
+	list-style-type: none;
 	margin: 0;
-	margin-bottom: 2%;
-	list-style: none;
-	line-height: 1em;
+	padding: 0;
+	overflow: hidden;
+	background-color: #333;
+	border-bottom: 1px solid #b7b7b7;
+	box-shadow: 0 1px 1px rgba(0,0,0, 0.10);
 }
 
 #globalnav li {
 	float: left;
-	margin: 0;
-	padding: 0;
 }
 
-#globalnav a {
-	display: block;
-	color: #444;
+#globalnav li a {
+	display: inline-block;
+	color: #f2f2f2;
+	text-align: center;
+	padding: 14px 16px;
 	text-decoration: none;
-	font-weight: bold;
-	background: #ddd;
-	margin: 0;
-	padding: 0.25em 1em;
-	border-left: 1px solid #fff;
-	border-top: 1px solid #fff;
-	border-right: 1px solid #aaa;
+	transition: 0.3s;
+	font-size: 17px;
 }
 
-#globalnav a:hover,
-#globalnav a:active,
-#globalnav a.here:link,
-#globalnav a.here:visited {
-	background: #bbb;
+#globalnav li a:hover {
+	background-color: #555;
 }
 
-#globalnav a.here:link,
-#globalnav a.here:visited {
-	position: relative;
-	z-index: 102;
+#globalnav li.icon {
+	display: none;
 }
 
-/* sub-navigation */
+@media screen and (max-width:680px) {
+	#globalnav li:not(:first-child) {
+		display: none;
+	}
 
-#globalnav ul {
-	position: absolute;
-	left: 0;
-	top: 1.5em;
-	float: left;
-	background: #bbb;
-	width: 100%;
-	margin: 0;
-	padding: 0.25em 0.25em 0.25em 1em;
-	list-style: none;
-	border-top: 1px solid #fff;
+	#globalnav li.icon {
+		float: right;
+		display: inline-block;
+	}
 }
 
-#globalnav ul li {
-	float: left;
-	display: block;
-	margin-top: 1px;
-}
+@media screen and (max-width:680px) {
+	#globalnav.responsive {
+		position: relative;
+	}
 
-#globalnav ul a {
-	background: #bbb;
-	color: #fff;
-	display: inline;
-	margin: 0;
-	padding: 0 1em;
-	border: 0;
-}
+	#globalnav.responsive li.icon {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
 
-#globalnav ul a:hover,
-#globalnav ul a:active,
-#globalnav ul a.here:link,
-#globalnav ul a.here:visited {
-	color: #444;
+	#globalnav.responsive li {
+		float: none;
+		display: inline;
+	}
+
+	#globalnav.responsive li a {
+		display: block;
+		text-align: left;
+	}
 }
