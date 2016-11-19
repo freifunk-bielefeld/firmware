@@ -82,6 +82,7 @@ function preselect() {
 		if(n.getAttribute("href") != '#')
 			n.onclick = nav_onclick;
 	});
+	// Select the first tab.
 	$("first").onclick();
 }
 
@@ -112,12 +113,15 @@ function logout() {
 	<li><a href="home.html" id="first">Home</a></li>
 	<li><a href="settings.html">Einstellungen</a></li>
 	<li><a href="network.html">Netzwerk</a></li>
-	<li><a href="wifiscan.html">WifiScan</a></li>
+	<li><a href="wifiscan.html">WLAN-Scan</a></li>
 	<li><a href="upgrade.html">Upgrade</a></li>
-	<li><a href="password.html">Password</a></li>
+	<li><a href="password.html">Passwort</a></li>
 	<li><a href="#" onclick="reboot()">Neustart</a></li>
 	<li><a href="#" onclick="logout()">Logout</a></li>
 	<li><a href="#" onclick="adv_toggle(this)">Erweitert: Aus</a></li>
+	<li class="icon">
+		<a href="#" style="font-size:15px;" onclick="$('globalnav').classList.toggle('responsive')">☰</a>
+	</li>
 </ul>
 <br>
 <pre id="msg" tabindex="-1"></pre>

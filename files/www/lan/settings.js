@@ -55,14 +55,14 @@ function appendSetting(p, path, value, mode)
 	case "latitude":
 		b = append_input(p, "Breitengrad", id, value);
 		b.lastChild.placeholder = "52.xxx";
-		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
-		addHelpText(b, "GPRS-Koordinate dieses Knotens auf der Freifunk-Karte.");
+		addInputCheck(b.lastChild, /^$|^[1-9]\d{0,2}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen, keine Kommas und f\xfchrende Nullen verwenden.");
+		addHelpText(b, "GPS-Koordinate dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "longitude":
 		b = append_input(p, "L\xe4ngengrad", id, value);
 		b.lastChild.placeholder = "8.xxx";
-		addInputCheck(b.lastChild, /^$|^\d{1,3}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen und keine Kommas verwenden.");
-		addHelpText(b, "GPRS-Koordinate dieses Knotens auf der Freifunk-Karte.");
+		addInputCheck(b.lastChild, /^$|^[1-9]\d{0,2}\.\d{1,8}$/, "Ung\xfcltige Eingabe. Bitte nur maximal 8 Nachkommastellen, keine Kommas und f\xfchrende Nullen verwenden.");
+		addHelpText(b, "GPS-Koordinate dieses Knotens auf der Freifunk-Karte.");
 		break;
 	case "name":
 		b = append_input(p, "Knotenname", id, value);
@@ -100,7 +100,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "publish_map":
 		b = append_radio(p, "Zur Karte beitragen", id, value, [["Nichts", "none"], ["Wenig", "basic"], ["Mehr", "more"], ["Alles", "all"]]);
-		addHelpText(b, "Mit wievielen Daten soll dieser Knoten zur Knotenkarte beitragen? (Wenig: Name/Version/Position/Kontakt, Mehr: Modell/Uptime/CPU-Auslastung, Alles: Speicherauslastung/IP-Adressen)");
+		addHelpText(b, "Mit wievielen Daten soll dieser Knoten zur Knotenkarte beitragen? (Wenig: Name/Version/Position/Kontakt, Mehr: +Modell/+Uptime/+CPU-Auslastung, Alles: +Speicherauslastung/+IP-Adressen des Routers im Freifunk-Netz)");
 		break;
 	case "limit_egress":
 		b = append_input(p, "Freifunk Upload", id, value);

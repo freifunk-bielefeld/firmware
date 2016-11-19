@@ -11,7 +11,7 @@ case $GET_func in
 		wifi status
 	;;
 	wifiscan)
-		iw dev "$GET_device" scan 2> /dev/null | grep '^BSS \|SSID\|set: channel\|signal\|capability\|MESH ID'
+		iw dev "$GET_device" scan 2> /dev/null | grep '^BSS \|SSID\|primary channel:\|signal\|capability\|MESH ID'
 	;;
 	set_config_file)
 		file_name="$GET_name"

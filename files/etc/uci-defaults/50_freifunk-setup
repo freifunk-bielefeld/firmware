@@ -433,6 +433,13 @@ update_061_to_062()
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 }
 
+update_062_to_063()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -477,6 +484,11 @@ start()
 		"0.6.1")
 			echo "(I) Apply update."
 			update_061_to_062
+			update_version
+			;;
+		"0.6.2")
+			echo "(I) Apply update."
+			update_062_to_063
 			update_version
 			;;
 		"")
