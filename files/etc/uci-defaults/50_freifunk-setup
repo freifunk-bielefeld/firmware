@@ -199,7 +199,7 @@ initial_setup()
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
 	#get a unique MAC address to identify the node
-	local mac="$(cat /sys/class/ieee80211/phy0/macaddress)"
+	local mac="$(cat /sys/class/ieee80211/phy0/macaddress 2> /dev/null)"
 	if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
 		mac="$(cat /sys/class/net/eth0/address)"
 		if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
