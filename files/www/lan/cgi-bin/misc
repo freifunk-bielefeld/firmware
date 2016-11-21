@@ -27,7 +27,7 @@ case $GET_func in
 		uci get -q freifunk.@settings[0].name
 	;;
 	*)
-		echo "(E) misc: Invalid command: '$GET_func'"
+		echo "(E) Unbekannter Befehl: '$GET_func'"
 	;;
 esac
 %>
