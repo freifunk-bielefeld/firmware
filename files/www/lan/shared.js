@@ -1,44 +1,48 @@
 
 function $(id) { return document.getElementById(id); }
-function create(name) { return document.createElement(name); }
 function show(e) { e.style.display='block'; }
 function hide(e) { e.style.display='none'; }
-function addClass(e, c) { e.classList.add(c); } //HTML5!
+function addClass(e, c) { e.classList.add(c); }
 function removeClass(e, c) { e.classList.remove(c); }
 function setText(id, txt) { $(id).innerHTML = txt; }
 function inArray(item, array) { return array.indexOf(item) != -1; }
 
 function split(str)
 {
-	if(typeof str != 'string')
+	if(typeof str != 'string') {
 		return [];
+	}
 	var a = str.match(/[^\s]+/g);
 	return (a ? a : []);
 }
 
 function uniq(arr)
 {
-  var obj = {};
-  for(var i in arr) obj[arr[i]] = 0;
-  return Object.keys(obj);
+	var obj = {};
+	for(var i in arr) obj[arr[i]] = 0;
+	return Object.keys(obj);
 }
 
 //remove an item from a string list
 function removeItem(str, item)
 {
 	var array = split(str);
-	for(var i in array)
-		if(array[i] == item)
+	for(var i in array) {
+		if(array[i] == item) {
 			array.splice(i, 1);
+		}
+	}
 	return array.join(' ');
 }
 
 function addItem(str, item)
 {
 	var array = split(str);
-	for(var i in array)
-		if(array[i] == item)
+	for(var i in array) {
+		if(array[i] == item) {
 			return str;
+		}
+	}
 	array.push(item);
 	return array.join(' ');
 }
@@ -46,9 +50,11 @@ function addItem(str, item)
 function replaceItem(str, old_item, new_item)
 {
 	var array = split(str);
-	for(var i in array)
-		if(array[i] == old_item)
+	for(var i in array) {
+		if(array[i] == old_item) {
 			array[i] = new_item;
+		}
+	}
 	return array.join(' ');
 }
 
@@ -76,19 +82,19 @@ function toUCI(pkg_obj)
 	var str = "\n";
 	for(var sid in pkg_obj)
 	{
-		if(sid == "pchanged")
+		if(sid == "pchanged") {
 			continue;
+		}
 
 		var options = pkg_obj[sid];
 		var sname = (sid.substring(0, 3) != "cfg") ? (" '"+sid+"'") : "";
 		str += "config "+options.stype+sname+"\n";
-		for(var oname in options)
-		{
-			if(oname == "stype")
+		for(var oname in options) {
+			if(oname == "stype"){
 				continue;
+			}
 			var value = options[oname];
-			if(typeof value == 'object')
-			{
+			if(typeof value == 'object') {
 				for(var i in value)
 					str += "	list "+oname+" '"+value[i]+"'\n";
 			}
@@ -109,11 +115,14 @@ function fromUCI(pkgs_str)
 	var cfg;
 
 	var lines = pkgs_str.split("\n");
-	for(var i = 0; i < lines.length; ++i)
-	{
+	for(var i = 0; i < lines.length; ++i) {
 		var line = lines[i];
 		var items = split(line);
-		if(items.length < 2) continue;
+
+		if(items.length < 2) {
+			continue;
+		}
+
 		switch(items[0])
 		{
 			case 'package':
@@ -141,31 +150,31 @@ function fromUCI(pkgs_str)
 
 function firstSectionID(obj, stype)
 {
-	for(var id in obj)
-		if(obj[id].stype == stype)
+	for(var id in obj) {
+		if(obj[id].stype == stype) {
 			return id;
+		}
+	}
 }
 
 function config_foreach(objs, stype, func)
 {
-	for(var key in objs)
-	{
+	for(var key in objs) {
 		var obj = objs[key];
-		if((obj["stype"] == stype || stype == "*") && func(key, obj))
-			return;
+		if((obj["stype"] == stype || stype == "*") && func(key, obj)) {
+			return true;
+		}
 	}
+	return false;
 }
 
 function config_find(objs, mobj)
 {
-	for(var key in objs)
-	{
+	for(var key in objs) {
 		var obj = objs[key];
 		var found = true;
-		for(mkey in mobj)
-		{
-			if(obj[mkey] != mobj[mkey])
-			{
+		for(mkey in mobj) {
+			if(obj[mkey] != mobj[mkey]) {
 				found = false;
 				break;
 			}
@@ -277,7 +286,7 @@ function collect_inputs(p, obj)
 
 function append(parent, tag, id)
 {
-	var e = create(tag);
+	var e = document.createElement(tag);
 	if(id) e.id = id;
 	parent.appendChild(e);
 	return e;
@@ -286,10 +295,9 @@ function append(parent, tag, id)
 function append_section(parent, title, id)
 {
 	var fs = append(parent, "fieldset");
-	var lg = create("legend");
+	var lg = append(fs, "legend");
 	lg.innerHTML = title;
 	if(id) fs.id = id;
-	fs.appendChild(lg);
 	return fs;
 }
 
@@ -305,28 +313,14 @@ function append_button(parent, text, onclick)
 function append_label(parent, title, value)
 {
 	var div = append(parent, 'div');
-	var label = append(div, 'label');
-	label.innerHTML = title + ":";
-
-	if(typeof value == 'string')
-	{
-		//div.className = "label_option";
-		var span = append(div, 'span');
-		span.innerHTML = value;
-	}
-	else
-	{
-		div.className = "list_option";
-		var span = append(div, 'span');
-		for(var i in value)
-		{
-			var d = append(span, 'div');
-			d.innerHTML = value[i];
-		}
-	}
+	append(div, 'label').innerHTML = title + ":";
+	append(div, 'span').innerHTML = value;
 	return div;
 }
 
+/*
+ <select><option></option>... </select>
+*/
 function append_options(parent, name, selected, choices)
 {
 	var select = append(parent, 'select');
@@ -358,33 +352,30 @@ function append_selection(parent, title, name, selected, choices)
 	return p;
 }
 
-//append an input field
-//e.g. append_input(parent, "Name", "name_string", "MyName")
+// Append an input field.
+// E.g. append_input(parent, "Name", "name_string", "MyName")
 function append_input(parent, title, name, value)
 {
 	var div = append(parent, 'div');
-	var label = create('label');
-	var input = create('input');
+	var label = append(div, 'label');
+	var input = append(div, 'input');
 
 	label.innerHTML = title + ":";
 	input.value = (typeof value == "undefined") ? "" : value;
 	input.name = name;
 	input.type = "text";
 
-	div.appendChild(label);
-	div.appendChild(input);
-
 	return div;
 }
 
-//append a radio field
-//e.g. append_radio(parent, "Enabled", "enabled", 0, [["Yes", 1], ["No", 0])
+// Append a radio field.
+// E.g. append_radio(parent, "Enabled", "enabled", 0, [["Yes", 1], ["No", 0])
 function append_radio(parent, title, name, selected, choices) {
 	return _selection("radio", parent, title, name, [selected], choices);
 }
 
-//append a checkbox field
-//e.g. append_check(parent, "Enabled", "enabled", ["grass"], [["Grass", "grass"], ["Butter", "butter"]])
+// Append a checkbox field.
+// E.g. append_check(parent, "Enabled", "enabled", ["grass"], [["Grass", "grass"], ["Butter", "butter"]])
 function append_check(parent, title, name, selected, choices) {
 	return _selection("checkbox", parent, title, name, selected, choices);
 }

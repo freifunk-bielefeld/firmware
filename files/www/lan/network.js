@@ -1,8 +1,8 @@
 
 /*
-All required uci packages are stored variable uci.
-The GUI code displayes and manipulated this variable.
-*/
+ * All required uci packages are stored variable uci.
+ * The GUI code displayes and manipulated this variable.
+ */
 var uci = {};
 var wifi_status = {};
 
@@ -31,17 +31,17 @@ var txpower_choices = [
 
 function init()
 {
-send("/cgi-bin/misc", { func : "wifi_status" }, function(data) {
-	wifi_status = JSON.parse(data);
-	send("/cgi-bin/network", { func : "get_settings" }, function(data) {
-		uci = fromUCI(data);
-		rebuild_other();
-		rebuild_assignment();
-		rebuild_wifi();
-		rebuild_switches();
-		adv_apply();
+	send("/cgi-bin/misc", { func : "wifi_status" }, function(data) {
+		wifi_status = JSON.parse(data);
+		send("/cgi-bin/network", { func : "get_settings" }, function(data) {
+			uci = fromUCI(data);
+			rebuild_other();
+			rebuild_assignment();
+			rebuild_wifi();
+			rebuild_switches();
+			adv_apply();
+		});
 	});
-});
 }
 
 function updateFrom(src)
@@ -164,28 +164,11 @@ function appendSetting(p, path, value, mode)
 	case "disabled":
 		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		break;
-	case "ports":
-		var map = [];
-		var tp = value.swinfo.tagged_port;
-		var pm = value.swinfo.port_map;
-		var v = (collectVLANs(value.swinfo.device).length > 1);
-		for(var i in pm)
-		{
-			if(pm[i][0] == '_')
-				map.push(['_', (v ? (tp+'t' ) : tp)]);
-			else
-				map.push(pm[i]);
-		}
-		b = append_check(p, value.ifname, id, split(value.ports), map);
-
-		var select = append_options(p, "set_mode_"+value.ifname, mode, net_options);
-		select.onchange = getChangeModeAction(value.ifname);
-		break;
 	default:
 		return;
 	}
 
-	b.id = id; //needed for updateFrom
+	b.id = id; // Needed for updateFrom.
 	b.onchange = function() {
 		updateFrom(b);
 	};
@@ -193,7 +176,7 @@ function appendSetting(p, path, value, mode)
 	return b;
 }
 
-function getNetMode(ifname)
+function getInterfaceMode(ifname)
 {
 	var n = uci.network;
 
@@ -256,33 +239,22 @@ function rebuild_assignment()
 	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
 
 	var ignore = ["local-node", "fastd_mesh", "bat0", "lo"];
-        switch (uci.misc.data.model)
-        {
-                case 'tp-link-tl-wr941n-nd-v1':
-		case 'tp-link-tl-wr941n-nd-v2':
-		case 'tp-link-tl-wr941n-nd-v3':
-                        ignore.push("eth0");
-                        break;
-        }
-
 	var ifnames = [];
 
-	//collect all interfaces
+	// Collect all interfaces.
 	config_foreach(uci.network, "interface", function(sid, sobj) {
 		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
 	});
 
-	//ignore switch interfaces
+	// Ignore switch interfaces.
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
-		var vlans = collectVLANs(swinfo.device);
 		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-			var ifname = guess_vlan_ifname(swinfo, vobj.vlan, vlans.length);
-			ignore.push(ifname);
+			ignore.push(getInterfaceName(vid, swinfo));
 		});
 	});
 
-	//ignore wlan interfaces
+	// Ignore wlan interfaces.
 	config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
 		if(sobj.ifname) ignore.push(sobj.ifname);
 	});
@@ -292,9 +264,10 @@ function rebuild_assignment()
 	for(var i in ifnames)
 	{
 		var ifname = ifnames[i];
-		if((ifname.length == 0) || inArray(ifname, ignore) || ifname[0] == "@" )
+		if((ifname.length == 0) || inArray(ifname, ignore) || ifname[0] == "@" ) {
 			continue;
-		var mode = getNetMode(ifname);
+		}
+		var mode = getInterfaceMode(ifname);
 		var entry = append_selection(fs, ifname, "set_mode_"+ifname, mode, net_options);
 		entry.onchange = getChangeModeAction(ifname);
 		show(root);
@@ -382,18 +355,18 @@ function addWifiSection(device, mode)
 	var s = config_find(uci.freifunk, {"stype" : "settings"});
 	var ifname = device+"_"+mode;
 
-	//add section to /etc/config/wireless
+	// Add section to /etc/config/wireless
 	switch(mode)
 	{
 	case "wan":
-		//only works if interface is not in a bridge!
+		// Only works if interface is not in a bridge!
 		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"sta","ssid":"OtherNetwork","key":"password_for_OtherNetwork","encryption":"psk2", "network":"wan"};
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		//802.11s
+		// 802.11s
 		w[ifname] = {"device":device,"stype":"wifi-iface","mode":"mesh","mesh_id":s.default_mesh_id,"mesh_fwding":0,"network":net};
-		//connected via option network
+		// Connected via option network
 		n[net] = {"stype":"interface","mtu":"1532","proto":"batadv","mesh":"bat0"};
 		n.pchanged = true;
 		break;
@@ -444,7 +417,6 @@ function getWifiInterfaceState(dev, wid)  {
 	return "Unbekannt";
 }
 
-//wmanode is optional and can be ap or sta
 function countWifi(mode, wmode) {
 	var n = 0;
 	config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
@@ -475,7 +447,7 @@ function rebuild_wifi()
 	var root = $("wireless");
 	removeChilds(root);
 
-	//print wireless sections
+	// Print wireless sections.
 	config_foreach(uci.wireless, "wifi-device", function(dev, obj) {
 		var fs = append_section(root, "Wireless '"+dev+"'", dev);
 		var info = collect_wifi_info(dev);
@@ -490,7 +462,7 @@ function rebuild_wifi()
 		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["LAN","lan", lan_help], ["Freifunk","freifunk", freifunk_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
 		var parent = append(fs, "div");
 
-		//print wireless interfaces
+		// Print wireless interfaces.
 		config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
 			if(wobj.device != dev) return;
 
@@ -515,7 +487,7 @@ function rebuild_wifi()
 			}
 		});
 
-		/* add or remove a wifi interface */
+		// Add or remove a wifi interface.
 		onDesc(mode_checks, "INPUT", function(e) {
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
@@ -535,279 +507,253 @@ function rebuild_wifi()
 	});
 }
 
-function apply_port_action(switch_root)
-{
-	onDesc(switch_root, "INPUT", function(input) {
-		var port = input.value;
-		var dst = input;
-		input.onclick = function(e) {
-			var src = (e.target || e.srcElement);
-			//uncheck all in same column
-			onDesc(switch_root, "INPUT", function(e) {
-				var src = (e.target || e.srcElement);
-				if((e.data || e.value) == port && e != dst) {
-					e.checked = false;
-					while(e != document) {
-						if(e.onchange) {
-							e.onchange();
-							break;
-						}
-						e = e.parentNode;
-					}
-				}
-			});
-		};
-	});
-}
-
-function build_vlan(switch_root, id, obj, swinfo, ifname, mode)
-{
-	var vlan_root = append(switch_root, 'div');
-	vlan_root.id = id;
-
-	for(var k in obj)
-	{
-		if(k == "ports")
-			appendSetting(vlan_root, ["network", id, k], {"ifname": ifname, "ports":obj[k], "swinfo":swinfo}, mode);
-		else
-			appendSetting(vlan_root, ["network", id, k], obj[k], mode);
-	}
-}
-
-function addVlanSection(device, vlan, ports)
-{
-	uci.network["cfg"+(++gid)] = { "stype" : "switch_vlan", "device" : device, "vlan" : ""+vlan, "ports" : ports };
-}
-
-function delVlanSection(device, vlan)
-{
-	var n = uci.network;
-	config_foreach(n, "switch_vlan", function(id, obj) {
-		if(obj.device == device && (vlan < 0 || obj.vlan == vlan))
-			delete n[id];
-	});
-}
-
-function renameIfname(old_if, new_if)
-{
-	config_foreach(uci.network, "*", function(id, obj) {
-		if(!obj.ifname) return;
-		var n = replaceItem(obj.ifname, old_if, new_if);
-		if(n != obj.ifname) {
-			obj.ifname = n;
-			n.pchanged = true;
-		}
-	});
-}
-
-function collectVLANs(device)
-{
-	var vlans = [];
-	config_foreach(uci.network, 'switch_vlan', function(id, obj) {
-		if(obj.device == device) vlans.push(obj.vlan);
-	});
-	return vlans.sort();
-}
-
-function guess_vlan_ifname(swinfo, vlan, vlans) {
-
-	if(vlans < 2) {
-		return swinfo.ifname;
-	} else if(swinfo.tagged_port) {
-		return swinfo.ifname+"."+vlan;
-	} else {
-		return "eth"+(vlan -  swinfo.vlan_start);
-	}
-}
-
 function collect_switch_info(device)
 {
 	var obj = {
-		device : device,
-		ifname : 'eth0', //base ifname for switch
-		vlan_start : 1, //first vlan device is eth0.1
-		tagged_port : uci.misc.data.tagged_port, //port number, no suffix
+		device : device
 	};
 
-	//if device is an interface name, then it is probably the base ifname
-	var lan_ifname = uci.network_defaults.lan.ifname;
-	if(inArray(device, split(lan_ifname)))
-		obj.ifname = device;
-
-	//model specific settings:
-	//Portmap is a mapping of <label>/<internal port number>.
-	//Underscore labels will not be displayed, but are included here,
-	//because they are part of switch_vlan.ports in /etc/config/network.
+	// Portmap is a mapping of label to internal port number.
+	// Label starting with eth are not displayed and treated as physical interfaces.
 	switch(uci.misc.data.model)
 	{
 		case 'tp-link-tl-wdr3600-v1':
 		case 'tp-link-tl-wdr4300-v1':
-			obj.port_map = [['_',0], ['WAN',1], ['1',2], ['2',3], ['3',4], ['4',5]];
+			obj.map = [['eth0',0], ['WAN',1], ['1',2], ['2',3], ['3',4], ['4',5]];
 			break;
 		case 'tp-link-tl-wr1043n-nd-v1':
-			obj.port_map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4],['_', 5]];
+			obj.map = [['WAN',0], ['1',1], ['2',2], ['3',3], ['4',4], ['eth0', 5]];
 			break;
 		case 'tp-link-tl-wr1043n-nd-v2':
 		case 'tp-link-tl-wr1043n-nd-v3':
-			obj.port_map = [['WAN',5], ['1',4], ['2',3], ['3',2], ['4',1],['_', 0]];
-			obj.ifname = "eth1";
+			obj.map = [['eth1', 0], ['WAN',5], ['1',4], ['2',3], ['3',2], ['4',1],];
 			break;
 		case 'tp-link-tl-wdr3500-v1':
 		case 'tp-link-tl-wr741n-nd-v4':
 		case 'tp-link-tl-wr841n-nd-v3':
 		case 'tp-link-tl-wr841n-nd-v5':
 		case 'tp-link-tl-wr841n-nd-v7':
-			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
+			obj.map = [['eth0',0], ['1',2], ['2',3], ['3',4], ['4',1]];
 			break;
 		case 'tp-link-tl-wr841n-nd-v8':
-			obj.ifname = "eth1";
-			obj.port_map = [['_',0], ['1',2], ['2',3], ['3',4], ['4',1]];
+			obj.map = [['eth1',0], ['1',2], ['2',3], ['3',4], ['4',1]];
 			break;
+		case 'tp-link-tl-mr3420-v2':
 		case 'tp-link-tl-wr842n-nd-v2':
+		case 'tp-link-tl-wr941n-nd-v5':
 		case 'tp-link-tl-wr941n-nd-v6':
-			obj.ifname = "eth1";
-			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
+			obj.map = [['eth1',0], ['1',4], ['2',3], ['3',2], ['4',1]];
 			break;
 		case 'tp-link-tl-wr841n-nd-v9':
 		case 'tp-link-tl-wr841n-nd-v10':
 		case 'tp-link-tl-wr841n-nd-v11':
-			obj.port_map = [['_',0], ['1',4], ['2',3], ['3',2], ['4',1]];
+			obj.map = [['eth0',0], ['1',4], ['2',3], ['3',2], ['4',1]];
 			break;
 		case 'tp-link-tl-wr842n-nd-v1':
 		case 'tp-link-tl-mr3420-v1':
-			obj.port_map = [['_',0], ['1',1], ['2',2], ['3',3], ['4',4]];
+			obj.map = [['eth0',0], ['1',1], ['2',2], ['3',3], ['4',4]];
 			break;
 		case 'tp-link-cpe210-v1-0':
 		case 'tp-link-cpe220-v1-0':
 		case 'tp-link-cpe510-v1-0':
 		case 'tp-link-cpe520-v1-0':
-			obj.port_map = [['_',0], ['lan0',5], ['lan1',4]];
+			obj.map = [['eth0',0], ['lan0',5], ['lan1',4]];
+			break;
+		case 'tp-link-archer-c5-v1':
+			obj.map = [['eth1',0], ['LAN1',2], ['LAN2',3], ['LAN3',4], ['LAN4',5], ['eth0',6], ['WAN',1]];
 			break;
 		case 'tp-link-archer-c7-v2':
-			obj.port_map = [['_',0], ['WAN',1], ['LAN1',2], ['LAN2',3], ['LAN3',4], ['LAN4',5]];
-			obj.ifname = "eth1";
+			obj.map = [['eth1',0], ['WAN',1], ['LAN1',2], ['LAN2',3], ['LAN3',4], ['LAN4',5]];
 			break;
 		case 'd-link-dir-615-d':
 		case 'd-link-dir-615-h1':
 		case 'd-link-dir-615-h2':
-			obj.port_map = [['1',3], ['2',2], ['3',1], ['4',0], ['Internet',4], ['_',5]];
+			obj.map = ['eth0',5],[['1',3], ['2',2], ['3',1], ['4',0], ['Internet',4]];
 			break;
 		case 'd-link-dir-860l-b1':
-			obj.port_map = [['LAN1',4], ['LAN2',3], ['LAN3',2], ['LAN4',1], ['WAN',0], ['_',6]];
+			obj.map = [['eth0',6], ['LAN1',1], ['LAN2',2], ['LAN3',3], ['LAN4',4], ['WAN',0]] ;
 			break;
-	}
-
-	//create generic ports string
-	if(!obj.ports)
-	{
-		//create a generic port map
-		var all = "";
-		config_foreach(uci.network_defaults, 'switch_vlan', function(id, obj) {
-			if(obj.device != device) return;
-			all += " "+obj.ports;
-		});
-
-		var ports_array = uniq(split(all.replace(/t/g, '')));
-		ports_array.sort();
-		obj.ports = ports_array.join(' ');
-	}
-
-	//create generic port mapping
-	if(!obj.port_map)
-	{
-		var ps = split(obj.ports);
-		obj.port_map = [];
-		for(var i in ps)
-		{
-			var p = ps[i];
-			if(p == obj.tagged_port)
-				obj.port_map.push(['_',p]);
-			else
-				obj.port_map.push([p+"?",p]);
-		}
 	}
 
 	return obj;
 }
 
-function append_vlan_buttons(parent, switch_root, switch_device)
+function getSwitchVid(port, swinfo)
 {
-	var buttons = append(parent, 'div');
-
-	append_button(buttons, "Neu", function() {
-		var swinfo = collect_switch_info(switch_device);
-		var vlans = collectVLANs(switch_device);
-		var tp = swinfo.tagged_port;
-		var ports_none = tp ? tp+'t' : '';
-		var ports_all = ports_none + " " + swinfo.ports.replace(new RegExp(tp), '');
-
-		if(vlans.length >= swinfo.port_map.length)
-			return alert("Mehr VLANs sind nicht m\xf6glich.");
-
-		if(vlans.length <= 1) {
-			var old_ifname = guess_vlan_ifname(swinfo, 1, 1);
-			var new_ifname = guess_vlan_ifname(swinfo, 1, 2);
-
-			renameIfname(old_ifname, new_ifname);
-			delVlanSection(switch_device, -1);
-			addVlanSection(switch_device, 1, ports_all);
-		}
-
-		var add_vlan = swinfo.vlan_start + vlans.length;
-		var add_ifname = guess_vlan_ifname(swinfo, add_vlan, 2);
-
-		delNetSection(add_ifname);
-		addNetSection(add_ifname, "lan");
-		addVlanSection(switch_device, add_vlan, ports_none);
-
-		rebuild_switches();
-		rebuild_assignment();
-		adv_apply();
-	});
-
-	append_button(buttons, "L\xf6schen", function() {
-		//delete the last vlan
-		var swinfo = collect_switch_info(switch_device);
-		var vlans = collectVLANs(switch_device);
-
-		if(vlans.length <= 1)
-			return alert("Mindestens ein VLAN muss erhalten bleiben.");
-
-		//check if all ports of the last vlan are unchecked
-		var all_unchecked = true;
-		var vlan_root = $("network#"+switch_root.lastChild.id+"#ports");
-		onDesc(vlan_root, "INPUT", function(e) {
-			if(isNaN((e.data || e.value)) || !e.checked) //ignore tagged and unchecked port
-				return;
-			all_unchecked = false;
+	var found_vid;
+	config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
+		if(vobj.device == swinfo.device && vobj.ports.includes(port)) {
+			found_vid = vid;
 			return false;
-		});
+		}
+	});
+	return found_vid;
+}
 
-		if(!all_unchecked)
-			return alert("Die Ports des letzten VLANs m\xfcssen zuerst deselektiert werden.");
+function countPortUse(port, swinfo)
+{
+	var count = 0;
+	config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
+		if(vobj.device == swinfo.device) {
+			count += vobj.ports.includes(port);
+		}
+	});
+	return count;
+}
 
-		//get last ifname of device
-		var last_vlan = swinfo.vlan_start + vlans.length - 1;
-		var old_ifname = guess_vlan_ifname(swinfo, last_vlan, vlans.length);
-		delVlanSection(swinfo.device, last_vlan);
-		delNetSection(old_ifname);
+function renameInterface(old_ifname, new_ifname)
+{
+	for(var i in uci.network) {
+		var ifname = split(uci.network[i].ifname);
+		var index = ifname.indexOf(old_ifname);
+		if (index !== -1) {
+			ifname[index] = new_ifname;
+			uci.network[i].ifname = ifname.join(' ');
+		}
+	}
+}
 
-		if(vlans.length <= 2)
+function replaceSwitchPort(fromPort, toPort, swinfo)
+{
+	var vid = getSwitchVid(fromPort, swinfo);
+	if(vid) {
+		var vobj = uci.network[vid];
+		var fromIfname = getInterfaceName(vid, swinfo);
+		vobj.ports = replaceItem(vobj.ports, fromPort, toPort);
+		var toIfname = getInterfaceName(vid, swinfo);
+		renameInterface(fromIfname, toIfname);
+	}
+}
+
+function fixPortTag(swinfo)
+{
+	for(var i in swinfo.map) {
+		var v = swinfo.map[i];
+		if(v[0].startsWith("eth"))
 		{
-			delVlanSection(swinfo.device, -1);
+			var bport = v[1];
+			if(countPortUse(bport, swinfo) > 1) {
+				replacePort(bport, bport + "t", swinfo);
+			} else {
+				replacePort(bport+"t", bport, swinfo);
+			}
+		}
+	}
+}
 
-			var old_ifname = guess_vlan_ifname(swinfo, 1, 2);
-			var new_ifname = guess_vlan_ifname(swinfo, 1, 1);
-			renameIfname(old_ifname, new_ifname);
+function getInterfaceName(vid, swinfo)
+{
+	var vobj = uci.network[vid];
+	for(var i in swinfo.map) {
+		var v = swinfo.map[i];
+		if(v[0].startsWith("eth")) {
+			if(vobj.ports.includes(""+v[1]+"t")) {
+				return v[0] + "." + vobj.vlan;
+			}
+			else if(vobj.ports.includes(v[1])) {
+				return v[0];
+			}
+		}
+	}
+}
 
-			//add a single switch_vlan for eth0
-			addVlanSection(switch_device, swinfo.vlan_start, swinfo.ports);
+function getBasePort(ports, swinfo)
+{
+	var map = swinfo.map;
+	for(var i in map) {
+		if(map[i][0].startsWith("eth") && ports.includes(map[i][1])) {
+			return map[i][1];
+		}
+	}
+	return -1;
+}
+
+// Get default base port.
+function getDefaultBasePort(port, swinfo)
+{
+	var bport;
+	var found = false;
+	var map = swinfo.map;
+	for(var i in map) {
+		var v = map[i];
+		if(v[0].startsWith("eth")) {
+			bport = v[1];
+		}
+		if(v[1] == port) {
+			return bport;
+		}
+	}
+}
+
+function removePort(port, mode, swinfo)
+{
+	var vid = getSwitchVid(port, swinfo);
+	var bport = getDefaultBasePort(port, swinfo);
+	var ifname = getInterfaceName(vid, swinfo);
+	var vobj = uci.network[vid];
+
+	vobj.ports = removeItem(vobj.ports, port);
+	// Only the base port or no port at all is left => remove section.
+	if(split(vobj.ports).length < 2) {
+		delNetSection(ifname);
+		delete uci.network[vid];
+
+		// Untag base port.
+		replaceSwitchPort(bport+"t", bport, swinfo);
+	}
+
+	uci.network.pchanged = true;
+}
+
+function addPort(port, mode, swinfo)
+{
+	var bport = getDefaultBasePort(port, swinfo);
+
+	var vlans = [];
+	var added = config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
+		vlans.push(vobj.vlan);
+		if(vobj.device == swinfo.device && vobj.ports.includes(bport)) {
+			var ifname = getInterfaceName(vid, swinfo);
+			if(getInterfaceMode(ifname) == mode) {
+				vobj.ports = addItem(vobj.ports, port);
+				return true;
+			}
+		}
+	});
+
+	if(!added) {
+		// Get unused vlan number > 0.
+		var vlan = vlans.reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
+
+		var usage = countPortUse(bport, swinfo);
+		if(usage < 2) {
+			// Tag base port.
+			replaceSwitchPort(bport, bport + "t", swinfo);
 		}
 
+		var ports = ""+ (usage ? bport+"t" : bport)+" "+port;
+		var vid = "cfg"+(++gid);
+
+		uci.network[vid] = { "stype" : "switch_vlan", "device" : swinfo.device, "vlan" : ""+vlan, "ports" : ports };
+
+		var ifname = getInterfaceName(vid, swinfo);
+		addNetSection(ifname, mode);
+	}
+
+	uci.network.pchanged = true;
+}
+
+function getChangeHandler(port, mode, swinfo)
+{
+	return function(e) {
+		var src = (e.target || e.srcElement);
+		var mode = (src.data || src.value);
+
+		removePort(port, mode, swinfo);
+		addPort(port, mode, swinfo);
+
 		rebuild_switches();
-		rebuild_assignment();
-		adv_apply();
-	});
+	};
 }
 
 function rebuild_switches()
@@ -815,37 +761,47 @@ function rebuild_switches()
 	var root = $("switches");
 	removeChilds(root);
 
-	//print switch sections
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
-		var vlans = collectVLANs(sobj.name);
-		var sfs = append_section(root, "Switch '"+swinfo.ifname+"'", sid);
-		var switch_root = append(sfs, 'div');
-		var use_tagged = (collectVLANs(swinfo.device).length > 1);
+		var sfs = append_section(root, "Switch '"+swinfo.device+"'");
 
-		//print vlan sections
-		config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-			if(vobj.device != swinfo.device) return;
-			var ifname = guess_vlan_ifname(swinfo, vobj.vlan, vlans.length);
-			var mode = getNetMode(ifname);
-			if(mode != "none") {
-				delNetSection(ifname);
-				addNetSection(ifname, mode); //makes sure entry exists
+		if(!swinfo.map) {
+			var p = append(sfs, 'div');
+			var label = append(p, "label");
+			label.innerHTML = "Keine Port-Konfiguration m\xf6glich.";
+		} else for(var i in swinfo.map) {
+			var name = swinfo.map[i][0];
+			var port = swinfo.map[i][1];
+			if(name.startsWith("eth")) {
+				continue;
 			}
-			build_vlan(switch_root, vid, vobj, swinfo, ifname, mode);
-		});
+			var vid = getSwitchVid(port, swinfo);
+			var ifname = getInterfaceName(vid, swinfo);
+			var mode = getInterfaceMode(ifname);
+			var bport = getDefaultBasePort(port, swinfo);
 
-		append_vlan_buttons(sfs, switch_root, swinfo.device);
-		apply_port_action(switch_root);
+			var p = append(sfs, 'div');
+			var label = append(p, "label");
+			label.innerHTML = name + ":";
+
+			var span = append(p, "span");
+			var d = append(span, "div");
+			var select = append_options(d, "port_"+port, mode, net_options);
+			select.onchange = getChangeHandler(port, mode, swinfo);
+
+			var ifname_span = append(span, "div");
+			ifname_span.innerHTML = "  (Base: "+bport+", Port: "+port+", Name: "+ ifname + ")";
+			addClass(ifname_span, "adv_hide");
+		}
 	});
 }
 
 /*
-WAN over wifi works only if the wifi interface
-is not in a bridge. Switch to static in this case.
-Also check if there are other WAN interfaces
-since only a bridge would support that.
-*/
+ * WAN over wifi works only if the wifi interface
+ * is not in a bridge. Switch to static in this case.
+ * Also check if there are other WAN interfaces
+ *since only a bridge would support that.
+ */
 function checkWifiWan() {
 	var pre_mode = uci.network.wan.type;
 	var new_mode = 'bridge';
