@@ -44,7 +44,7 @@ function addItem(str, item)
 		}
 	}
 	array.push(item);
-	return array.join(' ');
+	return array.sort().join(' ');
 }
 
 function replaceItem(str, old_item, new_item)
