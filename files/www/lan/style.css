@@ -197,9 +197,7 @@ button {
 		float: right;
 		display: inline-block;
 	}
-}
 
-@media screen and (max-width:680px) {
 	#globalnav.responsive {
 		position: relative;
 	}
