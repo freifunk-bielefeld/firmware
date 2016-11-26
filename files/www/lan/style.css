@@ -154,13 +154,6 @@ button {
 	font-size: 1em;
 }
 
-fieldset div span div {
-	float: left;
-	white-space: nowrap;
-	clear: none;
-	margin-left: 0.5em;
-}
-
 /* navigation */
 
 #globalnav {

@@ -774,14 +774,8 @@ function rebuild_switches()
 			var label = append(p, "label");
 			label.innerHTML = name + ":";
 
-			var span = append(p, "span");
-			var d = append(span, "div");
-			var select = append_options(d, "port_"+port, mode, net_options);
+			var select = append_options(p, "port_"+port, mode, net_options);
 			select.onchange = getChangeHandler(port, mode, swinfo);
-
-			var ifname_span = append(span, "div");
-			ifname_span.innerHTML = "  (Base: "+bport+", Port: "+port+", Name: "+ ifname + ")";
-			addClass(ifname_span, "adv_hide");
 		}
 	});
 }
