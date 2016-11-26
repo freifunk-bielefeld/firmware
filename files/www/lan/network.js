@@ -657,19 +657,8 @@ function getInterfaceName(vid, swinfo)
 	}
 }
 
-function getBasePort(ports, swinfo)
-{
-	var map = swinfo.map;
-	for(var i in map) {
-		if(map[i][0].startsWith("eth") && ports.includes(map[i][1])) {
-			return map[i][1];
-		}
-	}
-	return -1;
-}
-
-// Get default base port.
-function getDefaultBasePort(port, swinfo)
+// Get base port.
+function getBasePort(port, swinfo)
 {
 	var bport;
 	var found = false;
@@ -683,12 +672,13 @@ function getDefaultBasePort(port, swinfo)
 			return bport;
 		}
 	}
+	// A default port must exist.
 }
 
 function removePort(port, mode, swinfo)
 {
 	var vid = getSwitchVid(port, swinfo);
-	var bport = getDefaultBasePort(port, swinfo);
+	var bport = getBasePort(port, swinfo);
 	var ifname = getInterfaceName(vid, swinfo);
 	var vobj = uci.network[vid];
 
@@ -707,7 +697,7 @@ function removePort(port, mode, swinfo)
 
 function addPort(port, mode, swinfo)
 {
-	var bport = getDefaultBasePort(port, swinfo);
+	var bport = getBasePort(port, swinfo);
 
 	var vlans = [];
 	var added = config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
@@ -778,7 +768,7 @@ function rebuild_switches()
 			var vid = getSwitchVid(port, swinfo);
 			var ifname = getInterfaceName(vid, swinfo);
 			var mode = getInterfaceMode(ifname);
-			var bport = getDefaultBasePort(port, swinfo);
+			var bport = getBasePort(port, swinfo);
 
 			var p = append(sfs, 'div');
 			var label = append(p, "label");
