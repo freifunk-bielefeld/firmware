@@ -475,6 +475,8 @@ start()
 			update_051_to_060
 			update_060_to_061
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.5.1")
@@ -482,22 +484,29 @@ start()
 			update_051_to_060
 			update_060_to_061
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.0")
 			echo "(I) Apply update."
 			update_060_to_061
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.1")
 			echo "(I) Apply update."
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.2")
 			echo "(I) Apply update."
 			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.3")
