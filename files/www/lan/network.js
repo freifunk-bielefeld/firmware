@@ -687,7 +687,9 @@ function removePort(port, mode, swinfo)
 	if(split(vobj.ports).length < 2) {
 		delNetSection(ifname);
 		delete uci.network[vid];
+	}
 
+	if(countPortUse(bport, swinfo) < 2) {
 		// Untag base port.
 		replaceSwitchPort(bport+"t", bport, swinfo);
 	}
@@ -701,7 +703,7 @@ function addPort(port, mode, swinfo)
 
 	var vlans = [];
 	var added = config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-		vlans.push(vobj.vlan);
+		vlans.push(parseInt(vobj.vlan));
 		if(vobj.device == swinfo.device && vobj.ports.includes(bport)) {
 			var ifname = getInterfaceName(vid, swinfo);
 			if(getInterfaceMode(ifname) == mode) {
@@ -713,7 +715,7 @@ function addPort(port, mode, swinfo)
 
 	if(!added) {
 		// Get unused vlan number > 0.
-		var vlan = vlans.reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
+		var vlan = vlans.sort(function(a, b){return a-b}).reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
 
 		var usage = countPortUse(bport, swinfo);
 		if(usage < 2) {
