@@ -535,20 +535,20 @@ function collect_switch_info(device)
 			obj.map = [['eth0',0],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',1]];
 			break;
 		case 'tp-link-tl-wr841n-nd-v8':
+		case 'tp-link-tl-wr842n-nd-v2':
+		case 'tp-link-tl-mr3420-v2':
 			obj.map = [['eth1',0],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',1]];
 			break;
-		case 'tp-link-tl-mr3420-v2':
-		case 'tp-link-tl-wr842n-nd-v2':
 		case 'tp-link-tl-wr941n-nd-v5':
 		case 'tp-link-tl-wr941n-nd-v6':
 			obj.map = [['eth1',0],['LAN1',4],['LAN2',3],['LAN3',2],['LAN4',1]];
 			break;
-		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-wr841n-nd-v9':
 		case 'tp-link-tl-wr841n-nd-v10':
 		case 'tp-link-tl-wr841n-nd-v11':
-			obj.map = [['eth0',0],['LAN1',1],['LAN2',2],['LAN3',3],['LAN4',4]];
+			obj.map = [['eth0',0],['LAN1',4],['LAN2',3],['LAN3',2],['LAN4',1]];
 			break;
+		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-wr842n-nd-v1':
 		case 'tp-link-tl-mr3420-v1':
 			obj.map = [['eth0',0],['LAN1',1],['LAN2',2],['LAN3',3],['LAN4',4]];
@@ -560,10 +560,8 @@ function collect_switch_info(device)
 			obj.map = [['eth0',0],['LAN0',5],['LAN1',4]];
 			break;
 		case 'tp-link-archer-c5-v1':
-			obj.map = [['eth1',0],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',5],['eth0',6],['WAN',1]];
-			break;
 		case 'tp-link-archer-c7-v2':
-			obj.map = [['eth1',0],['WAN',1],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',5]];
+			obj.map = [['eth1',0],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',5],['eth0',6],['WAN',1]];
 			break;
 		case 'd-link-dir-615-d':
 		case 'd-link-dir-615-h1':
