@@ -713,18 +713,19 @@ function addPort(port, mode, swinfo)
 	});
 
 	if(!added) {
-		// Get unused vlan number > 0.
+		// Get smallest unused vlan number > 0.
 		var vlan = vlans.sort(function(a, b){return a-b}).reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
 
-		var usage = countPortUse(bport, swinfo);
-		if(usage < 2) {
+		var ports = "" + bport;
+		if(countPortUse(bport, swinfo) > 0) {
 			// Tag base port.
 			replaceSwitchPort(bport, bport + "t", swinfo);
+			ports += "t " + port;
+		} else {
+			ports += " " + port;
 		}
 
-		var ports = ""+ (usage ? bport+"t" : bport)+" "+port;
 		var vid = "cfg"+(++gid);
-
 		uci.network[vid] = { "stype" : "switch_vlan", "device" : swinfo.device, "vlan" : ""+vlan, "ports" : ports };
 
 		var ifname = getInterfaceName(vid, swinfo);
