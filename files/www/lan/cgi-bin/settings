@@ -18,7 +18,7 @@ case "$GET_func" in
 		echo "	option ula_prefix '$ula_prefix'"
 	;;
 	*)
-		echo "(E) settings: Invalid command: '$GET_func'"
+		echo "Fehler: Unbekanntes Kommando: '$GET_func'"
 	;;
 esac
 %>

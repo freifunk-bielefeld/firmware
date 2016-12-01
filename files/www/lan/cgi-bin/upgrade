@@ -8,7 +8,7 @@ case "${GET_func:-$POST_func}" in
 		keep="$POST_keep_config"
 
 		if [ ! -f "$path" ]; then
-			echo "(E) Fehler: Datei nicht gefunden."
+			echo "Fehler: Datei nicht gefunden."
 			exit 1
 		fi
 
@@ -18,7 +18,7 @@ case "${GET_func:-$POST_func}" in
 			args="-n"
 		fi
 
-		echo "(I) Starte Update ..."
+		echo "Starte Update ..."
 
 		#apply openwrt or vendor image
 		sysupgrade $args $path
@@ -30,13 +30,13 @@ case "${GET_func:-$POST_func}" in
 		autoupdater -f 2>&1
 	;;
 	restore_firmware)
-		echo "(I) Alle &#196;nderungen werden zur&#252;ckgesetzt ..."
+		echo "Alle &#196;nderungen werden zur&#252;ckgesetzt ..."
 		echo y | firstboot
-		echo "(I) Starte neu ..."
+		echo "Starte neu ..."
 		reboot
 	;;
 	*)
-		echo "(E) Unbekannter Befehl: '$GET_func'"
+		echo "Fehler: Unbekannter Befehl: '$GET_func'"
 	;;
 esac
 %>

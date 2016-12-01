@@ -22,7 +22,7 @@ case "$GET_func" in
 		echo "	option model '$model'"
 	;;
 	*)
-		echo "(E) network: Invalid command: '$GET_func'"
+		echo "Fehler: Unbekanntes Kommando: '$GET_func'"
 	;;
 esac
 %>
