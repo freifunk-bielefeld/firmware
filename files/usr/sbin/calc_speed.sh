@@ -4,8 +4,8 @@
 
 for net in $@; do
         for act in rx_bytes tx_bytes; do
-                bytes1="$(cat /var/$act$net)"
-                time1="$(date +%s -r /var/$act$net)"
+                bytes1="$(cat /var/$act$net 2> /dev/null)"
+                time1="$(date +%s -r /var/$act$net 2> /dev/null)"
 
                 bytes2="$(cat /sys/class/net/$net/statistics/$act)"
                 time2="$(date +%s)"
