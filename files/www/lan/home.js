@@ -13,6 +13,11 @@ function formatSize(bytes) {
 	}
 }
 
+function formatSpeed(bytes) {
+	var fmt = formatSize(bytes);
+	return (fmt == "-") ? "-" : (fmt + "/s");
+}
+
 function init() {
 	send("/cgi-bin/home", { }, function(data) {
 		var obj = fromUCI(data).misc.data;
@@ -23,9 +28,14 @@ function init() {
 				continue;
 			}
 
-			//for traffic
-			if(/_bytes$/.test(key)) {
+			// for data volume
+			if(/_data$/.test(key)) {
 				value = formatSize(value);
+			}
+
+			// for transfer speed
+			if(/_speed$/.test(key)) {
+				value = formatSpeed(value);
 			}
 
 			//for addresses
