@@ -1,6 +1,6 @@
 #!/bin/sh                                                                                              
 
-# Calculate up/dpwn speed on given network interfaces
+# Calculate up/down speed on given network interfaces
 
 for net in $@; do
         for act in rx_bytes tx_bytes; do
