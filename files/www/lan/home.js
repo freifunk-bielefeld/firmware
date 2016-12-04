@@ -29,12 +29,12 @@ function init() {
 			}
 
 			// for data volume
-			if(/_data$/.test(key)) {
+			if(key.endsWith("_data")) {
 				value = formatSize(value);
 			}
 
 			// for transfer speed
-			if(/_speed$/.test(key)) {
+			if(key.endsWith("_speed")) {
 				value = formatSpeed(value);
 			}
 
