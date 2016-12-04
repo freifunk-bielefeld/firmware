@@ -1,5 +1,7 @@
 #check for new firmware every 6 hours
 0 */6 * * * /usr/sbin/autoupdater
+#calculate network speed
+*/1 * * * * /usr/sbin/calc_speed.sh br-lan br-wan br-freifunk
 #publish map data
 */5 * * * * /usr/sbin/print_map.sh -p
 #publish service data
