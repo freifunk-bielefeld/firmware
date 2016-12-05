@@ -6,7 +6,7 @@
 }
 
 body {
-	font-size: 13px;
+	font: 13px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
 	line-height: 1.7em;
 }
 
