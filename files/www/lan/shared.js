@@ -235,7 +235,7 @@ function removeChilds(p)
 
 function show_error(data)
 {
-	var is_error = (data.substr(0, 3) == "(E)");
+	var is_error = (data.includes("Fehler") || data.includes("Error"));
 	if(is_error)
 		setText('msg', data);
 	return is_error;

@@ -550,6 +550,7 @@ function collect_switch_info(device)
 			break;
 		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-wr842n-nd-v1':
+		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-mr3420-v1':
 			obj.map = [['eth0',0],['LAN1',1],['LAN2',2],['LAN3',3],['LAN4',4]];
 			break;
@@ -685,7 +686,9 @@ function removePort(port, mode, swinfo)
 	if(split(vobj.ports).length < 2) {
 		delNetSection(ifname);
 		delete uci.network[vid];
+	}
 
+	if(countPortUse(bport, swinfo) < 2) {
 		// Untag base port.
 		replaceSwitchPort(bport+"t", bport, swinfo);
 	}
@@ -699,7 +702,7 @@ function addPort(port, mode, swinfo)
 
 	var vlans = [];
 	var added = config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-		vlans.push(vobj.vlan);
+		vlans.push(parseInt(vobj.vlan));
 		if(vobj.device == swinfo.device && vobj.ports.includes(bport)) {
 			var ifname = getInterfaceName(vid, swinfo);
 			if(getInterfaceMode(ifname) == mode) {
@@ -710,18 +713,19 @@ function addPort(port, mode, swinfo)
 	});
 
 	if(!added) {
-		// Get unused vlan number > 0.
-		var vlan = vlans.reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
+		// Get smallest unused vlan number > 0.
+		var vlan = vlans.sort(function(a, b){return a-b}).reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
 
-		var usage = countPortUse(bport, swinfo);
-		if(usage < 2) {
+		var ports = "" + bport;
+		if(countPortUse(bport, swinfo) > 0) {
 			// Tag base port.
 			replaceSwitchPort(bport, bport + "t", swinfo);
+			ports += "t " + port;
+		} else {
+			ports += " " + port;
 		}
 
-		var ports = ""+ (usage ? bport+"t" : bport)+" "+port;
 		var vid = "cfg"+(++gid);
-
 		uci.network[vid] = { "stype" : "switch_vlan", "device" : swinfo.device, "vlan" : ""+vlan, "ports" : ports };
 
 		var ifname = getInterfaceName(vid, swinfo);
@@ -748,6 +752,7 @@ function rebuild_switches()
 {
 	var root = $("switches");
 	removeChilds(root);
+	addHelpText(root, "Konfiguration der Anschl\xfcsse/Ports am Router. Bitte darauf achten, dass der Zugang auf diese Seite normalerweise nur \xfcber auf 'LAN' gestellte Anschl\xfcsse m\xf6glich ist.");
 
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
