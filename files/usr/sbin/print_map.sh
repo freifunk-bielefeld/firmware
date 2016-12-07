@@ -30,6 +30,8 @@ print_basic() {
 	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 
+	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
+
 	if [ -n "$longitude" -a -n "$latitude" ]; then
 		echo -n "\"longitude\" : $longitude, "
 		echo -n "\"latitude\" : $latitude, "
@@ -56,7 +58,6 @@ print_basic() {
 print_more() {
 	echo -n "\"loadavg\" : $(uptime | awk '{print($NF)}'), "
 	echo -n "\"uptime\" : $(cat /proc/uptime | awk '{print($1)}'), "
-	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
 
 	print_basic
 }
