@@ -35,6 +35,7 @@ print_basic() {
 		echo -n "\"latitude\" : $latitude, "
 	fi
 
+	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
 	echo -n "\"links\" : ["
 
 	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
@@ -56,7 +57,6 @@ print_basic() {
 print_more() {
 	echo -n "\"loadavg\" : $(uptime | awk '{print($NF)}'), "
 	echo -n "\"uptime\" : $(cat /proc/uptime | awk '{print($1)}'), "
-	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
 
 	print_basic
 }
