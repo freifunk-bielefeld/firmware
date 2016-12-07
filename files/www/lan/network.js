@@ -548,7 +548,6 @@ function collect_switch_info(device)
 		case 'tp-link-tl-wr841n-nd-v11':
 			obj.map = [['eth0',0],['LAN1',4],['LAN2',3],['LAN3',2],['LAN4',1]];
 			break;
-		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-wr842n-nd-v1':
 		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-mr3420-v1':
