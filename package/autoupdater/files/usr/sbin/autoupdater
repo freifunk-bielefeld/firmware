@@ -99,7 +99,7 @@ analyse_manifest() {
     echo "No matching firmware found (model ${my_model})" >&2
 
     # report back missing model
-    wget -T 3 --spider "${MIRROR}/request_image.sh?model=${my_model}" -O /dev/null &> /dev/null
+    #wget -T 3 --spider "${MIRROR}/request_image.sh?model=${my_model}" -O /dev/null &> /dev/null
     return 1
   fi
 
