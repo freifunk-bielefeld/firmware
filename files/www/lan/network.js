@@ -241,14 +241,12 @@ function rebuild_assignment()
 	var ignore = ["local-node", "fastd_mesh", "bat0", "lo"];
 	var ifnames = [];
 
-        // remove dummy-interface
-	switch (uci.misc.data.model)
-        {
-                case 'tp-link-tl-wr941n-nd-v1':
-		case 'tp-link-tl-wr941n-nd-v2':
-		case 'tp-link-tl-wr941n-nd-v3':
-                        ignore.push("eth0");
-                        break;
+	// remove dummy-interface
+	switch (uci.misc.data.model)	{
+	case 'tp-link-tl-wr941n-nd-v1':
+	case 'tp-link-tl-wr941n-nd-v2':
+	case 'tp-link-tl-wr941n-nd-v3':
+		ignore.push("eth0");
 	}
 
 	// Collect all interfaces.
