@@ -136,12 +136,14 @@ function appendSetting(p, path, value, mode)
 			addClass(b.lastChild, "adv_disable");
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
+/*
 	case "macaddr":
 		if(path[1] != "freifunk") return;
 		b = append_input(p, "MAC-Adresse", id, value);
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
 		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
 		break;
+*/
 	case "mesh_on_wan":
 		b = append_radio(p, "Mesh-On-WAN", id, value, [["Ja", "1"], ["Nein", "0"]]);
 		onDesc(b, "INPUT", function(e) {
