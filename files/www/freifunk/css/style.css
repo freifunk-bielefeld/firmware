@@ -116,6 +116,11 @@ h3 {
 	vertical-align: middle;
 }
 
+a {
+    color: #23527c;
+	text-decoration: none;
+}
+
 .menu ul {
 	display: inline-block;
 	vertical-align: middle;
