@@ -76,17 +76,17 @@ function add_list_entry(device, ifname) {
 * represented as the first interface found.
 */
 function init() {
-        send("/cgi-bin/misc", {func:'wifi_status'}, function(data) {
-                var data = JSON.parse(data);
-                for (var device in data) {
-                        var interfaces = data[device].interfaces;
-                        if (interfaces.length == 0) {
-                                continue;
+	send("/cgi-bin/misc", {func:'wifi_status'}, function(data) {
+		var data = JSON.parse(data);
+		for (var device in data) {
+			var interfaces = data[device].interfaces;
+			if (interfaces.length == 0) {
+				continue;
 			}
-                        var ifname = interfaces[0].ifname ;
-                        if (typeof(ifname) == 'string') {
-                                add_list_entry(device, ifname);
+			var ifname = interfaces[0].ifname ;
+			if (typeof(ifname) == 'string') {
+				add_list_entry(device, ifname);
 			}
-                }
+		}
 	});
 }
