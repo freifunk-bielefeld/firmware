@@ -1,6 +1,6 @@
 
 function formatSize(bytes) {
-	if(typeof bytes === "undefined" || bytes == "") {
+	if (typeof bytes === "undefined" || bytes == "") {
 		return "-";
 	} else if (bytes < 1000) {
 		return bytes + "  B";
@@ -21,25 +21,25 @@ function formatSpeed(bytes) {
 function init() {
 	send("/cgi-bin/home", { }, function(data) {
 		var obj = fromUCI(data).misc.data;
-		for(var key in obj) {
+		for (var key in obj) {
 			var value = obj[key];
 
-			if(key == 'stype') {
+			if (key == 'stype') {
 				continue;
 			}
 
 			// for data volume
-			if(key.endsWith("_data")) {
+			if (key.endsWith("_data")) {
 				value = formatSize(value);
 			}
 
 			// for transfer speed
-			if(key.endsWith("_speed")) {
+			if (key.endsWith("_speed")) {
 				value = formatSpeed(value);
 			}
 
 			//for addresses
-			if(typeof(value) == 'object') {
+			if (typeof(value) == 'object') {
 				value = "<ul><li>"+value.join("</li><li>")+"</li></ul>"
 			}
 

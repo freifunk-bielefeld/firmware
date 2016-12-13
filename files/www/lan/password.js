@@ -11,7 +11,7 @@ function apply()
 	$('p1').value = "";
 	$('p2').value = "";
 
-	if(p1 != p2) {
+	if (p1 != p2) {
 		setText('msg', "Die Passw&ouml;rter sind nicht identisch.");
 		return;
 	} else {

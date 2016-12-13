@@ -48,7 +48,7 @@ function updateFrom(src)
 {
 	var obj = {};
 	collect_inputs(src, obj);
-	for(var name in obj)
+	for (var name in obj)
 	{
 		var value = obj[name];
 		var path = name.split('#');
@@ -78,7 +78,7 @@ function appendSetting(p, path, value, mode)
 	var b;
 	var cfg = path[0]
 	var name = path[path.length-1];
-	switch(name)
+	switch (name)
 	{
 	case "country":
 		b = append_input(p, "Land", id, value);
@@ -86,7 +86,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "channel":
 		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
-		if(value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
+		if (value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
 		b = append_selection(p, "Kanal", id, value, channels);
 		addClass(b.lastChild, "adv_disable");
 		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
@@ -98,26 +98,26 @@ function appendSetting(p, path, value, mode)
 		addClass(b, "adv_hide");
 		break;
 	case "mode":
-		if(!inArray(mode, ["wan", "none"]))
+		if (!inArray(mode, ["wan", "none"]))
 			return;
 		b = append_selection(p, "Modus", id, value, [["Client", "sta"],["AccessPoint", "ap"]]);
 		addHelpText(b, "In einem anderen Netz anmelden (Client) oder das Anmelden anderer Ger\xe4te zulassen (AccessPoint).");
 		break;
 	case "encryption":
-		if(!inArray(mode, ["wan", "lan", "none"]))
+		if (!inArray(mode, ["wan", "lan", "none"]))
 			return;
 		b = append_selection(p, "Verschl\xfcsselung", id, value, [["Keine", "none"],["WPA", "psk"], ["WPA2", "psk2"]]);
 		break;
 	case "key":
-		if(!inArray(mode, ["wan", "lan", "none"]))
+		if (!inArray(mode, ["wan", "lan", "none"]))
 			return;
 		b = append_input(p, "Passwort", id, value);
 		addInputCheck(b.lastChild, /^[\S]{8,32}$/, "Bitte nur ein Passwort aus mindestens acht sichbaren Zeichen verwenden.");
 		break;
 	case "hwmode":
-		if(value == "11g") {
+		if (value == "11g") {
 			value = "802.11g (2.4 GHz)";
-		} else if(value == "11a") {
+		} else if (value == "11a") {
 			value = "802.11a (5 GHz)";
 		} else {
 			value = "802." + value;
@@ -126,19 +126,19 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "mesh_id":
 		b = append_input(p, "Mesh ID", id, value);
-		if(!inArray(mode, ["wan", "lan", "none"]))
+		if (!inArray(mode, ["wan", "lan", "none"]))
 			addClass(b.lastChild, "adv_disable");
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "Mesh ID ist ung\xfcltig.");
 		break;
 	case "ssid":
 		b = append_input(p, "SSID", id, value);
-		if(!inArray(mode, ["wan", "lan", "none"]))
+		if (!inArray(mode, ["wan", "lan", "none"]))
 			addClass(b.lastChild, "adv_disable");
 		addInputCheck(b.lastChild, /^[^\x00-\x1F\x80-\x9F]{3,30}$/, "SSID ist ung\xfcltig.");
 		break;
 /*
 	case "macaddr":
-		if(path[1] != "freifunk") return;
+		if (path[1] != "freifunk") return;
 		b = append_input(p, "MAC-Adresse", id, value);
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
 		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
@@ -150,9 +150,9 @@ function appendSetting(p, path, value, mode)
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
 				var val = (src.data || src.value);
-				if(val != value)
+				if (val != value)
 				{
-					if(val == "1") {
+					if (val == "1") {
 						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0", "mesh_no_rebroadcast" : "1"};
 					} else {
 						delete uci.network['wan_mesh'];
@@ -182,16 +182,16 @@ function getInterfaceMode(ifname)
 {
 	var n = uci.network;
 
-	if(inArray(ifname, split(n.freifunk.ifname)))
+	if (inArray(ifname, split(n.freifunk.ifname)))
 		return "freifunk";
 
-	if(inArray(ifname, split(n.lan.ifname)))
+	if (inArray(ifname, split(n.lan.ifname)))
 		return "lan";
 
-	if(inArray(ifname, split(n.wan.ifname)))
+	if (inArray(ifname, split(n.wan.ifname)))
 		return "wan";
 
-	if(config_find(n, {"ifname" : ifname, "proto" : "batadv"}))
+	if (config_find(n, {"ifname" : ifname, "proto" : "batadv"}))
 		return "mesh";
 
 	return "none";
@@ -201,10 +201,10 @@ function getWifiMode(id)
 {
 	var obj = uci.wireless[id];
 
-	if(obj.network == "freifunk") return "freifunk";
-	if(obj.network == "lan") return "lan";
-	if(obj.network == "wan") return "wan";
-	if(obj.mode == "mesh") return "mesh";
+	if (obj.network == "freifunk") return "freifunk";
+	if (obj.network == "lan") return "lan";
+	if (obj.network == "wan") return "wan";
+	if (obj.mode == "mesh") return "mesh";
 
 	return "none";
 }
@@ -217,12 +217,12 @@ function rebuild_other()
 
 	var fs = append_section(root, "Sonstiges");
 
-	if('network' in uci) {
+	if ('network' in uci) {
 		var n = uci['network'];
 		appendSetting(fs, ['network', 'freifunk', "macaddr"], n['freifunk']["macaddr"]);
 	}
 
-	if('freifunk' in uci) {
+	if ('freifunk' in uci) {
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
 		appendSetting(fs, ['freifunk', i, "mesh_on_wan"], f[i]["mesh_on_wan"]);
@@ -253,7 +253,7 @@ function rebuild_assignment()
 
 	// Collect all interfaces.
 	config_foreach(uci.network, "interface", function(sid, sobj) {
-		if(sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
+		if (sobj.ifname) ifnames = ifnames.concat(split(sobj.ifname));
 	});
 
 	// Ignore switch interfaces.
@@ -266,15 +266,15 @@ function rebuild_assignment()
 
 	// Ignore wlan interfaces.
 	config_foreach(uci.wireless, "wifi-iface", function(sid, sobj) {
-		if(sobj.ifname) ignore.push(sobj.ifname);
+		if (sobj.ifname) ignore.push(sobj.ifname);
 	});
 
 	ifnames = uniq(ifnames);
 	ifnames.sort();
-	for(var i in ifnames)
+	for (var i in ifnames)
 	{
 		var ifname = ifnames[i];
-		if((ifname.length == 0) || inArray(ifname, ignore) || ifname[0] == "@" ) {
+		if ((ifname.length == 0) || inArray(ifname, ignore) || ifname[0] == "@" ) {
 			continue;
 		}
 		var mode = getInterfaceMode(ifname);
@@ -288,15 +288,15 @@ function collect_wifi_info(device)
 {
 	var modes = [];
 	config_foreach(uci.wireless, "wifi-iface", function(id, obj) {
-		if(device == obj.device)
+		if (device == obj.device)
 			modes.push(getWifiMode(id));
 	});
 	return {"modes" : modes};
 }
 
 function modeName(mode) {
-	for(var i in net_options) {
-		if(net_options[i][1] == mode) {
+	for (var i in net_options) {
+		if (net_options[i][1] == mode) {
 			return net_options[i][0];
 		}
 	}
@@ -307,7 +307,7 @@ function addNetSection(ifname, mode)
 {
 	var n = uci.network;
 
-	switch(mode) {
+	switch (mode) {
 	case "wan":
 		n.wan.ifname = addItem(n.wan.ifname, ifname);
 		break;
@@ -337,7 +337,7 @@ function delNetSection(ifname)
 	var n = uci.network;
 
 	config_foreach(n, "interface", function(id, obj) {
-		if(obj.ifname == ifname && !inArray(id, ['wan', 'lan', 'freifunk']))
+		if (obj.ifname == ifname && !inArray(id, ['wan', 'lan', 'freifunk']))
 			delete n[id];
 	});
 
@@ -366,7 +366,7 @@ function addWifiSection(device, mode)
 	var ifname = device+"_"+mode;
 
 	// Add section to /etc/config/wireless
-	switch(mode)
+	switch (mode)
 	{
 	case "wan":
 		// Only works if interface is not in a bridge!
@@ -399,8 +399,8 @@ function delWifiSection(dev, mode)
 	var n = uci.network;
 
 	config_foreach(w, "wifi-iface", function(id, obj) {
-		if(obj.device == dev && getWifiMode(id) == mode) {
-			if(mode == "mesh") {
+		if (obj.device == dev && getWifiMode(id) == mode) {
+			if (mode == "mesh") {
 				delete n[obj.network];
 				n.pchanged = true;
 			}
@@ -413,14 +413,14 @@ function delWifiSection(dev, mode)
 function getWifiInterfaceState(dev, wid)  {
 	var obj = wifi_status[dev];
 
-	if(!obj.up) {
+	if (!obj.up) {
 		return "Inaktiv";
 	}
 
 	var interfaces = obj['interfaces'];
-	for(var i = 0; interfaces && i < interfaces.length; i++) {
+	for (var i = 0; interfaces && i < interfaces.length; i++) {
 		var e = interfaces[i];
-		if(e.section == wid) {
+		if (e.section == wid) {
 			return ('ifname' in e) ? "Aktiv" : "Fehler";
 		}
 	}
@@ -430,10 +430,10 @@ function getWifiInterfaceState(dev, wid)  {
 function countWifi(mode, wmode) {
 	var n = 0;
 	config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
-		if(wmode && wobj['mode'] != wmode) {
+		if (wmode && wobj['mode'] != wmode) {
 			return;
 		}
-		if(getWifiMode(wid) == mode) n++;
+		if (getWifiMode(wid) == mode) n++;
         });
 	return n;
 }
@@ -446,7 +446,7 @@ function countOther(mode) {
 // when using WAN of Wifi. Otherwise it won't work.
 function setWanMode(mode) {
 	var changed = (uci['network']['wan']['mode'] == mode);
-	if(mode == 'static' || mode == 'bridge') {
+	if (mode == 'static' || mode == 'bridge') {
 		uci['network']['wan']['mode'] = mode;
 		uci['network'].pchanged = changed;
 	}
@@ -462,7 +462,7 @@ function rebuild_wifi()
 		var fs = append_section(root, "Wireless '"+dev+"'", dev);
 		var info = collect_wifi_info(dev);
 
-		for(var sid in obj)
+		for (var sid in obj)
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
 
 		var lan_help = "<b>LAN</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
@@ -474,20 +474,20 @@ function rebuild_wifi()
 
 		// Print wireless interfaces.
 		config_foreach(uci.wireless, "wifi-iface", function(wid, wobj) {
-			if(wobj.device != dev) return;
+			if (wobj.device != dev) return;
 
 			var mode = getWifiMode(wid);
 			var title = (mode == "none") ? "'"+wobj.network+"'" : modeName(mode);
 			var entry = append_section(parent, title, "wireless_"+dev+"_"+mode);
 
-			for(var opt in wobj)
+			for (var opt in wobj)
 				appendSetting(entry, ["wireless", wid, opt], wobj[opt], mode);
 
 			var state = getWifiInterfaceState(dev, wid);
 			var b = append_label(entry, "Status", state);
 			addHelpText(b, "Funktioniert das Interface? Manche WLAN-Treiber k\xf6nnen z.B kein AccessPoint und Mesh gleichzeitig.");
 
-			if(mode == "none")
+			if (mode == "none")
 			{
 				append_button(entry, "L\xf6schen", function() {
 					delWifiSection(dev, mode);
@@ -503,8 +503,8 @@ function rebuild_wifi()
 				var src = (e.target || e.srcElement);
 				var mode = (src.data || src.value);
 
-				if(src.checked) {
-					if(obj.type != "mac80211")
+				if (src.checked) {
+					if (obj.type != "mac80211")
 						alert("Diese Betriebsweise wird von diesem Chipsatz nicht unterst\xfctzt!");
 					addWifiSection(dev, mode);
 				} else {
@@ -525,7 +525,7 @@ function collect_switch_info(device)
 
 	// Portmap is a mapping of label to internal port number.
 	// Label starting with eth are not displayed and treated as physical interfaces.
-	switch(uci.misc.data.model)
+	switch (uci.misc.data.model)
 	{
 		case 'tp-link-tl-wdr3600-v1':
 		case 'tp-link-tl-wdr4300-v1':
@@ -590,7 +590,7 @@ function getSwitchVid(port, swinfo)
 {
 	var found_vid;
 	config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-		if(vobj.device == swinfo.device && vobj.ports.indexOf(port) != -1) {
+		if (vobj.device == swinfo.device && vobj.ports.indexOf(port) != -1) {
 			found_vid = vid;
 			return false;
 		}
@@ -602,7 +602,7 @@ function countPortUse(port, swinfo)
 {
 	var count = 0;
 	config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-		if(vobj.device == swinfo.device) {
+		if (vobj.device == swinfo.device) {
 			count += (vobj.ports.indexOf(port) != -1);
 		}
 	});
@@ -611,7 +611,7 @@ function countPortUse(port, swinfo)
 
 function renameInterface(old_ifname, new_ifname)
 {
-	for(var i in uci.network) {
+	for (var i in uci.network) {
 		var ifname = split(uci.network[i].ifname);
 		var index = ifname.indexOf(old_ifname);
 		if (index !== -1) {
@@ -624,7 +624,7 @@ function renameInterface(old_ifname, new_ifname)
 function replaceSwitchPort(fromPort, toPort, swinfo)
 {
 	var vid = getSwitchVid(fromPort, swinfo);
-	if(vid) {
+	if (vid) {
 		var vobj = uci.network[vid];
 		var fromIfname = getInterfaceName(vid, swinfo);
 		vobj.ports = replaceItem(vobj.ports, fromPort, toPort);
@@ -635,12 +635,12 @@ function replaceSwitchPort(fromPort, toPort, swinfo)
 
 function fixPortTag(swinfo)
 {
-	for(var i in swinfo.map) {
+	for (var i in swinfo.map) {
 		var v = swinfo.map[i];
-		if(v[0].startsWith("eth"))
+		if (v[0].startsWith("eth"))
 		{
 			var bport = v[1];
-			if(countPortUse(bport, swinfo) > 1) {
+			if (countPortUse(bport, swinfo) > 1) {
 				replacePort(bport, bport + "t", swinfo);
 			} else {
 				replacePort(bport+"t", bport, swinfo);
@@ -652,13 +652,13 @@ function fixPortTag(swinfo)
 function getInterfaceName(vid, swinfo)
 {
 	var vobj = uci.network[vid];
-	for(var i in swinfo.map) {
+	for (var i in swinfo.map) {
 		var v = swinfo.map[i];
-		if(v[0].startsWith("eth")) {
-			if(vobj.ports.indexOf(""+v[1]+"t") != -1) {
+		if (v[0].startsWith("eth")) {
+			if (vobj.ports.indexOf(""+v[1]+"t") != -1) {
 				return v[0] + "." + vobj.vlan;
 			}
-			else if(vobj.ports.indexOf(v[1]) != -1) {
+			else if (vobj.ports.indexOf(v[1]) != -1) {
 				return v[0];
 			}
 		}
@@ -671,12 +671,12 @@ function getBasePort(port, swinfo)
 	var bport;
 	var found = false;
 	var map = swinfo.map;
-	for(var i in map) {
+	for (var i in map) {
 		var v = map[i];
-		if(v[0].startsWith("eth")) {
+		if (v[0].startsWith("eth")) {
 			bport = v[1];
 		}
-		if(v[1] == port) {
+		if (v[1] == port) {
 			return bport;
 		}
 	}
@@ -692,12 +692,12 @@ function removePort(port, mode, swinfo)
 
 	vobj.ports = removeItem(vobj.ports, port);
 	// Only the base port or no port at all is left => remove section.
-	if(split(vobj.ports).length < 2) {
+	if (split(vobj.ports).length < 2) {
 		delNetSection(ifname);
 		delete uci.network[vid];
 	}
 
-	if(countPortUse(bport, swinfo) < 2) {
+	if (countPortUse(bport, swinfo) < 2) {
 		// Untag base port.
 		replaceSwitchPort(bport+"t", bport, swinfo);
 	}
@@ -712,21 +712,21 @@ function addPort(port, mode, swinfo)
 	var vlans = [];
 	var added = config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
 		vlans.push(parseInt(vobj.vlan));
-		if(vobj.device == swinfo.device && vobj.ports.indexOf(bport) != -1) {
+		if (vobj.device == swinfo.device && vobj.ports.indexOf(bport) != -1) {
 			var ifname = getInterfaceName(vid, swinfo);
-			if(getInterfaceMode(ifname) == mode) {
+			if (getInterfaceMode(ifname) == mode) {
 				vobj.ports = addItem(vobj.ports, port);
 				return true;
 			}
 		}
 	});
 
-	if(!added) {
+	if (!added) {
 		// Get smallest unused vlan number > 0.
 		var vlan = vlans.sort(function(a, b){return a-b}).reduce(function(r, v, i) { return (r < vlans.length) ? r : ((i+1 != v) ? i+1 : r); }, vlans.length + 1);
 
 		var ports = "" + bport;
-		if(countPortUse(bport, swinfo) > 0) {
+		if (countPortUse(bport, swinfo) > 0) {
 			// Tag base port.
 			replaceSwitchPort(bport, bport + "t", swinfo);
 			ports += "t " + port;
@@ -767,14 +767,14 @@ function rebuild_switches()
 		var swinfo = collect_switch_info(sobj.name);
 		var sfs = append_section(root, "Switch '"+swinfo.device+"'");
 
-		if(!swinfo.map) {
+		if (!swinfo.map) {
 			var p = append(sfs, 'div');
 			var label = append(p, "label");
 			label.innerHTML = "Keine Port-Konfiguration m\xf6glich.";
-		} else for(var i in swinfo.map) {
+		} else for (var i in swinfo.map) {
 			var name = swinfo.map[i][0];
 			var port = swinfo.map[i][1];
-			if(name.startsWith("eth")) {
+			if (name.startsWith("eth")) {
 				continue;
 			}
 			var vid = getSwitchVid(port, swinfo);
@@ -802,14 +802,14 @@ function checkWifiWan() {
 	var pre_mode = uci.network.wan.type;
 	var new_mode = 'bridge';
 
-	if(countWifi('wan', 'sta')) {
-		if((countWifi('wan') + countOther('wan')) > 1) {
+	if (countWifi('wan', 'sta')) {
+		if ((countWifi('wan') + countOther('wan')) > 1) {
 			return false;
 		}
 		new_mode = 'static';
 	}
 
-	if(pre_mode != new_mode) {
+	if (pre_mode != new_mode) {
 		uci.network.wan.type = new_mode;
 		uci.network.pchanged = true;
 	}
@@ -819,15 +819,15 @@ function checkWifiWan() {
 
 function save_data()
 {
-	if(!checkWifiWan()) {
+	if (!checkWifiWan()) {
 		alert("WAN \xfcber WLAN funktioniert nur wenn dieser als einziger Anschluss f\xfcr WAN verwendet wird! Bitte korrigieren.");
 		return;
 	}
 
-	for(var name in uci)
+	for (var name in uci)
 	{
 		var obj = uci[name];
-		if(!obj.pchanged)
+		if (!obj.pchanged)
 			continue;
 
 		var data = toUCI(obj);
