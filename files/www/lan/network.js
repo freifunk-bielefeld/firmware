@@ -590,7 +590,7 @@ function getSwitchVid(port, swinfo)
 {
 	var found_vid;
 	config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
-		if(vobj.device == swinfo.device && vobj.ports.includes(port)) {
+		if(vobj.device == swinfo.device && vobj.ports.indexOf(port) != -1) {
 			found_vid = vid;
 			return false;
 		}
@@ -603,7 +603,7 @@ function countPortUse(port, swinfo)
 	var count = 0;
 	config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
 		if(vobj.device == swinfo.device) {
-			count += vobj.ports.includes(port);
+			count += (vobj.ports.indexOf(port) != -1);
 		}
 	});
 	return count;
@@ -655,10 +655,10 @@ function getInterfaceName(vid, swinfo)
 	for(var i in swinfo.map) {
 		var v = swinfo.map[i];
 		if(v[0].startsWith("eth")) {
-			if(vobj.ports.includes(""+v[1]+"t")) {
+			if(vobj.ports.indexOf(""+v[1]+"t") != -1) {
 				return v[0] + "." + vobj.vlan;
 			}
-			else if(vobj.ports.includes(v[1])) {
+			else if(vobj.ports.indexOf(v[1]) != -1) {
 				return v[0];
 			}
 		}
@@ -712,7 +712,7 @@ function addPort(port, mode, swinfo)
 	var vlans = [];
 	var added = config_foreach(uci.network, "switch_vlan", function(vid, vobj) {
 		vlans.push(parseInt(vobj.vlan));
-		if(vobj.device == swinfo.device && vobj.ports.includes(bport)) {
+		if(vobj.device == swinfo.device && vobj.ports.indexOf(bport) != -1) {
 			var ifname = getInterfaceName(vid, swinfo);
 			if(getInterfaceMode(ifname) == mode) {
 				vobj.ports = addItem(vobj.ports, port);
