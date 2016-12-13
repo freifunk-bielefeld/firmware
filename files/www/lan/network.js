@@ -245,10 +245,10 @@ function rebuild_assignment()
 
 	// remove dummy-interface
 	switch (uci.misc.data.model)	{
-	case 'tp-link-tl-wr941n-nd-v1':
-	case 'tp-link-tl-wr941n-nd-v2':
-	case 'tp-link-tl-wr941n-nd-v3':
-		ignore.push("eth0");
+		case 'tp-link-tl-wr941n-nd-v1':
+		case 'tp-link-tl-wr941n-nd-v2':
+		case 'tp-link-tl-wr941n-nd-v3':
+			ignore.push("eth0");
 	}
 
 	// Collect all interfaces.
