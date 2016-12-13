@@ -1,7 +1,7 @@
 
 function $(id) { return document.getElementById(id); }
-function show(e) { e.style.display='block'; }
-function hide(e) { e.style.display='none'; }
+function show(e) { e.style.display = 'block'; }
+function hide(e) { e.style.display = 'none'; }
 function addClass(e, c) { e.classList.add(c); }
 function removeClass(e, c) { e.classList.remove(c); }
 function setText(id, txt) { $(id).innerHTML = txt; }
@@ -389,8 +389,7 @@ function _selection(type, parent, title, name, selected, choices)
 	p.className = "radio_option";
 	label.innerHTML = title + ":";
 
-	for (var i in choices)
-	{
+	for (var i in choices) {
 		var s = (typeof choices[i] == 'string');
 		var choice_text = "" + (s ? choices[i] : choices[i][0]);
 		var choice_value = "" + (s ? choices[i] : choices[i][1]);
@@ -404,13 +403,16 @@ function _selection(type, parent, title, name, selected, choices)
 		input.value = choice_value;
 		input.data = choice_value; //for IE :-(
 		input.type = type;
-		if (inArray(choice_value, selected))
+
+		if (inArray(choice_value, selected)) {
 			input.checked = "checked"
+		}
 
 		label.innerHTML = " " + choice_text;
 
-		if (choice_text == "_")
+		if (choice_text == "_") {
 			hide(div);
+		}
 
 		if (choice_help) {
 			addHelpText(label, choice_help);

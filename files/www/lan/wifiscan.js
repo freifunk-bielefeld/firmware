@@ -9,7 +9,6 @@ function append_td(tr, value) {
 	append(tr, 'td').innerHTML = value ? value : "?";
 }
 
-
 function signalToQuality(signal) {
 	var dBm = parseFloat(signal);
 	if (dBm <= -100) {
@@ -32,8 +31,7 @@ function wifi_scan()
 
 		data = data.replace(/BSS /g, "|BSS ");
 		var items = data.split("|").filter(Boolean);
-		for (var i = 0; i < items.length; ++i)
-		{
+		for (var i = 0; i < items.length; ++i) {
 			var item = items[i];
 			var ssid = fetch(/SSID: (.*)\n/, item);
 			var bss = fetch(/BSS (..:..:..:..:..:..).*\n/, item);
@@ -51,9 +49,9 @@ function wifi_scan()
 			//determine the wifi mode
 			if (mesh_id) {
 				append_td(tr, "  802.11s");
-			} else  if (/IBSS/.test(capability)) {
+			} else if (/IBSS/.test(capability)) {
 				append_td(tr, "  AdHoc");
-			} else  if (/ESS/.test(capability)) {
+			} else if (/ESS/.test(capability)) {
 				append_td(tr, "  AccessPoint");
 			} else {
 				append_td(tr, "  ???");
@@ -82,11 +80,13 @@ function init() {
                 var data = JSON.parse(data);
                 for (var device in data) {
                         var interfaces = data[device].interfaces;
-                        if (interfaces.length == 0)
+                        if (interfaces.length == 0) {
                                 continue;
+			}
                         var ifname = interfaces[0].ifname ;
-                        if (typeof(ifname) == 'string')
+                        if (typeof(ifname) == 'string') {
                                 add_list_entry(device, ifname);
+			}
                 }
 	});
 }
