@@ -133,7 +133,7 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
 	case "service_display_max":
-		b = append_input(p, "Max. Angezeigte-Eintr\xe4ge", id, value);
+		b = append_input(p, "Max.-Eintr\xe4ge", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Ung\xfcltige Zahl.");
 		addHelpText(b, "Maximale Anzahl der auf der eigenen Statusseite angezeigten Eintr\xe4ge.");
 		break;
