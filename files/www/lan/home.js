@@ -5,11 +5,11 @@ function formatSize(bytes) {
 	} else if (bytes < 1000) {
 		return bytes + "  B";
 	} else if (bytes < 1000*1000) {
-		return (bytes/ 1000.0).toFixed(0)  + " KB";
+		return (bytes/ 1000.0).toFixed(0)  + " K";
 	} else if (bytes < 1000*1000*1000) {
-		return (bytes/1000.0/1000.0).toFixed(1)  + " MB";
+		return (bytes/1000.0/1000.0).toFixed(1)  + " M";
 	} else {
-		return (bytes/1000.0/1000.0/1000.0).toFixed(2) + " GB";
+		return (bytes/1000.0/1000.0/1000.0).toFixed(2) + " G";
 	}
 }
 
