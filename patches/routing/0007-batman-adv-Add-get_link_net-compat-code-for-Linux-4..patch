@@ -1,19 +1,24 @@
-From 1452f6536466b4cab073e81b88ed6df202a1c0d6 Mon Sep 17 00:00:00 2001
+From 197fc5cef4c5af920c791b383a5c8d6c2341cf26 Mon Sep 17 00:00:00 2001
 From: Sven Eckelmann <sven@narfation.org>
-Date: Fri, 28 Oct 2016 18:19:22 +0200
-Subject: [PATCH 6/6] batman-adv: Add get_link_net compat code for Linux <
+Date: Wed, 30 Nov 2016 11:54:46 +0100
+Subject: [PATCH 7/7] batman-adv: Add get_link_net compat code for Linux <
  4.0.0
 
+LEDE is still using Linux 3.18 on some systems. Allow to build batman-adv
+for it by not checking the netns of a possible netdev link during the
+batadv-on-batadv check.
+
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
  ...dd-compat-fallback-for-batadv_getlink_net.patch | 29 ++++++++++++++++++++++
  1 file changed, 29 insertions(+)
- create mode 100644 batman-adv/patches/1003-Add-compat-fallback-for-batadv_getlink_net.patch
+ create mode 100644 batman-adv/patches/0005-Add-compat-fallback-for-batadv_getlink_net.patch
 
-diff --git a/batman-adv/patches/1003-Add-compat-fallback-for-batadv_getlink_net.patch b/batman-adv/patches/1003-Add-compat-fallback-for-batadv_getlink_net.patch
+diff --git a/batman-adv/patches/0005-Add-compat-fallback-for-batadv_getlink_net.patch b/batman-adv/patches/0005-Add-compat-fallback-for-batadv_getlink_net.patch
 new file mode 100644
 index 0000000..23592e8
 --- /dev/null
-+++ b/batman-adv/patches/1003-Add-compat-fallback-for-batadv_getlink_net.patch
++++ b/batman-adv/patches/0005-Add-compat-fallback-for-batadv_getlink_net.patch
 @@ -0,0 +1,29 @@
 +From: Sven Eckelmann <sven@narfation.org>
 +Date: Fri, 23 Sep 2016 14:55:38 +0200

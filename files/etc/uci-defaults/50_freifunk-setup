@@ -129,11 +129,11 @@ initial_local_node_setup()
 {
 	echo "(I) Setup IPv4 local node access."
 
-	local ula_prefix="$(uci get network.globals.ula_prefix)"
-	local addr6="${ula_prefix%%::*}::0"
 	local addr4="10.26.127.0"
+	local addr6="$(uci get network.globals.ula_prefix)" #CIDR notation
 
 	uci add_list network.freifunk.ipaddr="$addr4"
+	uci add_list network.freifunk.ipaddr6="$addr6"
 
 	cat >> /etc/firewall.user <<-  EOF
 
@@ -199,7 +199,7 @@ initial_setup()
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
 	#get a unique MAC address to identify the node
-	local mac="$(cat /sys/class/ieee80211/phy0/macaddress)"
+	local mac="$(cat /sys/class/ieee80211/phy0/macaddress 2> /dev/null)"
 	if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
 		mac="$(cat /sys/class/net/eth0/address)"
 		if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
@@ -440,6 +440,15 @@ update_062_to_063()
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 }
 
+update_063_to_064()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	cp /rom/etc/config/fastd /etc/config/fastd
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -466,6 +475,8 @@ start()
 			update_051_to_060
 			update_060_to_061
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.5.1")
@@ -473,22 +484,34 @@ start()
 			update_051_to_060
 			update_060_to_061
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.0")
 			echo "(I) Apply update."
 			update_060_to_061
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.1")
 			echo "(I) Apply update."
 			update_061_to_062
+			update_062_to_063
+			update_063_to_064
 			update_version
 			;;
 		"0.6.2")
 			echo "(I) Apply update."
 			update_062_to_063
+			update_063_to_064
+			update_version
+			;;
+		"0.6.3")
+			echo "(I) Apply update."
+			update_063_to_064
 			update_version
 			;;
 		"")

@@ -6,7 +6,7 @@
 }
 
 body {
-	font-size: 13px;
+	font: 13px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
 	line-height: 1.7em;
 }
 
@@ -114,6 +114,11 @@ h3 {
 	display: inline-block;
 	margin: 0;
 	vertical-align: middle;
+}
+
+a {
+    color: #23527c;
+	text-decoration: none;
 }
 
 .menu ul {

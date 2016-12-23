@@ -1,7 +1,7 @@
-From a9a23332273142176e97f33035a3d4b08805a191 Mon Sep 17 00:00:00 2001
+From c311f124388ad68d59a5f136b7fe8ba526c2d574 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 1 Nov 2016 01:56:36 +0100
-Subject: [PATCH 1/6] batman-adv: update to 2016.4
+Subject: [PATCH 1/7] batman-adv: update to 2016.4
 
 ---
  batman-adv/Config.in                               |   5 +

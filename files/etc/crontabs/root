@@ -1,8 +1,8 @@
-#check for new firmware every 6 hours
+# Check for new firmware every 6 hours
 0 */6 * * * /usr/sbin/autoupdater
-#publish map data
+# Publish map data
 */5 * * * * /usr/sbin/print_map.sh -p
-#publish service data
+# Publish service data
 */5 * * * * /usr/sbin/print_service.sh -p
-#reboot every 5 days at 04:05
+# Reboot every 5 days at 04:05
 5 4 */5 * * /sbin/reboot
