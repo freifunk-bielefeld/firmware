@@ -1,7 +1,7 @@
-From 93b4e6ac45b25d28909084a2bbff483b862587af Mon Sep 17 00:00:00 2001
+From 6990e02478fc540e3724a37bb897b9734e3c9159 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 30 Mar 2016 02:59:19 +0200
-Subject: [PATCH 20/77] Support LibreSSL as provider of openssl
+Subject: [PATCH 20/93] Support LibreSSL as provider of openssl
 
 The build scripts check for openssl by grepping the string "OpenSSL" in
 the output of openssl version command. LibreSSL fails this test as it
@@ -17,7 +17,7 @@ Backport of r48267
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/include/prereq-build.mk b/include/prereq-build.mk
-index 32c4ada..f36d57c 100644
+index 32c4adabb7..f36d57ce06 100644
 --- a/include/prereq-build.mk
 +++ b/include/prereq-build.mk
 @@ -151,7 +151,7 @@ $(eval $(call SetupHostCommand,file,Please install the 'file' package, \
@@ -30,5 +30,5 @@ index 32c4ada..f36d57c 100644
  
  # Install ldconfig stub
 -- 
-2.10.2
+2.11.0
 

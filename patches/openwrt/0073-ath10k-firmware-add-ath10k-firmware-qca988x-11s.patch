@@ -1,14 +1,14 @@
-From b6e5dc3d91cdba7fca92be16cc136bfae7e94c79 Mon Sep 17 00:00:00 2001
+From 2f395a412e2385b61102d26a31dcf3f0155ab0e6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 9 Sep 2016 01:54:44 +0200
-Subject: [PATCH 73/77] ath10k-firmware: add ath10k-firmware-qca988x-11s
+Subject: [PATCH 73/93] ath10k-firmware: add ath10k-firmware-qca988x-11s
 
 ---
  package/firmware/ath10k-firmware/Makefile | 23 ++++++++++++++++++++---
  1 file changed, 20 insertions(+), 3 deletions(-)
 
 diff --git a/package/firmware/ath10k-firmware/Makefile b/package/firmware/ath10k-firmware/Makefile
-index 624da6a..3a4f0c5 100644
+index 624da6a1ed..3a4f0c59eb 100644
 --- a/package/firmware/ath10k-firmware/Makefile
 +++ b/package/firmware/ath10k-firmware/Makefile
 @@ -8,7 +8,7 @@
@@ -72,5 +72,5 @@ index 624da6a..3a4f0c5 100644
  $(eval $(call BuildPackage,ath10k-firmware-qca99x0-ct))
  $(eval $(call BuildPackage,ath10k-firmware-qca9984-ct))
 -- 
-2.10.2
+2.11.0
 

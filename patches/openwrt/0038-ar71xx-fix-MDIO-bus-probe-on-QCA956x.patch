@@ -1,7 +1,7 @@
-From a0c6f91854fd675f494f313f430a9344b4bc1481 Mon Sep 17 00:00:00 2001
+From 2217f3afcf836330ccc3e32bb8da9768a59b19a3 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:00:41 +0200
-Subject: [PATCH 38/77] ar71xx: fix MDIO bus probe on QCA956x
+Subject: [PATCH 38/93] ar71xx: fix MDIO bus probe on QCA956x
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
 
@@ -11,7 +11,7 @@ Backport of OpenWrt r48651
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
-index 2efb9c7..12a376e 100644
+index 2efb9c70ff..12a376e132 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 @@ -183,7 +183,8 @@ void __init ath79_register_mdio(unsigned int id, u32 phy_mask)
@@ -25,5 +25,5 @@ index 2efb9c7..12a376e 100644
  	else
  		max_id = 0;
 -- 
-2.10.2
+2.11.0
 

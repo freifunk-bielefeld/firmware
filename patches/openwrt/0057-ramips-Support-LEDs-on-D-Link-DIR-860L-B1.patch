@@ -1,7 +1,7 @@
-From 226b8019a0eb2662d21e153b325a4388c33d76bb Mon Sep 17 00:00:00 2001
+From d44120a9ca461f5d1b0dd4a646a5af4002045c81 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 30 Jun 2016 15:34:32 +0200
-Subject: [PATCH 57/77] ramips: Support LEDs on D-Link DIR-860L B1
+Subject: [PATCH 57/93] ramips: Support LEDs on D-Link DIR-860L B1
 
 Adds the required gpio definitions.
 
@@ -13,7 +13,7 @@ Backport of OpenWrt r48715
  1 file changed, 20 insertions(+)
 
 diff --git a/target/linux/ramips/dts/DIR-860L-B1.dts b/target/linux/ramips/dts/DIR-860L-B1.dts
-index 23ec114..2582b3d 100644
+index 23ec1140bc..2582b3d418 100644
 --- a/target/linux/ramips/dts/DIR-860L-B1.dts
 +++ b/target/linux/ramips/dts/DIR-860L-B1.dts
 @@ -97,6 +97,26 @@
@@ -44,5 +44,5 @@ index 23ec114..2582b3d 100644
  
  	gpio-keys-polled {
 -- 
-2.10.2
+2.11.0
 

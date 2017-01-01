@@ -1,7 +1,7 @@
-From 74231052d16403159cb4c59a9f1269c8db5ec01c Mon Sep 17 00:00:00 2001
+From 0b110eeaf6ed5e6f2678606e62e347d14f807ed4 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 11 Oct 2016 02:54:27 +0200
-Subject: [PATCH 74/77] ath9k: revert temperature compensation support patch
+Subject: [PATCH 74/93] ath9k: revert temperature compensation support patch
  (FS#111)
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
@@ -15,7 +15,7 @@ Backport of LEDE 3e4d0e3e77dcf9b2116e5ed53f30e2bf53b1c6b7
 
 diff --git a/package/kernel/mac80211/patches/328-ath9k_hw-implement-temperature-compensation-support-.patch b/package/kernel/mac80211/patches/328-ath9k_hw-implement-temperature-compensation-support-.patch
 deleted file mode 100644
-index cff32ad..0000000
+index cff32ad47c..0000000000
 --- a/package/kernel/mac80211/patches/328-ath9k_hw-implement-temperature-compensation-support-.patch
 +++ /dev/null
 @@ -1,97 +0,0 @@
@@ -117,7 +117,7 @@ index cff32ad..0000000
 - 	struct ath9k_cal_list adcdc_caldata;
 - 	struct ath9k_cal_list *cal_list;
 diff --git a/package/kernel/mac80211/patches/542-ath9k_debugfs_diag.patch b/package/kernel/mac80211/patches/542-ath9k_debugfs_diag.patch
-index 4615643..6edef09 100644
+index 461564350f..6edef09754 100644
 --- a/package/kernel/mac80211/patches/542-ath9k_debugfs_diag.patch
 +++ b/package/kernel/mac80211/patches/542-ath9k_debugfs_diag.patch
 @@ -84,7 +84,7 @@
@@ -130,5 +130,5 @@ index 4615643..6edef09 100644
   
   bool ath9k_hw_setpower(struct ath_hw *ah, enum ath9k_power_mode mode);
 -- 
-2.10.2
+2.11.0
 

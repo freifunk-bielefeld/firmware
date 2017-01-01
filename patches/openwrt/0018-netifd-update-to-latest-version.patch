@@ -1,7 +1,7 @@
-From 4f039a8eed8ad44f47e9d36a2fdc6418a7172ad2 Mon Sep 17 00:00:00 2001
+From bc3ed22392cbb9d094bb32122e6ad9e116e7acd0 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 29 Jul 2016 21:28:24 +0200
-Subject: [PATCH 18/77] netifd: update to latest version
+Subject: [PATCH 18/93] netifd: update to latest version
 
 ---
  package/network/config/netifd/Makefile                       |  6 +++---
@@ -11,7 +11,7 @@ Subject: [PATCH 18/77] netifd: update to latest version
  4 files changed, 11 insertions(+), 12 deletions(-)
 
 diff --git a/package/network/config/netifd/Makefile b/package/network/config/netifd/Makefile
-index 619024b..dc83ca6 100644
+index 619024bd70..dc83ca612b 100644
 --- a/package/network/config/netifd/Makefile
 +++ b/package/network/config/netifd/Makefile
 @@ -1,15 +1,15 @@
@@ -34,7 +34,7 @@ index 619024b..dc83ca6 100644
  # CMAKE_INSTALL:=1
  
 diff --git a/package/network/config/netifd/files/etc/init.d/network b/package/network/config/netifd/files/etc/init.d/network
-index 542fc08..bdadbbc 100755
+index 542fc08958..bdadbbce6d 100755
 --- a/package/network/config/netifd/files/etc/init.d/network
 +++ b/package/network/config/netifd/files/etc/init.d/network
 @@ -21,7 +21,6 @@ start_service() {
@@ -46,7 +46,7 @@ index 542fc08..bdadbbc 100755
  	procd_close_instance
  }
 diff --git a/package/network/config/netifd/files/lib/netifd/proto/dhcp.sh b/package/network/config/netifd/files/lib/netifd/proto/dhcp.sh
-index 0e88af9..1d3a209 100755
+index 0e88af9e96..1d3a209106 100755
 --- a/package/network/config/netifd/files/lib/netifd/proto/dhcp.sh
 +++ b/package/network/config/netifd/files/lib/netifd/proto/dhcp.sh
 @@ -12,6 +12,7 @@ proto_dhcp_init_config() {
@@ -90,7 +90,7 @@ index 0e88af9..1d3a209 100755
  
  proto_dhcp_renew() {
 diff --git a/package/network/config/netifd/files/sbin/ifup b/package/network/config/netifd/files/sbin/ifup
-index af3aaa8..5515b91 100755
+index af3aaa8453..5515b91f76 100755
 --- a/package/network/config/netifd/files/sbin/ifup
 +++ b/package/network/config/netifd/files/sbin/ifup
 @@ -67,12 +67,10 @@ if [ -n "$setup_wifi" ] && grep -sq config /etc/config/wireless; then
@@ -108,5 +108,5 @@ index af3aaa8..5515b91 100755
  		/sbin/wifi up "$dev"
  	done
 -- 
-2.10.2
+2.11.0
 

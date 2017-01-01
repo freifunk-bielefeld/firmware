@@ -1,7 +1,7 @@
-From fdf72aab7f0fb0e781670c4fa8ff72cadfc2daaf Mon Sep 17 00:00:00 2001
+From 4d9b419757efe0f6811016b88d37ed4c5ae3f67e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 1 Apr 2016 23:21:32 +0200
-Subject: [PATCH 23/77] ar71xx: fix the revision of a few TP-LINK devices in
+Subject: [PATCH 23/93] ar71xx: fix the revision of a few TP-LINK devices in
  AR71XX_MODEL to match labels/image names
 
 Let's not confuse users about the revisions of their devices when we can
@@ -17,7 +17,7 @@ Backport of r49107
  1 file changed, 8 insertions(+)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 99c808c..4780e2f 100755
+index 96a37b4bec..6c106179bf 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -162,6 +162,10 @@ tplink_board_detect() {
@@ -43,5 +43,5 @@ index 99c808c..4780e2f 100755
  	"084200"*)
  		model="TP-Link TL-WR842N/ND"
 -- 
-2.10.2
+2.11.0
 

@@ -1,7 +1,7 @@
-From 5e0f0eb3576d63e2312e4d27316acc5c68518336 Mon Sep 17 00:00:00 2001
+From 730bfdd44db4e5084623d8ac9f5548cd87a15a73 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 7 May 2016 00:17:55 +0200
-Subject: [PATCH 32/77] kernel: mtd: spi-nor: wait until status register writes
+Subject: [PATCH 32/93] kernel: mtd: spi-nor: wait until status register writes
  are ready
 
 ---
@@ -13,7 +13,7 @@ Subject: [PATCH 32/77] kernel: mtd: spi-nor: wait until status register writes
 
 diff --git a/target/linux/generic/patches-3.18/094-0001-mtd-spi-nor-wait-until-lock-unlock-operations-are-re.patch b/target/linux/generic/patches-3.18/094-0001-mtd-spi-nor-wait-until-lock-unlock-operations-are-re.patch
 new file mode 100644
-index 0000000..2c2e5f3
+index 0000000000..2c2e5f3225
 --- /dev/null
 +++ b/target/linux/generic/patches-3.18/094-0001-mtd-spi-nor-wait-until-lock-unlock-operations-are-re.patch
 @@ -0,0 +1,66 @@
@@ -85,7 +85,7 @@ index 0000000..2c2e5f3
 + /*
 diff --git a/target/linux/generic/patches-3.18/094-0002-mtd-spi-nor-wait-for-SR_WIP-to-clear-on-initial-unlo.patch b/target/linux/generic/patches-3.18/094-0002-mtd-spi-nor-wait-for-SR_WIP-to-clear-on-initial-unlo.patch
 new file mode 100644
-index 0000000..a0573d5
+index 0000000000..a0573d5aea
 --- /dev/null
 +++ b/target/linux/generic/patches-3.18/094-0002-mtd-spi-nor-wait-for-SR_WIP-to-clear-on-initial-unlo.patch
 @@ -0,0 +1,33 @@
@@ -123,5 +123,5 @@ index 0000000..a0573d5
 + 
 + 	if (!mtd->name)
 -- 
-2.10.2
+2.11.0
 

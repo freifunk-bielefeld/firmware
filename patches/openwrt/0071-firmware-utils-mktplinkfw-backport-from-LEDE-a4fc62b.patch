@@ -1,7 +1,7 @@
-From 4d4c490b45bad723a6d2e781b681c3d3ec09c83e Mon Sep 17 00:00:00 2001
+From ac35c997948aa05552d222340f7f245f033b9fb6 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 28 Aug 2016 20:20:35 +0200
-Subject: [PATCH 71/77] firmware-utils: mktplinkfw: backport from LEDE
+Subject: [PATCH 71/93] firmware-utils: mktplinkfw: backport from LEDE
  a4fc62bc0ea4010ddbfbd738453c9db70988a57c
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH 71/77] firmware-utils: mktplinkfw: backport from LEDE
  2 files changed, 117 insertions(+), 447 deletions(-)
 
 diff --git a/tools/firmware-utils/Makefile b/tools/firmware-utils/Makefile
-index 0397845..aee8e87 100644
+index 0397845663..aee8e87a1c 100644
 --- a/tools/firmware-utils/Makefile
 +++ b/tools/firmware-utils/Makefile
 @@ -40,7 +40,7 @@ define Host/Compile
@@ -23,7 +23,7 @@ index 0397845..aee8e87 100644
  	$(call cc,tplink-safeloader md5, -Wall)
  	$(call cc,pc1crypt)
 diff --git a/tools/firmware-utils/src/mktplinkfw.c b/tools/firmware-utils/src/mktplinkfw.c
-index 9785a3f..34e6546 100644
+index 9785a3f232..34e6546a2d 100644
 --- a/tools/firmware-utils/src/mktplinkfw.c
 +++ b/tools/firmware-utils/src/mktplinkfw.c
 @@ -28,53 +28,10 @@
@@ -862,5 +862,5 @@ index 9785a3f..34e6546 100644
  			version = optarg;
  			break;
 -- 
-2.10.2
+2.11.0
 

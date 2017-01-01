@@ -1,7 +1,7 @@
-From 8adaf59a17667c4a4d0e65f8925dcd70582b5637 Mon Sep 17 00:00:00 2001
+From 7c4df6bd5ce3b654ade32bc964047d38924eb23c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 20:59:44 +0200
-Subject: [PATCH 34/77] ath79: dev-eth: fix QCA9561 set phy interface mode and
+Subject: [PATCH 34/93] ath79: dev-eth: fix QCA9561 set phy interface mode and
  mask
 
 QCA9563 and QCA9561 are two series of Qualcomm SoC Dragonfly. The only different
@@ -16,7 +16,7 @@ Backport of OpenWrt r46971
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
-index ff94e2e..31d2438 100644
+index ff94e2ec37..31d24388d2 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 @@ -633,7 +633,6 @@ static int __init ath79_setup_phy_if_mode(unsigned int id,
@@ -50,5 +50,5 @@ index ff94e2e..31d2438 100644
  			pdata->reset_bit = AR933X_RESET_GE1_MAC |
  					   AR933X_RESET_GE1_MDIO;
 -- 
-2.10.2
+2.11.0
 

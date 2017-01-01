@@ -1,7 +1,7 @@
-From 17e4bbcc887a9240d11545d4e4298c074bda2e22 Mon Sep 17 00:00:00 2001
+From aa94d4214aa04bc97d6bfec9b79463ec1233b4d7 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 22:58:50 +0200
-Subject: [PATCH 35/77] ar71xx: use correct PLL configuration register bitmask
+Subject: [PATCH 35/93] ar71xx: use correct PLL configuration register bitmask
  for QCA956x SoC.
 
 Incorrect value causes clock inaccuracy as huge as 1/60.
@@ -15,7 +15,7 @@ Backport of OpenWrt r47363
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
-index 0da8142..2bb4286 100644
+index 0da81426ca..2bb4286e5d 100644
 --- a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 +++ b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 @@ -529,7 +529,7 @@
@@ -37,5 +37,5 @@ index 0da8142..2bb4286 100644
  +#define QCA956X_PLL_DDR_CONFIG1_NINT_MASK		0x1ff
  +
 -- 
-2.10.2
+2.11.0
 

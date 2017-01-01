@@ -1,7 +1,7 @@
-From cdcf220e2940e2321cfa34e738c07be2da94d049 Mon Sep 17 00:00:00 2001
+From 1b7aae13e845d4f77ded6d3815213a55d093dc9e Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 22:18:40 +0200
-Subject: [PATCH 36/77] ar71xx: update QCA956x support
+Subject: [PATCH 36/93] ar71xx: update QCA956x support
 
 - separate qca956x and tp9343 (they use different IDs)
 - rename qca9561->qca956x for consistency
@@ -17,7 +17,7 @@ Backport of OpenWrt r47981
  2 files changed, 94 insertions(+), 48 deletions(-)
 
 diff --git a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
-index 2bb4286..61b8976 100644
+index 2bb4286e5d..61b897690a 100644
 --- a/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 +++ b/target/linux/ar71xx/patches-3.18/735-MIPS-ath79-add-support-for-QCA956x-SoC.patch
 @@ -105,7 +105,7 @@
@@ -385,7 +385,7 @@ index 2bb4286..61b8976 100644
  +
   extern void __iomem *ath79_ddr_base;
 diff --git a/target/linux/ar71xx/patches-3.18/739-MIPS-ath79-add-gpio-func-register-for-QCA955x-SoC.patch b/target/linux/ar71xx/patches-3.18/739-MIPS-ath79-add-gpio-func-register-for-QCA955x-SoC.patch
-index a36b8c3..fa4eba2 100644
+index a36b8c319f..44c9c6281e 100644
 --- a/target/linux/ar71xx/patches-3.18/739-MIPS-ath79-add-gpio-func-register-for-QCA955x-SoC.patch
 +++ b/target/linux/ar71xx/patches-3.18/739-MIPS-ath79-add-gpio-func-register-for-QCA955x-SoC.patch
 @@ -9,8 +9,8 @@
@@ -395,7 +395,7 @@ index a36b8c3..fa4eba2 100644
 - 		 soc_is_qca953x() || soc_is_qca956x())
 -@@ -185,15 +186,27 @@ void __init ath79_gpio_output_select(uns
 + 		 soc_is_qca953x() ||
-+@@ -187,15 +188,31 @@ void __init ath79_gpio_output_select(uns
++@@ -187,15 +188,30 @@ void __init ath79_gpio_output_select(uns
   {
   	void __iomem *base = ath79_gpio_base;
   	unsigned long flags;
@@ -404,7 +404,7 @@ index a36b8c3..fa4eba2 100644
   	u32 t, s;
   
 --	BUG_ON(!soc_is_ar934x() && !soc_is_qca953x());
-+ 	BUG_ON(!soc_is_ar934x() && !soc_is_qca953x() && !soc_is_qca956x());
++-	BUG_ON(!soc_is_ar934x() && !soc_is_qca953x() && !soc_is_qca956x());
  +	if (soc_is_ar934x()) {
  +		gpio_count = AR934X_GPIO_COUNT;
  +		reg_base = AR934X_GPIO_REG_OUT_FUNC0;
@@ -419,5 +419,5 @@ index a36b8c3..fa4eba2 100644
  +		BUG();
  +	}
 -- 
-2.10.2
+2.11.0
 

@@ -1,7 +1,7 @@
-From e14970de6729b385b7f2a18cac068af793808965 Mon Sep 17 00:00:00 2001
+From db2c1595c100ee29a433fb16aaca85ec2dcb0c84 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 28 Aug 2016 20:38:58 +0200
-Subject: [PATCH 72/77] ar71xx: backport support for new TP-Link region codes
+Subject: [PATCH 72/93] ar71xx: backport support for new TP-Link region codes
 
 Generate flashable images for the Archer C7 v2 with current stock firmware
 again.
@@ -10,7 +10,7 @@ again.
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 868a502..95f6d46 100644
+index 868a5021ac..95f6d46d15 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -58,13 +58,14 @@ define Build/mktplinkfw
@@ -41,5 +41,5 @@ index 868a502..95f6d46 100644
  TARGET_DEVICES += archer-c5 archer-c7-v1 archer-c7-v2
  
 -- 
-2.10.2
+2.11.0
 

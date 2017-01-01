@@ -1,7 +1,7 @@
-From bf588b42766a94dd2014ca04d2cc4ba861bbcaef Mon Sep 17 00:00:00 2001
+From 53611d95ae9b3a84217165d33a8aaa5a40d1622b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 28 Jul 2016 15:59:04 +0200
-Subject: [PATCH 64/77] ar71xx: don't use D-Link DIR-505 status LED as ethernet
+Subject: [PATCH 64/93] ar71xx: don't use D-Link DIR-505 status LED as ethernet
  indicator
 
 The stock firmware uses the single LED as status indicator only. Using the
@@ -17,7 +17,7 @@ Backport of LEDE adbbfb7ff900c489e6be34b2ec2834172dff7943
  1 file changed, 4 deletions(-)
 
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
-index 14aa7bc..3d240fb 100644
+index 14aa7bc5e5..3d240fb076 100644
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 @@ -139,10 +139,6 @@ dhp-1565-a1)
@@ -32,5 +32,5 @@ index 14aa7bc..3d240fb 100644
  dir-615-e1|\
  dir-615-e4)
 -- 
-2.10.2
+2.11.0
 
