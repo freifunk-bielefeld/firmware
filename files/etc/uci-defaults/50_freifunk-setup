@@ -286,9 +286,6 @@ initial_setup()
 	#allow access of the local node using a common IP address
 	initial_local_node_setup
 
-	#save defaults for use in the web-ui
-	cp /etc/config/network /etc/config/network_defaults
-
 	#reduce NDP traffic
 	cat >> /etc/sysctl.conf <<-  EOF
 
@@ -449,6 +446,16 @@ update_063_to_064()
 	cp /rom/etc/config/fastd /etc/config/fastd
 }
 
+update_064_to_065()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	# not needed anymore
+	rm /etc/config/network_defaults
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -477,6 +484,7 @@ start()
 			update_061_to_062
 			update_062_to_063
 			update_063_to_064
+			update_064_to_065
 			update_version
 			;;
 		"0.5.1")
@@ -486,6 +494,7 @@ start()
 			update_061_to_062
 			update_062_to_063
 			update_063_to_064
+			update_064_to_065
 			update_version
 			;;
 		"0.6.0")
@@ -494,6 +503,7 @@ start()
 			update_061_to_062
 			update_062_to_063
 			update_063_to_064
+			update_064_to_065
 			update_version
 			;;
 		"0.6.1")
@@ -501,17 +511,25 @@ start()
 			update_061_to_062
 			update_062_to_063
 			update_063_to_064
+			update_064_to_065
 			update_version
 			;;
 		"0.6.2")
 			echo "(I) Apply update."
 			update_062_to_063
 			update_063_to_064
+			update_064_to_065
 			update_version
 			;;
 		"0.6.3")
 			echo "(I) Apply update."
 			update_063_to_064
+			update_064_to_065
+			update_version
+			;;
+		"0.6.4")
+			echo "(I) Apply update."
+			update_064_to_065
 			update_version
 			;;
 		"")
