@@ -230,13 +230,13 @@ initial_setup()
 	initial_wifi_setup
 
 	# ------------------------------------- #
-	# P R I V A T E  S E T U P #
+	# L A N  S E T U P #
 	# ------------------------------------- #
 
 	initial_lan_setup "$lan_interface"
 
 	# ------------------------------------- #
-	# P U B L I C  S E T U P #
+	# F R E I F U N K  S E T U P #
 	# ------------------------------------- #
 
 	initial_freifunk_setup "bat0" "$mac_la"
