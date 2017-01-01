@@ -476,7 +476,7 @@ start()
 
 	echo "(I) Update from '$from_version' to '$to_version'"
 	case "$from_version" in
-		"0.5.0")
+		0.5.0*)
 			echo "(I) Apply update."
 			update_050_to_051
 			update_051_to_060
@@ -487,7 +487,7 @@ start()
 			update_064_to_065
 			update_version
 			;;
-		"0.5.1")
+		0.5.1*)
 			echo "(I) Apply update."
 			update_051_to_060
 			update_060_to_061
@@ -497,7 +497,7 @@ start()
 			update_064_to_065
 			update_version
 			;;
-		"0.6.0")
+		0.6.0*)
 			echo "(I) Apply update."
 			update_060_to_061
 			update_061_to_062
@@ -506,7 +506,7 @@ start()
 			update_064_to_065
 			update_version
 			;;
-		"0.6.1")
+		0.6.1*)
 			echo "(I) Apply update."
 			update_061_to_062
 			update_062_to_063
@@ -514,20 +514,20 @@ start()
 			update_064_to_065
 			update_version
 			;;
-		"0.6.2")
+		0.6.2*)
 			echo "(I) Apply update."
 			update_062_to_063
 			update_063_to_064
 			update_064_to_065
 			update_version
 			;;
-		"0.6.3")
+		0.6.3*)
 			echo "(I) Apply update."
 			update_063_to_064
 			update_064_to_065
 			update_version
 			;;
-		"0.6.4")
+		0.6.4*)
 			echo "(I) Apply update."
 			update_064_to_065
 			update_version
