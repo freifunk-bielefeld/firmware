@@ -48,8 +48,7 @@ function updateFrom(src)
 {
 	var obj = {};
 	collect_inputs(src, obj);
-	for (var name in obj)
-	{
+	for (var name in obj) {
 		var value = obj[name];
 		var path = name.split('#');
 
@@ -150,8 +149,7 @@ function appendSetting(p, path, value, mode)
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
 				var val = (src.data || src.value);
-				if (val != value)
-				{
+				if (val != value) {
 					if (val == "1") {
 						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0", "mesh_no_rebroadcast" : "1"};
 					} else {
@@ -351,7 +349,7 @@ function delNetSection(ifname)
 function randomString(length) {
 	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
 	var str = '';
-	for (var i=0; i<length; i++) {
+	for (var i = 0; i < length; i++) {
 		var rnum = Math.floor(Math.random() * chars.length);
 		str += chars.substring(rnum,rnum+1);
 	}
@@ -487,8 +485,7 @@ function rebuild_wifi()
 			var b = append_label(entry, "Status", state);
 			addHelpText(b, "Funktioniert das Interface? Manche WLAN-Treiber k\xf6nnen z.B kein AccessPoint und Mesh gleichzeitig.");
 
-			if (mode == "none")
-			{
+			if (mode == "none") {
 				append_button(entry, "L\xf6schen", function() {
 					delWifiSection(dev, mode);
 					rebuild_wifi();
@@ -827,8 +824,7 @@ function save_data()
 		return;
 	}
 
-	for (var name in uci)
-	{
+	for (var name in uci) {
 		var obj = uci[name];
 		if (!obj.pchanged)
 			continue;
