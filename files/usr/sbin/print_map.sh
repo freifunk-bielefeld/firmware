@@ -30,6 +30,8 @@ print_basic() {
 	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
 
+	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
+
 	if [ -n "$longitude" -a -n "$latitude" ]; then
 		echo -n "\"longitude\" : $longitude, "
 		echo -n "\"latitude\" : $latitude, "
