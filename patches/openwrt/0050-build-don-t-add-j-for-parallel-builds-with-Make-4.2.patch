@@ -1,7 +1,7 @@
-From f23b0c148f11bf96a9c0b1d530d0af538624a254 Mon Sep 17 00:00:00 2001
+From 29c6cdb0201e6c1aca39877e4896c12fd112f9de Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 15 Jun 2016 19:31:34 +0200
-Subject: [PATCH 50/77] build: don't add -j for parallel builds with Make 4.2+
+Subject: [PATCH 50/93] build: don't add -j for parallel builds with Make 4.2+
 
 Make usually passes -j and jobserver arguments as part of MAKEFLAGS. LEDE
 removes MAKEFLAGS to have better control of the build, and re-adds the
@@ -26,7 +26,7 @@ Backport of LEDE 6fb212f2933bbbdf2935124205717c9d0ca72b32
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/include/host-build.mk b/include/host-build.mk
-index e2b5f2f..44401b8 100644
+index e2b5f2f8d1..44401b866a 100644
 --- a/include/host-build.mk
 +++ b/include/host-build.mk
 @@ -10,7 +10,7 @@ HOST_INSTALL_DIR ?= $(HOST_BUILD_DIR)/host-install
@@ -39,7 +39,7 @@ index e2b5f2f..44401b8 100644
    HOST_MAKE_J:=-j$(CONFIG_PKG_BUILD_JOBS)
  endif
 diff --git a/include/package.mk b/include/package.mk
-index c69d928..a99cdc6 100644
+index c69d928197..a99cdc6990 100644
 --- a/include/package.mk
 +++ b/include/package.mk
 @@ -23,7 +23,7 @@ PKG_RELRO_PARTIAL ?= 1
@@ -52,5 +52,5 @@ index c69d928..a99cdc6 100644
    MAKE_J:=-j$(CONFIG_PKG_BUILD_JOBS)
  endif
 -- 
-2.10.2
+2.11.0
 

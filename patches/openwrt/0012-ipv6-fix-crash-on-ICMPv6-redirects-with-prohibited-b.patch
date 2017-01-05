@@ -1,7 +1,7 @@
-From 4f765fcedc9af44374b6102c7469b81696883dfc Mon Sep 17 00:00:00 2001
+From dea25b5f02b0858eb39f8a1f8c00941fb34bc737 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 2 Nov 2015 02:02:02 +0100
-Subject: [PATCH 12/77] ipv6: fix crash on ICMPv6 redirects with
+Subject: [PATCH 12/93] ipv6: fix crash on ICMPv6 redirects with
  prohibited/blackholed source
 
 There are other error values besides ip6_null_entry that can be returned by
@@ -18,7 +18,7 @@ crash.
 
 diff --git a/target/linux/generic/patches-3.18/672-ipv6-fix-crash-on-ICMPv6-redirects-with-prohibited-blackholed-source.patch b/target/linux/generic/patches-3.18/672-ipv6-fix-crash-on-ICMPv6-redirects-with-prohibited-blackholed-source.patch
 new file mode 100644
-index 0000000..6e4b3da
+index 0000000000..6e4b3da3ad
 --- /dev/null
 +++ b/target/linux/generic/patches-3.18/672-ipv6-fix-crash-on-ICMPv6-redirects-with-prohibited-blackholed-source.patch
 @@ -0,0 +1,39 @@
@@ -62,5 +62,5 @@ index 0000000..6e4b3da
 + 		return;
 + 	}
 -- 
-2.10.2
+2.11.0
 

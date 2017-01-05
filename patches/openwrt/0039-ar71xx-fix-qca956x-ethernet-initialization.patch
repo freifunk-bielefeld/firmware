@@ -1,7 +1,7 @@
-From e75f87852aa181cf654b38c7f71bbeface2b51e3 Mon Sep 17 00:00:00 2001
+From 71a5b5ae3781311e6ee1a3371d71e29f750580dd Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:01:19 +0200
-Subject: [PATCH 39/77] ar71xx: fix qca956x ethernet initialization
+Subject: [PATCH 39/93] ar71xx: fix qca956x ethernet initialization
 
 Complete internal switch initialization for QCA956X.
 Set default mdio device if the interface mode of GE0 is not SGMII (fix ticket #21520).
@@ -14,7 +14,7 @@ Backport of OpenWrt r48937
  1 file changed, 18 insertions(+), 3 deletions(-)
 
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
-index 12a376e..b43c80a 100644
+index 12a376e132..b43c80a376 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/dev-eth.c
 @@ -271,6 +271,7 @@ void __init ath79_register_mdio(unsigned int id, u32 phy_mask)
@@ -67,5 +67,5 @@ index 12a376e..b43c80a 100644
  			pdata->mii_bus_dev = &ath79_mdio0_device.dev;
  			break;
 -- 
-2.10.2
+2.11.0
 

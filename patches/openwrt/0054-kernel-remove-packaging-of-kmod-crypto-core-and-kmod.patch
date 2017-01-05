@@ -1,7 +1,7 @@
-From ff24492c7d49af1e3da8c7bd4729d6f34f8bf663 Mon Sep 17 00:00:00 2001
+From d2ad9efaa9344979b47ee595120c5f6ba5c683f0 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jun 2016 03:42:03 +0200
-Subject: [PATCH 54/77] kernel: remove packaging of kmod-crypto-core and
+Subject: [PATCH 54/93] kernel: remove packaging of kmod-crypto-core and
  kmod-crypto-arc4
 
 Everything except for blkcipher was already built-in, so make blkcipher
@@ -24,7 +24,7 @@ satisfy dependencies of CC packages.
  7 files changed, 7 insertions(+), 39 deletions(-)
 
 diff --git a/package/kernel/linux/Makefile b/package/kernel/linux/Makefile
-index b06c49a..19bcbd5 100644
+index b06c49a92f..19bcbd582b 100644
 --- a/package/kernel/linux/Makefile
 +++ b/package/kernel/linux/Makefile
 @@ -49,7 +49,7 @@ define Package/kernel
@@ -37,7 +37,7 @@ index b06c49a..19bcbd5 100644
  
  define Package/kernel/install
 diff --git a/package/kernel/linux/modules/crypto.mk b/package/kernel/linux/modules/crypto.mk
-index c8e0fbb..926dab0 100644
+index c8e0fbb043..926dab0e33 100644
 --- a/package/kernel/linux/modules/crypto.mk
 +++ b/package/kernel/linux/modules/crypto.mk
 @@ -15,24 +15,9 @@ crypto_confvar=CONFIG_CRYPTO_$(word 1,$(subst =,$(space),$(1)))
@@ -85,7 +85,7 @@ index c8e0fbb..926dab0 100644
    TITLE:=Combined mode wrapper for IPsec
    DEPENDS:=+kmod-crypto-manager
 diff --git a/package/kernel/linux/modules/fs.mk b/package/kernel/linux/modules/fs.mk
-index fa18237..cc87a45 100644
+index fa182375ea..cc87a45961 100644
 --- a/package/kernel/linux/modules/fs.mk
 +++ b/package/kernel/linux/modules/fs.mk
 @@ -91,7 +91,6 @@ define KernelPackage/fs-cifs
@@ -97,7 +97,7 @@ index fa18237..cc87a45 100644
      +kmod-crypto-md5 \
      +kmod-crypto-md4 \
 diff --git a/package/kernel/linux/modules/netsupport.mk b/package/kernel/linux/modules/netsupport.mk
-index 8a2760d..ab76946 100644
+index 8a2760d8a4..ab76946d2a 100644
 --- a/package/kernel/linux/modules/netsupport.mk
 +++ b/package/kernel/linux/modules/netsupport.mk
 @@ -714,7 +714,7 @@ $(eval $(call KernelPackage,ipoa))
@@ -119,7 +119,7 @@ index 8a2760d..ab76946 100644
  
  define KernelPackage/rxrpc/description
 diff --git a/target/linux/generic/config-3.18 b/target/linux/generic/config-3.18
-index 6038692..a0dc3c9 100644
+index 6038692b7e..a0dc3c9b60 100644
 --- a/target/linux/generic/config-3.18
 +++ b/target/linux/generic/config-3.18
 @@ -700,9 +700,10 @@ CONFIG_CRYPTO_ALGAPI=y
@@ -136,7 +136,7 @@ index 6038692..a0dc3c9 100644
  # CONFIG_CRYPTO_CAMELLIA is not set
  # CONFIG_CRYPTO_CAST5 is not set
 diff --git a/target/linux/omap/config-3.18 b/target/linux/omap/config-3.18
-index a06a350..d5003c2 100644
+index a06a350a37..d5003c275b 100644
 --- a/target/linux/omap/config-3.18
 +++ b/target/linux/omap/config-3.18
 @@ -114,9 +114,6 @@ CONFIG_CPU_V7=y
@@ -150,7 +150,7 @@ index a06a350..d5003c2 100644
  CONFIG_CRYPTO_CRC32C=y
  CONFIG_CRYPTO_CTR=m
 diff --git a/target/linux/sunxi/config-3.18 b/target/linux/sunxi/config-3.18
-index ddc3f7a..57651bb 100644
+index ddc3f7acb8..57651bbd65 100644
 --- a/target/linux/sunxi/config-3.18
 +++ b/target/linux/sunxi/config-3.18
 @@ -110,9 +110,6 @@ CONFIG_CPU_TLB_V7=y
@@ -164,5 +164,5 @@ index ddc3f7a..57651bb 100644
  CONFIG_CRYPTO_CRCT10DIF=y
  CONFIG_CRYPTO_DES=y
 -- 
-2.10.2
+2.11.0
 

@@ -1,7 +1,7 @@
-From 7b5d4d1ebc62b7d85642a367af4438a111e7c451 Mon Sep 17 00:00:00 2001
+From 95d0773ef7f624d11ed40b16e9a0c43c37a60a86 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 29 May 2016 11:37:08 +0200
-Subject: [PATCH 46/77] ar71xx: Send power to USB port on WNR2200
+Subject: [PATCH 46/93] ar71xx: Send power to USB port on WNR2200
 
 This patch fixes ticket #15267 by enabling power on the
 WNR2200's USB port. At present, the USB port on the WNR2200
@@ -18,7 +18,7 @@ Backport of r47236
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-wnr2200.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-wnr2200.c
-index 0087cac..5d23f21 100644
+index 0087cac620..5d23f21763 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/mach-wnr2200.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-wnr2200.c
 @@ -36,7 +36,7 @@
@@ -44,5 +44,5 @@ index 0087cac..5d23f21 100644
  	ath79_register_usb();
  }
 -- 
-2.10.2
+2.11.0
 

@@ -1,7 +1,7 @@
-From 84773bccf6ecfc8d68fe5f4a3cef7da0af6e6590 Mon Sep 17 00:00:00 2001
+From e890862656c3a816d6db296eb90f5a4a3d6b333e Mon Sep 17 00:00:00 2001
 From: Jan Niehusmann <jan@gondor.com>
 Date: Wed, 15 Jun 2016 14:57:47 +0200
-Subject: [PATCH 49/77] ar71xx: add GL-AR150 support
+Subject: [PATCH 49/93] ar71xx: add GL-AR150 support
 
 patch from https://github.com/domino-team/OpenWrt-patches
 
@@ -24,7 +24,7 @@ https://raw.githubusercontent.com/domino-team/OpenWrt-patches/master/AR150%2C%20
  create mode 100644 target/linux/ar71xx/patches-3.18/911-MIPS-ath79-add-gl_ar150.patch
 
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
-index b867796..d81358d 100644
+index b867796024..d81358d6bf 100644
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 @@ -188,6 +188,10 @@ dlan-pro-1200-ac)
@@ -39,7 +39,7 @@ index b867796..d81358d 100644
  	ucidef_set_led_netdev "lan" "LAN" "gl-connect:green:lan" "eth1"
  	ucidef_set_led_wlan "wlan" "WLAN" "gl-connect:red:wlan" "phy0tpt"
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-index b59844e..ac3deb8 100755
+index b59844eac4..ac3deb8aa2 100755
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 @@ -383,6 +383,7 @@ dir-505-a1)
@@ -51,7 +51,7 @@ index b59844e..ac3deb8 100755
  jwap003 |\
  pb42 |\
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 28f07b8..3bd6aed 100755
+index aded7ad117..f242980b3e 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -503,6 +503,9 @@ ar71xx_board_detect() {
@@ -65,7 +65,7 @@ index 28f07b8..3bd6aed 100755
  		name="epg5000"
  		;;
 diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
-index 0228f14..d816f21 100755
+index 0228f14774..d816f21189 100755
 --- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 @@ -216,6 +216,7 @@ platform_check_image() {
@@ -77,7 +77,7 @@ index 0228f14..d816f21 100755
  	esr1750 | \
  	esr900 | \
 diff --git a/target/linux/ar71xx/config-3.18 b/target/linux/ar71xx/config-3.18
-index a068cc5..d4d9273 100644
+index a068cc5768..d4d92738d0 100644
 --- a/target/linux/ar71xx/config-3.18
 +++ b/target/linux/ar71xx/config-3.18
 @@ -70,6 +70,7 @@ CONFIG_ATH79_MACH_ESR1750=y
@@ -90,7 +90,7 @@ index a068cc5..d4d9273 100644
  CONFIG_ATH79_MACH_GS_OOLITE=y
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-gl-ar150.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-gl-ar150.c
 new file mode 100644
-index 0000000..310182c
+index 0000000000..310182cc8e
 --- /dev/null
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-gl-ar150.c
 @@ -0,0 +1,125 @@
@@ -223,7 +223,7 @@ diff --git a/target/linux/ar71xx/generic/profiles/gl-connect.mk b/target/linux/a
 similarity index 56%
 rename from target/linux/ar71xx/generic/profiles/gl-connect.mk
 rename to target/linux/ar71xx/generic/profiles/gli.mk
-index e9377db..a6ad661 100644
+index e9377dbbfa..a6ad661666 100644
 --- a/target/linux/ar71xx/generic/profiles/gl-connect.mk
 +++ b/target/linux/ar71xx/generic/profiles/gli.mk
 @@ -1,12 +1,11 @@
@@ -257,7 +257,7 @@ index e9377db..a6ad661 100644
 +
 +$(eval $(call Profile,GL-AR150))
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 7c648f2..05eea0b 100644
+index 7c648f26e1..05eea0b16c 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -144,6 +144,14 @@ define Device/weio
@@ -277,7 +277,7 @@ index 7c648f2..05eea0b 100644
    NETGEAR_KERNEL_MAGIC = 0x33373030
 diff --git a/target/linux/ar71xx/patches-3.18/911-MIPS-ath79-add-gl_ar150.patch b/target/linux/ar71xx/patches-3.18/911-MIPS-ath79-add-gl_ar150.patch
 new file mode 100644
-index 0000000..31db581
+index 0000000000..31db5816ca
 --- /dev/null
 +++ b/target/linux/ar71xx/patches-3.18/911-MIPS-ath79-add-gl_ar150.patch
 @@ -0,0 +1,39 @@
@@ -321,5 +321,5 @@ index 0000000..31db581
 + 	ATH79_MACH_GS_MINIBOX_V1,	/* Gainstrong MiniBox V1.0 */
 + 	ATH79_MACH_GS_OOLITE,           /* GS OOLITE V1.0 */
 -- 
-2.10.2
+2.11.0
 

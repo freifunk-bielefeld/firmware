@@ -1,7 +1,7 @@
-From 09c7afe6ca26def3e0b0afc5cb07799a0b195195 Mon Sep 17 00:00:00 2001
+From b57a2130c9199fe4d986debb6fa7df9ad9d227fd Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 3 Jul 2016 22:14:18 +0200
-Subject: [PATCH 60/77] ar71xx: add support for TP-LINK TL-WR842N/ND v3
+Subject: [PATCH 60/93] ar71xx: add support for TP-LINK TL-WR842N/ND v3
 
 - CPU QCA9531-BL3A
 - RAM: 64MB
@@ -25,7 +25,7 @@ Backport of LEDE 0b45bec22c59cc6e6b2fa71dc9a88386c5587132
  8 files changed, 138 insertions(+), 13 deletions(-)
 
 diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
-index cb92349..2c5d6af 100644
+index cb92349cab..2c5d6af8f4 100644
 --- a/target/linux/ar71xx/base-files/etc/diag.sh
 +++ b/target/linux/ar71xx/base-files/etc/diag.sh
 @@ -280,6 +280,7 @@ get_status_led() {
@@ -37,7 +37,7 @@ index cb92349..2c5d6af 100644
  	tl-wr941nd-v5)
  		status_led="tp-link:green:system"
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
-index d81358d..14aa7bc 100644
+index d81358d6bf..14aa7bc5e5 100644
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/01_leds
 @@ -523,6 +523,16 @@ tl-wr842n-v2)
@@ -58,7 +58,7 @@ index d81358d..14aa7bc 100644
  tl-wa901nd-v3)
  	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-index ac3deb8..ca9c577 100755
+index ac3deb8aa2..ca9c5771d7 100755
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 @@ -449,6 +449,7 @@ tl-wr741nd-v4 |\
@@ -70,7 +70,7 @@ index ac3deb8..ca9c577 100755
  whr-hp-g300n |\
  whr-hp-gn |\
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 3bd6aed..43ce7da 100755
+index f242980b3e..fcd0bc3522 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -869,6 +869,9 @@ ar71xx_board_detect() {
@@ -84,7 +84,7 @@ index 3bd6aed..43ce7da 100755
  		name="tl-wr941nd"
  		;;
 diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
-index d816f21..53284df 100755
+index d816f21189..53284df5e2 100755
 --- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 @@ -367,6 +367,7 @@ platform_check_image() {
@@ -96,7 +96,7 @@ index d816f21..53284df 100755
  	tl-wr941nd-v5 | \
  	tl-wr941nd-v6 | \
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr841n-v9.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr841n-v9.c
-index 004f719..ebaed15 100644
+index 004f719613..ebaed15a49 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr841n-v9.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-tl-wr841n-v9.c
 @@ -1,9 +1,16 @@
@@ -228,7 +228,7 @@ index 004f719..ebaed15 100644
 +MIPS_MACHINE(ATH79_MACH_TL_WR842N_V3, "TL-WR842N-v3", "TP-LINK TL-WR842N/ND v3",
 +	     tl_wr842n_v3_setup);
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 05eea0b..d66bd25 100644
+index 05eea0b16c..d66bd25fe0 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -607,6 +607,13 @@ define Device/tl-wr842n-v2
@@ -255,7 +255,7 @@ index 05eea0b..d66bd25 100644
  define Device/tl-wr941nd-v5
      $(Device/tplink-4mlzma)
 diff --git a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
-index debde6e..d4b417b 100644
+index debde6e6a5..d4b417bfb7 100644
 --- a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
 +++ b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
 @@ -1,6 +1,6 @@
@@ -333,5 +333,5 @@ index debde6e..d4b417b 100644
   
   config ATH79_ROUTERBOOT
 -- 
-2.10.2
+2.11.0
 

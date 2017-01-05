@@ -1,7 +1,7 @@
-From cbc83a00b7866c66760e46498a4a365155efbaa5 Mon Sep 17 00:00:00 2001
+From 3159f1459095e3fbae68bf639dcfdb4bdcd4778a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 5 Apr 2016 20:30:56 +0200
-Subject: [PATCH 25/77] xtables-addons: build: fix configure compatiblity with
+Subject: [PATCH 25/93] xtables-addons: build: fix configure compatiblity with
  POSIX shells
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH 25/77] xtables-addons: build: fix configure compatiblity with
 
 diff --git a/package/network/utils/xtables-addons/patches/001-build-fix-configure-compatiblity-with-POSIX-shells.patch b/package/network/utils/xtables-addons/patches/001-build-fix-configure-compatiblity-with-POSIX-shells.patch
 new file mode 100644
-index 0000000..e0b11b5
+index 0000000000..e0b11b5459
 --- /dev/null
 +++ b/package/network/utils/xtables-addons/patches/001-build-fix-configure-compatiblity-with-POSIX-shells.patch
 @@ -0,0 +1,51 @@
@@ -68,7 +68,7 @@ index 0000000..e0b11b5
 +2.8.0
 +
 diff --git a/package/network/utils/xtables-addons/patches/002-fix-kernel-version-detection.patch b/package/network/utils/xtables-addons/patches/002-fix-kernel-version-detection.patch
-index d3b7caa..6a7a099 100644
+index d3b7caa634..6a7a099fcc 100644
 --- a/package/network/utils/xtables-addons/patches/002-fix-kernel-version-detection.patch
 +++ b/package/network/utils/xtables-addons/patches/002-fix-kernel-version-detection.patch
 @@ -1,1954 +1,11 @@
@@ -2033,5 +2033,5 @@ index d3b7caa..6a7a099 100644
 + 	IFS='.';
 + 	set x $krel;
 -- 
-2.10.2
+2.11.0
 

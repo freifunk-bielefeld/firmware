@@ -1,7 +1,7 @@
-From 6c57cd8366f6efd3430fcb86921669f694779eb4 Mon Sep 17 00:00:00 2001
+From 512202f126d81f2e7d9849898b83f0b9fe49b46f Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:44:30 +0200
-Subject: [PATCH 26/77] tools: add tar host build, required for --sort=name
+Subject: [PATCH 26/93] tools: add tar host build, required for --sort=name
  which was only added in the latest version
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
@@ -16,7 +16,7 @@ Backport of r46876
  create mode 100644 tools/tar/patches/100-fix_xattr_disable.patch
 
 diff --git a/tools/Makefile b/tools/Makefile
-index c6cded8..98ce8c5 100644
+index c6cded8ecc..98ce8c5f15 100644
 --- a/tools/Makefile
 +++ b/tools/Makefile
 @@ -81,6 +81,9 @@ endif
@@ -31,7 +31,7 @@ index c6cded8..98ce8c5 100644
  
 diff --git a/tools/tar/Makefile b/tools/tar/Makefile
 new file mode 100644
-index 0000000..975e783
+index 0000000000..975e7835ef
 --- /dev/null
 +++ b/tools/tar/Makefile
 @@ -0,0 +1,30 @@
@@ -67,7 +67,7 @@ index 0000000..975e783
 +$(eval $(call HostBuild))
 diff --git a/tools/tar/patches/100-fix_xattr_disable.patch b/tools/tar/patches/100-fix_xattr_disable.patch
 new file mode 100644
-index 0000000..5735bd2
+index 0000000000..5735bd2364
 --- /dev/null
 +++ b/tools/tar/patches/100-fix_xattr_disable.patch
 @@ -0,0 +1,17 @@
@@ -89,5 +89,5 @@ index 0000000..5735bd2
 ++
 ++#endif
 -- 
-2.10.2
+2.11.0
 

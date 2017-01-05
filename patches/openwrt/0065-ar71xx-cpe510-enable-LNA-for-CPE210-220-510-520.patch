@@ -1,7 +1,7 @@
-From 92222edb9fe1a8bc2260062dff85c5fbffd2cd53 Mon Sep 17 00:00:00 2001
+From 01633d533bef86200885417a80a67960a8430b6a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 9 Jun 2016 04:39:08 +0200
-Subject: [PATCH 65/77] ar71xx/cpe510: enable LNA for CPE210/220/510/520
+Subject: [PATCH 65/93] ar71xx/cpe510: enable LNA for CPE210/220/510/520
 
 The LNA improves the rx path. Within a simple test setup
 it improved the signal from -60dbm to -40dbm.
@@ -14,7 +14,7 @@ Backport of LEDE 94e23bf7409d6cc4c9efb55ed32aba8e5a497966
  1 file changed, 6 insertions(+)
 
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
-index 8bf5c0f..5cb052a 100644
+index 8bf5c0f622..5cb052a84a 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-cpe510.c
 @@ -30,6 +30,9 @@
@@ -38,5 +38,5 @@ index 8bf5c0f..5cb052a 100644
  
  	ath79_register_mdio(1, 0);
 -- 
-2.10.2
+2.11.0
 
