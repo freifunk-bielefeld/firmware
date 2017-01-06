@@ -1,7 +1,7 @@
 BRANCH=stable
 
-# model               ver sha512sum                                                                                                                        filename
-tp-link-tl-wdr4300-v1 0.4 c300c2b80a8863506cf3b19359873c596d87af3183c4826462dfb5aa69bec7ce65e3db23a9f6f779fd0f3cc50db5d57070c2b62942abf4fb0e08ae4cb48191a0 gluon-0.4-tp-link-tl-wdr4300-v1-sysupgrade.bin
+# model               ver sha256sum                                                                                                                        filename
+tp-link-tl-wdr4300-v1 0.4 4c1d7be3e7befc35a4221cb083d6a7e8ceb9871ecc7cd73ef82306c3e9b09dc4 firmware-0.4-tp-link-tl-wdr4300-v1-sysupgrade.bin
 
 # after three dashes follow the ecdsa signatures of everything above the dashes
 ---
