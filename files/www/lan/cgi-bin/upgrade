@@ -32,7 +32,7 @@ case "${GET_func:-$POST_func}" in
 	restore_firmware)
 		echo "Alle &#196;nderungen werden zur&#252;ckgesetzt ..."
 		echo y | firstboot
-		echo "Starte neu ..."
+		echo "Router wird neugestartet..."
 		reboot
 	;;
 	*)
