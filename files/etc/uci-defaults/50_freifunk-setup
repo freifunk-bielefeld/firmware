@@ -456,6 +456,15 @@ update_064_to_065()
 	rm /etc/config/network_defaults
 }
 
+update_065_to_100()
+{
+	# preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	cp /rom/etc/sysupgrade.conf /etc/sysupgrade.conf
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -485,6 +494,7 @@ start()
 			update_062_to_063
 			update_063_to_064
 			update_064_to_065
+			update_065_to_100
 			update_version
 			;;
 		0.5.1*)
@@ -495,6 +505,7 @@ start()
 			update_062_to_063
 			update_063_to_064
 			update_064_to_065
+			update_065_to_100
 			update_version
 			;;
 		0.6.0*)
@@ -504,6 +515,7 @@ start()
 			update_062_to_063
 			update_063_to_064
 			update_064_to_065
+			update_065_to_100
 			update_version
 			;;
 		0.6.1*)
@@ -512,6 +524,7 @@ start()
 			update_062_to_063
 			update_063_to_064
 			update_064_to_065
+			update_065_to_100
 			update_version
 			;;
 		0.6.2*)
@@ -519,17 +532,25 @@ start()
 			update_062_to_063
 			update_063_to_064
 			update_064_to_065
+			update_065_to_100
 			update_version
 			;;
 		0.6.3*)
 			echo "(I) Apply update."
 			update_063_to_064
 			update_064_to_065
+			update_065_to_100
 			update_version
 			;;
 		0.6.4*)
 			echo "(I) Apply update."
 			update_064_to_065
+			update_065_to_100
+			update_version
+			;;
+		1.0.0*)
+			echo "(I) Apply update."
+			update_065_to_100
 			update_version
 			;;
 		"")
