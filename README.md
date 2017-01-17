@@ -14,17 +14,15 @@ Install dependencies for the build environment (Debian/Ubuntu):
 
 Build commands for the console:
 
-    git clone https://github.com/openwrt/openwrt.git && cd openwrt
-    git reset --hard 0f757bd2606971252f901ef3faf4dbd0086315f7
+    git clone -b lede-17.01 git://git.lede-project.org/source.git
+    cd source
     
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     
     git clone -b development https://github.com/freifunk-bielefeld/firmware.git
     cp -rf firmware/files firmware/package .
-    git am --whitespace=nowarn firmware/patches/openwrt/*.patch
     cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
-    cd feeds/packages && git am --whitespace=nowarn ../../firmware/patches/packages/*.patch && cd -
     rm -rf firmware tmp
     
     make defconfig
