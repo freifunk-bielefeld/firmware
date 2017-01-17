@@ -295,7 +295,7 @@ initial_setup()
 	net.ipv6.neigh.default.base_reachable_time_ms=300
 
 	# by default, either accept_ra or forwarding is enabled
-	# disable both here, since OpenWrt handles both apart from the Linux kernel
+	# disable both here, since LEDE handles both apart from the Linux kernel
 	net.ipv6.conf.all.accept_ra=0
 	net.ipv6.conf.default.accept_ra=0
 	net.ipv6.conf.br-freifunk.forwarding=0

@@ -32,4 +32,4 @@ config cert px5g
 	option bits 2048
 
 	# Common name
-	option commonname OpenWrt
+	option commonname LEDE

@@ -120,7 +120,7 @@ config include
 	option path /etc/firewall.user
 
 #
-#Additional rules to the OpenWRT default firewall entries above.
+#Additional rules to the LEDE default firewall entries above.
 #
 
 config zone

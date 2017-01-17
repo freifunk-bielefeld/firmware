@@ -20,7 +20,7 @@ case "${GET_func:-$POST_func}" in
 
 		echo "Starte Update ..."
 
-		#apply openwrt or vendor image
+		#apply lede or vendor image
 		sysupgrade $args $path
 	;;
 	lookup_upgrade)
