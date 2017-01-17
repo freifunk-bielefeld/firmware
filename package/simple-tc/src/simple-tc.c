@@ -27,7 +27,6 @@
 #define _GNU_SOURCE
 
 #include <errno.h>
-#include <error.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,11 +61,12 @@ static int nlerror;
 
 
 static inline void exit_errno(const char *message) {
-	error(1, errno, "error: %s", message);
+	fprintf(stderr, "error: %s: %s\n", message, strerror(errno));
+	exit(1);
 }
 
 static inline void warn_errno(const char *message) {
-	error(0, errno, "warning: %s", message);
+	fprintf(stderr, "warning: %s: %s\n", message, strerror(errno));
 }
 
 
@@ -124,8 +124,8 @@ static bool do_send(struct nl_msg *msg, bool expect) {
 	nl_wait_for_ack(sock);
 
 	if (nlerror) {
-		error(0, nlerror, "netlink");
 		errno = nlerror;
+		warn_errno("netlink");
 		return false;
 	}
 
@@ -233,7 +233,8 @@ static inline void usage(void) {
 }
 
 static inline void maxrate(void) {
-	error(1, 0, "error: maximum allowed rate it about 2^25 Kbit/s");
+	fprintf(stderr, "error: maximum allowed rate it about 2^25 Kbit/s");
+	exit(1);
 }
 
 
@@ -245,8 +246,10 @@ int main(int argc, char *argv[]) {
 	char *end;
 
 	ifindex = if_nametoindex(argv[1]);
-	if (!ifindex)
-		error(1, 0, "invalid interface: %s", argv[1]);
+	if (!ifindex) {
+		fprintf(stderr, "invalid interface: %s", argv[1]);
+		exit(1);
+	}
 
 	if (strcmp(argv[2], "-") != 0) {
 		ingress = strtod(argv[2], &end);
