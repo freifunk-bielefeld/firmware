@@ -545,7 +545,6 @@ function collect_switch_info(device)
 			obj.map = [['eth0',0],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',1]];
 			break;
 		case 'tp-link-tl-wr841n-nd-v8':
-		case 'tp-link-tl-wr842n-nd-v2':
 		case 'tp-link-tl-mr3420-v2':
 			obj.map = [['eth1',0],['LAN1',2],['LAN2',3],['LAN3',4],['LAN4',1]];
 			break;
@@ -559,13 +558,23 @@ function collect_switch_info(device)
 			obj.map = [['eth0',0],['LAN1',4],['LAN2',3],['LAN3',2],['LAN4',1]];
 			break;
 		case 'tp-link-tl-wr842n-nd-v1':
+		case 'tp-link-tl-wr842n-nd-v2':
+		case 'tp-link-tl-wr842n-nd-v3':
+			obj.map = [['eth0',0],['LAN1',4],['LAN2',3],['LAN3',2],['LAN4',1]];
+			break;
 		case 'tp-link-tl-wr841n-nd-v7':
 		case 'tp-link-tl-mr3420-v1':
 			obj.map = [['eth0',0],['LAN1',1],['LAN2',2],['LAN3',3],['LAN4',4]];
 			break;
 		case 'tp-link-cpe210-v1-0':
+			obj.map = [['eth0',0],['LAN0',5],['LAN1',4]];
+			break;
 		case 'tp-link-cpe220-v1-0':
+			obj.map = [['eth0',0],['LAN0',5],['LAN1',4]];
+			break;
 		case 'tp-link-cpe510-v1-0':
+			obj.map = [['eth0',0],['LAN0',5],['LAN1',4]];
+			break;
 		case 'tp-link-cpe520-v1-0':
 			obj.map = [['eth0',0],['LAN0',5],['LAN1',4]];
 			break;
