@@ -1,7 +1,7 @@
-From dd2b7d334738085a5c814a1506431ecfddca79b6 Mon Sep 17 00:00:00 2001
+From f11d9c916a8e8c21e14a5a9a945b6c9d82c969f8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 21:24:44 +0200
-Subject: [PATCH 42/77] ar71xx: Rename unifiac to unifiac-lite
+Subject: [PATCH 42/93] ar71xx: Rename unifiac to unifiac-lite
 
 To avoid confusion with different unifiac devices, rename existing target
 "unifiac" to "unifiac-lite", before "unifiac-pro" is introduced.
@@ -22,7 +22,7 @@ Backport of LEDE c855e70491fbd5d432915c4cbeb3b80f3a117e30
  9 files changed, 28 insertions(+), 23 deletions(-)
 
 diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
-index 3adc449..924c116 100644
+index 3adc449b23..924c1163e2 100644
 --- a/target/linux/ar71xx/base-files/etc/diag.sh
 +++ b/target/linux/ar71xx/base-files/etc/diag.sh
 @@ -310,7 +310,7 @@ get_status_led() {
@@ -35,7 +35,7 @@ index 3adc449..924c116 100644
  		;;
  	unifi-outdoor-plus)
 diff --git a/target/linux/ar71xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata b/target/linux/ar71xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
-index ab7d93c..7777734 100644
+index ab7d93c693..7777734ae3 100644
 --- a/target/linux/ar71xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
 +++ b/target/linux/ar71xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
 @@ -81,7 +81,7 @@ case "$FIRMWARE" in
@@ -48,7 +48,7 @@ index ab7d93c..7777734 100644
  		;;
  	esac
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-index a79376a..2007042 100755
+index a79376a8cf..20070426fd 100755
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 @@ -369,7 +369,7 @@ tl-wa901nd-v3 |\
@@ -61,7 +61,7 @@ index a79376a..2007042 100755
  mynet-rext |\
  wp543)
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 0fd139c..a8d8896 100755
+index ecf584d30e..6bc0b86842 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -902,8 +902,8 @@ ar71xx_board_detect() {
@@ -76,7 +76,7 @@ index 0fd139c..a8d8896 100755
  	*"UniFi AP Pro")
  		name="uap-pro"
 diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
-index fff1c3c..90f961f 100755
+index fff1c3c912..90f961f3f0 100755
 --- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 @@ -252,7 +252,7 @@ platform_check_image() {
@@ -89,7 +89,7 @@ index fff1c3c..90f961f 100755
  	carambola2 | \
  	weio )
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c
-index 072cf12..31cbe30 100644
+index 072cf12a31..31cbe30d3f 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c
 @@ -73,7 +73,7 @@ static struct gpio_keys_button ubnt_unifiac_gpio_keys[] __initdata = {
@@ -129,7 +129,7 @@ index 072cf12..31cbe30 100644
 +MIPS_MACHINE(ATH79_MACH_UBNT_UNIFIAC_LITE, "UBNT-UF-AC-LITE", "Ubiquiti UniFi-AC-LITE",
 +	     ubnt_unifiac_lite_setup);
 diff --git a/target/linux/ar71xx/generic/profiles/ubnt.mk b/target/linux/ar71xx/generic/profiles/ubnt.mk
-index 94eff18..eac0240 100644
+index 94eff18318..eac02406bb 100644
 --- a/target/linux/ar71xx/generic/profiles/ubnt.mk
 +++ b/target/linux/ar71xx/generic/profiles/ubnt.mk
 @@ -38,16 +38,16 @@ endef
@@ -155,7 +155,7 @@ index 94eff18..eac0240 100644
  define Profile/UBNTUNIFIOUTDOOR
  	NAME:=Ubiquiti UniFiAP Outdoor
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index aaaf89a..42ffc69 100644
+index aaaf89ac1a..42ffc69ca3 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -741,14 +741,19 @@ endef
@@ -182,7 +182,7 @@ index aaaf89a..42ffc69 100644
  rootfs_type=$(patsubst jffs2-%,jffs2,$(patsubst squashfs-%,squashfs,$(1)))
  
 diff --git a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
-index 27dc73f..9a28f58 100644
+index 27dc73ffa2..9a28f58f67 100644
 --- a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
 +++ b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
 @@ -165,7 +165,7 @@
@@ -204,5 +204,5 @@ index 27dc73f..9a28f58 100644
  +	select ATH79_DEV_AP9X_PCI if PCI
  +	select ATH79_DEV_ETH
 -- 
-2.10.2
+2.11.0
 

@@ -59,8 +59,8 @@ body {
 	border: 2px dotted grey;
 }
 
-#switches label {
-	width: 6em;
+#msg {
+	margin-left: 0.5em;
 }
 
 /* forms */
@@ -82,7 +82,7 @@ fieldset {
 	border: 1px solid #ddd;
 	padding: 0.5em;
 	margin: 0.5em;
-	width: 36em;
+	width: 38em;
 }
 
 fieldset fieldset {
@@ -152,17 +152,7 @@ button {
 
 .select_option label {
 	font-size: 1em;
-	color: #000;
 }
-
-.list_option div {
-	clear: left;
-	margin: 0;
-	padding: 0;
-	float: left;
-	list-style: none;
-}
-
 
 /* navigation */
 
@@ -207,9 +197,7 @@ button {
 		float: right;
 		display: inline-block;
 	}
-}
 
-@media screen and (max-width:680px) {
 	#globalnav.responsive {
 		position: relative;
 	}

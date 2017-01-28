@@ -1,7 +1,7 @@
-From cc022271a41f82d25d495f186d50378415072ddf Mon Sep 17 00:00:00 2001
+From e6c15a0fe4456361e0291e663a730abe5b25c7df Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 2 Apr 2015 20:24:14 +0200
-Subject: [PATCH 4/6] batman-adv: introduce 'no_rebroadcast' option
+Subject: [PATCH 4/7] batman-adv: introduce 'no_rebroadcast' option
 
 ---
  batman-adv/files/lib/netifd/proto/batadv.sh        |   7 +-

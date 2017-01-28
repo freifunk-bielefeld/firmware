@@ -20,7 +20,7 @@ function updateFrom(src)
 {
 	var obj = {};
 	collect_inputs(src, obj);
-	for(var name in obj)
+	for (var name in obj)
 	{
 		var value = obj[name];
 		var path = name.split('#');
@@ -50,7 +50,7 @@ function appendSetting(p, path, value, mode)
 	var b;
 	var cfg = path[0]
 	var name = path[path.length-1];
-	switch(name)
+	switch (name)
 	{
 	case "latitude":
 		b = append_input(p, "Breitengrad", id, value);
@@ -84,15 +84,15 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Webseite der Community, zu der dieser Knoten geh\xf6rt.");
 		break;
 	case "enabled":
-		if(cfg == "autoupdater") {
+		if (cfg == "autoupdater") {
 			b = append_radio(p, "Autoupdater", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Der Autoupdater aktualisiert die Firmware automatisch auf die neuste Version.");
 		}
-		if(cfg == "simple-tc") {
+		if (cfg == "simple-tc") {
 			b = append_radio(p, "Bandbreitenkontrolle", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Bandbreitenkontrolle f\xfcr den Upload-/Download \xfcber das Freifunknetz \xfcber den eigenen Internetanschluss.");
 		}
-		if(cfg == "fastd") {
+		if (cfg == "fastd") {
 			b = append_radio(p, "Fastd VPN", id, value, [["An", "1"], ["Aus", "0"]]);
 			addHelpText(b, "Eine VPN-Verbindung zum Server \xfcber WAN aufbauen (per fastd).");
 			addClass(b, "adv_hide");
@@ -100,7 +100,7 @@ function appendSetting(p, path, value, mode)
 		break;
 	case "publish_map":
 		b = append_radio(p, "Zur Karte beitragen", id, value, [["Nichts", "none"], ["Wenig", "basic"], ["Mehr", "more"], ["Alles", "all"]]);
-		addHelpText(b, "Mit wievielen Daten soll dieser Knoten zur Knotenkarte beitragen? (Wenig: Name/Version/Position/Kontakt, Mehr: +Modell/+Uptime/+CPU-Auslastung, Alles: +Speicherauslastung/+IP-Adressen des Routers im Freifunk-Netz)");
+		addHelpText(b, "Mit wievielen Daten soll dieser Knoten zur Knotenkarte beitragen? (Wenig: Name/Version/Modell/Position/Kontakt, Mehr: +Uptime/+CPU-Auslastung, Alles: +Speicherauslastung/+IP-Adressen des Routers im Freifunk-Netz)");
 		break;
 	case "limit_egress":
 		b = append_input(p, "Freifunk Upload", id, value);
@@ -133,7 +133,7 @@ function appendSetting(p, path, value, mode)
 		addHelpText(b, "Ein Name der angegebenen Netzwerkresource. Z.B. \"Meine Webseite\".");
 		break;
 	case "service_display_max":
-		b = append_input(p, "Max. Angezeigte-Eintr\xe4ge", id, value);
+		b = append_input(p, "Max.-Eintr\xe4ge", id, value);
 		addInputCheck(b.lastChild, /^\d+$/, "Ung\xfcltige Zahl.");
 		addHelpText(b, "Maximale Anzahl der auf der eigenen Statusseite angezeigten Eintr\xe4ge.");
 		break;
@@ -165,7 +165,7 @@ function rebuild_general()
 	removeChilds(rfs);
 	removeChilds(tfs);
 
-	if('freifunk' in uci) {
+	if ('freifunk' in uci) {
 		var f = uci.freifunk;
 		var i = firstSectionID(f, "settings");
 		appendSetting(gfs, ['freifunk', i, "name"], f[i]["name"]);
@@ -181,13 +181,13 @@ function rebuild_general()
 		appendSetting(rfs, ['freifunk', i, "service_display_max"], f[i]["service_display_max"]);
 	}
 
-	if('autoupdater' in uci) {
+	if ('autoupdater' in uci) {
 		var a = uci.autoupdater;
 		var i = firstSectionID(a, "autoupdater");
 		appendSetting(gfs, ['autoupdater', i, "enabled"], a[i]["enabled"]);
 	}
 
-	if('simple-tc' in uci) {
+	if ('simple-tc' in uci) {
 		var t = uci['simple-tc'];
 		var i = firstSectionID(t, "interface");
 		appendSetting(tfs, ['simple-tc', i, "enabled"], t[i]["enabled"]);
@@ -195,7 +195,7 @@ function rebuild_general()
 		appendSetting(tfs, ['simple-tc', i, "limit_egress"], t[i]["limit_egress"]);
 	}
 
-	if('fastd' in uci) {
+	if ('fastd' in uci) {
 		var a = uci.fastd;
 		var i = firstSectionID(a, "fastd");
 		appendSetting(gfs, ['fastd', i, "enabled"], a[i]["enabled"]);
@@ -204,10 +204,10 @@ function rebuild_general()
 
 function save_data()
 {
-	for(var name in uci)
+	for (var name in uci)
 	{
 		var obj = uci[name];
-		if(!obj.pchanged)
+		if (!obj.pchanged)
 			continue;
 		var data = toUCI(obj);
 		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data },
@@ -219,4 +219,3 @@ function save_data()
 		);
 	}
 }
-

@@ -1,7 +1,7 @@
-From d547c476d094c0a818514504c57931cdfc0c06c1 Mon Sep 17 00:00:00 2001
+From af76df1e8bc96668b6300f9b01967275a2529359 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 21 Mar 2015 16:40:52 +0100
-Subject: [PATCH 07/77] base-files: disable reset button handling
+Subject: [PATCH 07/93] base-files: disable reset button handling
 
 This conflicts with our reset button usage.
 ---
@@ -11,7 +11,7 @@ This conflicts with our reset button usage.
 
 diff --git a/package/base-files/files/etc/rc.button/reset b/package/base-files/files/etc/rc.button/reset
 deleted file mode 100755
-index 3e24146..0000000
+index 3e241460ef..0000000000
 --- a/package/base-files/files/etc/rc.button/reset
 +++ /dev/null
 @@ -1,20 +0,0 @@
@@ -36,5 +36,5 @@ index 3e24146..0000000
 -
 -return 0
 -- 
-2.10.2
+2.11.0
 

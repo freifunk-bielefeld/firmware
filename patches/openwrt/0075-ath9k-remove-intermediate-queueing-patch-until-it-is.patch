@@ -1,7 +1,7 @@
-From d6fda6f06b51ef0b377757ebc1c314995c2a8f1b Mon Sep 17 00:00:00 2001
+From 6e53722fe44c1594ff36efd9a7e9ce83c473e0fd Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 13 Oct 2016 10:01:19 +0200
-Subject: [PATCH 75/77] ath9k: remove intermediate queueing patch until it is
+Subject: [PATCH 75/93] ath9k: remove intermediate queueing patch until it is
  fixed properly
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
@@ -14,7 +14,7 @@ Backport of LEDE 04a69843198f2252992812e35ac05016db4a1a94
 
 diff --git a/package/kernel/mac80211/patches/320-ath9k-Switch-to-using-mac80211-intermediate-software.patch b/package/kernel/mac80211/patches/320-ath9k-Switch-to-using-mac80211-intermediate-software.patch
 deleted file mode 100644
-index f8b8f86..0000000
+index f8b8f86e03..0000000000
 --- a/package/kernel/mac80211/patches/320-ath9k-Switch-to-using-mac80211-intermediate-software.patch
 +++ /dev/null
 @@ -1,871 +0,0 @@
@@ -890,5 +890,5 @@ index f8b8f86..0000000
 - }
 - 
 -- 
-2.10.2
+2.11.0
 

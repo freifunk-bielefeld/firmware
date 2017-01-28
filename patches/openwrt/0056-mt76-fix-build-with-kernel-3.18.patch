@@ -1,7 +1,7 @@
-From c7e090f41516f3d35dba5d611060fc8ab215e9d9 Mon Sep 17 00:00:00 2001
+From 8d893418b543ebc8ab6dc91307ee02b38bad9e0b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 30 Jun 2016 21:52:02 +0200
-Subject: [PATCH 56/77] mt76: fix build with kernel 3.18
+Subject: [PATCH 56/93] mt76: fix build with kernel 3.18
 
 ---
  package/kernel/mac80211/patches/945-netdev_alloc_frag.patch | 11 +++++++++++
@@ -11,7 +11,7 @@ Subject: [PATCH 56/77] mt76: fix build with kernel 3.18
 
 diff --git a/package/kernel/mac80211/patches/945-netdev_alloc_frag.patch b/package/kernel/mac80211/patches/945-netdev_alloc_frag.patch
 new file mode 100644
-index 0000000..ea389cd
+index 0000000000..ea389cd85c
 --- /dev/null
 +++ b/package/kernel/mac80211/patches/945-netdev_alloc_frag.patch
 @@ -0,0 +1,11 @@
@@ -27,7 +27,7 @@ index 0000000..ea389cd
 + 
 + /*
 diff --git a/package/kernel/mt76/Makefile b/package/kernel/mt76/Makefile
-index bd851e6..989ba0c 100644
+index bd851e6191..989ba0c2e8 100644
 --- a/package/kernel/mt76/Makefile
 +++ b/package/kernel/mt76/Makefile
 @@ -24,7 +24,7 @@ include $(INCLUDE_DIR)/package.mk
@@ -40,5 +40,5 @@ index bd851e6..989ba0c 100644
  	$(PKG_BUILD_DIR)/mt76.ko \
  	$(PKG_BUILD_DIR)/mt76x2e.ko \
 -- 
-2.10.2
+2.11.0
 

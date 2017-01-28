@@ -1,7 +1,7 @@
-From 2593f19f0bb097cd83e04bec36ffd6afd832f893 Mon Sep 17 00:00:00 2001
+From 37153e35c24b91418a21449a76c43c0684d57d14 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sun, 24 Apr 2016 08:44:47 +0200
-Subject: [PATCH 27/77] tools: compile flock before everything else
+Subject: [PATCH 27/93] tools: compile flock before everything else
 
 Signed-off-by: Felix Fietkau <nbd@openwrt.org>
 
@@ -11,7 +11,7 @@ Backport of r48413
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/tools/Makefile b/tools/Makefile
-index 98ce8c5..3402c08 100644
+index 98ce8c5f15..3402c08d5c 100644
 --- a/tools/Makefile
 +++ b/tools/Makefile
 @@ -26,7 +26,7 @@ endif
@@ -34,5 +34,5 @@ index 98ce8c5..3402c08 100644
  $(curdir)/builddirs-default := $(tools-y)
  
 -- 
-2.10.2
+2.11.0
 

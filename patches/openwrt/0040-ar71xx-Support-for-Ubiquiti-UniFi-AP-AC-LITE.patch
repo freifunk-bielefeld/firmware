@@ -1,7 +1,7 @@
-From c6fc2cde9eaa2de752e862650ea6fa493a743488 Mon Sep 17 00:00:00 2001
+From 372253855d386eaca296f87c6c3cc998cea111e3 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 13 May 2016 20:47:26 +0200
-Subject: [PATCH 40/77] ar71xx: Support for Ubiquiti UniFi AP AC LITE
+Subject: [PATCH 40/93] ar71xx: Support for Ubiquiti UniFi AP AC LITE
 
 Add support for the Ubiquiti UniFi AP AC LITE
 Signed-off-by: P.Wassi <p.wassi at gmx.at>
@@ -23,7 +23,7 @@ Backport of OpenWrt r48711
  create mode 100644 target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c
 
 diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
-index 486879f..3adc449 100644
+index 486879f512..3adc449b23 100644
 --- a/target/linux/ar71xx/base-files/etc/diag.sh
 +++ b/target/linux/ar71xx/base-files/etc/diag.sh
 @@ -309,7 +309,8 @@ get_status_led() {
@@ -37,7 +37,7 @@ index 486879f..3adc449 100644
  		;;
  	unifi-outdoor-plus)
 diff --git a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
-index 032c671..a79376a 100755
+index 032c671341..a79376a8cf 100755
 --- a/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 +++ b/target/linux/ar71xx/base-files/etc/uci-defaults/02_network
 @@ -369,6 +369,7 @@ tl-wa901nd-v3 |\
@@ -49,7 +49,7 @@ index 032c671..a79376a 100755
  mynet-rext |\
  wp543)
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 4780e2f..0fd139c 100755
+index 6c106179bf..ecf584d30e 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -902,6 +902,9 @@ ar71xx_board_detect() {
@@ -63,7 +63,7 @@ index 4780e2f..0fd139c 100755
  		name="uap-pro"
  		;;
 diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
-index 024e493..fff1c3c 100755
+index 024e493094..fff1c3c912 100755
 --- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 @@ -252,6 +252,7 @@ platform_check_image() {
@@ -75,7 +75,7 @@ index 024e493..fff1c3c 100755
  	carambola2 | \
  	weio )
 diff --git a/target/linux/ar71xx/config-3.18 b/target/linux/ar71xx/config-3.18
-index e0d52d9..a068cc5 100644
+index e0d52d9fcb..a068cc5768 100644
 --- a/target/linux/ar71xx/config-3.18
 +++ b/target/linux/ar71xx/config-3.18
 @@ -141,6 +141,7 @@ CONFIG_ATH79_MACH_TL_WR941ND=y
@@ -97,7 +97,7 @@ index e0d52d9..a068cc5 100644
  CONFIG_SPI_ATH79=y
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c b/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c
 new file mode 100644
-index 0000000..3617ca7
+index 0000000000..3617ca7d5f
 --- /dev/null
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/mach-ubnt-unifiac.c
 @@ -0,0 +1,109 @@
@@ -211,7 +211,7 @@ index 0000000..3617ca7
 +MIPS_MACHINE(ATH79_MACH_UBNT_UNIFIAC, "UBNT-UF-AC", "Ubiquiti UniFi-AC",
 +	     ubnt_unifiac_setup);
 diff --git a/target/linux/ar71xx/generic/profiles/ubnt.mk b/target/linux/ar71xx/generic/profiles/ubnt.mk
-index d8e24d0..94eff18 100644
+index d8e24d0032..94eff18318 100644
 --- a/target/linux/ar71xx/generic/profiles/ubnt.mk
 +++ b/target/linux/ar71xx/generic/profiles/ubnt.mk
 @@ -38,6 +38,17 @@ endef
@@ -233,7 +233,7 @@ index d8e24d0..94eff18 100644
  	NAME:=Ubiquiti UniFiAP Outdoor
  	PACKAGES:=
 diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/Makefile
-index 0783381..aaaf89a 100644
+index 0783381bae..aaaf89ac1a 100644
 --- a/target/linux/ar71xx/image/Makefile
 +++ b/target/linux/ar71xx/image/Makefile
 @@ -740,6 +740,16 @@ define Device/oolite
@@ -254,7 +254,7 @@ index 0783381..aaaf89a 100644
  
  # $(1): rootfs type.
 diff --git a/target/linux/ar71xx/mikrotik/config-default b/target/linux/ar71xx/mikrotik/config-default
-index b8a7bf1..2b1fe24 100644
+index b8a7bf13f2..2b1fe2491c 100644
 --- a/target/linux/ar71xx/mikrotik/config-default
 +++ b/target/linux/ar71xx/mikrotik/config-default
 @@ -97,6 +97,7 @@ CONFIG_ATH79_MACH_RBSXTLITE=y
@@ -266,7 +266,7 @@ index b8a7bf1..2b1fe24 100644
  # CONFIG_ATH79_MACH_WLAE_AG300N is not set
  # CONFIG_ATH79_MACH_WLR8100 is not set
 diff --git a/target/linux/ar71xx/nand/config-default b/target/linux/ar71xx/nand/config-default
-index 626d676..f62cf1a 100644
+index 626d676c62..f62cf1a439 100644
 --- a/target/linux/ar71xx/nand/config-default
 +++ b/target/linux/ar71xx/nand/config-default
 @@ -59,6 +59,7 @@
@@ -278,7 +278,7 @@ index 626d676..f62cf1a 100644
  # CONFIG_ATH79_MACH_WLAE_AG300N is not set
  # CONFIG_ATH79_MACH_WNDAP360 is not set
 diff --git a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
-index 76aeb94..27dc73f 100644
+index 76aeb94412..27dc73ffa2 100644
 --- a/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
 +++ b/target/linux/ar71xx/patches-3.18/610-MIPS-ath79-openwrt-machines.patch
 @@ -1,6 +1,6 @@
@@ -576,5 +576,5 @@ index 76aeb94..27dc73f 100644
  +obj-$(CONFIG_ATH79_MACH_WEIO)		+= mach-weio.o
  +obj-$(CONFIG_ATH79_MACH_WHR_HP_G300N)	+= mach-whr-hp-g300n.o
 -- 
-2.10.2
+2.11.0
 

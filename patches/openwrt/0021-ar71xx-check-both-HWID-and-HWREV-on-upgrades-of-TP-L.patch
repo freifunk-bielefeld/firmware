@@ -1,7 +1,7 @@
-From 2b2750d37fc2b7bea96f6204ec13e2692d3983f3 Mon Sep 17 00:00:00 2001
+From d6ff2b336bf1633f56aab781f40f3e79b408a8c8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 1 Apr 2016 23:16:13 +0200
-Subject: [PATCH 21/77] ar71xx: check both HWID and HWREV on upgrades of
+Subject: [PATCH 21/93] ar71xx: check both HWID and HWREV on upgrades of
  TP-LINK devices
 
 There's no reason for us to be more lenient than the stock firmware, so
@@ -15,7 +15,7 @@ Backport of r49105
  1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
-index 762cd76..024e493 100755
+index 762cd760ce..024e493094 100755
 --- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 @@ -66,6 +66,10 @@ tplink_get_image_hwid() {
@@ -52,5 +52,5 @@ index 762cd76..024e493 100755
  		}
  
 -- 
-2.10.2
+2.11.0
 

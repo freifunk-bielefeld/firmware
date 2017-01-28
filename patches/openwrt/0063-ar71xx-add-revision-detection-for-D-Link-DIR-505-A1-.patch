@@ -1,7 +1,7 @@
-From ab0de26c6ed1464cf572f79cccf299deeb4bd00e Mon Sep 17 00:00:00 2001
+From 356b10d046bfab81a49ec1072adf669f1b8e9b9c Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 28 Jul 2016 15:43:25 +0200
-Subject: [PATCH 63/77] ar71xx: add revision detection for D-Link DIR-505 A1/A2
+Subject: [PATCH 63/93] ar71xx: add revision detection for D-Link DIR-505 A1/A2
 
 The A1 image also works on the A2, correctly set AR71XX_MODEL in this case.
 
@@ -13,7 +13,7 @@ Backport of LEDE 500a67a167a256002f8ab05171f49dfb86b03260
  1 file changed, 10 insertions(+)
 
 diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
-index 43ce7da..4bf484b 100755
+index fcd0bc3522..20250e96fd 100755
 --- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
 +++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
 @@ -107,6 +107,15 @@ cybertan_get_hw_magic() {
@@ -41,5 +41,5 @@ index 43ce7da..4bf484b 100755
  	*"DIR-600 rev. A1")
  		name="dir-600-a1"
 -- 
-2.10.2
+2.11.0
 

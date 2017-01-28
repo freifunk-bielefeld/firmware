@@ -1,7 +1,7 @@
-From eded5b78750ccef1aea0cd9cc45a2bb129dff417 Mon Sep 17 00:00:00 2001
+From 9a9e2b51b2ed94f2f94237c361de7322563d708a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 19 Jul 2016 17:48:53 +0200
-Subject: [PATCH 08/77] ar71xx: define wmac reset function for QCA955x
+Subject: [PATCH 08/93] ar71xx: define wmac reset function for QCA955x
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 
@@ -13,7 +13,7 @@ Backport of LEDE a176168a85477caa44eef7e979567d1d52868fde
 
 diff --git a/target/linux/ar71xx/patches-3.18/640-MIPS-ath79-add-QCA955x-wmac-reset.patch b/target/linux/ar71xx/patches-3.18/640-MIPS-ath79-add-QCA955x-wmac-reset.patch
 new file mode 100644
-index 0000000..4ac5acd
+index 0000000000..4ac5acd618
 --- /dev/null
 +++ b/target/linux/ar71xx/patches-3.18/640-MIPS-ath79-add-QCA955x-wmac-reset.patch
 @@ -0,0 +1,71 @@
@@ -89,5 +89,5 @@ index 0000000..4ac5acd
 +  * PLL block
 +  */
 -- 
-2.10.2
+2.11.0
 

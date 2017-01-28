@@ -1,7 +1,7 @@
-From 5622901faabdc418424ea6150052a63747a62149 Mon Sep 17 00:00:00 2001
+From f59be4bcb6bb06f17c59788f02e324ee88a64538 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 7 May 2016 00:29:06 +0200
-Subject: [PATCH 33/77] kernel: mtd: spi-nor: unlock Winbond flashs
+Subject: [PATCH 33/93] kernel: mtd: spi-nor: unlock Winbond flashs
 
 ---
  ...spi-nor-fix-Spansion-regressions-aliased-.patch | 46 ++++++++++++++++++++++
@@ -10,7 +10,7 @@ Subject: [PATCH 33/77] kernel: mtd: spi-nor: unlock Winbond flashs
 
 diff --git a/target/linux/generic/patches-3.18/463-Revert-mtd-spi-nor-fix-Spansion-regressions-aliased-.patch b/target/linux/generic/patches-3.18/463-Revert-mtd-spi-nor-fix-Spansion-regressions-aliased-.patch
 new file mode 100644
-index 0000000..4682b7a
+index 0000000000..4682b7a77b
 --- /dev/null
 +++ b/target/linux/generic/patches-3.18/463-Revert-mtd-spi-nor-fix-Spansion-regressions-aliased-.patch
 @@ -0,0 +1,46 @@
@@ -61,5 +61,5 @@ index 0000000..4682b7a
 + /*
 +  * Note on opcode nomenclature: some opcodes have a format like
 -- 
-2.10.2
+2.11.0
 

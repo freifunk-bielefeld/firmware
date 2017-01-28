@@ -1,7 +1,7 @@
-From f1e560fa6bdbda1263a6aa8992f126a840350b87 Mon Sep 17 00:00:00 2001
+From 803aafc8e7b5c0394ac7d283cd6dc4cb19698475 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 16 Jun 2016 00:51:07 +0200
-Subject: [PATCH 52/77] linux: make IPv6 builtin if selected (saves >30KB)
+Subject: [PATCH 52/93] linux: make IPv6 builtin if selected (saves >30KB)
 
 Signed-off-by: Steven Barth <steven@midlink.org>
 
@@ -17,7 +17,7 @@ to adjust all packages depending on kmod-ipv6.
  4 files changed, 13 insertions(+), 13 deletions(-)
 
 diff --git a/config/Config-build.in b/config/Config-build.in
-index 4674d84..cd50290 100644
+index 4674d84035..cd50290f81 100644
 --- a/config/Config-build.in
 +++ b/config/Config-build.in
 @@ -83,7 +83,7 @@ menu "Global build settings"
@@ -30,7 +30,7 @@ index 4674d84..cd50290 100644
  	config PKG_BUILD_PARALLEL
  		bool
 diff --git a/package/kernel/linux/Makefile b/package/kernel/linux/Makefile
-index 45ca9fa..b06c49a 100644
+index 45ca9faa92..b06c49a92f 100644
 --- a/package/kernel/linux/Makefile
 +++ b/package/kernel/linux/Makefile
 @@ -49,6 +49,7 @@ define Package/kernel
@@ -42,7 +42,7 @@ index 45ca9fa..b06c49a 100644
  
  define Package/kernel/install
 diff --git a/package/kernel/linux/modules/netsupport.mk b/package/kernel/linux/modules/netsupport.mk
-index cea8e47..8a2760d 100644
+index cea8e47a65..8a2760d8a4 100644
 --- a/package/kernel/linux/modules/netsupport.mk
 +++ b/package/kernel/linux/modules/netsupport.mk
 @@ -439,7 +439,7 @@ $(eval $(call KernelPackage,iptunnel4))
@@ -137,7 +137,7 @@ index cea8e47..8a2760d 100644
  
  define KernelPackage/sctp/description
 diff --git a/package/network/services/dnsmasq/Makefile b/package/network/services/dnsmasq/Makefile
-index 19a8df9..8fd51fe 100644
+index 19a8df9009..8fd51fe874 100644
 --- a/package/network/services/dnsmasq/Makefile
 +++ b/package/network/services/dnsmasq/Makefile
 @@ -52,7 +52,6 @@ define Package/dnsmasq-full
@@ -149,5 +149,5 @@ index 19a8df9..8fd51fe 100644
    VARIANT:=full
  endef
 -- 
-2.10.2
+2.11.0
 

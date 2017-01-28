@@ -1,35 +1,45 @@
 
 function formatSize(bytes) {
-	if(typeof bytes === "undefined" || bytes == "") {
+	if (typeof bytes === "undefined" || bytes == "") {
 		return "-";
 	} else if (bytes < 1000) {
 		return bytes + "  B";
 	} else if (bytes < 1000*1000) {
-		return (bytes/ 1000.0).toFixed(0)  + " KB";
+		return (bytes/ 1000.0).toFixed(0)  + " K";
 	} else if (bytes < 1000*1000*1000) {
-		return (bytes/1000.0/1000.0).toFixed(1)  + " MB";
+		return (bytes/1000.0/1000.0).toFixed(1)  + " M";
 	} else {
-		return (bytes/1000.0/1000.0/1000.0).toFixed(2) + " GB";
+		return (bytes/1000.0/1000.0/1000.0).toFixed(2) + " G";
 	}
+}
+
+function formatSpeed(bytes) {
+	var fmt = formatSize(bytes);
+	return (fmt == "-") ? "-" : (fmt + "/s");
 }
 
 function init() {
 	send("/cgi-bin/home", { }, function(data) {
 		var obj = fromUCI(data).misc.data;
-		for(var key in obj) {
+		for (var key in obj) {
 			var value = obj[key];
 
-			if(key == 'stype') {
+			if (key == 'stype') {
 				continue;
 			}
 
-			//for traffic
-			if(/_bytes$/.test(key)) {
+			// for data volume
+			if (key.endsWith("_data")) {
 				value = formatSize(value);
 			}
 
+			// for transfer speed
+			if (key.endsWith("_speed")) {
+				value = formatSpeed(value);
+			}
+
 			//for addresses
-			if(typeof(value) == 'object') {
+			if (typeof(value) == 'object') {
 				value = "<ul><li>"+value.join("</li><li>")+"</li></ul>"
 			}
 
