@@ -129,14 +129,8 @@ initial_local_node_setup()
 {
 	echo "(I) Setup IPv4 local node access."
 
-<<<<<<< HEAD
-	local ula_prefix="$(uci get network.globals.ula_prefix)"
-	local addr6="${ula_prefix%%::*}::0"
 	local addr4="10.29.127.0"
-=======
-	local addr4="10.26.127.0"
 	local addr6="$(uci get network.globals.ula_prefix)" #CIDR notation
->>>>>>> origin/master
 
 	uci add_list network.freifunk.ipaddr="$addr4"
 	uci add_list network.freifunk.ipaddr6="$addr6"
