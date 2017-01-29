@@ -15,16 +15,16 @@ initial_wifi_setup()
 {
 	echo "(I) Setup /etc/config/wireless"
 
-	#AP default SSID
+	# AP default SSID
 	local ap_ssid="$(uci get freifunk.@settings[0].community).freifunk.net"
 
-	#802.11s default mesh id
+	# Get 802.11s default mesh id
 	local mesh_id="$(uci get freifunk.@settings[0].default_mesh_id)"
 
-	#delete all wifi interfaces
+	# Delete all wifi interfaces
 	while uci -q delete wireless.@wifi-iface[0]; do :; done
 
-	#test if we can span both Ad-Hoc and Access Point interfaces
+	# Create an AP and mesh interface for each wifi device
 	config_wifi() {
 		local ds="$1" #device section
 		local ah_ok=0 ap_ok=0 #interface status
@@ -44,10 +44,10 @@ initial_wifi_setup()
 
 		uci set wireless.$ds.country='DE'
 		uci set wireless.$ds.disabled='0'
-		#not a valid value, but will be ignored otherwise
+		# Not a valid value, but will be ignored otherwise (for web ui)
 		uci set wireless.$ds.txpower='auto'
 
-		#mesh interface
+		# Mesh interface
 		h="wireless.${wifi_device}_mesh"
 		uci set $h="wifi-iface"
 		uci set $h.device="$wifi_device"
@@ -56,15 +56,14 @@ initial_wifi_setup()
 		uci set $h.mesh_id="$mesh_id"
 		uci set $h.mesh_fwding=0
 
-
-		#additional config for mesh interface
+		# Additional config for mesh interface
 		n="network.${wifi_device}_mesh"
 		uci set $n="interface"
 		uci set $n.mtu=1532
 		uci set $n.proto="batadv"
 		uci set $n.mesh="bat0"
 
-		#ap interface
+		# AP interface
 		p="wireless.${wifi_device}_ap"
 		uci set $p="wifi-iface"
 		uci set $p.device="$wifi_device"
@@ -152,6 +151,7 @@ initial_wan_setup()
 	local wan_interfaces="$1"
 	local wan_mac="$2"
 
+	# Remoe old sections if present
 	uci -q delete network.wan
 	uci -q delete network.wan6
 
@@ -165,10 +165,10 @@ initial_wan_setup()
 	uci set network.wan6="interface"
 	uci set network.wan6.ifname="@wan"
 	uci set network.wan6.proto="dhcpv6"
-	#add the default route for wan to table 1
+	# Add the default route for wan to table 1
 	uci set network.wan6.ip6table="1"
 
-	#use table 1 also for all traffic marked by mark 1 (fastd)
+	# Use table 1 also for all traffic marked by mark 1 (fastd)
 	uci set network.wan6_lookup="rule6"
 	uci set network.wan6_lookup.mark="0x01/0x01"
 	uci set network.wan6_lookup.lookup="1"
@@ -198,18 +198,18 @@ initial_setup()
 	echo "(I) Set empty root password."
 	(echo ""; sleep 1; echo "") | passwd > /dev/null
 
-	#get a unique MAC address to identify the node
+	# Get a unique MAC address to identify the node
 	local mac="$(cat /sys/class/ieee80211/phy0/macaddress 2> /dev/null)"
 	if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
 		mac="$(cat /sys/class/net/eth0/address)"
 		if [ -z "$mac" -o "$mac" = "00:11:22:33:44:55" ]; then
-			#random MAC address
+			# Random MAC address
 			mac="$(random_mac)"
 		fi
 	fi
 
 	local mac_ga="$mac"
-	#translate to local administered mac
+	# Translate to local administered mac
 	a=${mac%%:*} #cut out first hex
 	a=$((0x$a ^ 2)) #flip second bit
 	a=`printf '%02x\n' $a` #convert to hex
@@ -266,7 +266,7 @@ initial_setup()
 
 	case "$(cat /tmp/sysinfo/model)" in
 		"TP-Link TL-WR1043N/ND v2" | "TP-Link TL-WR1043N/ND v3")
-			#special WR1043v2 switch fixup for the webui
+			# Special WR1043v2 switch fixup for the webui
 			uci set network.@switch_vlan[-2].ports="1 2 3 4 0t"
 			uci set network.@switch_vlan[-1].ports="5 0t"
 			uci set network.lan.ifname="eth1.1"
@@ -274,7 +274,7 @@ initial_setup()
 			uci commit network
 			;;
 		"TP-Link Archer C7 v2")
-			#special Archer C7 v2 switch fixup for the webui
+			# Special Archer C7 v2 switch fixup for the webui
 			uci set network.@switch_vlan[-2].ports="2 3 4 5 0t"
 			uci set network.@switch_vlan[-1].ports="1 6 0t"
 			uci set network.lan.ifname="eth1.1"
@@ -283,10 +283,10 @@ initial_setup()
 			;;
 	esac
 
-	#allow access of the local node using a common IP address
+	# Allow access of the local node using a common IP address
 	initial_local_node_setup
 
-	#reduce NDP traffic
+	# Reduce NDP traffic
 	cat >> /etc/sysctl.conf <<-  EOF
 
 	# increase neighbor table timings by a factor of 10
@@ -308,7 +308,7 @@ initial_setup()
 
 	uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 
-	#write everything to flash
+	# Write everything to flash
 	uci commit
 }
 
@@ -317,18 +317,18 @@ update_050_to_051()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
-	#update autoupdater
+	# Update autoupdater
 	local updater_enabled=$(uci get autoupdater.settings.enabled)
 	cp /rom/etc/config/autoupdater /etc/config/autoupdater
 	uci set autoupdater.settings.enabled="$updater_enabled"
 	uci commit autoupdater
 
-	#use option instead of list
+	# Use option instead of list
 	uci delete fastd.default.bind
 	uci set fastd.default.bind='any interface "br-wan"'
 	uci commit fastd
 
-	#set txpower for the web ui to show a selection (again)
+	# Set txpower for the web ui to show a selection (again)
 	wireless_set_txpower() {
 		local cfg="$1" txpower
 
@@ -337,7 +337,7 @@ update_050_to_051()
 		[ -n "$txpower" ] || uci set wireless.$cfg.txpower="auto"
 	}
 
-	#make sure the is no macaddr set, some drivers have problems
+	# Make sure the is no macaddr set, some drivers have problems
 	wireless_remove_macaddr() {
 		local cfg="$1" macaddr
 
@@ -353,42 +353,42 @@ update_050_to_051()
 
 update_051_to_060()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
-	# update fastd configuration
+	# Update fastd configuration
 	cp /rom/etc/config/fastd /etc/config/fastd
 
 	local geo="$(uci -q get freifunk.@settings[0].geo)"
 	local publish_map="$(uci -q get freifunk.@settings[0].publish_map)"
 
-	# replace geo by latitude / longitude
+	# Replace geo by latitude / longitude
 	[  -n "$geo" ] && {
 		uci set freifunk.@settings[0].latitude="${geo%% *}"
 		uci set freifunk.@settings[0].longitude="${geo##* }"
 		uci delete freifunk.@settings[0].geo
 	}
 
-	# change publish_map values
+	# Change publish_map values
 	if [ "$publish_map" = "0" ]; then
 		uci set freifunk.@settings[0].publish_map="none"
 	else
 		uci set freifunk.@settings[0].publish_map="basic"
 	fi
 
-	# introduce new setting
+	# Introduce new setting
 	uci set freifunk.@settings[0].mesh_on_wan=0
 
-	# rename option access_from to allow_access_from
+	# Rename option access_from to allow_access_from
 	uci rename freifunk.@settings[0].access_from=allow_access_from
 
-	# add community_url variable
+	# Add community_url variable
 	uci set freifunk.@settings[0].community_url="http://freifunk-bielefeld.de"
 
 	uci commit freifunk
 
-	# set batman-adv mtu for wireless interfaces
+	# Set batman-adv mtu for wireless interfaces
 	network_set_mesh_mtu() {
 		local cfg="$1" network
 
@@ -409,7 +409,7 @@ update_051_to_060()
 		esac
 	}
 
-	#remobe hard stored ula address
+	# Remove ULA address
 	config_load network
 	config_list_foreach freifunk ip6addr remove_ula
 
@@ -418,28 +418,28 @@ update_051_to_060()
 
 update_060_to_061()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 }
 
 update_061_to_062()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 }
 
 update_062_to_063()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 }
 
 update_063_to_064()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
@@ -448,17 +448,17 @@ update_063_to_064()
 
 update_064_to_065()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
-	# not needed anymore
+	# Not needed anymore
 	rm /etc/config/network_defaults
 }
 
 update_065_to_100()
 {
-	# preserve self signed certificates
+	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
@@ -472,7 +472,7 @@ start()
 	local from_version="$(uci -q get freifunk.@settings[0].version)"
 	local to_version="$(uci -c /rom/etc/config -q get freifunk.@settings[0].version)"
 
-	#marker to check if the setup has already been run before
+	# Marker to check if the setup has already been run before
 	if [ -n "$(uci -q get freifunk.@settings[0].first_boot)" ]; then
 		uci -q delete freifunk.@settings[0].first_boot
 		from_version=""
