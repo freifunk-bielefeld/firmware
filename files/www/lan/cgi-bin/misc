@@ -24,7 +24,7 @@ case $GET_func in
 		fi
 	;;
 	name)
-		uci get -q freifunk.@settings[0].name
+		uci -q get freifunk.@settings[0].name
 	;;
 	*)
 		echo "Fehler: Unbekanntes Kommando: '$GET_func'"
