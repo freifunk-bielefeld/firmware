@@ -28,8 +28,8 @@ initial_wifi_setup()
 	config_wifi() {
 		local ds="$1" #device section
 		local ah_ok=0 ap_ok=0 #interface status
-		local wifi_device=`uci get -q wireless.$ds.device`
-		local wifi_path=`uci get -q wireless.$ds.path`
+		local wifi_device=`uci -q get wireless.$ds.device`
+		local wifi_path=`uci -q get wireless.$ds.path`
 		local h n p
 
 		[ -z "$wifi_device" ] && wifi_device="$ds"
@@ -84,12 +84,12 @@ initial_lan_setup()
 
 	local lan_interfaces="$1"
 
-	uci delete -q network.lan
+	uci -q delete network.lan
 	uci set network.lan="interface"
 	uci set network.lan.type="bridge"
 	uci set network.lan.ifname="$lan_interfaces"
-	uci delete -q network.lan.ip6addr
-	uci delete -q network.lan.ipaddr
+	uci -q delete network.lan.ip6addr
+	uci -q delete network.lan.ipaddr
 	uci add_list network.lan.ipaddr="192.168.133.1"
 	uci set network.lan.proto=static
 	uci set network.lan.netmask="255.255.255.0"
@@ -105,13 +105,13 @@ initial_freifunk_setup()
 	local freifunk_interfaces="$1"
 	local freifunk_mac="$2"	
 
-	uci delete -q network.freifunk
+	uci -q delete network.freifunk
 	uci set network.freifunk="interface"
 	uci set network.freifunk.type="bridge"
 	uci set network.freifunk.ifname="$freifunk_interfaces"
 	uci set network.freifunk.macaddr="$freifunk_mac"
-	uci delete -q network.freifunk.ip6addr
-	uci delete -q network.freifunk.ipaddr
+	uci -q delete network.freifunk.ip6addr
+	uci -q delete network.freifunk.ipaddr
 	uci set network.freifunk.proto=static
 	uci set network.freifunk.netmask="255.255.192.0"
 	uci set network.freifunk.igmp_snooping="0"
@@ -186,13 +186,13 @@ initial_setup()
 {
 	local prefix="fdef:17a0:ffb1:300::/64"
 
-	local wan_interface=$(uci get -q network.wan.ifname)
+	local wan_interface=$(uci -q get network.wan.ifname)
 	echo "(I) WAN interface: '$wan_interface'"
 
-	local lan_interface=$(uci get -q network.lan.ifname)
+	local lan_interface=$(uci -q get network.lan.ifname)
 	echo "(I) LAN interface: '$lan_interface'"
 
-	local mesh_id=$(uci get -q freifunk.@settings[0].default_mesh_id)
+	local mesh_id=$(uci -q get freifunk.@settings[0].default_mesh_id)
 	echo "(I) Mesh ID: '$mesh_id'"
 
 	echo "(I) Set empty root password."
@@ -219,7 +219,7 @@ initial_setup()
 
 	echo "(I) Set Prefix and populate /etc/hosts."
 
-	uci set -q network.globals="globals"
+	uci -q set network.globals="globals"
 	uci set network.globals.ula_prefix="$prefix"
 	echo "10.26.127.0 node" >> /etc/hosts
 
@@ -360,8 +360,8 @@ update_051_to_060()
 	# update fastd configuration
 	cp /rom/etc/config/fastd /etc/config/fastd
 
-	local geo="$(uci get -q freifunk.@settings[0].geo)"
-	local publish_map="$(uci get -q freifunk.@settings[0].publish_map)"
+	local geo="$(uci -q get freifunk.@settings[0].geo)"
+	local publish_map="$(uci -q get freifunk.@settings[0].publish_map)"
 
 	# replace geo by latitude / longitude
 	[  -n "$geo" ] && {
@@ -393,7 +393,7 @@ update_051_to_060()
 		local cfg="$1" network
 
 		config_get network $cfg "network"
-		if [ -n "$network" -a "$(uci get -q network.$network.proto)" = "batadv" ]; then
+		if [ -n "$network" -a "$(uci -q get network.$network.proto)" = "batadv" ]; then
 			uci set network.$network.mtu=1532
 		fi
 	}
@@ -469,18 +469,18 @@ start()
 {
 	echo "(I) Start freifunk_setup"
 
-	local from_version="$(uci get -q freifunk.@settings[0].version)"
-	local to_version="$(uci get -c /rom/etc/config -q freifunk.@settings[0].version)"
+	local from_version="$(uci -q get freifunk.@settings[0].version)"
+	local to_version="$(uci -c /rom/etc/config -q get freifunk.@settings[0].version)"
 
 	#marker to check if the setup has already been run before
-	if [ -n "$(uci get -q freifunk.@settings[0].first_boot)" ]; then
-		uci delete -q freifunk.@settings[0].first_boot
+	if [ -n "$(uci -q get freifunk.@settings[0].first_boot)" ]; then
+		uci -q delete freifunk.@settings[0].first_boot
 		from_version=""
 	fi
 
 	update_version() {
-		uci set -q freifunk.@settings[0].version="$to_version"
-		uci commit -q freifunk
+		uci -q set freifunk.@settings[0].version="$to_version"
+		uci -q commit freifunk
 	}
 
 	echo "(I) Update from '$from_version' to '$to_version'"
