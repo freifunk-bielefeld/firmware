@@ -22,6 +22,7 @@ Build commands for the console:
     
     git clone -b development https://github.com/freifunk-bielefeld/firmware.git
     cp -rf firmware/files firmware/package .
+    git am --whitespace=nowarn firmware/patches/lede/*.patch
     cd feeds/routing && git am --whitespace=nowarn ../../firmware/patches/routing/*.patch && cd -
     rm -rf firmware tmp
     
