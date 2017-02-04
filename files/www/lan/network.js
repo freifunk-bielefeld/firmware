@@ -567,8 +567,10 @@ function collect_switch_info(device)
 			obj.map = [['eth0',0],['LAN1',1],['LAN2',2],['LAN3',3],['LAN4',4]];
 			break;
 		case 'tp-link-cpe210-v1-0':
+		case 'tp-link-cpe210-v1-1':
 		case 'tp-link-cpe220-v1-0':
 		case 'tp-link-cpe510-v1-0':
+		case 'tp-link-cpe510-v1-1':
 		case 'tp-link-cpe520-v1-0':
 			obj.map = [['eth0',0],['LAN0',5],['LAN1',4]];
 			break;
