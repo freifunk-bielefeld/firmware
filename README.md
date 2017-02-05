@@ -42,8 +42,8 @@ Or in case you have the DIR-300, select:
 * `Target System => <*> AR231x/AR5312`
 * `Target Profile => <*> Default`
 
-For other models you can lookup the "Target System" in the OpenWrt
-[hardware table](http://wiki.openwrt.org/toh/start). Your AP model
+For other models you can lookup the "Target System" in the LEDE
+[hardware table](https://lede-project.org/toh/start). Your AP model
 should now be visible in the "Target Profile" list.
 
 Now start the build process. This takes some time:
