@@ -34,13 +34,13 @@ Build commands for the console:
 ```
 Now select the right "Target System" and "Target Profile" for your AP model:
 
-For example, for the TL-WR841ND, select:
+For example, for the TL-WR841ND v3, select:
 * `Target System => Atheros AR7xxx/AR9xxx`
-* `Target Profile => TP-LINK TL-WR841ND`
+* `Target Profile => <*> TP-LINK TL-WR842N/ND v3`
 
-Or in case you have the DIR-300, select:
-* `Target System => <*> AR231x/AR5312`
-* `Target Profile => <*> Default`
+Or in case you have the Ubiquiti UniFi Outdoor, select:
+* `Target System => Atheros AR7xxx/AR9xxx`
+* `Target Profile => <*> Ubiquiti UniFi Outdoor`
 
 For other models you can lookup the "Target System" in the LEDE
 [hardware table](https://lede-project.org/toh/start). Your AP model
