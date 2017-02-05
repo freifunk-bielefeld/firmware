@@ -128,19 +128,22 @@ initial_local_node_setup()
 {
 	echo "(I) Setup IPv4 local node access."
 
-	local addr4="10.26.127.0"
-	local addr6="$(uci get network.globals.ula_prefix)" #CIDR notation
+	local addr4="10.26.127.0/32"
+	local addr6="$(uci get network.globals.ula_prefix)"
 
 	uci add_list network.freifunk.ipaddr="$addr4"
-	uci add_list network.freifunk.ipaddr6="$addr6"
+	uci add_list network.freifunk.ip6addr="$addr6"
 
 	cat >> /etc/firewall.user <<-  EOF
+	# Isolate local-node IPv4 address
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p arp --arp-ip-dst $addr4 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p arp --arp-ip-dst $addr4 -j DROP
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4 -j DROP
 
-	#isolate local-node IPv4 address
-	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p arp --arp-ip-dst $addr4/32 -j DROP
-	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p arp --arp-ip-dst $addr4/32 -j DROP
-	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4/32 -j DROP
-	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4/32 -j DROP
+	# Isolate local-node IPv6 address
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv6 --ip6-dst $addr6 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-dst $addr6 -j DROP
 	EOF
 }
 
@@ -463,6 +466,15 @@ update_065_to_100()
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
 	cp /rom/etc/sysupgrade.conf /etc/sysupgrade.conf
+
+	local addr6="$(uci get network.globals.ula_prefix)"
+
+	cat >> /etc/firewall.user <<-  EOF
+	
+	# Isolate local-node IPv6 address
+	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv6 --ip6-dst $addr6 -j DROP
+	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-dst $addr6 -j DROP
+	EOF
 }
 
 start()
