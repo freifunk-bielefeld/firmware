@@ -548,7 +548,7 @@ start()
 			update_065_to_100
 			update_version
 			;;
-		1.0.0*)
+		0.6.5*)
 			echo "(I) Apply update."
 			update_065_to_100
 			update_version
