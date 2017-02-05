@@ -51,7 +51,7 @@ Now start the build process. This takes some time:
 ```bash
     make
 ```
-*You have the oportunity to compile the firmware at more CPU Threats. 
+*You have the opportunity to compile the firmware at more CPU Threats. 
 E.g. for 4-Threats type* `make -j4` .
 
 The **firmware images** are now in the `bin`-folder. Use the firmware update
