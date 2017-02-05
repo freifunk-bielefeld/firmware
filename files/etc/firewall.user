@@ -1,43 +1,43 @@
 #!/bin/sh
-#solves MTU problem with bad ISPs
+
+# Solves MTU problem with bad ISPs
 iptables -A FORWARD -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
-
-#clear ebtables
+# Clear ebtables
 ebtables -F
 ebtables -X
 
-#drop router advertisments from this router
+# Drop router advertisments from this router
 ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-protocol ipv6-icmp --ip6-icmp-type router-advertisement -j DROP
 
-#create chain (drop packets at end)
+# Create chain (drop packets at end)
 ebtables -N MULTICAST_OUT -P DROP
 
-#filter multicast/broadcast on bat0 into chain
+# Filter multicast/broadcast on bat0 into chain
 ebtables -A FORWARD --logical-out br-freifunk -o bat0 -d Multicast -j MULTICAST_OUT
 ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -d Multicast -j MULTICAST_OUT
 ebtables -A FORWARD --logical-out br-freifunk -o bat0 -d Broadcast -j MULTICAST_OUT
 ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -d Broadcast -j MULTICAST_OUT
 
-#limit multicast packets
+# Limit multicast packets
 ebtables -A MULTICAST_OUT --limit 100/sec
 
-#allow DHCP requests (IPv4)
+# Allow DHCP requests (IPv4)
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol UDP --ip-sport 68 -j RETURN
 
-#allow ICMP (IPv6)
+# Allow ICMP (IPv6)
 ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
 
-#allow Alfred
+# Allow Alfred
 ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff:02::1 --ip6-proto UDP --ip6-dport 16962 -j RETURN
 
-#allow IGMP/ICMP (IPv4)
+# Allow IGMP/ICMP (IPv4)
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol icmp -j RETURN
 
-#drop funny ARP packets (IPv4)
+# Drop funny ARP packets (IPv4)
 ebtables -A MULTICAST_OUT -p ARP --arp-opcode Reply --arp-ip-src 0.0.0.0 -j DROP
 ebtables -A MULTICAST_OUT -p ARP --arp-opcode Request --arp-ip-dst 0.0.0.0 -j DROP
 
-#allow normal ARP (IPv4)
+# Allow normal ARP (IPv4)
 ebtables -A MULTICAST_OUT -p ARP -j RETURN
