@@ -18,12 +18,12 @@ rootfs_usage()
 }
 
 print_basic() {
-	local community="$(uci get -q freifunk.@settings[0].community 2> /dev/null)"
-	local version="$(uci get -q freifunk.@settings[0].version 2> /dev/null)"
-	local name="$(uci get -q freifunk.@settings[0].name 2> /dev/null)"
-	local longitude="$(uci get -q freifunk.@settings[0].longitude 2> /dev/null)"
-	local latitude="$(uci get -q freifunk.@settings[0].latitude 2> /dev/null)"
-	local contact="$(uci get -q freifunk.@settings[0].contact 2> /dev/null)"
+	local community="$(uci -q get freifunk.@settings[0].community 2> /dev/null)"
+	local version="$(uci -q get freifunk.@settings[0].version 2> /dev/null)"
+	local name="$(uci -q get freifunk.@settings[0].name 2> /dev/null)"
+	local longitude="$(uci -q get freifunk.@settings[0].longitude 2> /dev/null)"
+	local latitude="$(uci -q get freifunk.@settings[0].latitude 2> /dev/null)"
+	local contact="$(uci -q get freifunk.@settings[0].contact 2> /dev/null)"
 
 	[ -n "$contact" ] && echo -n "\"contact\" : \"$contact\", "
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
@@ -50,7 +50,7 @@ print_basic() {
 
 	echo -n '], '
 
-	mac=$(uci get -q network.freifunk.macaddr)
+	mac=$(uci -q get network.freifunk.macaddr)
 	cat /sys/kernel/debug/batman_adv/bat0/transtable_local 2> /dev/null | tr '\t/[]()' ' ' | awk -v mac=$mac 'BEGIN{ c=0; } { if($1 == "*" && $2 != mac && $4 ~ /^[.NW]+$/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}'
 }
 
@@ -92,7 +92,7 @@ print() {
 }
 
 
-map_level="$(uci get -q freifunk.@settings[0].publish_map 2> /dev/null)"
+map_level="$(uci -q get freifunk.@settings[0].publish_map 2> /dev/null)"
 
 if [ "$1" = "-p" ]; then
 	[ $map_level = "none" ] && exit 0

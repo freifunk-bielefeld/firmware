@@ -3,8 +3,8 @@
 #Print a link that is displayed on other routers status page
 
 print() {
-	local link="$(uci get -q freifunk.@settings[0].service_link)"
-	local label="$(uci get -q freifunk.@settings[0].service_label)"
+	local link="$(uci -q get freifunk.@settings[0].service_link)"
+	local label="$(uci -q get freifunk.@settings[0].service_label)"
 	if [ -n "$link" -a -n "$label" ]; then
 		echo "{ \"link\" : \"$link\", \"label\" : \"$label\" }"
 	fi
