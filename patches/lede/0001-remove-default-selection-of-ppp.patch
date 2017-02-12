@@ -1,0 +1,25 @@
+From 0385bd02365720b84cf0df02b1fc6ed39f343f41 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sun, 12 Feb 2017 12:09:43 +0100
+Subject: [PATCH 1/1] remove default selection of ppp
+
+---
+ include/target.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/target.mk b/include/target.mk
+index 30994485e1..8f6971f2c4 100644
+--- a/include/target.mk
++++ b/include/target.mk
+@@ -17,7 +17,7 @@ DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fs
+ # For nas targets
+ DEFAULT_PACKAGES.nas:=block-mount fdisk lsblk mdadm
+ # For router targets
+-DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe firewall odhcpd odhcp6c
++DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables firewall odhcpd odhcp6c
+ DEFAULT_PACKAGES.bootloader:=
+ 
+ ifneq ($(DUMP),)
+-- 
+2.11.1
+
