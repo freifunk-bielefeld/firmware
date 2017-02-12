@@ -29,7 +29,7 @@ ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol udp --ip-sport 68 -j RETURN
 ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
 
 # Allow Alfred
-ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff:02::1 --ip6-proto udp --ip6-dport 16962 -j RETURN
+ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff02::1 --ip6-proto udp --ip6-dport 16962 -j RETURN
 
 # Allow IGMP/ICMP (IPv4)
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
