@@ -23,7 +23,7 @@ memory_usage_percent() {
 }
 
 rootfs_usage_percent() {
-	df / | awk '/^rootfs/{print($5)}'
+	df / | awk '/^overlayfs/{print($5); exit;}'
 }
 
 print() {
