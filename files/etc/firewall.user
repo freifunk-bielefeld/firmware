@@ -23,13 +23,13 @@ ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -d Broadcast -j MULTICAST_O
 ebtables -A MULTICAST_OUT --limit 100/sec
 
 # Allow DHCP requests (IPv4)
-ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol UDP --ip-sport 68 -j RETURN
+ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol udp --ip-sport 68 -j RETURN
 
 # Allow ICMP (IPv6)
 ebtables -A MULTICAST_OUT -p IPv6 --ip6-protocol ipv6-icmp -j RETURN
 
 # Allow Alfred
-ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff:02::1 --ip6-proto UDP --ip6-dport 16962 -j RETURN
+ebtables -A MULTICAST_OUT -p IPv6 -d Multicast --ip6-destination ff:02::1 --ip6-proto udp --ip6-dport 16962 -j RETURN
 
 # Allow IGMP/ICMP (IPv4)
 ebtables -A MULTICAST_OUT -p IPv4 --ip-protocol igmp -j RETURN
