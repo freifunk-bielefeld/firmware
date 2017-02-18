@@ -90,7 +90,7 @@ fieldset fieldset {
 }
 
 fieldset > * {
-	margin: 0.3em 0;
+	margin: 0.1em 0;
 	clear: both;
 }
 
@@ -123,12 +123,36 @@ option {
 }
 
 button {
-	background-color: #b7e2fb;
-	color: #333;
-	padding: 0.1em;
-	border-radius: 2px;
-	padding: 0.2em;
-	margin: 0.1em;
+	border: 1px solid #888;
+	border-radius: 4px;
+
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+
+	text-shadow: 1px 1px 0 rgba(255,255,255,.67);
+	line-height: 2;
+	padding: 0 1em;
+	height: 2em;
+	box-shadow:1px 1px 0 rgba(255,255,255,.5) inset, -1px -1px 0 rgba(255,255,255,.5) inset;
+	background-color: rgb(179, 208, 230);
+
+	-moz-user-select: none;
+	-webkit-user-select: none;
+
+	background-image: -moz-linear-gradient(
+		top, rgba(255,255,255,.75),
+		rgba(255,255,255,.33) 50%,
+		transparent 50%,
+		transparent 100%
+	);
+
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%,
+		from(rgba(255,255,255,.75)),
+		color-stop(0.5, rgba(255,255,255,.33)),
+		color-stop(0.5, transparent),
+		to(transparent)
+	);
 }
 
 #body > button {
