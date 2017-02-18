@@ -55,16 +55,18 @@ function nav_onclick()
 	};
 
 	//load html file
-	if(id in html_cache)
+	if(id in html_cache) {
 		process_html(html_cache[id]);
-	else
+	} else {
 		jx.load(url, process_html, 'text');
+	}
 
 	//load javascript file
-	if(id in js_cache)
+	if(id in js_cache) {
 		process_js(js_cache[id]);
-	else
+	} else {
 		jx.load(url.replace(".html", ".js"), process_js, 'text');
+	}
 
 	onDesc($("globalnav"), 'UL', function(n) { hide(n); });
 	onParents(this, 'UL', function(n) { show(n); });
