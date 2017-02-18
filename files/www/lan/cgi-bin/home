@@ -81,7 +81,7 @@ print 'neigh_count' "$(cat /sys/kernel/debug/batman_adv/bat0/originators | grep 
 print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"
 print 'fastd_version' "$(fastd --version 2> /dev/null | cut -d' ' -f 2)"
 print 'batman_version' "$(cat /sys/module/batman_adv/version 2> /dev/null)"
-print 'lede_version' "$(echo $DISTRIB_DESCRIPTION | awk '{print($NF)}') ($DISTRIB_REVISION)"
+print 'lede_version' "$DISTRIB_RELEASE"
 name="$(uci -q get freifunk.@settings[0].name)"
 print 'name' "${name:--}"
 print 'model' "$(cat /tmp/sysinfo/model 2> /dev/null)"
