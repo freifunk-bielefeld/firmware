@@ -583,7 +583,7 @@ function collect_switch_info(device)
 			break;
 		case 'd-link-dir-615-h1':
 		case 'd-link-dir-615-h2':
-			obj.map = [['eth0',5],['LAN1',3],['LAN2',2],['LAN3',1],['LAN4',0],['Internet',4]];
+			obj.map = [['eth0',6],['LAN1',3],['LAN2',2],['LAN3',1],['LAN4',0],['Internet',4]];
 			break;
 		case 'd-link-dir-860l-b1':
 			obj.map = [['eth0',6],['LAN1',1],['LAN2',2],['LAN3',3],['LAN4',4],['WAN',0]] ;
