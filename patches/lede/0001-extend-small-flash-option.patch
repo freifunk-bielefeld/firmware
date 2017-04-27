@@ -1,7 +1,7 @@
-From 2127b14539b016ff3e37dd2598571fc5547c90e4 Mon Sep 17 00:00:00 2001
+From b2701eec52f77fd16b76e433bf2a7799477f850f Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sun, 29 Jan 2017 22:10:01 +0100
-Subject: [PATCH 1/2] extend small flash option
+Subject: [PATCH 1/5] extend small flash option
 
 ---
  config/Config-build.in  | 2 ++
@@ -9,10 +9,10 @@ Subject: [PATCH 1/2] extend small flash option
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/config/Config-build.in b/config/Config-build.in
-index 9b8e4b2283..ae4ca6308a 100644
+index e0889fcccf..5bf7176fda 100644
 --- a/config/Config-build.in
 +++ b/config/Config-build.in
-@@ -127,6 +127,7 @@ menu "Global build settings"
+@@ -137,6 +137,7 @@ menu "Global build settings"
  
  	config STRIP_KERNEL_EXPORTS
  		bool "Strip unnecessary exports from the kernel image"
@@ -20,7 +20,7 @@ index 9b8e4b2283..ae4ca6308a 100644
  		help
  		  Reduces kernel size by stripping unused kernel exports from the kernel
  		  image.  Note that this might make the kernel incompatible with any kernel
-@@ -134,6 +135,7 @@ menu "Global build settings"
+@@ -144,6 +145,7 @@ menu "Global build settings"
  
  	config USE_MKLIBS
  		bool "Strip unnecessary functions from libraries"
@@ -42,5 +42,5 @@ index a4c46f55ae..8033c6e193 100644
  	help
  	  This will compile your kernel and modules with debug information.
 -- 
-2.11.0
+2.12.2
 
