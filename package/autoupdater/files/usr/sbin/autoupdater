@@ -149,8 +149,8 @@ autoupdate() {
     local fw_image=$(mktemp)
     fetch_firmware $MIRROR $fw_image || { rm -f $fw_image; return 1; }
 
-    image_sha256=$(sha256sum "$fw_image" | awk '{print $1}')
-    if [ "$image_sha256" != "$fw_checksum" ]; then
+    image_sha512=$(sha512sum "$fw_image" | awk '{print $1}')
+    if [ "$image_sha512" != "$fw_checksum" ]; then
       echo "Invalid image checksum" >&2
       rm -f $fw_image
       return 1
