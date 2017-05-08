@@ -1,0 +1,52 @@
+From b4243b6fd1e762158d7b2c3ba942e7970ab211d3 Mon Sep 17 00:00:00 2001
+From: Vittorio Gambaletta <openwrt@vittgam.net>
+Date: Sun, 26 Mar 2017 09:55:44 +0200
+Subject: [PATCH] ar71xx: add TP-LINK TL-WR841N/ND v12 image
+
+This router has the same hardware as TP-LINK TL-WR841N/ND v11 (same FCC
+ID, same TFTP image name...).
+
+If the stock firmware web interface doesn't accept LEDE factory image,
+it can be flashed via the U-Boot TFTP recovery mode, by long-pressing
+the reset button after power on.
+
+The TFTP image name is wr841nv11_tp_recovery.bin (yes, v11, not v12).
+
+Signed-off-by: Vittorio Gambaletta <openwrt@vittgam.net>
+
+Conflicts:
+	target/linux/ar71xx/image/tp-link.mk
+---
+ target/linux/ar71xx/image/tp-link.mk | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/target/linux/ar71xx/image/tp-link.mk b/target/linux/ar71xx/image/tp-link.mk
+index 480d9ad..235ba61 100644
+--- a/target/linux/ar71xx/image/tp-link.mk
++++ b/target/linux/ar71xx/image/tp-link.mk
+@@ -668,6 +668,12 @@ define Device/tl-wr841-v11
+    IMAGE/factory-eu.bin := append-rootfs | mktplinkfw factory -C EU
+ endef
+ 
++define Device/tl-wr841-v12
++  $(Device/tl-wr841-v11)
++  DEVICE_TITLE := TP-LINK TL-WR841N/ND v12
++  TPLINK_HWID := 0x08410012
++endef
++
+ define Device/tl-wr842n-v1
+     $(Device/tplink-8m)
+     DEVICE_TITLE := TP-LINK TL-WR842N/ND v1
+@@ -710,7 +716,8 @@ define Device/tl-wr847n-v8
+     DEVICE_PROFILE := TLWR841
+     TPLINK_HWID := 0x08470008
+ endef
+-TARGET_DEVICES += tl-wr841-v1.5 tl-wr841-v3 tl-wr841-v5 tl-wr841-v7 tl-wr841-v8 tl-wr841-v9 tl-wr841-v10 tl-wr841-v11 tl-wr842n-v1 tl-wr842n-v2 tl-wr842n-v3 tl-wr843nd-v1 tl-wr847n-v8
++TARGET_DEVICES += tl-wr841-v1.5 tl-wr841-v3 tl-wr841-v5 tl-wr841-v7 tl-wr841-v8 tl-wr841-v9 tl-wr841-v10 tl-wr841-v11 tl-wr841-v12 tl-wr842n-v1 tl-wr842n-v2 tl-wr842n-v3 tl-wr843nd-v1 tl-wr847n-v8
++
+ 
+ define Device/tl-wr941nd-v2
+     $(Device/tplink-4m)
+-- 
+2.1.4
+
