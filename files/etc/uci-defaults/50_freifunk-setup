@@ -261,7 +261,6 @@ initial_setup()
 	uci set $n.mtu=1406
 	uci set $n.proto="batadv"
 	uci set $n.mesh="bat0"
-	uci set $n.mesh_no_rebroadcast="1"
 
 	# ------------------------------------- #
 	# M I S C  S E T U P #

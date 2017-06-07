@@ -151,7 +151,7 @@ function appendSetting(p, path, value, mode)
 				var val = (src.data || src.value);
 				if (val != value) {
 					if (val == "1") {
-						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0", "mesh_no_rebroadcast" : "1"};
+						uci.network['wan_mesh'] = {"stype":"interface", "ifname" : "@wan", "proto" : "batadv", "mesh" : "bat0"};
 					} else {
 						delete uci.network['wan_mesh'];
 					}
@@ -317,7 +317,7 @@ function addNetSection(ifname, mode)
 		break;
 	case "mesh":
 		var net = ifname.replace(".", "_");
-		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0","mesh_no_rebroadcast":"1"};
+		n[net] = {"stype":"interface","ifname":ifname,"mtu":"1406","proto":"batadv","mesh":"bat0"};
 		break;
 	case "none":
 		var net = ifname.replace(".", "_");
