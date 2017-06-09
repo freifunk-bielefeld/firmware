@@ -1,7 +1,7 @@
-From 59f355007d08f4976f07d88bcb21daf612734a42 Mon Sep 17 00:00:00 2001
+From e83b11b18f60a7910cfc5e451dadc3e9650fee51 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 11 Mar 2017 06:15:18 +0100
-Subject: [PATCH 5/5] mac80211: revert upstream change breaking AP+11s VIF
+Subject: [PATCH 6/8] mac80211: revert upstream change breaking AP+11s VIF
  combinations
 
 Fixes FS#619.
@@ -15,7 +15,7 @@ Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 
 diff --git a/package/kernel/mac80211/patches/323-Revert-mac80211-validate-new-interface-s-beacon-inte.patch b/package/kernel/mac80211/patches/323-Revert-mac80211-validate-new-interface-s-beacon-inte.patch
 new file mode 100644
-index 0000000000..60d0e9181e
+index 0000000..60d0e91
 --- /dev/null
 +++ b/package/kernel/mac80211/patches/323-Revert-mac80211-validate-new-interface-s-beacon-inte.patch
 @@ -0,0 +1,48 @@
@@ -68,7 +68,7 @@ index 0000000000..60d0e9181e
 + 	if (local->hw.wiphy->software_iftypes & BIT(iftype)) {
 + 		if (radar_detect)
 diff --git a/package/kernel/mac80211/patches/522-mac80211_configure_antenna_gain.patch b/package/kernel/mac80211/patches/522-mac80211_configure_antenna_gain.patch
-index 9a0f6f5dbd..6856d6919d 100644
+index 9a0f6f5..6856d69 100644
 --- a/package/kernel/mac80211/patches/522-mac80211_configure_antenna_gain.patch
 +++ b/package/kernel/mac80211/patches/522-mac80211_configure_antenna_gain.patch
 @@ -57,7 +57,7 @@
@@ -90,5 +90,5 @@ index 9a0f6f5dbd..6856d6919d 100644
   	.set_tx_power = ieee80211_set_tx_power,
   	.get_tx_power = ieee80211_get_tx_power,
 -- 
-2.12.2
+2.1.4
 

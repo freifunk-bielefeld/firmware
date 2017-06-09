@@ -1,7 +1,7 @@
-From 8df38fa0e30ca1177d7387266aae4be4012b4c1c Mon Sep 17 00:00:00 2001
+From f9c427e1e13ad1d04c7b0fd4681cdcdbbc2a75ba Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 10 Mar 2017 01:58:42 +0100
-Subject: [PATCH 4/5] netifd: update to git HEAD version
+Subject: [PATCH 5/8] netifd: update to git HEAD version
 
 91810ec system-linux: add VXLAN support
 f107656 netifd: Add option to configure locktime for each device
@@ -14,7 +14,7 @@ cdc0e80 interface: add prefix assignment priority support
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/package/network/config/netifd/Makefile b/package/network/config/netifd/Makefile
-index fb03586401..d6d91ba014 100644
+index fb03586..d6d91ba 100644
 --- a/package/network/config/netifd/Makefile
 +++ b/package/network/config/netifd/Makefile
 @@ -5,9 +5,9 @@ PKG_RELEASE:=1
@@ -31,5 +31,5 @@ index fb03586401..d6d91ba014 100644
  
  PKG_LICENSE:=GPL-2.0
 -- 
-2.12.2
+2.1.4
 

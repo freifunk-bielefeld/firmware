@@ -1,7 +1,7 @@
-From 416449c68e9f75c92774eeeec9ed32d4b5cd7f6f Mon Sep 17 00:00:00 2001
+From 92ed405ccc1a1a0fd0a2c37699b8672a5892ec09 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Mon, 27 Jul 2015 20:42:50 +0200
-Subject: [PATCH 3/5] hostapd: prevent channel switch for 5GHz
+Subject: [PATCH 4/8] hostapd: prevent channel switch for 5GHz
 
 hostapd would switch the primary and secondary channel on 5GHz networks in
 certain circumstances, completely breaking the adhoc interfaces of the WLAN
@@ -15,7 +15,7 @@ As a temporary fix, disable this channel switch function.
 
 diff --git a/package/network/services/hostapd/patches/900-no_channel_switch.patch b/package/network/services/hostapd/patches/900-no_channel_switch.patch
 new file mode 100644
-index 0000000000..c614515692
+index 0000000..c614515
 --- /dev/null
 +++ b/package/network/services/hostapd/patches/900-no_channel_switch.patch
 @@ -0,0 +1,68 @@
@@ -88,5 +88,5 @@ index 0000000000..c614515692
 + }
 + 
 -- 
-2.12.2
+2.1.4
 
