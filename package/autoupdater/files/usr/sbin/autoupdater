@@ -137,7 +137,7 @@ autoupdate() {
   analyse_manifest $manifest_upper || { rm -f $manifest_upper; return 1; }
   rm -f $manifest_upper
 
-  if newer_than "$fw_version" "$my_version"; then
+  if newer_than "$(echo $fw_version | tr -dc '.0-9')" "$(echo $my_version | tr -dc '.0-9')"; then
     echo "New version available: $fw_version"
 
     [ $check -eq 1 ] && return 0
