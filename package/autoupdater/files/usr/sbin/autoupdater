@@ -103,9 +103,9 @@ analyse_manifest() {
     return 1
   fi
 
-  fw_version=$(echo "${my_firmware}"|cut -d' ' -f2)
-  fw_checksum=$(echo "${my_firmware}"|cut -d' ' -f3)
-  fw_file=$(echo "${my_firmware}"|cut -d' ' -f4)
+  fw_version=$(echo "${my_firmware}" | cut -d' ' -f2)
+  fw_checksum=$(echo "${my_firmware}" | cut -d' ' -f3)
+  fw_file=$(echo "${my_firmware}" | cut -d' ' -f4)
 
   return 0
 }
@@ -173,7 +173,7 @@ my_version="$(uci -q get freifunk.@settings[0].version)"
 lock_dir=/var/lock/autoupdater.lock
 mkdir $lock_dir || { echo "Autoupdater already running" >&2; exit 1; }
 
-#wait up to 15 minutes to spread the load for the server
+# wait up to 15 minutes to spread the load for the server
 [ $force -eq 0 ] && sleep $(awk -v val=$FETCH_DELAY 'BEGIN{srand(); print(int(val * rand()));}')
 
 for mirror in $MIRRORS; do
