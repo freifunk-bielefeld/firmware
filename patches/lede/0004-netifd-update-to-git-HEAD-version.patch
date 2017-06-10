@@ -1,7 +1,7 @@
-From f9c427e1e13ad1d04c7b0fd4681cdcdbbc2a75ba Mon Sep 17 00:00:00 2001
+From 32e97e4a208fb1cccce0a01a31e813c5cc455c2b Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Fri, 10 Mar 2017 01:58:42 +0100
-Subject: [PATCH 5/8] netifd: update to git HEAD version
+Subject: [PATCH 4/7] netifd: update to git HEAD version
 
 91810ec system-linux: add VXLAN support
 f107656 netifd: Add option to configure locktime for each device

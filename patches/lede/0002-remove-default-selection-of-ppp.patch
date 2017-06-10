@@ -1,7 +1,7 @@
-From 65872a73f4e57fb248634511de2e3f44bd9d2138 Mon Sep 17 00:00:00 2001
+From a0f2ac1c52905c81d2f5ae2e2f8a4deb4a9fd60f Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sun, 12 Feb 2017 12:09:43 +0100
-Subject: [PATCH 3/8] remove default selection of ppp
+Subject: [PATCH 2/7] remove default selection of ppp
 
 ---
  include/target.mk | 2 +-

@@ -1,7 +1,7 @@
-From 63c7b496aad0e15e0a120d7035ecb66c63ddb00c Mon Sep 17 00:00:00 2001
+From 8acd8f319b43a10da64ca52af3ff7679679b59bc Mon Sep 17 00:00:00 2001
 From: Ludwig Thomeczek <ledesrc@wxorx.net>
 Date: Sat, 13 May 2017 11:40:48 +0200
-Subject: [PATCH 8/8] tplink-safeloader: add TP-Link Archer C25 v1
+Subject: [PATCH 7/7] tplink-safeloader: add TP-Link Archer C25 v1
 
 This adds the necessary firmware layout definitions for the Archer C25.
 It has an addtional partition containing some static data ("extra-para")
@@ -17,10 +17,10 @@ Conflicts:
  1 file changed, 58 insertions(+), 1 deletion(-)
 
 diff --git a/tools/firmware-utils/src/tplink-safeloader.c b/tools/firmware-utils/src/tplink-safeloader.c
-index 89a6787..caa3afb 100644
+index 4e3d205..3fc7852 100644
 --- a/tools/firmware-utils/src/tplink-safeloader.c
 +++ b/tools/firmware-utils/src/tplink-safeloader.c
-@@ -293,6 +293,48 @@ static struct device_info boards[] = {
+@@ -327,6 +327,48 @@ static struct device_info boards[] = {
  		.last_sysupgrade_partition = "file-system"
  	},
  
@@ -69,7 +69,7 @@ index 89a6787..caa3afb 100644
  	/** Firmware layout for the C9 */
  	{
  		.id = "ARCHERC9",
-@@ -581,6 +623,15 @@ static struct image_partition_entry read_file(const char *part_name, const char
+@@ -615,6 +657,15 @@ static struct image_partition_entry read_file(const char *part_name, const char
  	return entry;
  }
  
@@ -85,7 +85,7 @@ index 89a6787..caa3afb 100644
  
  /**
     Copies a list of image partitions into an image buffer and generates the image partition table while doing so
-@@ -762,7 +813,8 @@ static void build_image(const char *output,
+@@ -796,7 +847,8 @@ static void build_image(const char *output,
  		bool add_jffs2_eof,
  		bool sysupgrade,
  		const struct device_info *info) {
@@ -95,7 +95,7 @@ index 89a6787..caa3afb 100644
  
  	parts[0] = make_partition_table(info->partitions);
  	parts[1] = make_soft_version(rev);
-@@ -770,6 +822,11 @@ static void build_image(const char *output,
+@@ -804,6 +856,11 @@ static void build_image(const char *output,
  	parts[3] = read_file("os-image", kernel_image, false);
  	parts[4] = read_file("file-system", rootfs_image, add_jffs2_eof);
  

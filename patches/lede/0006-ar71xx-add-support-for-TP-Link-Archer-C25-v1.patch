@@ -1,7 +1,7 @@
-From 180da10ee784d5cbce698afcd2dd2ca3e6669584 Mon Sep 17 00:00:00 2001
+From 701775cccda1eb6f0621d6fe62ece9ea2f0ca9a4 Mon Sep 17 00:00:00 2001
 From: Ludwig Thomeczek <ledesrc@wxorx.net>
 Date: Sat, 22 Apr 2017 18:21:47 +0200
-Subject: [PATCH 7/8] ar71xx: add support for TP-Link Archer C25 v1
+Subject: [PATCH 6/7] ar71xx: add support for TP-Link Archer C25 v1
 
 The TP-Link Archer C25 is a low-cost dual-band router.
 
@@ -51,7 +51,7 @@ Conflicts:
  create mode 100644 target/linux/ar71xx/files/arch/mips/ath79/mach-archer-c25-v1.c
 
 diff --git a/target/linux/ar71xx/base-files/etc/board.d/01_leds b/target/linux/ar71xx/base-files/etc/board.d/01_leds
-index f622929..393f8d5 100755
+index 0279dfc..3aa2bfb 100755
 --- a/target/linux/ar71xx/base-files/etc/board.d/01_leds
 +++ b/target/linux/ar71xx/base-files/etc/board.d/01_leds
 @@ -49,6 +49,15 @@ antrouter-r1)
@@ -71,7 +71,7 @@ index f622929..393f8d5 100755
  	ucidef_set_led_wlan "wlan" "WLAN" "arduino:blue:wlan" "phy0tpt"
  	ucidef_set_led_usbdev "usb" "USB" "arduino:white:usb" "1-1.1"
 diff --git a/target/linux/ar71xx/base-files/etc/board.d/02_network b/target/linux/ar71xx/base-files/etc/board.d/02_network
-index 10f84bf..a673dbf 100755
+index c8c7827..4404e80 100755
 --- a/target/linux/ar71xx/base-files/etc/board.d/02_network
 +++ b/target/linux/ar71xx/base-files/etc/board.d/02_network
 @@ -122,6 +122,7 @@ ar71xx_setup_interfaces()
@@ -79,9 +79,9 @@ index 10f84bf..a673dbf 100755
  	alfa-ap96|\
  	alfa-nx|\
 +	archer-c25-v1|\
+ 	dr344|\
  	gl-ar150|\
  	gl-ar300m|\
- 	gl-domino|\
 diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
 index 7b8aac8..cf6278c 100644
 --- a/target/linux/ar71xx/base-files/etc/diag.sh
@@ -121,7 +121,7 @@ index b035535..0d01c5e 100755
  		name="archer-c5"
  		;;
 diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
-index 4f479ce..94544b5 100755
+index 580e09a..e2aaceb 100755
 --- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
 @@ -205,6 +205,7 @@ platform_check_image() {
@@ -145,10 +145,10 @@ index ff6bb13..d9c7885 100644
  CONFIG_ATH79_MACH_ARDUINO_YUN=y
  CONFIG_ATH79_MACH_AW_NR580=y
 diff --git a/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt b/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt
-index 894367f..da8d38a 100644
+index 76ba6fa..3f48c44 100644
 --- a/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt
 +++ b/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt
-@@ -1223,6 +1223,16 @@ config ATH79_MACH_BSB
+@@ -1224,6 +1224,16 @@ config ATH79_MACH_BSB
  	select ATH79_DEV_USB
  	select ATH79_DEV_WMAC
  
@@ -423,7 +423,7 @@ index b9a8e3e..53f0d1c 100644
  	ATH79_MACH_ARCHER_C7,			/* TP-LINK Archer C7 board */
  	ATH79_MACH_ARCHER_C7_V2,		/* TP-LINK Archer C7 V2 board */
 diff --git a/target/linux/ar71xx/image/tp-link.mk b/target/linux/ar71xx/image/tp-link.mk
-index 235ba61..cbe601f 100644
+index 1c88f43..6956b99 100644
 --- a/target/linux/ar71xx/image/tp-link.mk
 +++ b/target/linux/ar71xx/image/tp-link.mk
 @@ -95,6 +95,22 @@ $(Device/tplink)

@@ -1,7 +1,7 @@
-From e83b11b18f60a7910cfc5e451dadc3e9650fee51 Mon Sep 17 00:00:00 2001
+From 32b7ce68bd299bdfcf29d7a9f994c2007d712e30 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 11 Mar 2017 06:15:18 +0100
-Subject: [PATCH 6/8] mac80211: revert upstream change breaking AP+11s VIF
+Subject: [PATCH 5/7] mac80211: revert upstream change breaking AP+11s VIF
  combinations
 
 Fixes FS#619.
