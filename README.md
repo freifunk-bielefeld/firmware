@@ -16,7 +16,7 @@ Install dependencies for the build environment (Debian/Ubuntu):
 Build commands for the console:
 
 ```bash
-    git clone -b v17.01.1 git://git.lede-project.org/source.git
+    git clone -b v17.01.2 git://git.lede-project.org/source.git
     cd source
     
     ./scripts/feeds update -a
