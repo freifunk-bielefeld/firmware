@@ -1,7 +1,7 @@
-From dadc22c1e5e68a291217d5dd51166d7d78c1e7c5 Mon Sep 17 00:00:00 2001
+From 2a999f03de58da54f498d2f5a1c82f31825994bf Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 7 Jun 2017 15:07:15 +0200
-Subject: [PATCH 1/5] batman-adv: update to 2017.1
+Subject: [PATCH 1/4] batman-adv: update to 2017.1
 
 ---
  batman-adv/Makefile                                | 10 +--

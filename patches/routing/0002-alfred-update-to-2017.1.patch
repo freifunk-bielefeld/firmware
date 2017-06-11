@@ -1,7 +1,7 @@
-From 0d2aacbde71cb6e3f666f1c4cba3c52f806fd213 Mon Sep 17 00:00:00 2001
+From af4e5f6d7111ce340bb2f4318af2b8ca2a3a07c9 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Wed, 7 Jun 2017 15:09:15 +0200
-Subject: [PATCH 2/5] alfred: update to 2017.1
+Subject: [PATCH 2/4] alfred: update to 2017.1
 
 ---
  alfred/Makefile            |  8 ++++----
