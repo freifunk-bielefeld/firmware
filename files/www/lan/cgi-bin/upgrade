@@ -30,7 +30,7 @@ case "${GET_func:-$POST_func}" in
 		autoupdater -f 2>&1
 	;;
 	restore_firmware)
-		echo "Alle &#196;nderungen werden zur&#252;ckgesetzt ..."
+		echo "Alle &#196;nderungen werden zurückgesetzt ..."
 		echo y | firstboot
 		echo "Router wird neugestartet..."
 		reboot

@@ -5,7 +5,7 @@ echo -en "content-type: text/plain\r\n\r\n"
 case $GET_func in
 	reboot)
 		reboot
-		echo "Bitte warten. Neustart wird durchgef&#252;hrt..."
+		echo "Bitte warten. Neustart wird durchgeführt..."
 	;;
 	wifi_status)
 		wifi status
