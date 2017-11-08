@@ -1,0 +1,29 @@
+From 22ce11331855a03bc6d270d1f9b2241b259e9df3 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Thu, 13 Jul 2017 17:15:21 +0200
+Subject: [PATCH 04/29] procd: switch to latest master
+
+---
+ package/system/procd/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/package/system/procd/Makefile b/package/system/procd/Makefile
+index cbbd95f1ee..4598711c22 100644
+--- a/package/system/procd/Makefile
++++ b/package/system/procd/Makefile
+@@ -12,9 +12,9 @@ PKG_RELEASE:=1
+ 
+ PKG_SOURCE_PROTO:=git
+ PKG_SOURCE_URL=$(LEDE_GIT)/project/procd.git
+-PKG_SOURCE_DATE:=2017-08-08
+-PKG_SOURCE_VERSION:=66be6a23d71fcc068d6b813f0e0be2f8f0b6aa88
+-PKG_MIRROR_HASH:=286dcc8855f1dc403895bc9252f617c14be6f7f6ec36f13d4f4de7c4a715f08c
++PKG_SOURCE_DATE:=2017-08-22
++PKG_SOURCE_VERSION:=54b46a351fab736a92221a6f9c750b5f9da499a1
++PKG_MIRROR_HASH:=dcbeea89910bbdf7d6cf20c38892d6c51de375c8b35c372a7106ae17090694f3
+ CMAKE_INSTALL:=1
+ 
+ PKG_LICENSE:=GPL-2.0
+-- 
+2.15.0
+

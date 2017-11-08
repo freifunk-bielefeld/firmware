@@ -1,14 +1,14 @@
-From a0f2ac1c52905c81d2f5ae2e2f8a4deb4a9fd60f Mon Sep 17 00:00:00 2001
+From 3716f1411f99fd9afcd0b49bfa8fff5a14d9e9b5 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sun, 12 Feb 2017 12:09:43 +0100
-Subject: [PATCH 2/7] remove default selection of ppp
+Subject: [PATCH 02/29] remove default selection of ppp
 
 ---
  include/target.mk | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/include/target.mk b/include/target.mk
-index 3099448..8f6971f 100644
+index 30994485e1..8f6971f2c4 100644
 --- a/include/target.mk
 +++ b/include/target.mk
 @@ -17,7 +17,7 @@ DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fs
@@ -21,5 +21,5 @@ index 3099448..8f6971f 100644
  
  ifneq ($(DUMP),)
 -- 
-2.1.4
+2.15.0
 

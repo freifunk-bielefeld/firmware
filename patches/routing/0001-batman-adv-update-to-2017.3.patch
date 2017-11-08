@@ -1,26 +1,32 @@
-From 2a999f03de58da54f498d2f5a1c82f31825994bf Mon Sep 17 00:00:00 2001
+From 5c0319240bc077cad50582bbed9b382f661688e9 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Wed, 7 Jun 2017 15:07:15 +0200
-Subject: [PATCH 1/4] batman-adv: update to 2017.1
+Date: Wed, 8 Nov 2017 14:45:24 +0100
+Subject: [PATCH 1/3] batman-adv-update-to-2017.3
 
 ---
- batman-adv/Makefile                                | 10 +--
- batman-adv/files/compat-hacks.h                    | 84 ++++++++++++++++++++++
- ...dd-compat-fallback-for-batadv_getlink_net.patch | 29 --------
- ...Decrease-hardif-refcnt-on-fragmentation-s.patch | 63 ----------------
- ...Fix-double-free-during-fragment-merge-err.patch | 61 ----------------
- ...v-Fix-transmission-of-final-16th-fragment.patch | 54 --------------
- 6 files changed, 89 insertions(+), 212 deletions(-)
+ batman-adv/Makefile                                |  11 +-
+ batman-adv/files/compat-hacks.h                    | 168 +++++++++++++++++++++
+ ...dd-compat-fallback-for-batadv_getlink_net.patch |  29 ----
+ ...Decrease-hardif-refcnt-on-fragmentation-s.patch |  63 --------
+ ...Fix-double-free-during-fragment-merge-err.patch |  61 --------
+ ...v-Fix-transmission-of-final-16th-fragment.patch |  54 -------
+ 6 files changed, 173 insertions(+), 213 deletions(-)
  delete mode 100644 batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
  delete mode 100644 batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
  delete mode 100644 batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
  delete mode 100644 batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
 
 diff --git a/batman-adv/Makefile b/batman-adv/Makefile
-index 46cd744..b744661 100644
+index 46cd744..adf2aa6 100644
 --- a/batman-adv/Makefile
 +++ b/batman-adv/Makefile
-@@ -10,10 +10,10 @@ include $(TOPDIR)/rules.mk
+@@ -4,16 +4,15 @@
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+ #
+-# $Id: Makefile 5624 2006-11-23 00:29:07Z nbd $
+ 
+ include $(TOPDIR)/rules.mk
  
  PKG_NAME:=batman-adv
  
@@ -28,14 +34,14 @@ index 46cd744..b744661 100644
 -PKG_RELEASE:=4
 -PKG_MD5SUM:=6717a933a08dd2a01b00df30cb9f16a8
 -PKG_HASH:=d0a0fc90c4f410b57d043215e253bb0b855efa5edbe165d87c17bfdcfafd0db7
-+PKG_VERSION:=2017.1
++PKG_VERSION:=2017.3
 +PKG_RELEASE:=0
-+PKG_MD5SUM:=f8eb805c0a0241c3bd8ec086a00f2099
-+PKG_HASH:=ec1848023308c41710eeefb544580f5853d68b88a627a3f2dabaa3472b988c15
++PKG_MD5SUM:=67e41bda39895c1ac5fe540ada367139
++PKG_HASH:=830edd297ff11b91623e9612172db3e2b2c1524e2f9b2ca1cb243e2e3f0ba4d4
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
-@@ -24,7 +24,7 @@ include $(INCLUDE_DIR)/package.mk
+@@ -24,7 +23,7 @@ include $(INCLUDE_DIR)/package.mk
  
  define KernelPackage/batman-adv
    URL:=https://www.open-mesh.org/
@@ -45,15 +51,34 @@ index 46cd744..b744661 100644
    DEPENDS:=+KMOD_BATMAN_ADV_BLA:kmod-lib-crc16 +kmod-crypto-crc32c +kmod-lib-crc32c +kmod-cfg80211
    TITLE:=B.A.T.M.A.N. Adv
 diff --git a/batman-adv/files/compat-hacks.h b/batman-adv/files/compat-hacks.h
-index af91f41..8c8a889 100644
+index af91f41..9675ad8 100644
 --- a/batman-adv/files/compat-hacks.h
 +++ b/batman-adv/files/compat-hacks.h
-@@ -33,6 +33,15 @@
+@@ -11,6 +11,13 @@
+ 
+ #endif /* < KERNEL_VERSION(4, 1, 0) */
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
++
++/* Linux 3.15 misses the uapi include.... */
++#include <uapi/linux/nl80211.h>
++
++#endif /* < KERNEL_VERSION(3, 16, 0) */
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0)
+ 
+ #include <linux/netdevice.h>
+@@ -33,6 +40,20 @@
  
  #endif /* < KERNEL_VERSION(4, 5, 0) */
  
 +
 +#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
++
++/* for batadv_v_elp_get_throughput which would have used
++ * STATION_INFO_EXPECTED_THROUGHPUT in Linux 4.0.0
++ */
++#define NL80211_STA_INFO_EXPECTED_THROUGHPUT    28
 +
 +/* wild hack for batadv_getlink_net only */
 +#define get_link_net get_xstats_size || 1 ? fallback_net : (struct net*)netdev->rtnl_link_ops->get_xstats_size
@@ -64,10 +89,96 @@ index af91f41..8c8a889 100644
  #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
  
  struct sk_buff *skb_checksum_trimmed(struct sk_buff *skb,
-@@ -204,3 +213,78 @@ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
+@@ -95,6 +116,10 @@ batadv_ethtool_get_link_ksettings(struct net_device *dev,
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0)
+ 
++#ifdef netif_trans_update
++#undef netif_trans_update
++#endif
++
+ #define netif_trans_update batadv_netif_trans_update
+ static inline void batadv_netif_trans_update(struct net_device *dev)
+ {
+@@ -181,6 +206,10 @@ static inline int batadv_nla_put_64bit(struct sk_buff *skb, int attrtype,
+ 	return 0;
+ }
+ 
++#ifdef nla_put_u64_64bit
++#undef nla_put_u64_64bit
++#endif
++
+ #define nla_put_u64_64bit(_skb, _attrtype, _value, _padattr) \
+ 	batadv_nla_put_u64_64bit(_skb, _attrtype, _value, _padattr)
+ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
+@@ -204,3 +233,142 @@ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
  #define __ro_after_init
  
  #endif /* < KERNEL_VERSION(4, 10, 0) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 9)
++
++#include <linux/netdevice.h>
++
++/* work around missing attribute needs_free_netdev and priv_destructor in
++ * net_device
++ */
++#define ether_setup(dev) \
++	void batadv_softif_free2(struct net_device *dev) \
++	{ \
++		batadv_softif_free(dev); \
++		free_netdev(dev); \
++	} \
++	void (*t1)(struct net_device *dev) __attribute__((unused)); \
++	bool t2 __attribute__((unused)); \
++	ether_setup(dev)
++#define needs_free_netdev destructor = batadv_softif_free2; t2
++#define priv_destructor destructor = batadv_softif_free2; t1
++
++#endif /* < KERNEL_VERSION(4, 11, 9) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0)
++
++static inline void *batadv_skb_put(struct sk_buff *skb, unsigned int len)
++{
++	return (void *)skb_put(skb, len);
++}
++#ifdef skb_put
++#undef skb_put
++#endif
++
++#define skb_put batadv_skb_put
++
++static inline void *batadv_skb_put_zero(struct sk_buff *skb, unsigned int len)
++{
++	void *tmp = skb_put(skb, len);
++
++	memset(tmp, 0, len);
++
++	return tmp;
++}
++#ifdef skb_put_zero
++#undef skb_put_zero
++#endif
++
++#define skb_put_zero batadv_skb_put_zero
++
++static inline void *batadv_skb_put_data(struct sk_buff *skb, const void *data,
++				 unsigned int len)
++{
++	void *tmp = skb_put(skb, len);
++
++	memcpy(tmp, data, len);
++
++	return tmp;
++}
++#ifdef skb_put_data
++#undef skb_put_data
++#endif
++
++#define skb_put_data batadv_skb_put_data
++
++#endif /* < KERNEL_VERSION(4, 13, 0) */
 +
 +/* <DECLARE_EWMA> */
 +
@@ -375,5 +486,5 @@ index 6dec0f6..0000000
 - 
 - 	/* Make room for the fragment header. */
 -- 
-2.1.4
+2.15.0
 

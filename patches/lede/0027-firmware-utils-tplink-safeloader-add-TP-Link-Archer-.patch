@@ -1,7 +1,8 @@
-From ff0f795cb573a51033928d469da3857b2dbed81e Mon Sep 17 00:00:00 2001
+From c4e9c3cfe34bdcbcf6fcb523ae9a56731a3a29b7 Mon Sep 17 00:00:00 2001
 From: Ludwig Thomeczek <ledesrc@wxorx.net>
 Date: Sat, 13 May 2017 11:40:48 +0200
-Subject: [PATCH 7/7] tplink-safeloader: add TP-Link Archer C25 v1
+Subject: [PATCH 27/29] firmware-utils: tplink-safeloader: add TP-Link Archer
+ C25 v1
 
 This adds the necessary firmware layout definitions for the Archer C25.
 It has an addtional partition containing some static data ("extra-para")
@@ -9,31 +10,28 @@ without which no factory flash is possible, therefore put_data() has been
 added.
 
 Signed-off-by: Ludwig Thomeczek <ledesrc@wxorx.net>
-
-Conflicts:
-	tools/firmware-utils/src/tplink-safeloader.c
 ---
  tools/firmware-utils/src/tplink-safeloader.c | 59 +++++++++++++++++++++++++++-
  1 file changed, 58 insertions(+), 1 deletion(-)
 
 diff --git a/tools/firmware-utils/src/tplink-safeloader.c b/tools/firmware-utils/src/tplink-safeloader.c
-index 4e3d205..03a63ce 100644
+index 4e3d2058b2..7617566829 100644
 --- a/tools/firmware-utils/src/tplink-safeloader.c
 +++ b/tools/firmware-utils/src/tplink-safeloader.c
-@@ -327,6 +327,48 @@ static struct device_info boards[] = {
+@@ -293,6 +293,48 @@ static struct device_info boards[] = {
  		.last_sysupgrade_partition = "file-system"
  	},
  
 +	/** Firmware layout for the C25v1 */
 +	{
 +		.id = "ARCHER-C25-V1",
-+		.vendor = "",
 +		.support_list =
 +			"SupportList:\n"
 +			"{product_name:ArcherC25,product_ver:1.0.0,special_id:00000000}\n"
 +			"{product_name:ArcherC25,product_ver:1.0.0,special_id:55530000}\n"
 +			"{product_name:ArcherC25,product_ver:1.0.0,special_id:45550000}\n",
 +		.support_trail = '\x00',
++		.soft_ver = "soft_ver:1.0.0\n",
 +
 +		/**
 +		    We use a bigger os-image partition than the stock images (and thus
@@ -66,9 +64,9 @@ index 4e3d205..03a63ce 100644
 +		.last_sysupgrade_partition = "file-system",
 +	},
 +
- 	/** Firmware layout for the C9 */
+ 	/** Firmware layout for the C5 */
  	{
- 		.id = "ARCHERC9",
+ 		.id = "ARCHER-C5-V2",
 @@ -615,6 +657,15 @@ static struct image_partition_entry read_file(const char *part_name, const char
  	return entry;
  }
@@ -108,5 +106,5 @@ index 4e3d205..03a63ce 100644
  	void *image;
  	if (sysupgrade)
 -- 
-2.1.4
+2.15.0
 

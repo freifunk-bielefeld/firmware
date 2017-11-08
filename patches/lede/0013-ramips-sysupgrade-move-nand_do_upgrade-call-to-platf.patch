@@ -1,0 +1,43 @@
+From ecbc092172bf7638767186b697f5ecd31e1d1a56 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Sat, 22 Apr 2017 21:27:04 +0200
+Subject: [PATCH 13/29] ramips: sysupgrade: move nand_do_upgrade call to
+ platform_do_upgrade
+
+All targets with NAND support should gradually move their nand_do_upgrade
+calls from platform_pre_upgrade to platform_do_upgrade.
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ target/linux/ramips/base-files/lib/upgrade/platform.sh | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/target/linux/ramips/base-files/lib/upgrade/platform.sh b/target/linux/ramips/base-files/lib/upgrade/platform.sh
+index 7f5b1dd070..a5cca2080d 100755
+--- a/target/linux/ramips/base-files/lib/upgrade/platform.sh
++++ b/target/linux/ramips/base-files/lib/upgrade/platform.sh
+@@ -254,20 +254,13 @@ platform_nand_pre_upgrade() {
+ 	esac
+ }
+ 
+-platform_pre_upgrade() {
++platform_do_upgrade() {
+ 	local board=$(ramips_board_name)
+ 
+ 	case "$board" in
+     	ubnt-erx)
+ 		nand_do_upgrade "$ARGV"
+ 		;;
+-	esac
+-}
+-
+-platform_do_upgrade() {
+-	local board=$(ramips_board_name)
+-
+-	case "$board" in
+ 	*)
+ 		default_do_upgrade "$ARGV"
+ 		;;
+-- 
+2.15.0
+

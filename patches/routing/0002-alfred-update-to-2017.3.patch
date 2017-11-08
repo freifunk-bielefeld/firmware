@@ -1,29 +1,32 @@
-From af4e5f6d7111ce340bb2f4318af2b8ca2a3a07c9 Mon Sep 17 00:00:00 2001
+From b9c2aeced65f097395cf2168f6f0f63b8a09f109 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Wed, 7 Jun 2017 15:09:15 +0200
-Subject: [PATCH 2/4] alfred: update to 2017.1
+Date: Wed, 8 Nov 2017 14:46:41 +0100
+Subject: [PATCH 2/3] alfred-update-to-2017.3
 
 ---
- alfred/Makefile            |  8 ++++----
+ alfred/Makefile            |  9 +++------
  alfred/files/bat-hosts.lua | 29 +++++++++++++++++------------
- 2 files changed, 21 insertions(+), 16 deletions(-)
+ 2 files changed, 20 insertions(+), 18 deletions(-)
 
 diff --git a/alfred/Makefile b/alfred/Makefile
-index 379c0fe..c8725b7 100644
+index 379c0fe..6dc795c 100644
 --- a/alfred/Makefile
 +++ b/alfred/Makefile
-@@ -11,10 +11,10 @@ include $(TOPDIR)/rules.mk
- # The latest alfred git hash in PKG_REV can be obtained from https://git.open-mesh.org/alfred.git
- #
+@@ -7,14 +7,11 @@
+ 
+ include $(TOPDIR)/rules.mk
+ 
+-#
+-# The latest alfred git hash in PKG_REV can be obtained from https://git.open-mesh.org/alfred.git
+-#
  PKG_NAME:=alfred
 -PKG_VERSION:=2016.5
--PKG_RELEASE:=0
++PKG_VERSION:=2017.3
+ PKG_RELEASE:=0
 -PKG_MD5SUM:=e03d422ed3b5a162b90e8af13389523f
 -PKG_HASH:=37b3babf7f37643cf296be11fb82d5730cf441a5a56f72fba96edae9f149c9d2
-+PKG_VERSION:=2017.1
-+PKG_RELEASE:=1
-+PKG_MD5SUM:=74e457ee49a6525ccdb3fa3bef58f685
-+PKG_HASH:=f8d3a8058d076f6b7686696f6117de1780a2905d827dfa7faa3c2c0b24c2dfb0
++PKG_MD5SUM:=f1a80c7fcd9b1d2c211ca1b2fe504a24
++PKG_HASH:=c2963523ba86746476db9bbd820b7956761b362d5daa392d9ed471786eaf0208
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
@@ -69,5 +72,5 @@ index 8648caf..f9fe586 100644
  end
  
 -- 
-2.1.4
+2.15.0
 
