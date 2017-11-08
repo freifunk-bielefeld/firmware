@@ -1,0 +1,46 @@
+From fe45117af09d99cd95fd9b487553a72a7113bec1 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sun, 29 Jan 2017 22:10:01 +0100
+Subject: [PATCH 01/29] extend small flash option
+
+---
+ config/Config-build.in  | 2 ++
+ config/Config-kernel.in | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/config/Config-build.in b/config/Config-build.in
+index e0889fcccf..5bf7176fda 100644
+--- a/config/Config-build.in
++++ b/config/Config-build.in
+@@ -137,6 +137,7 @@ menu "Global build settings"
+ 
+ 	config STRIP_KERNEL_EXPORTS
+ 		bool "Strip unnecessary exports from the kernel image"
++		default y if SMALL_FLASH
+ 		help
+ 		  Reduces kernel size by stripping unused kernel exports from the kernel
+ 		  image.  Note that this might make the kernel incompatible with any kernel
+@@ -144,6 +145,7 @@ menu "Global build settings"
+ 
+ 	config USE_MKLIBS
+ 		bool "Strip unnecessary functions from libraries"
++		default y if SMALL_FLASH
+ 		help
+ 		  Reduces libraries to only those functions that are necessary for using all
+ 		  selected packages (including those selected as <M>).  Note that this will
+diff --git a/config/Config-kernel.in b/config/Config-kernel.in
+index a4c46f55ae..8033c6e193 100644
+--- a/config/Config-kernel.in
++++ b/config/Config-kernel.in
+@@ -107,7 +107,7 @@ config KERNEL_DEBUG_KERNEL
+ 
+ config KERNEL_DEBUG_INFO
+ 	bool "Compile the kernel with debug information"
+-	default y
++	default y if !SMALL_FLASH
+ 	select KERNEL_DEBUG_KERNEL
+ 	help
+ 	  This will compile your kernel and modules with debug information.
+-- 
+2.15.0
+

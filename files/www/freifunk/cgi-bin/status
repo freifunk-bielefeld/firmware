@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <%
-name="$(uci get -q freifunk.@settings[0].name)"
+name="$(uci -q get freifunk.@settings[0].name)"
 echo -n "<title>Freifunk${name:+ - $name}</title>"
 %>
 <link rel="stylesheet" href="/index.css">
@@ -16,7 +16,7 @@ echo -n "<title>Freifunk${name:+ - $name}</title>"
 <div class="header">
 	<div class="menu">
 <%
-url=$(uci get -q freifunk.@settings[0].community_url)
+url=$(uci -q get freifunk.@settings[0].community_url)
 community="$(echo -n $url | cut -d\/ -f3)"
 if [ -n "$url" -a -n "$community" ]; then
 	echo "		<a class=\"community\" href=\"$url\">$community</a>"
@@ -24,13 +24,13 @@ fi
 
 echo "		<ul>"
 
-contact="$(uci get -q freifunk.@settings[0].contact)"
+contact="$(uci -q get freifunk.@settings[0].contact)"
 if [ -n "$contact" ]; then
 	echo "			<li><a href='#'>Kontakt: $contact</a></li>"
 fi
 
-lat="$(uci get -q freifunk.@settings[0].latitude)"
-lon="$(uci get -q freifunk.@settings[0].longitude)"
+lat="$(uci -q get freifunk.@settings[0].latitude)"
+lon="$(uci -q get freifunk.@settings[0].longitude)"
 if [ -n "$lat" -a -n "$lon" ]; then
 	echo "			<li><a href=\"https://www.openstreetmap.org?mlat=$lat&mlon=$lon&zoom=17\">Position: ${lat:0:8}N, ${lon:0:8}E</a></li>"
 fi
@@ -39,8 +39,8 @@ fi
 	</div>
 </div>
 <div class="header">
-	<h1><% uci get -q freifunk.@settings[0].name | tr -d '\n' %></h1>
-	<h2>Firmware Version <% uci get -q freifunk.@settings[0].version | tr -d '\n' %></h2>
+	<h1><% uci -q get freifunk.@settings[0].name | tr -d '\n' %></h1>
+	<h2>Firmware Version <% uci -q get freifunk.@settings[0].version | tr -d '\n' %></h2>
 </div>
 <div class="content">
 	<div class="pure-g">
@@ -82,7 +82,7 @@ echo '	</ul>'
 echo '</div>'
 
 
-max=$(uci get -q freifunk.@settings[0].service_display_max)
+max=$(uci -q get freifunk.@settings[0].service_display_max)
 if [ -n "$max" -a "$max" != "0" ]; then
 	addr_prefix="${ula_prefix%%::*}:"
 

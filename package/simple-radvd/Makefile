@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 #This package is identical to the gluon-radvd package from the Gluon Project
 
 PKG_NAME:=simple-radvd
-PKG_VERSION:=3
+PKG_VERSION:=4
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 

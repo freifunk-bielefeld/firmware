@@ -1,0 +1,490 @@
+From 5c0319240bc077cad50582bbed9b382f661688e9 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Wed, 8 Nov 2017 14:45:24 +0100
+Subject: [PATCH 1/3] batman-adv-update-to-2017.3
+
+---
+ batman-adv/Makefile                                |  11 +-
+ batman-adv/files/compat-hacks.h                    | 168 +++++++++++++++++++++
+ ...dd-compat-fallback-for-batadv_getlink_net.patch |  29 ----
+ ...Decrease-hardif-refcnt-on-fragmentation-s.patch |  63 --------
+ ...Fix-double-free-during-fragment-merge-err.patch |  61 --------
+ ...v-Fix-transmission-of-final-16th-fragment.patch |  54 -------
+ 6 files changed, 173 insertions(+), 213 deletions(-)
+ delete mode 100644 batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
+ delete mode 100644 batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
+ delete mode 100644 batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
+ delete mode 100644 batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
+
+diff --git a/batman-adv/Makefile b/batman-adv/Makefile
+index 46cd744..adf2aa6 100644
+--- a/batman-adv/Makefile
++++ b/batman-adv/Makefile
+@@ -4,16 +4,15 @@
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+ #
+-# $Id: Makefile 5624 2006-11-23 00:29:07Z nbd $
+ 
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=batman-adv
+ 
+-PKG_VERSION:=2016.5
+-PKG_RELEASE:=4
+-PKG_MD5SUM:=6717a933a08dd2a01b00df30cb9f16a8
+-PKG_HASH:=d0a0fc90c4f410b57d043215e253bb0b855efa5edbe165d87c17bfdcfafd0db7
++PKG_VERSION:=2017.3
++PKG_RELEASE:=0
++PKG_MD5SUM:=67e41bda39895c1ac5fe540ada367139
++PKG_HASH:=830edd297ff11b91623e9612172db3e2b2c1524e2f9b2ca1cb243e2e3f0ba4d4
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+@@ -24,7 +23,7 @@ include $(INCLUDE_DIR)/package.mk
+ 
+ define KernelPackage/batman-adv
+   URL:=https://www.open-mesh.org/
+-  MAINTAINER:=Marek Lindner <mareklindner@neomailbox.ch>
++  MAINTAINER:=Simon Wunderlich <sw@simonwunderlich.de>
+   SUBMENU:=Network Support
+   DEPENDS:=+KMOD_BATMAN_ADV_BLA:kmod-lib-crc16 +kmod-crypto-crc32c +kmod-lib-crc32c +kmod-cfg80211
+   TITLE:=B.A.T.M.A.N. Adv
+diff --git a/batman-adv/files/compat-hacks.h b/batman-adv/files/compat-hacks.h
+index af91f41..9675ad8 100644
+--- a/batman-adv/files/compat-hacks.h
++++ b/batman-adv/files/compat-hacks.h
+@@ -11,6 +11,13 @@
+ 
+ #endif /* < KERNEL_VERSION(4, 1, 0) */
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
++
++/* Linux 3.15 misses the uapi include.... */
++#include <uapi/linux/nl80211.h>
++
++#endif /* < KERNEL_VERSION(3, 16, 0) */
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0)
+ 
+ #include <linux/netdevice.h>
+@@ -33,6 +40,20 @@
+ 
+ #endif /* < KERNEL_VERSION(4, 5, 0) */
+ 
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
++
++/* for batadv_v_elp_get_throughput which would have used
++ * STATION_INFO_EXPECTED_THROUGHPUT in Linux 4.0.0
++ */
++#define NL80211_STA_INFO_EXPECTED_THROUGHPUT    28
++
++/* wild hack for batadv_getlink_net only */
++#define get_link_net get_xstats_size || 1 ? fallback_net : (struct net*)netdev->rtnl_link_ops->get_xstats_size
++
++#endif /* < KERNEL_VERSION(4, 0, 0) */
++
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+ 
+ struct sk_buff *skb_checksum_trimmed(struct sk_buff *skb,
+@@ -95,6 +116,10 @@ batadv_ethtool_get_link_ksettings(struct net_device *dev,
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0)
+ 
++#ifdef netif_trans_update
++#undef netif_trans_update
++#endif
++
+ #define netif_trans_update batadv_netif_trans_update
+ static inline void batadv_netif_trans_update(struct net_device *dev)
+ {
+@@ -181,6 +206,10 @@ static inline int batadv_nla_put_64bit(struct sk_buff *skb, int attrtype,
+ 	return 0;
+ }
+ 
++#ifdef nla_put_u64_64bit
++#undef nla_put_u64_64bit
++#endif
++
+ #define nla_put_u64_64bit(_skb, _attrtype, _value, _padattr) \
+ 	batadv_nla_put_u64_64bit(_skb, _attrtype, _value, _padattr)
+ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
+@@ -204,3 +233,142 @@ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
+ #define __ro_after_init
+ 
+ #endif /* < KERNEL_VERSION(4, 10, 0) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 9)
++
++#include <linux/netdevice.h>
++
++/* work around missing attribute needs_free_netdev and priv_destructor in
++ * net_device
++ */
++#define ether_setup(dev) \
++	void batadv_softif_free2(struct net_device *dev) \
++	{ \
++		batadv_softif_free(dev); \
++		free_netdev(dev); \
++	} \
++	void (*t1)(struct net_device *dev) __attribute__((unused)); \
++	bool t2 __attribute__((unused)); \
++	ether_setup(dev)
++#define needs_free_netdev destructor = batadv_softif_free2; t2
++#define priv_destructor destructor = batadv_softif_free2; t1
++
++#endif /* < KERNEL_VERSION(4, 11, 9) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0)
++
++static inline void *batadv_skb_put(struct sk_buff *skb, unsigned int len)
++{
++	return (void *)skb_put(skb, len);
++}
++#ifdef skb_put
++#undef skb_put
++#endif
++
++#define skb_put batadv_skb_put
++
++static inline void *batadv_skb_put_zero(struct sk_buff *skb, unsigned int len)
++{
++	void *tmp = skb_put(skb, len);
++
++	memset(tmp, 0, len);
++
++	return tmp;
++}
++#ifdef skb_put_zero
++#undef skb_put_zero
++#endif
++
++#define skb_put_zero batadv_skb_put_zero
++
++static inline void *batadv_skb_put_data(struct sk_buff *skb, const void *data,
++				 unsigned int len)
++{
++	void *tmp = skb_put(skb, len);
++
++	memcpy(tmp, data, len);
++
++	return tmp;
++}
++#ifdef skb_put_data
++#undef skb_put_data
++#endif
++
++#define skb_put_data batadv_skb_put_data
++
++#endif /* < KERNEL_VERSION(4, 13, 0) */
++
++/* <DECLARE_EWMA> */
++
++#include <linux/version.h>
++#include_next <linux/average.h>
++
++#include <linux/bug.h>
++
++#ifdef DECLARE_EWMA
++#undef DECLARE_EWMA
++#endif /* DECLARE_EWMA */
++
++/*
++ * Exponentially weighted moving average (EWMA)
++ *
++ * This implements a fixed-precision EWMA algorithm, with both the
++ * precision and fall-off coefficient determined at compile-time
++ * and built into the generated helper funtions.
++ *
++ * The first argument to the macro is the name that will be used
++ * for the struct and helper functions.
++ *
++ * The second argument, the precision, expresses how many bits are
++ * used for the fractional part of the fixed-precision values.
++ *
++ * The third argument, the weight reciprocal, determines how the
++ * new values will be weighed vs. the old state, new values will
++ * get weight 1/weight_rcp and old values 1-1/weight_rcp. Note
++ * that this parameter must be a power of two for efficiency.
++ */
++
++#define DECLARE_EWMA(name, _precision, _weight_rcp)			\
++	struct ewma_##name {						\
++		unsigned long internal;					\
++	};								\
++	static inline void ewma_##name##_init(struct ewma_##name *e)	\
++	{								\
++		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
++		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
++		/*							\
++		 * Even if you want to feed it just 0/1 you should have	\
++		 * some bits for the non-fractional part...		\
++		 */							\
++		BUILD_BUG_ON((_precision) > 30);			\
++		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
++		e->internal = 0;					\
++	}								\
++	static inline unsigned long					\
++	ewma_##name##_read(struct ewma_##name *e)			\
++	{								\
++		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
++		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
++		BUILD_BUG_ON((_precision) > 30);			\
++		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
++		return e->internal >> (_precision);			\
++	}								\
++	static inline void ewma_##name##_add(struct ewma_##name *e,	\
++					     unsigned long val)		\
++	{								\
++		unsigned long internal = ACCESS_ONCE(e->internal);	\
++		unsigned long weight_rcp = ilog2(_weight_rcp);		\
++		unsigned long precision = _precision;			\
++									\
++		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
++		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
++		BUILD_BUG_ON((_precision) > 30);			\
++		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
++									\
++		ACCESS_ONCE(e->internal) = internal ?			\
++			(((internal << weight_rcp) - internal) +	\
++				(val << precision)) >> weight_rcp :	\
++			(val << precision);				\
++	}
++
++/* </DECLARE_EWMA> */
+diff --git a/batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch b/batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
+deleted file mode 100644
+index c641828..0000000
+--- a/batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
++++ /dev/null
+@@ -1,29 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Fri, 23 Sep 2016 14:55:38 +0200
+-Subject: [PATCH] Add compat fallback for batadv_getlink_net
+----
+- net/batman-adv/hard-interface.c | 4 ++++
+- 1 file changed, 4 insertions(+)
+-
+-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
+-index 61a431a9..6969f580 100644
+---- a/net/batman-adv/hard-interface.c
+-+++ b/net/batman-adv/hard-interface.c
+-@@ -95,6 +95,9 @@ out:
+- static struct net *batadv_getlink_net(const struct net_device *netdev,
+- 				      struct net *fallback_net)
+- {
+-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
+-+	return fallback_net;
+-+#else
+- 	if (!netdev->rtnl_link_ops)
+- 		return fallback_net;
+- 
+-@@ -102,6 +105,7 @@ static struct net *batadv_getlink_net(const struct net_device *netdev,
+- 		return fallback_net;
+- 
+- 	return netdev->rtnl_link_ops->get_link_net(netdev);
+-+#endif
+- }
+- 
+- /**
+diff --git a/batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch b/batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
+deleted file mode 100644
+index 92da394..0000000
+--- a/batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
++++ /dev/null
+@@ -1,63 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Tue, 27 Dec 2016 08:51:17 +0100
+-Subject: [PATCH] batman-adv: Decrease hardif refcnt on fragmentation send error
+-
+-An error before the hardif is found has to free the skb. But every error
+-after that has to free the skb + put the hard interface.
+-
+-Fixes: 8b4132b1447a ("batman-adv: Consume skb in batadv_frag_send_packet")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+----
+- net/batman-adv/fragmentation.c | 10 +++++-----
+- 1 file changed, 5 insertions(+), 5 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 9c561e6..0854ebd 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -474,7 +474,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	primary_if = batadv_primary_if_get_selected(bat_priv);
+- 	if (!primary_if) {
+- 		ret = -EINVAL;
+--		goto put_primary_if;
+-+		goto free_skb;
+- 	}
+- 
+- 	/* Create one header to be copied to all fragments */
+-@@ -502,7 +502,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+- 		if (!skb_fragment) {
+- 			ret = -ENOMEM;
+--			goto free_skb;
+-+			goto put_primary_if;
+- 		}
+- 
+- 		batadv_inc_counter(bat_priv, BATADV_CNT_FRAG_TX);
+-@@ -511,7 +511,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		ret = batadv_send_unicast_skb(skb_fragment, neigh_node);
+- 		if (ret != NET_XMIT_SUCCESS) {
+- 			ret = NET_XMIT_DROP;
+--			goto free_skb;
+-+			goto put_primary_if;
+- 		}
+- 
+- 		frag_header.no++;
+-@@ -519,7 +519,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		/* The initial check in this function should cover this case */
+- 		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1) {
+- 			ret = -EINVAL;
+--			goto free_skb;
+-+			goto put_primary_if;
+- 		}
+- 	}
+- 
+-@@ -527,7 +527,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	if (batadv_skb_head_push(skb, header_size) < 0 ||
+- 	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0) {
+- 		ret = -ENOMEM;
+--		goto free_skb;
+-+		goto put_primary_if;
+- 	}
+- 
+- 	memcpy(skb->data, &frag_header, header_size);
+diff --git a/batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch b/batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
+deleted file mode 100644
+index f4baf46..0000000
+--- a/batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
++++ /dev/null
+@@ -1,61 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Sun, 12 Feb 2017 11:26:33 +0100
+-Subject: [PATCH] batman-adv: Fix double free during fragment merge error
+-
+-The function batadv_frag_skb_buffer was supposed not to consume the skbuff
+-on errors. This was followed in the helper function
+-batadv_frag_insert_packet when the skb would potentially be inserted in the
+-fragment queue. But it could happen that the next helper function
+-batadv_frag_merge_packets would try to merge the fragments and fail. This
+-results in a kfree_skb of all the enqueued fragments (including the just
+-inserted one). batadv_recv_frag_packet would detect the error in
+-batadv_frag_skb_buffer and try to free the skb again.
+-
+-The behavior of batadv_frag_skb_buffer (and its helper
+-batadv_frag_insert_packet) must therefore be changed to always consume the
+-skbuff to have a common behavior and avoid the double kfree_skb.
+-
+-Fixes: 9b3eab61754d ("batman-adv: Receive fragmented packets and merge")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/e3bab02816097f860545d9ce9ae0808c69d7c92f
+----
+- net/batman-adv/fragmentation.c | 8 +++++---
+- 1 file changed, 5 insertions(+), 3 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 0854ebd8..31e97e9a 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -239,8 +239,10 @@ err_unlock:
+- 	spin_unlock_bh(&chain->lock);
+- 
+- err:
+--	if (!ret)
+-+	if (!ret) {
+- 		kfree(frag_entry_new);
+-+		kfree_skb(skb);
+-+	}
+- 
+- 	return ret;
+- }
+-@@ -313,7 +315,7 @@ free:
+-  *
+-  * There are three possible outcomes: 1) Packet is merged: Return true and
+-  * set *skb to merged packet; 2) Packet is buffered: Return true and set *skb
+-- * to NULL; 3) Error: Return false and leave skb as is.
+-+ * to NULL; 3) Error: Return false and free skb.
+-  *
+-  * Return: true when packet is merged or buffered, false when skb is not not
+-  * used.
+-@@ -338,9 +340,9 @@ bool batadv_frag_skb_buffer(struct sk_buff **skb,
+- 		goto out_err;
+- 
+- out:
+--	*skb = skb_out;
+- 	ret = true;
+- out_err:
+-+	*skb = skb_out;
+- 	return ret;
+- }
+- 
+diff --git a/batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch b/batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
+deleted file mode 100644
+index 6dec0f6..0000000
+--- a/batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
++++ /dev/null
+@@ -1,54 +0,0 @@
+-From: Linus Lüssing <linus.luessing@c0d3.blue>
+-Date: Mon, 13 Feb 2017 20:44:31 +0100
+-Subject: [PATCH] batman-adv: Fix transmission of final, 16th fragment
+-
+-Trying to split and transmit a unicast packet in 16 parts will fail for
+-the final fragment: After having sent the 15th one with a frag_packet.no
+-index of 14, we will increase the the index to 15 - and return with an
+-error code immediately, even though one more fragment is due for
+-transmission and allowed.
+-
+-Fixing this issue by moving the check before incrementing the index.
+-
+-While at it, adding an unlikely(), because the check is actually more of
+-an assertion.
+-
+-Fixes: db56e4ecf5c2 ("batman-adv: Fragment and send skbs larger than mtu")
+-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/464eff3b1768ff190466a453a57ac140ea5cb756
+----
+- net/batman-adv/fragmentation.c | 12 ++++++------
+- 1 file changed, 6 insertions(+), 6 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 31e97e9a..11149e5b 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -501,6 +501,12 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 
+- 	/* Eat and send fragments from the tail of skb */
+- 	while (skb->len > max_fragment_size) {
+-+		/* The initial check in this function should cover this case */
+-+		if (unlikely(frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)) {
+-+			ret = -EINVAL;
+-+			goto put_primary_if;
+-+		}
+-+
+- 		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+- 		if (!skb_fragment) {
+- 			ret = -ENOMEM;
+-@@ -517,12 +523,6 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		}
+- 
+- 		frag_header.no++;
+--
+--		/* The initial check in this function should cover this case */
+--		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1) {
+--			ret = -EINVAL;
+--			goto put_primary_if;
+--		}
+- 	}
+- 
+- 	/* Make room for the fragment header. */
+-- 
+2.15.0
+

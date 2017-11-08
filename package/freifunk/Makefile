@@ -14,9 +14,9 @@ define Package/freifunk-basic
 	DEFAULT:=y
 	TITLE:= Freifunk-Bielefeld Basic
 	URL:=http://freifunk-bielefeld.de
-	DEPENDS:=+kmod-batman-adv +alfred +sockread\
-		+uhttpd +haserl +uhttpd-mod-tls +px5g \
-		+fastd +ip +odhcpd +simple-radvd \
+	DEPENDS:=+kmod-batman-adv +alfred +sockread \
+		+uhttpd +haserl +px5g +libustream-mbedtls \
+		+fastd +ip +odhcpd +simple-radvd +@SMALL_FLASH \
 		+ebtables +kmod-ebtables-ipv4 +kmod-ebtables-ipv6 \
 		+haveged +autoupdater +simple-tc +@ATH_USER_REGD
 endef

@@ -27,7 +27,6 @@
 #define _GNU_SOURCE
 
 #include <errno.h>
-#include <error.h>
 #include <ifaddrs.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -107,11 +106,12 @@ static struct global {
 
 
 static inline void exit_errno(const char *message) {
-	error(1, errno, "error: %s", message);
+	fprintf(stderr, "error: %s: %s\n", message, strerror(errno));
+	exit(1);
 }
 
 static inline void warn_errno(const char *message) {
-	error(0, errno, "warning: %s", message);
+	fprintf(stderr, "warning: %s: %s\n", message, strerror(errno));
 }
 
 
@@ -370,7 +370,8 @@ static void handle_rtnl(void) {
 			return;
 
 		case NLMSG_ERROR:
-			error(1, 0, "error: netlink error");
+			fprintf(stderr, "error: netlink error");
+			exit(1);
 
 		default:
 			if (handle_rtnl_msg(nh->nlmsg_type, NLMSG_DATA(nh))) {
@@ -545,8 +546,10 @@ static void usage(void) {
 }
 
 static void add_prefix(const char *prefix) {
-	if (G.n_prefixes == MAX_PREFIXES)
-		error(1, 0, "maximum number of prefixes is %i.", MAX_PREFIXES);
+	if (G.n_prefixes == MAX_PREFIXES) {
+		fprintf(stderr, "maximum number of prefixes is %i.", MAX_PREFIXES);
+		exit(1);
+	}
 
 	const size_t len = strlen(prefix)+1;
 	char prefix2[len];
@@ -570,7 +573,8 @@ static void add_prefix(const char *prefix) {
 	return;
 
   error:
-	error(1, 0, "invalid prefix %s (only prefixes of length 64 are supported).", prefix);
+	fprintf(stderr, "invalid prefix %s (only prefixes of length 64 are supported).", prefix);
+	exit(1);
 }
 
 static void parse_cmdline(int argc, char *argv[]) {
@@ -578,8 +582,10 @@ static void parse_cmdline(int argc, char *argv[]) {
 	while ((c = getopt(argc, argv, "i:p:h")) != -1) {
 		switch(c) {
 		case 'i':
-			if (G.ifname)
-				error(1, 0, "multiple interfaces are not supported.");
+			if (G.ifname) {
+				fprintf(stderr, "multiple interfaces are not supported.");
+				exit(1);
+			}
 
 			G.ifname = optarg;
 
@@ -603,8 +609,10 @@ static void parse_cmdline(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 	parse_cmdline(argc, argv);
 
-	if (!G.ifname || !G.n_prefixes)
-		error(1, 0, "interface and prefix arguments are required.");
+	if (!G.ifname || !G.n_prefixes) {
+		fprintf(stderr, "interface and prefix arguments are required.");
+		exit(1);
+	}
 
 	init_random();
 	init_icmp();

@@ -6,13 +6,13 @@ echo -en "content-type: text/plain\r\n\r\n"
 
 case "$GET_func" in
 	get_settings)
-		uci export -qn freifunk
-		uci export -qn autoupdater
-		uci export -qn simple-tc
-		uci export -qn autoupdater
-		uci export -qn fastd
+		uci -qn export freifunk
+		uci -qn export autoupdater
+		uci -qn export simple-tc
+		uci -qn export autoupdater
+		uci -qn export fastd
 
-		ula_prefix="$(uci get -q network.globals.ula_prefix)"
+		ula_prefix="$(uci -q get network.globals.ula_prefix)"
 		echo "package network"
 		echo "config globals 'globals'"
 		echo "	option ula_prefix '$ula_prefix'"

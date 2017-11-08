@@ -5,7 +5,7 @@ echo -en "content-type: text/plain\r\n\r\n"
 case $GET_func in
 	reboot)
 		reboot
-		echo "Bitte warten. Neustart wird durchgef&#252;hrt..."
+		echo "Bitte warten. Neustart wird durchgeführt..."
 	;;
 	wifi_status)
 		wifi status
@@ -18,13 +18,13 @@ case $GET_func in
 		file_data="$GET_data"
 
 		if echo "$file_data" > "/etc/config/$file_name" 2> /dev/null; then
-			echo "Einstellungen wurden gespeichert. Bitte Neustarten."
+			echo "Einstellungen wurden gespeichert. Bitte neustarten."
 		else
-			echo "Beim Speichern ist ein Fehler aufgetreten. Bitte Neustarten."
+			echo "Beim Speichern ist ein Fehler aufgetreten. Bitte neustarten."
 		fi
 	;;
 	name)
-		uci get -q freifunk.@settings[0].name
+		uci -q get freifunk.@settings[0].name
 	;;
 	*)
 		echo "Fehler: Unbekanntes Kommando: '$GET_func'"

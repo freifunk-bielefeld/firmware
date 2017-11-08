@@ -20,7 +20,7 @@ case "${GET_func:-$POST_func}" in
 
 		echo "Starte Update ..."
 
-		#apply openwrt or vendor image
+		#apply lede or vendor image
 		sysupgrade $args $path
 	;;
 	lookup_upgrade)
@@ -30,9 +30,9 @@ case "${GET_func:-$POST_func}" in
 		autoupdater -f 2>&1
 	;;
 	restore_firmware)
-		echo "Alle &#196;nderungen werden zur&#252;ckgesetzt ..."
+		echo "Alle &#196;nderungen werden zurückgesetzt ..."
 		echo y | firstboot
-		echo "Starte neu ..."
+		echo "Router wird neugestartet..."
 		reboot
 	;;
 	*)
