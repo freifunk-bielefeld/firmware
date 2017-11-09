@@ -13,6 +13,9 @@ echo -n "<title>Freifunk${name:+ - $name}</title>"
 <link rel="stylesheet" href="/index.css">
 </head>
 <body>
+<noscript>
+	<strong>JavaScript required</strong>
+</noscript>
 <div class="header">
 	<div class="menu">
 <%
