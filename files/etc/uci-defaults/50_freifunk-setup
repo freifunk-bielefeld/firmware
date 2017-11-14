@@ -492,6 +492,7 @@ update_065_to_100()
 	uci -q delete network.freifunk.ip6addr
 	uci -q delete network.freifunk.ipaddr6
 	uci -q delete network.freifunk.ipaddr
+	uci -q delete network.fastd_mesh.mesh_no_rebroadcast
 	cp /rom/etc/firewall.user /etc/firewall.user
 	initial_local_node_setup
 	uci commit network
