@@ -1,0 +1,2149 @@
+From a92fe00c0bf7e3f04e6a25028b96e796b63cb016 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sun, 28 Jan 2018 21:39:41 +0100
+Subject: [PATCH 1/3] batman-adv: update to version 2017.4
+
+---
+ batman-adv/Makefile                                |  11 +-
+ batman-adv/files/compat-hacks.h                    | 208 +++++++++++++++++++-
+ ...dd-compat-fallback-for-batadv_getlink_net.patch |  31 ---
+ ...Decrease-hardif-refcnt-on-fragmentation-s.patch |  65 -------
+ ...Fix-double-free-during-fragment-merge-err.patch |  61 ------
+ ...v-Fix-transmission-of-final-16th-fragment.patch |  54 ------
+ ...Treat-NET_XMIT_CN-as-transmit-successfull.patch | 123 ------------
+ ...tman-adv-don-t-add-loop-detect-macs-to-TT.patch |  67 -------
+ ...batman-adv-decrease-maximum-fragment-size.patch |  52 -----
+ ...8-batman-adv-Keep-fragments-equally-sized.patch |  90 ---------
+ ...v-Initialize-gw-sel_class-via-batadv_algo.patch | 144 --------------
+ ...prevent-multiple-ARP-replies-sent-by-gate.patch | 142 --------------
+ ...prevent-duplication-of-ARP-replies-when-D.patch |  91 ---------
+ ...drop-unicast-packets-from-other-backbone-.patch |  69 -------
+ ...fix-memory-leak-when-dropping-packet-from.patch |  33 ----
+ ...handle-race-condition-for-claims-between-.patch |  67 -------
+ ...Fix-rx-packet-bytes-stats-on-local-ARP-re.patch |  36 ----
+ ...do-not-add-loop-detection-mac-addresses-t.patch |  35 ----
+ ...Use-default-throughput-value-on-cfg80211-.patch |  35 ----
+ ...-adv-Accept-only-filled-wifi-station-info.patch |  98 ----------
+ ...tman-adv-fix-TT-sync-flag-inconsistencies.patch | 209 ---------------------
+ ...Avoid-spurious-warnings-from-bat_v-neigh_.patch |  56 ------
+ ...Always-initialize-fragment-header-priorit.patch |  30 ---
+ ...Fix-check-of-retrieved-orig_gw-in-batadv_.patch |  31 ---
+ ...Fix-lock-for-ogm-cnt-access-in-batadv_iv_.patch |  42 -----
+ 25 files changed, 211 insertions(+), 1669 deletions(-)
+ delete mode 100644 batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
+ delete mode 100644 batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
+ delete mode 100644 batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
+ delete mode 100644 batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
+ delete mode 100644 batman-adv/patches/0005-batman-adv-Treat-NET_XMIT_CN-as-transmit-successfull.patch
+ delete mode 100644 batman-adv/patches/0006-batman-adv-don-t-add-loop-detect-macs-to-TT.patch
+ delete mode 100644 batman-adv/patches/0007-batman-adv-decrease-maximum-fragment-size.patch
+ delete mode 100644 batman-adv/patches/0008-batman-adv-Keep-fragments-equally-sized.patch
+ delete mode 100644 batman-adv/patches/0009-batman-adv-Initialize-gw-sel_class-via-batadv_algo.patch
+ delete mode 100644 batman-adv/patches/0010-batman-adv-prevent-multiple-ARP-replies-sent-by-gate.patch
+ delete mode 100644 batman-adv/patches/0011-batman-adv-prevent-duplication-of-ARP-replies-when-D.patch
+ delete mode 100644 batman-adv/patches/0012-batman-adv-drop-unicast-packets-from-other-backbone-.patch
+ delete mode 100644 batman-adv/patches/0013-batman-adv-fix-memory-leak-when-dropping-packet-from.patch
+ delete mode 100644 batman-adv/patches/0014-batman-adv-handle-race-condition-for-claims-between-.patch
+ delete mode 100644 batman-adv/patches/0015-batman-adv-Fix-rx-packet-bytes-stats-on-local-ARP-re.patch
+ delete mode 100644 batman-adv/patches/0016-batman-adv-do-not-add-loop-detection-mac-addresses-t.patch
+ delete mode 100644 batman-adv/patches/0017-batman-adv-Use-default-throughput-value-on-cfg80211-.patch
+ delete mode 100644 batman-adv/patches/0018-batman-adv-Accept-only-filled-wifi-station-info.patch
+ delete mode 100644 batman-adv/patches/0019-batman-adv-fix-TT-sync-flag-inconsistencies.patch
+ delete mode 100644 batman-adv/patches/0020-batman-adv-Avoid-spurious-warnings-from-bat_v-neigh_.patch
+ delete mode 100644 batman-adv/patches/0021-batman-adv-Always-initialize-fragment-header-priorit.patch
+ delete mode 100644 batman-adv/patches/0022-batman-adv-Fix-check-of-retrieved-orig_gw-in-batadv_.patch
+ delete mode 100644 batman-adv/patches/0023-batman-adv-Fix-lock-for-ogm-cnt-access-in-batadv_iv_.patch
+
+diff --git a/batman-adv/Makefile b/batman-adv/Makefile
+index d7f567d..58f2806 100644
+--- a/batman-adv/Makefile
++++ b/batman-adv/Makefile
+@@ -4,16 +4,15 @@
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+ #
+-# $Id: Makefile 5624 2006-11-23 00:29:07Z nbd $
+ 
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=batman-adv
+ 
+-PKG_VERSION:=2016.5
+-PKG_RELEASE:=5
+-PKG_MD5SUM:=6717a933a08dd2a01b00df30cb9f16a8
+-PKG_HASH:=d0a0fc90c4f410b57d043215e253bb0b855efa5edbe165d87c17bfdcfafd0db7
++PKG_VERSION:=2017.4
++PKG_RELEASE:=0
++PKG_MD5SUM:=5d5a845725ccc89255c9e8a714db4b75
++PKG_HASH:=8a50ffacd2bd5b65b2987eb2ae06fb9338c6af46935ec38ba869cca545719a4c
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+@@ -24,7 +23,7 @@ include $(INCLUDE_DIR)/package.mk
+ 
+ define KernelPackage/batman-adv
+   URL:=https://www.open-mesh.org/
+-  MAINTAINER:=Marek Lindner <mareklindner@neomailbox.ch>
++  MAINTAINER:=Simon Wunderlich <sw@simonwunderlich.de>
+   SUBMENU:=Network Support
+   DEPENDS:=+KMOD_BATMAN_ADV_BLA:kmod-lib-crc16 +kmod-crypto-crc32c +kmod-lib-crc32c +kmod-cfg80211
+   TITLE:=B.A.T.M.A.N. Adv
+diff --git a/batman-adv/files/compat-hacks.h b/batman-adv/files/compat-hacks.h
+index af91f41..a27408d 100644
+--- a/batman-adv/files/compat-hacks.h
++++ b/batman-adv/files/compat-hacks.h
+@@ -11,13 +11,21 @@
+ 
+ #endif /* < KERNEL_VERSION(4, 1, 0) */
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
++
++/* Linux 3.15 misses the uapi include.... */
++#include <uapi/linux/nl80211.h>
++
++#endif /* < KERNEL_VERSION(3, 16, 0) */
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 9, 0)
+ 
+ #include <linux/netdevice.h>
+ 
+-#define netdev_master_upper_dev_link(dev, upper_dev, upper_priv, upper_info) ({\
++#define netdev_master_upper_dev_link(dev, upper_dev, upper_priv, upper_info, extack) ({\
+ 	BUILD_BUG_ON(upper_priv != NULL); \
+ 	BUILD_BUG_ON(upper_info != NULL); \
++	BUILD_BUG_ON(extack != NULL); \
+ 	netdev_set_master(dev, upper_dev); \
+ })
+ 
+@@ -25,14 +33,38 @@
+ 
+ #include <linux/netdevice.h>
+ 
+-#define netdev_master_upper_dev_link(dev, upper_dev, upper_priv, upper_info) ({\
++#define netdev_master_upper_dev_link(dev, upper_dev, upper_priv, upper_info, extack) ({\
+ 	BUILD_BUG_ON(upper_priv != NULL); \
+ 	BUILD_BUG_ON(upper_info != NULL); \
++	BUILD_BUG_ON(extack != NULL); \
+ 	netdev_master_upper_dev_link(dev, upper_dev); \
+ })
+ 
++#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
++
++#include <linux/netdevice.h>
++
++#define netdev_master_upper_dev_link(dev, upper_dev, upper_priv, upper_info, extack) ({\
++	BUILD_BUG_ON(extack != NULL); \
++	netdev_master_upper_dev_link(dev, upper_dev, upper_priv, upper_info); \
++})
++
+ #endif /* < KERNEL_VERSION(4, 5, 0) */
+ 
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
++
++/* for batadv_v_elp_get_throughput which would have used
++ * STATION_INFO_EXPECTED_THROUGHPUT in Linux 4.0.0
++ */
++#define NL80211_STA_INFO_EXPECTED_THROUGHPUT    28
++
++/* wild hack for batadv_getlink_net only */
++#define get_link_net get_xstats_size || 1 ? fallback_net : (struct net*)netdev->rtnl_link_ops->get_xstats_size
++
++#endif /* < KERNEL_VERSION(4, 0, 0) */
++
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+ 
+ struct sk_buff *skb_checksum_trimmed(struct sk_buff *skb,
+@@ -95,6 +127,10 @@ batadv_ethtool_get_link_ksettings(struct net_device *dev,
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0)
+ 
++#ifdef netif_trans_update
++#undef netif_trans_update
++#endif
++
+ #define netif_trans_update batadv_netif_trans_update
+ static inline void batadv_netif_trans_update(struct net_device *dev)
+ {
+@@ -181,6 +217,10 @@ static inline int batadv_nla_put_64bit(struct sk_buff *skb, int attrtype,
+ 	return 0;
+ }
+ 
++#ifdef nla_put_u64_64bit
++#undef nla_put_u64_64bit
++#endif
++
+ #define nla_put_u64_64bit(_skb, _attrtype, _value, _padattr) \
+ 	batadv_nla_put_u64_64bit(_skb, _attrtype, _value, _padattr)
+ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
+@@ -204,3 +244,167 @@ static inline int batadv_nla_put_u64_64bit(struct sk_buff *skb, int attrtype,
+ #define __ro_after_init
+ 
+ #endif /* < KERNEL_VERSION(4, 10, 0) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 9)
++
++#include <linux/netdevice.h>
++
++/* work around missing attribute needs_free_netdev and priv_destructor in
++ * net_device
++ */
++#define ether_setup(dev) \
++	void batadv_softif_free2(struct net_device *dev) \
++	{ \
++		batadv_softif_free(dev); \
++		free_netdev(dev); \
++	} \
++	void (*t1)(struct net_device *dev) __attribute__((unused)); \
++	bool t2 __attribute__((unused)); \
++	ether_setup(dev)
++#define needs_free_netdev destructor = batadv_softif_free2; t2
++#define priv_destructor destructor = batadv_softif_free2; t1
++
++#endif /* < KERNEL_VERSION(4, 11, 9) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0)
++
++static inline void *batadv_skb_put(struct sk_buff *skb, unsigned int len)
++{
++	return (void *)skb_put(skb, len);
++}
++#ifdef skb_put
++#undef skb_put
++#endif
++
++#define skb_put batadv_skb_put
++
++static inline void *batadv_skb_put_zero(struct sk_buff *skb, unsigned int len)
++{
++	void *tmp = skb_put(skb, len);
++
++	memset(tmp, 0, len);
++
++	return tmp;
++}
++#ifdef skb_put_zero
++#undef skb_put_zero
++#endif
++
++#define skb_put_zero batadv_skb_put_zero
++
++static inline void *batadv_skb_put_data(struct sk_buff *skb, const void *data,
++				 unsigned int len)
++{
++	void *tmp = skb_put(skb, len);
++
++	memcpy(tmp, data, len);
++
++	return tmp;
++}
++#ifdef skb_put_data
++#undef skb_put_data
++#endif
++
++#define skb_put_data batadv_skb_put_data
++
++#endif /* < KERNEL_VERSION(4, 13, 0) */
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
++
++#define batadv_softif_slave_add(__dev, __slave_dev, __extack) \
++	batadv_softif_slave_add(__dev, __slave_dev)
++
++#endif /* < KERNEL_VERSION(4, 15, 0) */
++
++#ifndef from_timer
++
++#define TIMER_DATA_TYPE                unsigned long
++#define TIMER_FUNC_TYPE                void (*)(TIMER_DATA_TYPE)
++
++static inline void timer_setup(struct timer_list *timer,
++			       void (*callback)(struct timer_list *),
++			       unsigned int flags)
++{
++	__setup_timer(timer, (TIMER_FUNC_TYPE)callback,
++		      (TIMER_DATA_TYPE)timer, flags);
++}
++
++#define from_timer(var, callback_timer, timer_fieldname) \
++	container_of(callback_timer, typeof(*var), timer_fieldname)
++
++#endif /* !from_timer */
++
++/* <DECLARE_EWMA> */
++
++#include <linux/version.h>
++#include_next <linux/average.h>
++
++#include <linux/bug.h>
++
++#ifdef DECLARE_EWMA
++#undef DECLARE_EWMA
++#endif /* DECLARE_EWMA */
++
++/*
++ * Exponentially weighted moving average (EWMA)
++ *
++ * This implements a fixed-precision EWMA algorithm, with both the
++ * precision and fall-off coefficient determined at compile-time
++ * and built into the generated helper funtions.
++ *
++ * The first argument to the macro is the name that will be used
++ * for the struct and helper functions.
++ *
++ * The second argument, the precision, expresses how many bits are
++ * used for the fractional part of the fixed-precision values.
++ *
++ * The third argument, the weight reciprocal, determines how the
++ * new values will be weighed vs. the old state, new values will
++ * get weight 1/weight_rcp and old values 1-1/weight_rcp. Note
++ * that this parameter must be a power of two for efficiency.
++ */
++
++#define DECLARE_EWMA(name, _precision, _weight_rcp)			\
++	struct ewma_##name {						\
++		unsigned long internal;					\
++	};								\
++	static inline void ewma_##name##_init(struct ewma_##name *e)	\
++	{								\
++		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
++		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
++		/*							\
++		 * Even if you want to feed it just 0/1 you should have	\
++		 * some bits for the non-fractional part...		\
++		 */							\
++		BUILD_BUG_ON((_precision) > 30);			\
++		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
++		e->internal = 0;					\
++	}								\
++	static inline unsigned long					\
++	ewma_##name##_read(struct ewma_##name *e)			\
++	{								\
++		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
++		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
++		BUILD_BUG_ON((_precision) > 30);			\
++		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
++		return e->internal >> (_precision);			\
++	}								\
++	static inline void ewma_##name##_add(struct ewma_##name *e,	\
++					     unsigned long val)		\
++	{								\
++		unsigned long internal = ACCESS_ONCE(e->internal);	\
++		unsigned long weight_rcp = ilog2(_weight_rcp);		\
++		unsigned long precision = _precision;			\
++									\
++		BUILD_BUG_ON(!__builtin_constant_p(_precision));	\
++		BUILD_BUG_ON(!__builtin_constant_p(_weight_rcp));	\
++		BUILD_BUG_ON((_precision) > 30);			\
++		BUILD_BUG_ON_NOT_POWER_OF_2(_weight_rcp);		\
++									\
++		ACCESS_ONCE(e->internal) = internal ?			\
++			(((internal << weight_rcp) - internal) +	\
++				(val << precision)) >> weight_rcp :	\
++			(val << precision);				\
++	}
++
++/* </DECLARE_EWMA> */
+diff --git a/batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch b/batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
+deleted file mode 100644
+index bda2ee6..0000000
+--- a/batman-adv/patches/0001-Add-compat-fallback-for-batadv_getlink_net.patch
++++ /dev/null
+@@ -1,31 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Fri, 23 Sep 2016 14:55:38 +0200
+-Subject: [PATCH] Add compat fallback for batadv_getlink_net
+-
+-Forwarded: not-needed
+----
+- net/batman-adv/hard-interface.c | 4 ++++
+- 1 file changed, 4 insertions(+)
+-
+-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
+-index 61a431a9772ba96418644b399c9e787cbfd0e743..6969f580d0bfd0428f1c6985eaec8bbbf5a0d38b 100644
+---- a/net/batman-adv/hard-interface.c
+-+++ b/net/batman-adv/hard-interface.c
+-@@ -95,6 +95,9 @@ out:
+- static struct net *batadv_getlink_net(const struct net_device *netdev,
+- 				      struct net *fallback_net)
+- {
+-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
+-+	return fallback_net;
+-+#else
+- 	if (!netdev->rtnl_link_ops)
+- 		return fallback_net;
+- 
+-@@ -102,6 +105,7 @@ static struct net *batadv_getlink_net(const struct net_device *netdev,
+- 		return fallback_net;
+- 
+- 	return netdev->rtnl_link_ops->get_link_net(netdev);
+-+#endif
+- }
+- 
+- /**
+diff --git a/batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch b/batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
+deleted file mode 100644
+index a234093..0000000
+--- a/batman-adv/patches/0002-batman-adv-Decrease-hardif-refcnt-on-fragmentation-s.patch
++++ /dev/null
+@@ -1,65 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Tue, 27 Dec 2016 08:51:17 +0100
+-Subject: [PATCH] batman-adv: Decrease hardif refcnt on fragmentation send error
+-
+-An error before the hardif is found has to free the skb. But every error
+-after that has to free the skb + put the hard interface.
+-
+-Fixes: 8b4132b1447a ("batman-adv: Consume skb in batadv_frag_send_packet")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/205dc8385dc863467f4f6ccec2e63254e6baf831
+----
+- net/batman-adv/fragmentation.c | 10 +++++-----
+- 1 file changed, 5 insertions(+), 5 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 9c561e683f4b8b68642b626b51a0dcda30260e97..0854ebd8613e9bf9044b04099b11341325d6e194 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -474,7 +474,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	primary_if = batadv_primary_if_get_selected(bat_priv);
+- 	if (!primary_if) {
+- 		ret = -EINVAL;
+--		goto put_primary_if;
+-+		goto free_skb;
+- 	}
+- 
+- 	/* Create one header to be copied to all fragments */
+-@@ -502,7 +502,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+- 		if (!skb_fragment) {
+- 			ret = -ENOMEM;
+--			goto free_skb;
+-+			goto put_primary_if;
+- 		}
+- 
+- 		batadv_inc_counter(bat_priv, BATADV_CNT_FRAG_TX);
+-@@ -511,7 +511,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		ret = batadv_send_unicast_skb(skb_fragment, neigh_node);
+- 		if (ret != NET_XMIT_SUCCESS) {
+- 			ret = NET_XMIT_DROP;
+--			goto free_skb;
+-+			goto put_primary_if;
+- 		}
+- 
+- 		frag_header.no++;
+-@@ -519,7 +519,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		/* The initial check in this function should cover this case */
+- 		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1) {
+- 			ret = -EINVAL;
+--			goto free_skb;
+-+			goto put_primary_if;
+- 		}
+- 	}
+- 
+-@@ -527,7 +527,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	if (batadv_skb_head_push(skb, header_size) < 0 ||
+- 	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0) {
+- 		ret = -ENOMEM;
+--		goto free_skb;
+-+		goto put_primary_if;
+- 	}
+- 
+- 	memcpy(skb->data, &frag_header, header_size);
+diff --git a/batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch b/batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
+deleted file mode 100644
+index 4fbdbad..0000000
+--- a/batman-adv/patches/0003-batman-adv-Fix-double-free-during-fragment-merge-err.patch
++++ /dev/null
+@@ -1,61 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Sun, 12 Feb 2017 11:26:33 +0100
+-Subject: [PATCH] batman-adv: Fix double free during fragment merge error
+-
+-The function batadv_frag_skb_buffer was supposed not to consume the skbuff
+-on errors. This was followed in the helper function
+-batadv_frag_insert_packet when the skb would potentially be inserted in the
+-fragment queue. But it could happen that the next helper function
+-batadv_frag_merge_packets would try to merge the fragments and fail. This
+-results in a kfree_skb of all the enqueued fragments (including the just
+-inserted one). batadv_recv_frag_packet would detect the error in
+-batadv_frag_skb_buffer and try to free the skb again.
+-
+-The behavior of batadv_frag_skb_buffer (and its helper
+-batadv_frag_insert_packet) must therefore be changed to always consume the
+-skbuff to have a common behavior and avoid the double kfree_skb.
+-
+-Fixes: 9b3eab61754d ("batman-adv: Receive fragmented packets and merge")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/e3bab02816097f860545d9ce9ae0808c69d7c92f
+----
+- net/batman-adv/fragmentation.c | 8 +++++---
+- 1 file changed, 5 insertions(+), 3 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 0854ebd8613e9bf9044b04099b11341325d6e194..31e97e9aee0d543b68be091936888e1f6c9dd7eb 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -239,8 +239,10 @@ err_unlock:
+- 	spin_unlock_bh(&chain->lock);
+- 
+- err:
+--	if (!ret)
+-+	if (!ret) {
+- 		kfree(frag_entry_new);
+-+		kfree_skb(skb);
+-+	}
+- 
+- 	return ret;
+- }
+-@@ -313,7 +315,7 @@ free:
+-  *
+-  * There are three possible outcomes: 1) Packet is merged: Return true and
+-  * set *skb to merged packet; 2) Packet is buffered: Return true and set *skb
+-- * to NULL; 3) Error: Return false and leave skb as is.
+-+ * to NULL; 3) Error: Return false and free skb.
+-  *
+-  * Return: true when packet is merged or buffered, false when skb is not not
+-  * used.
+-@@ -338,9 +340,9 @@ bool batadv_frag_skb_buffer(struct sk_buff **skb,
+- 		goto out_err;
+- 
+- out:
+--	*skb = skb_out;
+- 	ret = true;
+- out_err:
+-+	*skb = skb_out;
+- 	return ret;
+- }
+- 
+diff --git a/batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch b/batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
+deleted file mode 100644
+index 7e5c9f5..0000000
+--- a/batman-adv/patches/0004-batman-adv-Fix-transmission-of-final-16th-fragment.patch
++++ /dev/null
+@@ -1,54 +0,0 @@
+-From: Linus Lüssing <linus.luessing@c0d3.blue>
+-Date: Mon, 13 Feb 2017 20:44:31 +0100
+-Subject: [PATCH] batman-adv: Fix transmission of final, 16th fragment
+-
+-Trying to split and transmit a unicast packet in 16 parts will fail for
+-the final fragment: After having sent the 15th one with a frag_packet.no
+-index of 14, we will increase the the index to 15 - and return with an
+-error code immediately, even though one more fragment is due for
+-transmission and allowed.
+-
+-Fixing this issue by moving the check before incrementing the index.
+-
+-While at it, adding an unlikely(), because the check is actually more of
+-an assertion.
+-
+-Fixes: db56e4ecf5c2 ("batman-adv: Fragment and send skbs larger than mtu")
+-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/464eff3b1768ff190466a453a57ac140ea5cb756
+----
+- net/batman-adv/fragmentation.c | 12 ++++++------
+- 1 file changed, 6 insertions(+), 6 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 31e97e9aee0d543b68be091936888e1f6c9dd7eb..11149e5be4e0ef9dfe2872e1d8d1f6dbb4ccdb14 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -501,6 +501,12 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 
+- 	/* Eat and send fragments from the tail of skb */
+- 	while (skb->len > max_fragment_size) {
+-+		/* The initial check in this function should cover this case */
+-+		if (unlikely(frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)) {
+-+			ret = -EINVAL;
+-+			goto put_primary_if;
+-+		}
+-+
+- 		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+- 		if (!skb_fragment) {
+- 			ret = -ENOMEM;
+-@@ -517,12 +523,6 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		}
+- 
+- 		frag_header.no++;
+--
+--		/* The initial check in this function should cover this case */
+--		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1) {
+--			ret = -EINVAL;
+--			goto put_primary_if;
+--		}
+- 	}
+- 
+- 	/* Make room for the fragment header. */
+diff --git a/batman-adv/patches/0005-batman-adv-Treat-NET_XMIT_CN-as-transmit-successfull.patch b/batman-adv/patches/0005-batman-adv-Treat-NET_XMIT_CN-as-transmit-successfull.patch
+deleted file mode 100644
+index 9da1652..0000000
+--- a/batman-adv/patches/0005-batman-adv-Treat-NET_XMIT_CN-as-transmit-successfull.patch
++++ /dev/null
+@@ -1,123 +0,0 @@
+-From: Gao Feng <gfree.wind@gmail.com>
+-Date: Mon, 21 Nov 2016 23:00:32 +0800
+-Subject: [PATCH] batman-adv: Treat NET_XMIT_CN as transmit successfully
+-
+-The tc could return NET_XMIT_CN as one congestion notification, but
+-it does not mean the packet is lost. Other modules like ipvlan,
+-macvlan, and others treat NET_XMIT_CN as success too.
+-
+-So batman-adv should add the NET_XMIT_CN check.
+-
+-Signed-off-by: Gao Feng <gfree.wind@gmail.com>
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/1120b81c74187f489c08fc9438305071def089cc
+----
+- net/batman-adv/distributed-arp-table.c |  3 ++-
+- net/batman-adv/fragmentation.c         |  2 +-
+- net/batman-adv/routing.c               | 10 +++++-----
+- net/batman-adv/soft-interface.c        |  2 +-
+- net/batman-adv/tp_meter.c              |  2 +-
+- 5 files changed, 10 insertions(+), 9 deletions(-)
+-
+-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
+-index 49576c5a3fe306a42c28c3901d2b2c6cce7d0b8e..3641765d55df049a5dbac35d322ebc537a0f0322 100644
+---- a/net/batman-adv/distributed-arp-table.c
+-+++ b/net/batman-adv/distributed-arp-table.c
+-@@ -659,7 +659,8 @@ static bool batadv_dat_send_data(struct batadv_priv *bat_priv,
+- 		}
+- 
+- 		send_status = batadv_send_unicast_skb(tmp_skb, neigh_node);
+--		if (send_status == NET_XMIT_SUCCESS) {
+-+		if (send_status == NET_XMIT_SUCCESS ||
+-+		    send_status == NET_XMIT_CN) {
+- 			/* count the sent packet */
+- 			switch (packet_subtype) {
+- 			case BATADV_P_DAT_DHT_GET:
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 11149e5be4e0ef9dfe2872e1d8d1f6dbb4ccdb14..d33f16b9b8ac13ba630bf9ac8c5f4f0ca79fc878 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -517,7 +517,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 		batadv_add_counter(bat_priv, BATADV_CNT_FRAG_TX_BYTES,
+- 				   skb_fragment->len + ETH_HLEN);
+- 		ret = batadv_send_unicast_skb(skb_fragment, neigh_node);
+--		if (ret != NET_XMIT_SUCCESS) {
+-+		if (ret != NET_XMIT_SUCCESS && ret != NET_XMIT_CN) {
+- 			ret = NET_XMIT_DROP;
+- 			goto put_primary_if;
+- 		}
+-diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
+-index 6713bdf414cdacdaf36ecd6ac516f99e079fb51e..6b08b26da4d94be9c8c5e9dc708ddc18d8282428 100644
+---- a/net/batman-adv/routing.c
+-+++ b/net/batman-adv/routing.c
+-@@ -262,7 +262,7 @@ static int batadv_recv_my_icmp_packet(struct batadv_priv *bat_priv,
+- 		icmph->ttl = BATADV_TTL;
+- 
+- 		res = batadv_send_skb_to_orig(skb, orig_node, NULL);
+--		if (res == NET_XMIT_SUCCESS)
+-+		if (res == NET_XMIT_SUCCESS || res == NET_XMIT_CN)
+- 			ret = NET_RX_SUCCESS;
+- 
+- 		/* skb was consumed */
+-@@ -330,7 +330,7 @@ static int batadv_recv_icmp_ttl_exceeded(struct batadv_priv *bat_priv,
+- 	icmp_packet->ttl = BATADV_TTL;
+- 
+- 	res = batadv_send_skb_to_orig(skb, orig_node, NULL);
+--	if (res == NET_RX_SUCCESS)
+-+	if (res == NET_RX_SUCCESS || res == NET_XMIT_CN)
+- 		ret = NET_XMIT_SUCCESS;
+- 
+- 	/* skb was consumed */
+-@@ -424,7 +424,7 @@ int batadv_recv_icmp_packet(struct sk_buff *skb,
+- 
+- 	/* route it */
+- 	res = batadv_send_skb_to_orig(skb, orig_node, recv_if);
+--	if (res == NET_XMIT_SUCCESS)
+-+	if (res == NET_XMIT_SUCCESS || res == NET_XMIT_CN)
+- 		ret = NET_RX_SUCCESS;
+- 
+- 	/* skb was consumed */
+-@@ -719,14 +719,14 @@ static int batadv_route_unicast_packet(struct sk_buff *skb,
+- 
+- 	len = skb->len;
+- 	res = batadv_send_skb_to_orig(skb, orig_node, recv_if);
+--	if (res == NET_XMIT_SUCCESS)
+-+	if (res == NET_XMIT_SUCCESS || res == NET_XMIT_CN)
+- 		ret = NET_RX_SUCCESS;
+- 
+- 	/* skb was consumed */
+- 	skb = NULL;
+- 
+- 	/* translate transmit result into receive result */
+--	if (res == NET_XMIT_SUCCESS) {
+-+	if (res == NET_XMIT_SUCCESS || res == NET_XMIT_CN) {
+- 		/* skb was transmitted and consumed */
+- 		batadv_inc_counter(bat_priv, BATADV_CNT_FORWARD);
+- 		batadv_add_counter(bat_priv, BATADV_CNT_FORWARD_BYTES,
+-diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+-index 7b3494ae6ad93fd0d32391e5c88f5d636f43acd5..60516bbb7e8391f3063ba1e48c81288ffc7bef49 100644
+---- a/net/batman-adv/soft-interface.c
+-+++ b/net/batman-adv/soft-interface.c
+-@@ -386,7 +386,7 @@ send:
+- 			ret = batadv_send_skb_via_tt(bat_priv, skb, dst_hint,
+- 						     vid);
+- 		}
+--		if (ret != NET_XMIT_SUCCESS)
+-+		if (ret != NET_XMIT_SUCCESS && ret != NET_XMIT_CN)
+- 			goto dropped_freed;
+- 	}
+- 
+-diff --git a/net/batman-adv/tp_meter.c b/net/batman-adv/tp_meter.c
+-index 981e8c5b07e9398c68df711d1d7b54e6e9333ead..c367c8316a822c70ee397bbe1266cd38f24a279b 100644
+---- a/net/batman-adv/tp_meter.c
+-+++ b/net/batman-adv/tp_meter.c
+-@@ -615,7 +615,7 @@ static int batadv_tp_send_msg(struct batadv_tp_vars *tp_vars, const u8 *src,
+- 	batadv_tp_fill_prerandom(tp_vars, data, data_len);
+- 
+- 	r = batadv_send_skb_to_orig(skb, orig_node, NULL);
+--	if (r == NET_XMIT_SUCCESS)
+-+	if (r == NET_XMIT_SUCCESS || r == NET_XMIT_CN)
+- 		return 0;
+- 
+- 	return BATADV_TP_REASON_CANT_SEND;
+diff --git a/batman-adv/patches/0006-batman-adv-don-t-add-loop-detect-macs-to-TT.patch b/batman-adv/patches/0006-batman-adv-don-t-add-loop-detect-macs-to-TT.patch
+deleted file mode 100644
+index d2ced52..0000000
+--- a/batman-adv/patches/0006-batman-adv-don-t-add-loop-detect-macs-to-TT.patch
++++ /dev/null
+@@ -1,67 +0,0 @@
+-From: Simon Wunderlich <simon.wunderlich@open-mesh.com>
+-Date: Thu, 24 Nov 2016 16:11:01 +0100
+-Subject: [PATCH] batman-adv: don't add loop detect macs to TT
+-
+-The bridge loop avoidance (BLA) feature of batman-adv sends packets to
+-probe for Mesh/LAN packet loops. Those packets are not sent by real
+-clients and should therefore not be added to the translation table (TT).
+-
+-Signed-off-by: Simon Wunderlich <simon.wunderlich@open-mesh.com>
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/447df986b83630a92ca9d33903023b7e1b2917f3
+----
+- net/batman-adv/bridge_loop_avoidance.h | 18 ++++++++++++++++++
+- net/batman-adv/soft-interface.c        |  3 ++-
+- 2 files changed, 20 insertions(+), 1 deletion(-)
+-
+-diff --git a/net/batman-adv/bridge_loop_avoidance.h b/net/batman-adv/bridge_loop_avoidance.h
+-index 1ae93e46fb98498c00082728ca91216d78e13298..2827cd3c13d2a35a3b296340a0aa123dbd032926 100644
+---- a/net/batman-adv/bridge_loop_avoidance.h
+-+++ b/net/batman-adv/bridge_loop_avoidance.h
+-@@ -20,6 +20,8 @@
+- 
+- #include "main.h"
+- 
+-+#include <linux/compiler.h>
+-+#include <linux/stddef.h>
+- #include <linux/types.h>
+- 
+- struct net_device;
+-@@ -27,6 +29,22 @@ struct netlink_callback;
+- struct seq_file;
+- struct sk_buff;
+- 
+-+/**
+-+ * batadv_bla_is_loopdetect_mac - check if the mac address is from a loop detect
+-+ *  frame sent by bridge loop avoidance
+-+ * @mac: mac address to check
+-+ *
+-+ * Return: true if the it looks like a loop detect frame
+-+ * (mac starts with BA:BE), false otherwise
+-+ */
+-+static inline bool batadv_bla_is_loopdetect_mac(const uint8_t *mac)
+-+{
+-+	if (mac[0] == 0xba && mac[1] == 0xbe)
+-+		return true;
+-+
+-+	return false;
+-+}
+-+
+- #ifdef CONFIG_BATMAN_ADV_BLA
+- bool batadv_bla_rx(struct batadv_priv *bat_priv, struct sk_buff *skb,
+- 		   unsigned short vid, bool is_bcast);
+-diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+-index 60516bbb7e8391f3063ba1e48c81288ffc7bef49..4e447bf17332c191dda694b9b3e49e06073814fc 100644
+---- a/net/batman-adv/soft-interface.c
+-+++ b/net/batman-adv/soft-interface.c
+-@@ -258,7 +258,8 @@ static int batadv_interface_tx(struct sk_buff *skb,
+- 	ethhdr = eth_hdr(skb);
+- 
+- 	/* Register the client MAC in the transtable */
+--	if (!is_multicast_ether_addr(ethhdr->h_source)) {
+-+	if (!is_multicast_ether_addr(ethhdr->h_source) &&
+-+	    !batadv_bla_is_loopdetect_mac(ethhdr->h_source)) {
+- 		client_added = batadv_tt_local_add(soft_iface, ethhdr->h_source,
+- 						   vid, skb->skb_iif,
+- 						   skb->mark);
+diff --git a/batman-adv/patches/0007-batman-adv-decrease-maximum-fragment-size.patch b/batman-adv/patches/0007-batman-adv-decrease-maximum-fragment-size.patch
+deleted file mode 100644
+index 03d84a0..0000000
+--- a/batman-adv/patches/0007-batman-adv-decrease-maximum-fragment-size.patch
++++ /dev/null
+@@ -1,52 +0,0 @@
+-From: Matthias Schiffer <mschiffer@universe-factory.net>
+-Date: Wed, 22 Feb 2017 17:25:41 +0100
+-Subject: [PATCH] batman-adv: decrease maximum fragment size
+-
+-With this patch the maximum fragment size is reduced from 1400 to 1280
+-bytes.
+-
+-Fragmentation v2 correctly uses the smaller of 1400 and the interface
+-MTU, thus generally supporting interfaces with an MTU < 1400 bytes, too.
+-
+-However, currently "Fragmentation v2" does not support re-fragmentation.
+-Which means that once a packet is split into two packets of 1400 + x
+-bytes for instance and the next hop provides an interface with an even
+-smaller MTU of 1280 bytes, then the larger fragment is lost.
+-
+-A maximum fragment size of 1280 bytes is a safer option as this is the
+-minimum MTU required by IPv6, making interfaces with an MTU < 1280
+-rather exotic.
+-
+-Regarding performance, this should have no negative impact on unicast
+-traffic: Having some more bytes in the smaller and some less in the
+-larger does not change the sum of both fragments.
+-
+-Concerning TT, choosing 1280 bytes fragments might result in more TT
+-messages than necessary when a large network is bridged into batman-adv.
+-However, the TT overhead in general is marginal due to its reactive
+-nature, therefore such a performance impact on TT should not be
+-noticeable for a user.
+-
+-Cc: Matthias Schiffer <mschiffer@universe-factory.net>
+-[linus.luessing@c0d3.blue: Added commit message]
+-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/eb60b63140af5ec01ea0916837c2816cad10d6c1
+----
+- net/batman-adv/main.h | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-diff --git a/net/batman-adv/main.h b/net/batman-adv/main.h
+-index a6cc8040a21dd24fb507683230fd66a9edb62458..5b7855560e8ad121c7b48da97807b6895be158fc 100644
+---- a/net/batman-adv/main.h
+-+++ b/net/batman-adv/main.h
+-@@ -168,7 +168,7 @@ enum batadv_uev_type {
+- /* Maximum number of fragments for one packet */
+- #define BATADV_FRAG_MAX_FRAGMENTS 16
+- /* Maxumim size of each fragment */
+--#define BATADV_FRAG_MAX_FRAG_SIZE 1400
+-+#define BATADV_FRAG_MAX_FRAG_SIZE 1280
+- /* Time to keep fragments while waiting for rest of the fragments */
+- #define BATADV_FRAG_TIMEOUT 10000
+- 
+diff --git a/batman-adv/patches/0008-batman-adv-Keep-fragments-equally-sized.patch b/batman-adv/patches/0008-batman-adv-Keep-fragments-equally-sized.patch
+deleted file mode 100644
+index 58af884..0000000
+--- a/batman-adv/patches/0008-batman-adv-Keep-fragments-equally-sized.patch
++++ /dev/null
+@@ -1,90 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Wed, 22 Feb 2017 17:25:42 +0100
+-Subject: [PATCH] batman-adv: Keep fragments equally sized
+-
+-The batman-adv fragmentation packets have the design problem that they
+-cannot be refragmented. This often leads to problems when networks are
+-incorrectly configured and don't use a common MTU.
+-
+-The sender could for example fragment a 1500 byte packet to fit in a 1280
+-bytes large MTU. This would create a 1280 large packet and a 284 bytes
+-large packet. But the next hop is then not able to transport 1280 bytes to
+-its next hop. The 1280 byte large packet will be dropped but the 284 bytes
+-large packet will still be forwarded to its destination.
+-
+-This can partly being avoided by splitting packets more equally. In this
+-example, the two 782 bytes large packets could both potentially reach its
+-destination.
+-
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Acked-by: Linus Lüssing <linus.luessing@c0d3.blue>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/3caa5d14206ce8d4bd48bc931f213dec47ea1566
+----
+- net/batman-adv/fragmentation.c | 20 +++++++++++++-------
+- 1 file changed, 13 insertions(+), 7 deletions(-)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index d33f16b9b8ac13ba630bf9ac8c5f4f0ca79fc878..70e512111528b0345889cea4ffd0ad5d984a4e6a 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -404,7 +404,7 @@ out:
+-  * batadv_frag_create - create a fragment from skb
+-  * @skb: skb to create fragment from
+-  * @frag_head: header to use in new fragment
+-- * @mtu: size of new fragment
+-+ * @fragment_size: size of new fragment
+-  *
+-  * Split the passed skb into two fragments: A new one with size matching the
+-  * passed mtu and the old one with the rest. The new skb contains data from the
+-@@ -414,11 +414,11 @@ out:
+-  */
+- static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
+- 					  struct batadv_frag_packet *frag_head,
+--					  unsigned int mtu)
+-+					  unsigned int fragment_size)
+- {
+- 	struct sk_buff *skb_fragment;
+- 	unsigned int header_size = sizeof(*frag_head);
+--	unsigned int fragment_size = mtu - header_size;
+-+	unsigned int mtu = fragment_size + header_size;
+- 
+- 	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
+- 	if (!skb_fragment)
+-@@ -456,7 +456,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	struct sk_buff *skb_fragment;
+- 	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
+- 	unsigned int header_size = sizeof(frag_header);
+--	unsigned int max_fragment_size, max_packet_size;
+-+	unsigned int max_fragment_size, num_fragments;
+- 	int ret;
+- 
+- 	/* To avoid merge and refragmentation at next-hops we never send
+-@@ -464,10 +464,15 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	 */
+- 	mtu = min_t(unsigned int, mtu, BATADV_FRAG_MAX_FRAG_SIZE);
+- 	max_fragment_size = mtu - header_size;
+--	max_packet_size = max_fragment_size * BATADV_FRAG_MAX_FRAGMENTS;
+-+
+-+	if (skb->len == 0 || max_fragment_size == 0)
+-+		return -EINVAL;
+-+
+-+	num_fragments = (skb->len - 1) / max_fragment_size + 1;
+-+	max_fragment_size = (skb->len - 1) / num_fragments + 1;
+- 
+- 	/* Don't even try to fragment, if we need more than 16 fragments */
+--	if (skb->len > max_packet_size) {
+-+	if (num_fragments > BATADV_FRAG_MAX_FRAGMENTS) {
+- 		ret = -EAGAIN;
+- 		goto free_skb;
+- 	}
+-@@ -507,7 +512,8 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 			goto put_primary_if;
+- 		}
+- 
+--		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+-+		skb_fragment = batadv_frag_create(skb, &frag_header,
+-+						  max_fragment_size);
+- 		if (!skb_fragment) {
+- 			ret = -ENOMEM;
+- 			goto put_primary_if;
+diff --git a/batman-adv/patches/0009-batman-adv-Initialize-gw-sel_class-via-batadv_algo.patch b/batman-adv/patches/0009-batman-adv-Initialize-gw-sel_class-via-batadv_algo.patch
+deleted file mode 100644
+index 3ef17bd..0000000
+--- a/batman-adv/patches/0009-batman-adv-Initialize-gw-sel_class-via-batadv_algo.patch
++++ /dev/null
+@@ -1,144 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Sat, 4 Mar 2017 16:33:31 +0100
+-Subject: [PATCH] batman-adv: Initialize gw sel_class via batadv_algo
+-
+-The gateway selection class variable is shared between different algorithm
+-versions. But the interpretation of the content is algorithm specific. The
+-initialization is therefore also algorithm specific.
+-
+-But this was implemented incorrectly and the initialization for BATMAN_V
+-always overwrote the value previously written for BATMAN_IV. This could
+-only be avoided when BATMAN_V was disabled during compile time.
+-
+-Using a special batadv_algo hook for this initialization avoids this
+-problem.
+-
+-Fixes: 80b2d47be2c7 ("batman-adv: B.A.T.M.A.N. V - implement GW selection logic")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/ef565a1434966750644affda86fd11b0b69edbfe
+----
+- net/batman-adv/bat_iv_ogm.c     | 11 +++++++++++
+- net/batman-adv/bat_v.c          | 14 +++++++++++---
+- net/batman-adv/gateway_common.c |  5 +++++
+- net/batman-adv/soft-interface.c |  1 -
+- net/batman-adv/types.h          |  2 ++
+- 5 files changed, 29 insertions(+), 4 deletions(-)
+-
+-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+-index f00f666e2ccd4714bb7a5210c48e39edb40e0c17..7bfd0d7ef49df8e699f91e2b827b824aa3657c0d 100644
+---- a/net/batman-adv/bat_iv_ogm.c
+-+++ b/net/batman-adv/bat_iv_ogm.c
+-@@ -2477,6 +2477,16 @@ static void batadv_iv_iface_activate(struct batadv_hard_iface *hard_iface)
+- 	batadv_iv_ogm_schedule(hard_iface);
+- }
+- 
+-+/**
+-+ * batadv_iv_init_sel_class - initialize GW selection class
+-+ * @bat_priv: the bat priv with all the soft interface information
+-+ */
+-+static void batadv_iv_init_sel_class(struct batadv_priv *bat_priv)
+-+{
+-+	/* set default TQ difference threshold to 20 */
+-+	atomic_set(&bat_priv->gw.sel_class, 20);
+-+}
+-+
+- static struct batadv_gw_node *
+- batadv_iv_gw_get_best_gw_node(struct batadv_priv *bat_priv)
+- {
+-@@ -2823,6 +2833,7 @@ static struct batadv_algo_ops batadv_batman_iv __read_mostly = {
+- 		.del_if = batadv_iv_ogm_orig_del_if,
+- 	},
+- 	.gw = {
+-+		.init_sel_class = batadv_iv_init_sel_class,
+- 		.get_best_gw_node = batadv_iv_gw_get_best_gw_node,
+- 		.is_eligible = batadv_iv_gw_is_eligible,
+- #ifdef CONFIG_BATMAN_ADV_DEBUGFS
+-diff --git a/net/batman-adv/bat_v.c b/net/batman-adv/bat_v.c
+-index 2ac612d7bab4d0b4035c9e476dab17536349dca3..2e2471ca84e392faac7fd6537bf137161e27542a 100644
+---- a/net/batman-adv/bat_v.c
+-+++ b/net/batman-adv/bat_v.c
+-@@ -668,6 +668,16 @@ err_ifinfo1:
+- 	return ret;
+- }
+- 
+-+/**
+-+ * batadv_v_init_sel_class - initialize GW selection class
+-+ * @bat_priv: the bat priv with all the soft interface information
+-+ */
+-+static void batadv_v_init_sel_class(struct batadv_priv *bat_priv)
+-+{
+-+	/* set default throughput difference threshold to 5Mbps */
+-+	atomic_set(&bat_priv->gw.sel_class, 50);
+-+}
+-+
+- static ssize_t batadv_v_store_sel_class(struct batadv_priv *bat_priv,
+- 					char *buff, size_t count)
+- {
+-@@ -1052,6 +1062,7 @@ static struct batadv_algo_ops batadv_batman_v __read_mostly = {
+- 		.dump = batadv_v_orig_dump,
+- 	},
+- 	.gw = {
+-+		.init_sel_class = batadv_v_init_sel_class,
+- 		.store_sel_class = batadv_v_store_sel_class,
+- 		.show_sel_class = batadv_v_show_sel_class,
+- 		.get_best_gw_node = batadv_v_gw_get_best_gw_node,
+-@@ -1092,9 +1103,6 @@ int batadv_v_mesh_init(struct batadv_priv *bat_priv)
+- 	if (ret < 0)
+- 		return ret;
+- 
+--	/* set default throughput difference threshold to 5Mbps */
+--	atomic_set(&bat_priv->gw.sel_class, 50);
+--
+- 	return 0;
+- }
+- 
+-diff --git a/net/batman-adv/gateway_common.c b/net/batman-adv/gateway_common.c
+-index 21184810d89f69e372673aff221a74382945491d..3e3f91ab694fb8e61ecb4df356e72334b56e0fbe 100644
+---- a/net/batman-adv/gateway_common.c
+-+++ b/net/batman-adv/gateway_common.c
+-@@ -253,6 +253,11 @@ static void batadv_gw_tvlv_ogm_handler_v1(struct batadv_priv *bat_priv,
+-  */
+- void batadv_gw_init(struct batadv_priv *bat_priv)
+- {
+-+	if (bat_priv->algo_ops->gw.init_sel_class)
+-+		bat_priv->algo_ops->gw.init_sel_class(bat_priv);
+-+	else
+-+		atomic_set(&bat_priv->gw.sel_class, 1);
+-+
+- 	batadv_tvlv_handler_register(bat_priv, batadv_gw_tvlv_ogm_handler_v1,
+- 				     NULL, BATADV_TVLV_GW, 1,
+- 				     BATADV_TVLV_HANDLER_OGM_CIFNOTFND);
+-diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+-index 4e447bf17332c191dda694b9b3e49e06073814fc..08432b14386a53c771c54b9eb38893d94c6f9b53 100644
+---- a/net/batman-adv/soft-interface.c
+-+++ b/net/batman-adv/soft-interface.c
+-@@ -821,7 +821,6 @@ static int batadv_softif_init_late(struct net_device *dev)
+- 	atomic_set(&bat_priv->mcast.num_want_all_ipv6, 0);
+- #endif
+- 	atomic_set(&bat_priv->gw.mode, BATADV_GW_MODE_OFF);
+--	atomic_set(&bat_priv->gw.sel_class, 20);
+- 	atomic_set(&bat_priv->gw.bandwidth_down, 100);
+- 	atomic_set(&bat_priv->gw.bandwidth_up, 20);
+- 	atomic_set(&bat_priv->orig_interval, 1000);
+-diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
+-index e913aee28c98bf77cdd7fe92496fa4b188ff9604..5137d859694c28f60cad33325127617c047412ff 100644
+---- a/net/batman-adv/types.h
+-+++ b/net/batman-adv/types.h
+-@@ -1489,6 +1489,7 @@ struct batadv_algo_orig_ops {
+- 
+- /**
+-  * struct batadv_algo_gw_ops - mesh algorithm callbacks (GW specific)
+-+ * @init_sel_class: initialize GW selection class (optional)
+-  * @store_sel_class: parse and stores a new GW selection class (optional)
+-  * @show_sel_class: prints the current GW selection class (optional)
+-  * @get_best_gw_node: select the best GW from the list of available nodes
+-@@ -1499,6 +1500,7 @@ struct batadv_algo_orig_ops {
+-  * @dump: dump gateways to a netlink socket (optional)
+-  */
+- struct batadv_algo_gw_ops {
+-+	void (*init_sel_class)(struct batadv_priv *bat_priv);
+- 	ssize_t (*store_sel_class)(struct batadv_priv *bat_priv, char *buff,
+- 				   size_t count);
+- 	ssize_t (*show_sel_class)(struct batadv_priv *bat_priv, char *buff);
+diff --git a/batman-adv/patches/0010-batman-adv-prevent-multiple-ARP-replies-sent-by-gate.patch b/batman-adv/patches/0010-batman-adv-prevent-multiple-ARP-replies-sent-by-gate.patch
+deleted file mode 100644
+index a69b270..0000000
+--- a/batman-adv/patches/0010-batman-adv-prevent-multiple-ARP-replies-sent-by-gate.patch
++++ /dev/null
+@@ -1,142 +0,0 @@
+-From: Andreas Pape <APape@phoenixcontact.com>
+-Date: Mon, 5 Sep 2016 13:20:25 +0200
+-Subject: [PATCH] batman-adv: prevent multiple ARP replies sent by gateways if dat enabled
+-
+-If dat is enabled it must be made sure that only the backbone gw which has
+-claimed the remote destination for the ARP request answers the ARP request
+-directly if the MAC address is known due to the local dat table. This
+-prevents multiple ARP replies in a common backbone if more than one
+-gateway already knows the remote mac searched for in the ARP request.
+-
+-Signed-off-by: Andreas Pape <apape@phoenixcontact.com>
+-Acked-by: Simon Wunderlich <sw@simonwunderlich.de>
+-[sven@narfation.org: fix conflicts with current version]
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/0c794961bc0d32386cffdc6d41c5ee21d9638e5b
+----
+- net/batman-adv/bridge_loop_avoidance.c | 49 ++++++++++++++++++++++++++++++++++
+- net/batman-adv/bridge_loop_avoidance.h | 11 ++++++++
+- net/batman-adv/distributed-arp-table.c | 15 +++++++++++
+- 3 files changed, 75 insertions(+)
+-
+-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+-index e7f690b571ea9be8ace25843d6e187a907486b99..41ab4a67a07b264bccdc5bccf73920909ff35c40 100644
+---- a/net/batman-adv/bridge_loop_avoidance.c
+-+++ b/net/batman-adv/bridge_loop_avoidance.c
+-@@ -2450,3 +2450,52 @@ out:
+- 
+- 	return ret;
+- }
+-+
+-+#ifdef CONFIG_BATMAN_ADV_DAT
+-+/**
+-+ * batadv_bla_check_claim - check if address is claimed
+-+ *
+-+ * @bat_priv: the bat priv with all the soft interface information
+-+ * @addr: mac address of which the claim status is checked
+-+ * @vid: the VLAN ID
+-+ *
+-+ * addr is checked if this address is claimed by the local device itself.
+-+ *
+-+ * Return: true if bla is disabled or the mac is claimed by the device,
+-+ * false if the device addr is already claimed by another gateway
+-+ */
+-+bool batadv_bla_check_claim(struct batadv_priv *bat_priv,
+-+			    u8 *addr, unsigned short vid)
+-+{
+-+	struct batadv_bla_claim search_claim;
+-+	struct batadv_bla_claim *claim = NULL;
+-+	struct batadv_hard_iface *primary_if = NULL;
+-+	bool ret = true;
+-+
+-+	if (!atomic_read(&bat_priv->bridge_loop_avoidance))
+-+		return ret;
+-+
+-+	primary_if = batadv_primary_if_get_selected(bat_priv);
+-+	if (!primary_if)
+-+		return ret;
+-+
+-+	/* First look if the mac address is claimed */
+-+	ether_addr_copy(search_claim.addr, addr);
+-+	search_claim.vid = vid;
+-+
+-+	claim = batadv_claim_hash_find(bat_priv, &search_claim);
+-+
+-+	/* If there is a claim and we are not owner of the claim,
+-+	 * return false.
+-+	 */
+-+	if (claim) {
+-+		if (!batadv_compare_eth(claim->backbone_gw->orig,
+-+					primary_if->net_dev->dev_addr))
+-+			ret = false;
+-+		batadv_claim_put(claim);
+-+	}
+-+
+-+	batadv_hardif_put(primary_if);
+-+	return ret;
+-+}
+-+#endif
+-diff --git a/net/batman-adv/bridge_loop_avoidance.h b/net/batman-adv/bridge_loop_avoidance.h
+-index 2827cd3c13d2a35a3b296340a0aa123dbd032926..133227c578e73fb998b540fdf361472a21e0c602 100644
+---- a/net/batman-adv/bridge_loop_avoidance.h
+-+++ b/net/batman-adv/bridge_loop_avoidance.h
+-@@ -69,6 +69,10 @@ void batadv_bla_status_update(struct net_device *net_dev);
+- int batadv_bla_init(struct batadv_priv *bat_priv);
+- void batadv_bla_free(struct batadv_priv *bat_priv);
+- int batadv_bla_claim_dump(struct sk_buff *msg, struct netlink_callback *cb);
+-+#ifdef CONFIG_BATMAN_ADV_DAT
+-+bool batadv_bla_check_claim(struct batadv_priv *bat_priv, u8 *addr,
+-+			    unsigned short vid);
+-+#endif
+- #define BATADV_BLA_CRC_INIT	0
+- #else /* ifdef CONFIG_BATMAN_ADV_BLA */
+- 
+-@@ -145,6 +149,13 @@ static inline int batadv_bla_backbone_dump(struct sk_buff *msg,
+- 	return -EOPNOTSUPP;
+- }
+- 
+-+static inline
+-+bool batadv_bla_check_claim(struct batadv_priv *bat_priv, u8 *addr,
+-+			    unsigned short vid)
+-+{
+-+	return true;
+-+}
+-+
+- #endif /* ifdef CONFIG_BATMAN_ADV_BLA */
+- 
+- #endif /* ifndef _NET_BATMAN_ADV_BLA_H_ */
+-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
+-index 3641765d55df049a5dbac35d322ebc537a0f0322..4cfc9672507ba718d975a2f869bb89fc38e0d934 100644
+---- a/net/batman-adv/distributed-arp-table.c
+-+++ b/net/batman-adv/distributed-arp-table.c
+-@@ -43,6 +43,7 @@
+- #include <linux/workqueue.h>
+- #include <net/arp.h>
+- 
+-+#include "bridge_loop_avoidance.h"
+- #include "hard-interface.h"
+- #include "hash.h"
+- #include "log.h"
+-@@ -1041,6 +1042,20 @@ bool batadv_dat_snoop_outgoing_arp_request(struct batadv_priv *bat_priv,
+- 			goto out;
+- 		}
+- 
+-+		/* If BLA is enabled, only send ARP replies if we have claimed
+-+		 * the destination for the ARP request or if no one else of
+-+		 * the backbone gws belonging to our backbone has claimed the
+-+		 * destination.
+-+		 */
+-+		if (!batadv_bla_check_claim(bat_priv,
+-+					    dat_entry->mac_addr, vid)) {
+-+			batadv_dbg(BATADV_DBG_DAT, bat_priv,
+-+				   "Device %pM claimed by another backbone gw. Don't send ARP reply!",
+-+				   dat_entry->mac_addr);
+-+			ret = true;
+-+			goto out;
+-+		}
+-+
+- 		skb_new = batadv_dat_arp_create_reply(bat_priv, ip_dst, ip_src,
+- 						      dat_entry->mac_addr,
+- 						      hw_src, vid);
+diff --git a/batman-adv/patches/0011-batman-adv-prevent-duplication-of-ARP-replies-when-D.patch b/batman-adv/patches/0011-batman-adv-prevent-duplication-of-ARP-replies-when-D.patch
+deleted file mode 100644
+index 8d83671..0000000
+--- a/batman-adv/patches/0011-batman-adv-prevent-duplication-of-ARP-replies-when-D.patch
++++ /dev/null
+@@ -1,91 +0,0 @@
+-From: Andreas Pape <APape@phoenixcontact.com>
+-Date: Mon, 5 Sep 2016 13:20:26 +0200
+-Subject: [PATCH] batman-adv: prevent duplication of ARP replies when DAT is used
+-
+-If none of the backbone gateways in a bla setup has already knowledge of
+-the mac address searched for in an incoming ARP request from the backbone
+-an address resolution via the DHT of DAT is started. The gateway can send
+-several ARP requests to different DHT nodes and therefore can get several
+-replies. This patch assures that not all of the possible ARP replies are
+-returned to the backbone by checking the local DAT cache of the gateway.
+-If there is an entry in the local cache the gateway has already learned
+-the requested address and there is no need to forward the additional reply
+-to the backbone.
+-Furthermore it is checked if this gateway has claimed the source of the ARP
+-reply and only forwards it to the backbone if it has claimed the source or
+-if there is no claim at all.
+-
+-Signed-off-by: Andreas Pape <apape@phoenixcontact.com>
+-Acked-by: Simon Wunderlich <sw@simonwunderlich.de>
+-[sven@narfation.org: fix conflicts with current version]
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/81e422051cf0403e40615eb306d0ddaaddfee611
+----
+- net/batman-adv/distributed-arp-table.c | 32 ++++++++++++++++++++++++++++++++
+- 1 file changed, 32 insertions(+)
+-
+-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
+-index 4cfc9672507ba718d975a2f869bb89fc38e0d934..16216532c1d82c09337a9c5e7a4cd5b4ad3ded5d 100644
+---- a/net/batman-adv/distributed-arp-table.c
+-+++ b/net/batman-adv/distributed-arp-table.c
+-@@ -1205,6 +1205,7 @@ void batadv_dat_snoop_outgoing_arp_reply(struct batadv_priv *bat_priv,
+- bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
+- 					 struct sk_buff *skb, int hdr_size)
+- {
+-+	struct batadv_dat_entry *dat_entry = NULL;
+- 	u16 type;
+- 	__be32 ip_src, ip_dst;
+- 	u8 *hw_src, *hw_dst;
+-@@ -1227,12 +1228,41 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
+- 	hw_dst = batadv_arp_hw_dst(skb, hdr_size);
+- 	ip_dst = batadv_arp_ip_dst(skb, hdr_size);
+- 
+-+	/* If ip_dst is already in cache and has the right mac address,
+-+	 * drop this frame if this ARP reply is destined for us because it's
+-+	 * most probably an ARP reply generated by another node of the DHT.
+-+	 * We have most probably received already a reply earlier. Delivering
+-+	 * this frame would lead to doubled receive of an ARP reply.
+-+	 */
+-+	dat_entry = batadv_dat_entry_hash_find(bat_priv, ip_src, vid);
+-+	if (dat_entry && batadv_compare_eth(hw_src, dat_entry->mac_addr)) {
+-+		batadv_dbg(BATADV_DBG_DAT, bat_priv, "Doubled ARP reply removed: ARP MSG = [src: %pM-%pI4 dst: %pM-%pI4]; dat_entry: %pM-%pI4\n",
+-+			   hw_src, &ip_src, hw_dst, &ip_dst,
+-+			   dat_entry->mac_addr,	&dat_entry->ip);
+-+		dropped = true;
+-+		goto out;
+-+	}
+-+
+- 	/* Update our internal cache with both the IP addresses the node got
+- 	 * within the ARP reply
+- 	 */
+- 	batadv_dat_entry_add(bat_priv, ip_src, hw_src, vid);
+- 	batadv_dat_entry_add(bat_priv, ip_dst, hw_dst, vid);
+- 
+-+	/* If BLA is enabled, only forward ARP replies if we have claimed the
+-+	 * source of the ARP reply or if no one else of the same backbone has
+-+	 * already claimed that client. This prevents that different gateways
+-+	 * to the same backbone all forward the ARP reply leading to multiple
+-+	 * replies in the backbone.
+-+	 */
+-+	if (!batadv_bla_check_claim(bat_priv, hw_src, vid)) {
+-+		batadv_dbg(BATADV_DBG_DAT, bat_priv,
+-+			   "Device %pM claimed by another backbone gw. Drop ARP reply.\n",
+-+			   hw_src);
+-+		dropped = true;
+-+		goto out;
+-+	}
+-+
+- 	/* if this REPLY is directed to a client of mine, let's deliver the
+- 	 * packet to the interface
+- 	 */
+-@@ -1245,6 +1275,8 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
+- out:
+- 	if (dropped)
+- 		kfree_skb(skb);
+-+	if (dat_entry)
+-+		batadv_dat_entry_put(dat_entry);
+- 	/* if dropped == false -> deliver to the interface */
+- 	return dropped;
+- }
+diff --git a/batman-adv/patches/0012-batman-adv-drop-unicast-packets-from-other-backbone-.patch b/batman-adv/patches/0012-batman-adv-drop-unicast-packets-from-other-backbone-.patch
+deleted file mode 100644
+index 29f3edb..0000000
+--- a/batman-adv/patches/0012-batman-adv-drop-unicast-packets-from-other-backbone-.patch
++++ /dev/null
+@@ -1,69 +0,0 @@
+-From: Andreas Pape <APape@phoenixcontact.com>
+-Date: Mon, 5 Sep 2016 13:20:27 +0200
+-Subject: [PATCH] batman-adv: drop unicast packets from other backbone gw
+-
+-Additional dropping of unicast packets received from another backbone gw if
+-the same backbone network before being forwarded to the same backbone again
+-is necessary. It was observed in a test setup that in rare cases these
+-frames lead to looping unicast traffic backbone->mesh->backbone.
+-
+-Signed-off-by: Andreas Pape <apape@phoenixcontact.com>
+-Acked-by: Simon Wunderlich <sw@simonwunderlich.de>
+-[sven@narfation.org: fix conflicts with current version]
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/bfe2a1971f43ef540ef0440d319542fa7d41d81f
+----
+- net/batman-adv/routing.c | 25 ++++++++++++++++++++++---
+- 1 file changed, 22 insertions(+), 3 deletions(-)
+-
+-diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
+-index 6b08b26da4d94be9c8c5e9dc708ddc18d8282428..5190683424b89d1fa7c86895000bc6656e6a65dd 100644
+---- a/net/batman-adv/routing.c
+-+++ b/net/batman-adv/routing.c
+-@@ -942,15 +942,17 @@ int batadv_recv_unicast_packet(struct sk_buff *skb,
+- 	struct batadv_priv *bat_priv = netdev_priv(recv_if->soft_iface);
+- 	struct batadv_unicast_packet *unicast_packet;
+- 	struct batadv_unicast_4addr_packet *unicast_4addr_packet;
+--	u8 *orig_addr;
+--	struct batadv_orig_node *orig_node = NULL;
+-+	u8 *orig_addr, *orig_addr_gw;
+-+	struct batadv_orig_node *orig_node = NULL, *orig_node_gw = NULL;
+- 	int check, hdr_size = sizeof(*unicast_packet);
+- 	enum batadv_subtype subtype;
+--	bool is4addr;
+-+	struct ethhdr *ethhdr;
+- 	int ret = NET_RX_DROP;
+-+	bool is4addr, is_gw;
+- 
+- 	unicast_packet = (struct batadv_unicast_packet *)skb->data;
+- 	unicast_4addr_packet = (struct batadv_unicast_4addr_packet *)skb->data;
+-+	ethhdr = eth_hdr(skb);
+- 
+- 	is4addr = unicast_packet->packet_type == BATADV_UNICAST_4ADDR;
+- 	/* the caller function should have already pulled 2 bytes */
+-@@ -973,6 +975,23 @@ int batadv_recv_unicast_packet(struct sk_buff *skb,
+- 
+- 	/* packet for me */
+- 	if (batadv_is_my_mac(bat_priv, unicast_packet->dest)) {
+-+		/* If this is a unicast packet from another backgone gw,
+-+		 * drop it.
+-+		 */
+-+		orig_addr_gw = ethhdr->h_source;
+-+		orig_node_gw = batadv_orig_hash_find(bat_priv, orig_addr_gw);
+-+		if (orig_node_gw) {
+-+			is_gw = batadv_bla_is_backbone_gw(skb, orig_node_gw,
+-+							  hdr_size);
+-+			batadv_orig_node_put(orig_node_gw);
+-+			if (is_gw) {
+-+				batadv_dbg(BATADV_DBG_BLA, bat_priv,
+-+					   "Dropped unicast pkt received from another backbone gw %pM.\n",
+-+					   orig_addr_gw);
+-+				return NET_RX_DROP;
+-+			}
+-+		}
+-+
+- 		if (is4addr) {
+- 			subtype = unicast_4addr_packet->subtype;
+- 			batadv_dat_inc_counter(bat_priv, subtype);
+diff --git a/batman-adv/patches/0013-batman-adv-fix-memory-leak-when-dropping-packet-from.patch b/batman-adv/patches/0013-batman-adv-fix-memory-leak-when-dropping-packet-from.patch
+deleted file mode 100644
+index 0a074b2..0000000
+--- a/batman-adv/patches/0013-batman-adv-fix-memory-leak-when-dropping-packet-from.patch
++++ /dev/null
+@@ -1,33 +0,0 @@
+-From: Andreas Pape <apape@phoenixcontact.com>
+-Date: Fri, 19 May 2017 10:01:42 +0200
+-Subject: [PATCH] batman-adv: fix memory leak when dropping packet from other gateway
+-
+-The skb must be released in the receive handler since b91a2543b4c1
+-("batman-adv: Consume skb in receive handlers"). Just returning NET_RX_DROP
+-will no longer automatically free the memory. This results in memory leaks
+-when unicast packets from other backbones must be dropped because they
+-share a common backbone.
+-
+-Fixes: bfe2a1971f43 ("batman-adv: drop unicast packets from other backbone gw")
+-Signed-off-by: Andreas Pape <apape@phoenixcontact.com>
+-[sven@narfation.org: adjust commit message]
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/a58feb79ed1447e3e83f3b0b1a23779886869f39
+----
+- net/batman-adv/routing.c | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
+-index 5190683424b89d1fa7c86895000bc6656e6a65dd..213cc01ad00392f7cbd4efd9d4796f76691d2d9e 100644
+---- a/net/batman-adv/routing.c
+-+++ b/net/batman-adv/routing.c
+-@@ -988,7 +988,7 @@ int batadv_recv_unicast_packet(struct sk_buff *skb,
+- 				batadv_dbg(BATADV_DBG_BLA, bat_priv,
+- 					   "Dropped unicast pkt received from another backbone gw %pM.\n",
+- 					   orig_addr_gw);
+--				return NET_RX_DROP;
+-+				goto free_skb;
+- 			}
+- 		}
+- 
+diff --git a/batman-adv/patches/0014-batman-adv-handle-race-condition-for-claims-between-.patch b/batman-adv/patches/0014-batman-adv-handle-race-condition-for-claims-between-.patch
+deleted file mode 100644
+index 55b8652..0000000
+--- a/batman-adv/patches/0014-batman-adv-handle-race-condition-for-claims-between-.patch
++++ /dev/null
+@@ -1,67 +0,0 @@
+-From: Andreas Pape <APape@phoenixcontact.com>
+-Date: Mon, 5 Sep 2016 13:20:29 +0200
+-Subject: [PATCH] batman-adv: handle race condition for claims between gateways
+-
+-Consider the following situation which has been found in a test setup:
+-Gateway B has claimed client C and gateway A has the same backbone
+-network as B. C sends a broad- or multicast to B and directly after
+-this packet decides to send another packet to A due to a better TQ
+-value. B will forward the broad-/multicast into the backbone as it is
+-the responsible gw and after that A will claim C as it has been
+-chosen by C as the best gateway. If it now happens that A claims C
+-before it has received the broad-/multicast forwarded by B (due to
+-backbone topology or due to some delay in B when forwarding the
+-packet) we get a critical situation: in the current code A will
+-immediately unclaim C when receiving the multicast due to the
+-roaming client scenario although the position of C has not changed
+-in the mesh. If this happens the multi-/broadcast forwarded by B
+-will be sent back into the mesh by A and we have looping packets
+-until one of the gateways claims C again.
+-In order to prevent this, unclaiming of a client due to the roaming
+-client scenario is only done after a certain time is expired after
+-the last claim of the client. 100 ms are used here, which should be
+-slow enough for big backbones and slow gateways but fast enough not
+-to break the roaming client use case.
+-
+-Acked-by: Simon Wunderlich <sw@simonwunderlich.de>
+-Signed-off-by: Andreas Pape <apape@phoenixcontact.com>
+-[sven@narfation.org: fix conflicts with current version]
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/cbb2ccc101e220b339989d5a51c0ca226ceda792
+----
+- net/batman-adv/bridge_loop_avoidance.c | 20 ++++++++++++++++----
+- 1 file changed, 16 insertions(+), 4 deletions(-)
+-
+-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+-index 41ab4a67a07b264bccdc5bccf73920909ff35c40..1e6e5d4468ad50c221ea5a0d436678d16c5e154f 100644
+---- a/net/batman-adv/bridge_loop_avoidance.c
+-+++ b/net/batman-adv/bridge_loop_avoidance.c
+-@@ -1964,10 +1964,22 @@ bool batadv_bla_tx(struct batadv_priv *bat_priv, struct sk_buff *skb,
+- 		/* if yes, the client has roamed and we have
+- 		 * to unclaim it.
+- 		 */
+--		batadv_handle_unclaim(bat_priv, primary_if,
+--				      primary_if->net_dev->dev_addr,
+--				      ethhdr->h_source, vid);
+--		goto allow;
+-+		if (batadv_has_timed_out(claim->lasttime, 100)) {
+-+			/* only unclaim if the last claim entry is
+-+			 * older than 100 ms to make sure we really
+-+			 * have a roaming client here.
+-+			 */
+-+			batadv_dbg(BATADV_DBG_BLA, bat_priv, "bla_tx(): Roaming client %pM detected. Unclaim it.\n",
+-+				   ethhdr->h_source);
+-+			batadv_handle_unclaim(bat_priv, primary_if,
+-+					      primary_if->net_dev->dev_addr,
+-+					      ethhdr->h_source, vid);
+-+			goto allow;
+-+		} else {
+-+			batadv_dbg(BATADV_DBG_BLA, bat_priv, "bla_tx(): Race for claim %pM detected. Drop packet.\n",
+-+				   ethhdr->h_source);
+-+			goto handled;
+-+		}
+- 	}
+- 
+- 	/* check if it is a multicast/broadcast frame */
+diff --git a/batman-adv/patches/0015-batman-adv-Fix-rx-packet-bytes-stats-on-local-ARP-re.patch b/batman-adv/patches/0015-batman-adv-Fix-rx-packet-bytes-stats-on-local-ARP-re.patch
+deleted file mode 100644
+index 7a5b4fd..0000000
+--- a/batman-adv/patches/0015-batman-adv-Fix-rx-packet-bytes-stats-on-local-ARP-re.patch
++++ /dev/null
+@@ -1,36 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Wed, 5 Apr 2017 16:26:17 +0200
+-Subject: [PATCH] batman-adv: Fix rx packet/bytes stats on local ARP reply
+-
+-The stats are generated by batadv_interface_stats and must not be stored
+-directly in the net_device stats member variable. The batadv_priv
+-bat_counters information is assembled when ndo_get_stats is called. The
+-stats previously stored in net_device::stats is then overwritten.
+-
+-The batman-adv counters must therefore be increased when an ARP packet is
+-answered locally via the distributed arp table.
+-
+-Fixes: 75ca71d858f5 ("batman-adv: Distributed ARP Table - add snooping functions for ARP messages")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/426ddde4ffe0c7345d1a7409bf899f89ddea26d3
+----
+- net/batman-adv/distributed-arp-table.c | 5 +++--
+- 1 file changed, 3 insertions(+), 2 deletions(-)
+-
+-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
+-index 16216532c1d82c09337a9c5e7a4cd5b4ad3ded5d..4d982e63a3ab269e3d3b1e7a9d5f205638051603 100644
+---- a/net/batman-adv/distributed-arp-table.c
+-+++ b/net/batman-adv/distributed-arp-table.c
+-@@ -1064,8 +1064,9 @@ bool batadv_dat_snoop_outgoing_arp_request(struct batadv_priv *bat_priv,
+- 
+- 		skb_new->protocol = eth_type_trans(skb_new,
+- 						   bat_priv->soft_iface);
+--		bat_priv->stats.rx_packets++;
+--		bat_priv->stats.rx_bytes += skb->len + ETH_HLEN + hdr_size;
+-+		batadv_inc_counter(bat_priv, BATADV_CNT_RX);
+-+		batadv_add_counter(bat_priv, BATADV_CNT_RX_BYTES,
+-+				   skb->len + ETH_HLEN + hdr_size);
+- 		bat_priv->soft_iface->last_rx = jiffies;
+- 
+- 		netif_rx(skb_new);
+diff --git a/batman-adv/patches/0016-batman-adv-do-not-add-loop-detection-mac-addresses-t.patch b/batman-adv/patches/0016-batman-adv-do-not-add-loop-detection-mac-addresses-t.patch
+deleted file mode 100644
+index 225cf58..0000000
+--- a/batman-adv/patches/0016-batman-adv-do-not-add-loop-detection-mac-addresses-t.patch
++++ /dev/null
+@@ -1,35 +0,0 @@
+-From: Simon Wunderlich <sw@simonwunderlich.de>
+-Date: Thu, 1 Jun 2017 17:11:24 +0200
+-Subject: [PATCH] batman-adv: do not add loop detection mac addresses to global tt
+-
+-This change has been made for local TT already, add another one for
+-global TT - but only for temporary entries (aka speedy join), to prevent
+-inconsistencies between local and global tables in case an older
+-batman-adv version is still announcing those entries from its local
+-table.
+-
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/1f1b6c0d96129e6445652061d93a7fb1f0476fa3
+----
+- net/batman-adv/translation-table.c | 6 ++++++
+- 1 file changed, 6 insertions(+)
+-
+-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+-index 30ecbfb40adfa6f9f1c777fc93e42df8c39e4581..199da2abe6ab92161ab66faa01fa3d06aeb68c89 100644
+---- a/net/batman-adv/translation-table.c
+-+++ b/net/batman-adv/translation-table.c
+-@@ -4012,6 +4012,12 @@ bool batadv_tt_add_temporary_global_entry(struct batadv_priv *bat_priv,
+- {
+- 	bool ret = false;
+- 
+-+	/* ignore loop detect macs, they are not supposed to be in the tt local
+-+	 * data as well.
+-+	 */
+-+	if (batadv_bla_is_loopdetect_mac(addr))
+-+		return false;
+-+
+- 	if (!batadv_tt_global_add(bat_priv, orig_node, addr, vid,
+- 				  BATADV_TT_CLIENT_TEMP,
+- 				  atomic_read(&orig_node->last_ttvn)))
+diff --git a/batman-adv/patches/0017-batman-adv-Use-default-throughput-value-on-cfg80211-.patch b/batman-adv/patches/0017-batman-adv-Use-default-throughput-value-on-cfg80211-.patch
+deleted file mode 100644
+index 6728e45..0000000
+--- a/batman-adv/patches/0017-batman-adv-Use-default-throughput-value-on-cfg80211-.patch
++++ /dev/null
+@@ -1,35 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Fri, 9 Jun 2017 17:06:50 +0200
+-Subject: [PATCH] batman-adv: Use default throughput value on cfg80211 error
+-
+-A wifi interface should never be handled like an ethernet devices. The
+-parser of the cfg80211 output must therefore skip the ethtool code when
+-cfg80211_get_station returned an error.
+-
+-Fixes: 01b1fe819ee0 ("batman-adv: refactor wifi interface detection")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Reviewed-by: Marek Lindner <mareklindner@neomailbox.ch>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/76ef29071b0050f972a626747d034a494a7195d7
+----
+- net/batman-adv/bat_v_elp.c | 6 ++++--
+- 1 file changed, 4 insertions(+), 2 deletions(-)
+-
+-diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
+-index f2fb2f05b6bf280d2b5fae26ed10288f73345f16..7c54a9291c9eaed75dfdfdfbd200f84c51576cb3 100644
+---- a/net/batman-adv/bat_v_elp.c
+-+++ b/net/batman-adv/bat_v_elp.c
+-@@ -109,8 +109,10 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
+- 			 */
+- 			return 0;
+- 		}
+--		if (!ret)
+--			return sinfo.expected_throughput / 100;
+-+		if (ret)
+-+			goto default_throughput;
+-+
+-+		return sinfo.expected_throughput / 100;
+- 	}
+- 
+- 	/* if not a wifi interface, check if this device provides data via
+diff --git a/batman-adv/patches/0018-batman-adv-Accept-only-filled-wifi-station-info.patch b/batman-adv/patches/0018-batman-adv-Accept-only-filled-wifi-station-info.patch
+deleted file mode 100644
+index 96e52e3..0000000
+--- a/batman-adv/patches/0018-batman-adv-Accept-only-filled-wifi-station-info.patch
++++ /dev/null
+@@ -1,98 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Fri, 9 Jun 2017 17:06:51 +0200
+-Subject: [PATCH] batman-adv: Accept only filled wifi station info
+-
+-The wifi driver can decide to not provide parts of the station info. For
+-example, the expected throughput of the station can be omitted when the
+-used rate control doesn't provide this kind of information.
+-
+-The B.A.T.M.A.N. V implementation must therefore check the filled bitfield
+-before it tries to access the expected_throughput of the returned
+-station_info.
+-
+-Reported-by: Alvaro Antelo <alvaro.antelo@gmail.com>
+-Fixes: 5c3245172c01 ("batman-adv: ELP - compute the metric based on the estimated throughput")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Reviewed-by: Marek Lindner <mareklindner@neomailbox.ch>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/1e26904b364ceffe9ca7d6da7412e70fb2a04178
+----
+- compat-include/linux/nl80211.h      | 14 ++++++++++++++
+- compat-include/uapi/linux/nl80211.h | 16 ++++++++++++++++
+- net/batman-adv/bat_v_elp.c          |  4 ++++
+- 3 files changed, 34 insertions(+)
+- create mode 100644 compat-include/linux/nl80211.h
+- create mode 100644 compat-include/uapi/linux/nl80211.h
+-
+-diff --git a/compat-include/linux/nl80211.h b/compat-include/linux/nl80211.h
+-new file mode 100644
+-index 0000000000000000000000000000000000000000..e6654df8cd67caa52a16a1f709141d7415b9f523
+---- /dev/null
+-+++ b/compat-include/linux/nl80211.h
+-@@ -0,0 +1,14 @@
+-+#ifndef _NET_BATMAN_ADV_COMPAT_LINUX_NL80211_H_
+-+#define _NET_BATMAN_ADV_COMPAT_LINUX_NL80211_H_
+-+
+-+#include <linux/version.h>
+-+#include_next <linux/nl80211.h>
+-+
+-+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0)
+-+
+-+/* Linux 3.15 misses the uapi include.... */
+-+#include <uapi/linux/nl80211.h>
+-+
+-+#endif /* < KERNEL_VERSION(3, 16, 0) */
+-+
+-+#endif	/* _NET_BATMAN_ADV_COMPAT_LINUX_NL80211_H_ */
+-diff --git a/compat-include/uapi/linux/nl80211.h b/compat-include/uapi/linux/nl80211.h
+-new file mode 100644
+-index 0000000000000000000000000000000000000000..06f5625af21360be5718a1a6f7e8949f6739c927
+---- /dev/null
+-+++ b/compat-include/uapi/linux/nl80211.h
+-@@ -0,0 +1,16 @@
+-+#ifndef _NET_BATMAN_ADV_COMPAT_UAPI_LINUX_NL80211_H_
+-+#define _NET_BATMAN_ADV_COMPAT_UAPI_LINUX_NL80211_H_
+-+
+-+#include <linux/version.h>
+-+#include_next <uapi/linux/nl80211.h>
+-+
+-+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
+-+
+-+/* for batadv_v_elp_get_throughput which would have used
+-+ * STATION_INFO_EXPECTED_THROUGHPUT in Linux 4.0.0
+-+ */
+-+#define NL80211_STA_INFO_EXPECTED_THROUGHPUT    28
+-+
+-+#endif /* < KERNEL_VERSION(4, 0, 0) */
+-+
+-+#endif	/* _NET_BATMAN_ADV_COMPAT_UAPI_LINUX_NL80211_H_ */
+-diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
+-index 7c54a9291c9eaed75dfdfdfbd200f84c51576cb3..06b2924f4cb7dde54bab97ad2d28aecd9b1a4ceb 100644
+---- a/net/batman-adv/bat_v_elp.c
+-+++ b/net/batman-adv/bat_v_elp.c
+-@@ -19,6 +19,7 @@
+- #include "main.h"
+- 
+- #include <linux/atomic.h>
+-+#include <linux/bitops.h>
+- #include <linux/byteorder/generic.h>
+- #include <linux/errno.h>
+- #include <linux/etherdevice.h>
+-@@ -29,6 +30,7 @@
+- #include <linux/kernel.h>
+- #include <linux/kref.h>
+- #include <linux/netdevice.h>
+-+#include <linux/nl80211.h>
+- #include <linux/random.h>
+- #include <linux/rculist.h>
+- #include <linux/rcupdate.h>
+-@@ -111,6 +113,8 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
+- 		}
+- 		if (ret)
+- 			goto default_throughput;
+-+		if (!(sinfo.filled & BIT(NL80211_STA_INFO_EXPECTED_THROUGHPUT)))
+-+			goto default_throughput;
+- 
+- 		return sinfo.expected_throughput / 100;
+- 	}
+diff --git a/batman-adv/patches/0019-batman-adv-fix-TT-sync-flag-inconsistencies.patch b/batman-adv/patches/0019-batman-adv-fix-TT-sync-flag-inconsistencies.patch
+deleted file mode 100644
+index ef2e21f..0000000
+--- a/batman-adv/patches/0019-batman-adv-fix-TT-sync-flag-inconsistencies.patch
++++ /dev/null
+@@ -1,209 +0,0 @@
+-From: Linus Lüssing <linus.luessing@c0d3.blue>
+-Date: Thu, 6 Jul 2017 07:02:25 +0200
+-Subject: [PATCH] batman-adv: fix TT sync flag inconsistencies
+-
+-This patch fixes an issue in the translation table code potentially
+-leading to a TT Request + Response storm. The issue may occur for nodes
+-involving BLA and an inconsistent configuration of the batman-adv AP
+-isolation feature. However, since the new multicast optimizations, a
+-single, malformed packet may lead to a mesh-wide, persistent
+-Denial-of-Service, too.
+-
+-The issue occurs because nodes are currently OR-ing the TT sync flags of
+-all originators announcing a specific MAC address via the
+-translation table. When an intermediate node now receives a TT Request
+-and wants to answer this on behalf of the destination node, then this
+-intermediate node now responds with an altered flag field and broken
+-CRC. The next OGM of the real destination will lead to a CRC mismatch
+-and triggering a TT Request and Response again.
+-
+-Furthermore, the OR-ing is currently never undone as long as at least
+-one originator announcing the according MAC address remains, leading to
+-the potential persistency of this issue.
+-
+-This patch fixes this issue by storing the flags used in the CRC
+-calculation on a a per TT orig entry basis to be able to respond with
+-the correct, original flags in an intermediate TT Response for one
+-thing. And to be able to correctly unset sync flags once all nodes
+-announcing a sync flag vanish for another.
+-
+-Fixes: fa614fd04692 ("batman-adv: fix tt_global_entries flags update")
+-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+-Acked-by: Antonio Quartulli <a@unstable.cc>
+-[sw: typo in commit message]
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/382d020fe3fa528b1f65f8107df8fc023eb8cacb
+----
+- net/batman-adv/translation-table.c | 60 ++++++++++++++++++++++++++++++++------
+- net/batman-adv/types.h             |  2 ++
+- 2 files changed, 53 insertions(+), 9 deletions(-)
+-
+-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+-index 199da2abe6ab92161ab66faa01fa3d06aeb68c89..a64003b824e0d0b05f0a9e44ccc32ba0cb3018fc 100644
+---- a/net/batman-adv/translation-table.c
+-+++ b/net/batman-adv/translation-table.c
+-@@ -1549,9 +1549,41 @@ batadv_tt_global_entry_has_orig(const struct batadv_tt_global_entry *entry,
+- 	return found;
+- }
+- 
+-+/**
+-+ * batadv_tt_global_sync_flags - update TT sync flags
+-+ * @tt_global: the TT global entry to update sync flags in
+-+ *
+-+ * Updates the sync flag bits in the tt_global flag attribute with a logical
+-+ * OR of all sync flags from any of its TT orig entries.
+-+ */
+-+static void
+-+batadv_tt_global_sync_flags(struct batadv_tt_global_entry *tt_global)
+-+{
+-+	struct batadv_tt_orig_list_entry *orig_entry;
+-+	const struct hlist_head *head;
+-+	u16 flags = BATADV_NO_FLAGS;
+-+
+-+	rcu_read_lock();
+-+	head = &tt_global->orig_list;
+-+	hlist_for_each_entry_rcu(orig_entry, head, list)
+-+		flags |= orig_entry->flags;
+-+	rcu_read_unlock();
+-+
+-+	flags |= tt_global->common.flags & (~BATADV_TT_SYNC_MASK);
+-+	tt_global->common.flags = flags;
+-+}
+-+
+-+/**
+-+ * batadv_tt_global_orig_entry_add - add or update a TT orig entry
+-+ * @tt_global: the TT global entry to add an orig entry in
+-+ * @orig_node: the originator to add an orig entry for
+-+ * @ttvn: translation table version number of this changeset
+-+ * @flags: TT sync flags
+-+ */
+- static void
+- batadv_tt_global_orig_entry_add(struct batadv_tt_global_entry *tt_global,
+--				struct batadv_orig_node *orig_node, int ttvn)
+-+				struct batadv_orig_node *orig_node, int ttvn,
+-+				u8 flags)
+- {
+- 	struct batadv_tt_orig_list_entry *orig_entry;
+- 
+-@@ -1561,7 +1593,8 @@ batadv_tt_global_orig_entry_add(struct batadv_tt_global_entry *tt_global,
+- 		 * was added during a "temporary client detection"
+- 		 */
+- 		orig_entry->ttvn = ttvn;
+--		goto out;
+-+		orig_entry->flags = flags;
+-+		goto sync_flags;
+- 	}
+- 
+- 	orig_entry = kmem_cache_zalloc(batadv_tt_orig_cache, GFP_ATOMIC);
+-@@ -1573,6 +1606,7 @@ batadv_tt_global_orig_entry_add(struct batadv_tt_global_entry *tt_global,
+- 	batadv_tt_global_size_inc(orig_node, tt_global->common.vid);
+- 	orig_entry->orig_node = orig_node;
+- 	orig_entry->ttvn = ttvn;
+-+	orig_entry->flags = flags;
+- 	kref_init(&orig_entry->refcount);
+- 
+- 	spin_lock_bh(&tt_global->list_lock);
+-@@ -1582,6 +1616,8 @@ batadv_tt_global_orig_entry_add(struct batadv_tt_global_entry *tt_global,
+- 	spin_unlock_bh(&tt_global->list_lock);
+- 	atomic_inc(&tt_global->orig_list_count);
+- 
+-+sync_flags:
+-+	batadv_tt_global_sync_flags(tt_global);
+- out:
+- 	if (orig_entry)
+- 		batadv_tt_orig_list_entry_put(orig_entry);
+-@@ -1703,10 +1739,10 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
+- 		}
+- 
+- 		/* the change can carry possible "attribute" flags like the
+--		 * TT_CLIENT_WIFI, therefore they have to be copied in the
+-+		 * TT_CLIENT_TEMP, therefore they have to be copied in the
+- 		 * client entry
+- 		 */
+--		common->flags |= flags;
+-+		common->flags |= flags & (~BATADV_TT_SYNC_MASK);
+- 
+- 		/* If there is the BATADV_TT_CLIENT_ROAM flag set, there is only
+- 		 * one originator left in the list and we previously received a
+-@@ -1723,7 +1759,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
+- 	}
+- add_orig_entry:
+- 	/* add the new orig_entry (if needed) or update it */
+--	batadv_tt_global_orig_entry_add(tt_global_entry, orig_node, ttvn);
+-+	batadv_tt_global_orig_entry_add(tt_global_entry, orig_node, ttvn,
+-+					flags & BATADV_TT_SYNC_MASK);
+- 
+- 	batadv_dbg(BATADV_DBG_TT, bat_priv,
+- 		   "Creating new global tt entry: %pM (vid: %d, via %pM)\n",
+-@@ -1946,6 +1983,7 @@ batadv_tt_global_dump_subentry(struct sk_buff *msg, u32 portid, u32 seq,
+- 			       struct batadv_tt_orig_list_entry *orig,
+- 			       bool best)
+- {
+-+	u16 flags = (common->flags & (~BATADV_TT_SYNC_MASK)) | orig->flags;
+- 	void *hdr;
+- 	struct batadv_orig_node_vlan *vlan;
+- 	u8 last_ttvn;
+-@@ -1975,7 +2013,7 @@ batadv_tt_global_dump_subentry(struct sk_buff *msg, u32 portid, u32 seq,
+- 	    nla_put_u8(msg, BATADV_ATTR_TT_LAST_TTVN, last_ttvn) ||
+- 	    nla_put_u32(msg, BATADV_ATTR_TT_CRC32, crc) ||
+- 	    nla_put_u16(msg, BATADV_ATTR_TT_VID, common->vid) ||
+--	    nla_put_u32(msg, BATADV_ATTR_TT_FLAGS, common->flags))
+-+	    nla_put_u32(msg, BATADV_ATTR_TT_FLAGS, flags))
+- 		goto nla_put_failure;
+- 
+- 	if (best && nla_put_flag(msg, BATADV_ATTR_FLAG_BEST))
+-@@ -2589,6 +2627,7 @@ static u32 batadv_tt_global_crc(struct batadv_priv *bat_priv,
+- 				unsigned short vid)
+- {
+- 	struct batadv_hashtable *hash = bat_priv->tt.global_hash;
+-+	struct batadv_tt_orig_list_entry *tt_orig;
+- 	struct batadv_tt_common_entry *tt_common;
+- 	struct batadv_tt_global_entry *tt_global;
+- 	struct hlist_head *head;
+-@@ -2627,8 +2666,9 @@ static u32 batadv_tt_global_crc(struct batadv_priv *bat_priv,
+- 			/* find out if this global entry is announced by this
+- 			 * originator
+- 			 */
+--			if (!batadv_tt_global_entry_has_orig(tt_global,
+--							     orig_node))
+-+			tt_orig = batadv_tt_global_orig_entry_find(tt_global,
+-+								   orig_node);
+-+			if (!tt_orig)
+- 				continue;
+- 
+- 			/* use network order to read the VID: this ensures that
+-@@ -2640,10 +2680,12 @@ static u32 batadv_tt_global_crc(struct batadv_priv *bat_priv,
+- 			/* compute the CRC on flags that have to be kept in sync
+- 			 * among nodes
+- 			 */
+--			flags = tt_common->flags & BATADV_TT_SYNC_MASK;
+-+			flags = tt_orig->flags;
+- 			crc_tmp = crc32c(crc_tmp, &flags, sizeof(flags));
+- 
+- 			crc ^= crc32c(crc_tmp, tt_common->addr, ETH_ALEN);
+-+
+-+			batadv_tt_orig_list_entry_put(tt_orig);
+- 		}
+- 		rcu_read_unlock();
+- 	}
+-diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
+-index 5137d859694c28f60cad33325127617c047412ff..7c928938b22dcae681294700252c0ae74378f999 100644
+---- a/net/batman-adv/types.h
+-+++ b/net/batman-adv/types.h
+-@@ -1262,6 +1262,7 @@ struct batadv_tt_global_entry {
+-  * struct batadv_tt_orig_list_entry - orig node announcing a non-mesh client
+-  * @orig_node: pointer to orig node announcing this non-mesh client
+-  * @ttvn: translation table version number which added the non-mesh client
+-+ * @flags: per orig entry TT sync flags
+-  * @list: list node for batadv_tt_global_entry::orig_list
+-  * @refcount: number of contexts the object is used
+-  * @rcu: struct used for freeing in an RCU-safe manner
+-@@ -1269,6 +1270,7 @@ struct batadv_tt_global_entry {
+- struct batadv_tt_orig_list_entry {
+- 	struct batadv_orig_node *orig_node;
+- 	u8 ttvn;
+-+	u8 flags;
+- 	struct hlist_node list;
+- 	struct kref refcount;
+- 	struct rcu_head rcu;
+diff --git a/batman-adv/patches/0020-batman-adv-Avoid-spurious-warnings-from-bat_v-neigh_.patch b/batman-adv/patches/0020-batman-adv-Avoid-spurious-warnings-from-bat_v-neigh_.patch
+deleted file mode 100644
+index 31222a4..0000000
+--- a/batman-adv/patches/0020-batman-adv-Avoid-spurious-warnings-from-bat_v-neigh_.patch
++++ /dev/null
+@@ -1,56 +0,0 @@
+-From: Sven Eckelmann <sven.eckelmann@openmesh.com>
+-Date: Mon, 16 Oct 2017 09:48:03 +0200
+-Subject: [PATCH] batman-adv: Avoid spurious warnings from bat_v neigh_cmp implementation
+-
+-The neighbor compare API implementation for B.A.T.M.A.N. V checks whether
+-the neigh_ifinfo for this neighbor on a specific interface exists. A
+-warning is printed when it isn't found.
+-
+-But it is not called inside a lock which would prevent that this
+-information is lost right before batadv_neigh_ifinfo_get. It must therefore
+-be expected that batadv_v_neigh_(cmp|is_sob) might not be able to get the
+-requested neigh_ifinfo.
+-
+-A WARN_ON for such a situation seems not to be appropriate because this
+-will only flood the kernel logs. The warnings must therefore be removed.
+-
+-Signed-off-by: Sven Eckelmann <sven.eckelmann@openmesh.com>
+-Acked-by: Antonio Quartulli <a@unstable.cc>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/0dee8aba4702f82197ed3428ede6b3884fdff5ca
+----
+- net/batman-adv/bat_v.c | 8 ++++----
+- 1 file changed, 4 insertions(+), 4 deletions(-)
+-
+-diff --git a/net/batman-adv/bat_v.c b/net/batman-adv/bat_v.c
+-index 2e2471ca84e392faac7fd6537bf137161e27542a..80679f17d40170237ce6ad2d800da96bbef79e37 100644
+---- a/net/batman-adv/bat_v.c
+-+++ b/net/batman-adv/bat_v.c
+-@@ -623,11 +623,11 @@ static int batadv_v_neigh_cmp(struct batadv_neigh_node *neigh1,
+- 	int ret = 0;
+- 
+- 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
+--	if (WARN_ON(!ifinfo1))
+-+	if (!ifinfo1)
+- 		goto err_ifinfo1;
+- 
+- 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
+--	if (WARN_ON(!ifinfo2))
+-+	if (!ifinfo2)
+- 		goto err_ifinfo2;
+- 
+- 	ret = ifinfo1->bat_v.throughput - ifinfo2->bat_v.throughput;
+-@@ -649,11 +649,11 @@ static bool batadv_v_neigh_is_sob(struct batadv_neigh_node *neigh1,
+- 	bool ret = false;
+- 
+- 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
+--	if (WARN_ON(!ifinfo1))
+-+	if (!ifinfo1)
+- 		goto err_ifinfo1;
+- 
+- 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
+--	if (WARN_ON(!ifinfo2))
+-+	if (!ifinfo2)
+- 		goto err_ifinfo2;
+- 
+- 	threshold = ifinfo1->bat_v.throughput / 4;
+diff --git a/batman-adv/patches/0021-batman-adv-Always-initialize-fragment-header-priorit.patch b/batman-adv/patches/0021-batman-adv-Always-initialize-fragment-header-priorit.patch
+deleted file mode 100644
+index 943d3a9..0000000
+--- a/batman-adv/patches/0021-batman-adv-Always-initialize-fragment-header-priorit.patch
++++ /dev/null
+@@ -1,30 +0,0 @@
+-From: Sven Eckelmann <sven.eckelmann@open-mesh.com>
+-Date: Wed, 29 Nov 2017 10:25:02 +0100
+-Subject: [PATCH] batman-adv: Always initialize fragment header priority
+-
+-The batman-adv unuicast fragment header contains 3 bits for the priority of
+-the packet. These bits will be initialized when the skb->priority contains
+-a value between 256 and 263. But otherwise, the uninitialized bits from the
+-stack will be used.
+-
+-Fixes: 4f241fcea704 ("batman-adv: Include frame priority in fragment header")
+-Signed-off-by: Sven Eckelmann <sven.eckelmann@open-mesh.com>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/e45a75c82feae23a20d2744ccfde03780ccdafc7
+----
+- net/batman-adv/fragmentation.c | 2 ++
+- 1 file changed, 2 insertions(+)
+-
+-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+-index 70e512111528b0345889cea4ffd0ad5d984a4e6a..28f54887c975905d03372ab8ba5274fd82117651 100644
+---- a/net/batman-adv/fragmentation.c
+-+++ b/net/batman-adv/fragmentation.c
+-@@ -500,6 +500,8 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+- 	 */
+- 	if (skb->priority >= 256 && skb->priority <= 263)
+- 		frag_header.priority = skb->priority - 256;
+-+	else
+-+		frag_header.priority = 0;
+- 
+- 	ether_addr_copy(frag_header.orig, primary_if->net_dev->dev_addr);
+- 	ether_addr_copy(frag_header.dest, orig_node->orig);
+diff --git a/batman-adv/patches/0022-batman-adv-Fix-check-of-retrieved-orig_gw-in-batadv_.patch b/batman-adv/patches/0022-batman-adv-Fix-check-of-retrieved-orig_gw-in-batadv_.patch
+deleted file mode 100644
+index e0b8cc8..0000000
+--- a/batman-adv/patches/0022-batman-adv-Fix-check-of-retrieved-orig_gw-in-batadv_.patch
++++ /dev/null
+@@ -1,31 +0,0 @@
+-From: Sven Eckelmann <sven.eckelmann@openmesh.com>
+-Date: Wed, 29 Nov 2017 10:50:42 +0100
+-Subject: [PATCH] batman-adv: Fix check of retrieved orig_gw in batadv_v_gw_is_eligible
+-
+-The batadv_v_gw_is_eligible function already assumes that orig_node is not
+-NULL. But batadv_gw_node_get may have failed to find the originator. It
+-must therefore be checked whether the batadv_gw_node_get failed and not
+-whether orig_node is NULL to detect this error.
+-
+-Fixes: 80b2d47be2c7 ("batman-adv: B.A.T.M.A.N. V - implement GW selection logic")
+-Signed-off-by: Sven Eckelmann <sven.eckelmann@openmesh.com>
+-Acked-by: Antonio Quartulli <a@unstable.cc>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/c7380677d6167f3798d3ea7a4f1a93663f3c7915
+----
+- net/batman-adv/bat_v.c | 2 +-
+- 1 file changed, 1 insertion(+), 1 deletion(-)
+-
+-diff --git a/net/batman-adv/bat_v.c b/net/batman-adv/bat_v.c
+-index 80679f17d40170237ce6ad2d800da96bbef79e37..2f77e112d4cb4db7b1086715a597ef995054fdc1 100644
+---- a/net/batman-adv/bat_v.c
+-+++ b/net/batman-adv/bat_v.c
+-@@ -815,7 +815,7 @@ static bool batadv_v_gw_is_eligible(struct batadv_priv *bat_priv,
+- 	}
+- 
+- 	orig_gw = batadv_gw_node_get(bat_priv, orig_node);
+--	if (!orig_node)
+-+	if (!orig_gw)
+- 		goto out;
+- 
+- 	if (batadv_v_gw_throughput_get(orig_gw, &orig_throughput) < 0)
+diff --git a/batman-adv/patches/0023-batman-adv-Fix-lock-for-ogm-cnt-access-in-batadv_iv_.patch b/batman-adv/patches/0023-batman-adv-Fix-lock-for-ogm-cnt-access-in-batadv_iv_.patch
+deleted file mode 100644
+index d05e487..0000000
+--- a/batman-adv/patches/0023-batman-adv-Fix-lock-for-ogm-cnt-access-in-batadv_iv_.patch
++++ /dev/null
+@@ -1,42 +0,0 @@
+-From: Sven Eckelmann <sven@narfation.org>
+-Date: Sun, 3 Dec 2017 11:26:45 +0100
+-Subject: [PATCH] batman-adv: Fix lock for ogm cnt access in batadv_iv_ogm_calc_tq
+-
+-The originator node object orig_neigh_node is used to when accessing the
+-bcast_own(_sum) and real_packet_count information. The access to them has
+-to be protected with the spinlock in orig_neigh_node.
+-
+-But the function uses the lock in orig_node instead. This is incorrect
+-because they could be two different originator node objects.
+-
+-Fixes: f14416760b62 ("batman-adv: protect bit operations to count OGMs with spinlock")
+-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+-
+-Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/9a3b195410e5d2f285cdf0073fef721ff8d9474d
+----
+- net/batman-adv/bat_iv_ogm.c | 4 ++--
+- 1 file changed, 2 insertions(+), 2 deletions(-)
+-
+-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+-index 7bfd0d7ef49df8e699f91e2b827b824aa3657c0d..56b4984d738e87098c24213d4aa277a2ef948fec 100644
+---- a/net/batman-adv/bat_iv_ogm.c
+-+++ b/net/batman-adv/bat_iv_ogm.c
+-@@ -1214,7 +1214,7 @@ static bool batadv_iv_ogm_calc_tq(struct batadv_orig_node *orig_node,
+- 	orig_node->last_seen = jiffies;
+- 
+- 	/* find packet count of corresponding one hop neighbor */
+--	spin_lock_bh(&orig_node->bat_iv.ogm_cnt_lock);
+-+	spin_lock_bh(&orig_neigh_node->bat_iv.ogm_cnt_lock);
+- 	if_num = if_incoming->if_num;
+- 	orig_eq_count = orig_neigh_node->bat_iv.bcast_own_sum[if_num];
+- 	neigh_ifinfo = batadv_neigh_ifinfo_new(neigh_node, if_outgoing);
+-@@ -1224,7 +1224,7 @@ static bool batadv_iv_ogm_calc_tq(struct batadv_orig_node *orig_node,
+- 	} else {
+- 		neigh_rq_count = 0;
+- 	}
+--	spin_unlock_bh(&orig_node->bat_iv.ogm_cnt_lock);
+-+	spin_unlock_bh(&orig_neigh_node->bat_iv.ogm_cnt_lock);
+- 
+- 	/* pay attention to not get a value bigger than 100 % */
+- 	if (orig_eq_count > neigh_rq_count)
+-- 
+2.16.1
+

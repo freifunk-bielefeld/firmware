@@ -1,7 +1,7 @@
-From b9c2aeced65f097395cf2168f6f0f63b8a09f109 Mon Sep 17 00:00:00 2001
+From 42fb8286b8a33512d205552e6428be0fae22d9f5 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
-Date: Wed, 8 Nov 2017 14:46:41 +0100
-Subject: [PATCH 2/3] alfred-update-to-2017.3
+Date: Sun, 28 Jan 2018 21:44:53 +0100
+Subject: [PATCH 2/3] alfred: update to version 2017.4
 
 ---
  alfred/Makefile            |  9 +++------
@@ -9,7 +9,7 @@ Subject: [PATCH 2/3] alfred-update-to-2017.3
  2 files changed, 20 insertions(+), 18 deletions(-)
 
 diff --git a/alfred/Makefile b/alfred/Makefile
-index 379c0fe..6dc795c 100644
+index 379c0fe..7be04a6 100644
 --- a/alfred/Makefile
 +++ b/alfred/Makefile
 @@ -7,14 +7,11 @@
@@ -21,12 +21,12 @@ index 379c0fe..6dc795c 100644
 -#
  PKG_NAME:=alfred
 -PKG_VERSION:=2016.5
-+PKG_VERSION:=2017.3
++PKG_VERSION:=2017.4
  PKG_RELEASE:=0
 -PKG_MD5SUM:=e03d422ed3b5a162b90e8af13389523f
 -PKG_HASH:=37b3babf7f37643cf296be11fb82d5730cf441a5a56f72fba96edae9f149c9d2
-+PKG_MD5SUM:=f1a80c7fcd9b1d2c211ca1b2fe504a24
-+PKG_HASH:=c2963523ba86746476db9bbd820b7956761b362d5daa392d9ed471786eaf0208
++PKG_MD5SUM:=b7bf677b28ad25df2cbc5c0fadaa204c
++PKG_HASH:=c4ea1afa75628667693d14ee95f08c9943b9f0001b8c442c9a2974f26c75dc88
  
  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
  PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
@@ -72,5 +72,5 @@ index 8648caf..f9fe586 100644
  end
  
 -- 
-2.15.0
+2.16.1
 
