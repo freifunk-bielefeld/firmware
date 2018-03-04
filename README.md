@@ -18,7 +18,7 @@ Build commands for the console:
 ```bash
     git clone git://git.lede-project.org/source.git
     cd source
-    git reset --hard 6b6578feec74dfe1f5767c573d75ba08cc57c885
+    git reset --hard 01d7a5d7dee247c40a7ecfbd7ba221640752e76f
     
     ./scripts/feeds update -a
     ./scripts/feeds install -a

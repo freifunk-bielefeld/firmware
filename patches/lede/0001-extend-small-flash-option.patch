@@ -1,7 +1,7 @@
-From fe45117af09d99cd95fd9b487553a72a7113bec1 Mon Sep 17 00:00:00 2001
+From 3527f703adcee0c1bf20b2b39408571c848026fd Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sun, 29 Jan 2017 22:10:01 +0100
-Subject: [PATCH 01/29] extend small flash option
+Subject: [PATCH 01/69] extend small flash option
 
 ---
  config/Config-build.in  | 2 ++
@@ -9,10 +9,10 @@ Subject: [PATCH 01/29] extend small flash option
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/config/Config-build.in b/config/Config-build.in
-index e0889fcccf..5bf7176fda 100644
+index 36efac82ad..d21d4454ee 100644
 --- a/config/Config-build.in
 +++ b/config/Config-build.in
-@@ -137,6 +137,7 @@ menu "Global build settings"
+@@ -138,6 +138,7 @@ menu "Global build settings"
  
  	config STRIP_KERNEL_EXPORTS
  		bool "Strip unnecessary exports from the kernel image"
@@ -20,7 +20,7 @@ index e0889fcccf..5bf7176fda 100644
  		help
  		  Reduces kernel size by stripping unused kernel exports from the kernel
  		  image.  Note that this might make the kernel incompatible with any kernel
-@@ -144,6 +145,7 @@ menu "Global build settings"
+@@ -145,6 +146,7 @@ menu "Global build settings"
  
  	config USE_MKLIBS
  		bool "Strip unnecessary functions from libraries"
@@ -29,7 +29,7 @@ index e0889fcccf..5bf7176fda 100644
  		  Reduces libraries to only those functions that are necessary for using all
  		  selected packages (including those selected as <M>).  Note that this will
 diff --git a/config/Config-kernel.in b/config/Config-kernel.in
-index a4c46f55ae..8033c6e193 100644
+index f65e3dab40..1c7c7ef1fc 100644
 --- a/config/Config-kernel.in
 +++ b/config/Config-kernel.in
 @@ -107,7 +107,7 @@ config KERNEL_DEBUG_KERNEL
@@ -42,5 +42,5 @@ index a4c46f55ae..8033c6e193 100644
  	help
  	  This will compile your kernel and modules with debug information.
 -- 
-2.15.0
+2.16.2
 

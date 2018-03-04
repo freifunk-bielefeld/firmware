@@ -1,0 +1,26 @@
+From 9184d9a4bc53c919ca1cf169d53c77e2619d9d31 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Thu, 19 Jan 2017 00:03:32 +0100
+Subject: [PATCH 09/69] rules.mk: export STAGING_DIR_HOSTPKG
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ rules.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rules.mk b/rules.mk
+index b678e9bea5..16cab67d5d 100644
+--- a/rules.mk
++++ b/rules.mk
+@@ -225,7 +225,7 @@ else
+ endif
+ 
+ export PATH:=$(TARGET_PATH)
+-export STAGING_DIR STAGING_DIR_HOST
++export STAGING_DIR STAGING_DIR_HOST STAGING_DIR_HOSTPKG
+ export SH_FUNC:=. $(INCLUDE_DIR)/shell.sh;
+ 
+ PKG_CONFIG:=$(STAGING_DIR_HOST)/bin/pkg-config
+-- 
+2.16.2
+

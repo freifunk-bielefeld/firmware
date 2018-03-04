@@ -1,0 +1,51 @@
+From f3729eeb8d2132464f02b754bf5d1504a1c2ecee Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Wed, 24 Jan 2018 13:51:45 +0100
+Subject: [PATCH 65/69] vxlan: add options to enable and disable UDP checksums
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ package/network/config/vxlan/Makefile       | 2 +-
+ package/network/config/vxlan/files/vxlan.sh | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/package/network/config/vxlan/Makefile b/package/network/config/vxlan/Makefile
+index a471d4e90c..aeceb9cd88 100644
+--- a/package/network/config/vxlan/Makefile
++++ b/package/network/config/vxlan/Makefile
+@@ -1,7 +1,7 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=vxlan
+-PKG_VERSION:=1
++PKG_VERSION:=2
+ PKG_LICENSE:=GPL-2.0
+ 
+ include $(INCLUDE_DIR)/package.mk
+diff --git a/package/network/config/vxlan/files/vxlan.sh b/package/network/config/vxlan/files/vxlan.sh
+index 27ccd8f127..d055d41edc 100755
+--- a/package/network/config/vxlan/files/vxlan.sh
++++ b/package/network/config/vxlan/files/vxlan.sh
+@@ -15,8 +15,8 @@ vxlan_generic_setup() {
+ 
+ 	local link="$cfg"
+ 
+-	local port vid ttl tos mtu macaddr zone
+-	json_get_vars port vid ttl tos mtu macaddr zone
++	local port vid ttl tos mtu macaddr zone rxcsum txcsum
++	json_get_vars port vid ttl tos mtu macaddr zone rxcsum txcsum
+ 
+ 
+ 	proto_init_update "$link" 1
+@@ -36,6 +36,8 @@ vxlan_generic_setup() {
+ 	[ -n "$port" ] && json_add_int port "$port"
+ 	[ -n "$vid" ] && json_add_int id "$vid"
+ 	[ -n "$macaddr" ] && json_add_string macaddr "$macaddr"
++	[ -n "$rxcsum" ] && json_add_boolean rxcsum "$rxcsum"
++	[ -n "$txcsum" ] && json_add_boolean txcsum "$txcsum"
+ 	json_close_object
+ 
+ 	proto_close_tunnel
+-- 
+2.16.2
+

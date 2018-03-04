@@ -1,0 +1,186 @@
+From 2051c0804b3b2a57594cc31fe7e88cbdace4eba1 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Fri, 21 Apr 2017 20:37:58 +0200
+Subject: [PATCH 16/69] procd: remove procd-nand package
+
+We always want to support staged upgrades now, so it's better to include
+upgraded into the main package. /lib/upgrade/nand.sh is moved to
+base-files.
+
+The procd-nand-firstboot package is removed for now, it may return later
+as a separate package.
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ package/base-files/Makefile                        | 13 +++++--
+ .../files => base-files/files/lib/upgrade}/nand.sh |  0
+ package/system/procd/Makefile                      | 41 ++--------------------
+ package/system/procd/files/nand-preinit.sh         | 21 -----------
+ 4 files changed, 14 insertions(+), 61 deletions(-)
+ rename package/{system/procd/files => base-files/files/lib/upgrade}/nand.sh (100%)
+ delete mode 100644 package/system/procd/files/nand-preinit.sh
+
+diff --git a/package/base-files/Makefile b/package/base-files/Makefile
+index 3fcf20a844..0813f2ae76 100644
+--- a/package/base-files/Makefile
++++ b/package/base-files/Makefile
+@@ -19,7 +19,9 @@ PKG_BUILD_DEPENDS:=usign/host
+ PKG_LICENSE:=GPL-2.0
+ 
+ # Extend depends from version.mk
+-PKG_CONFIG_DEPENDS += CONFIG_SIGNED_PACKAGES CONFIG_TARGET_INIT_PATH CONFIG_TARGET_PREINIT_DISABLE_FAILSAFE
++PKG_CONFIG_DEPENDS += \
++	CONFIG_SIGNED_PACKAGES CONFIG_TARGET_INIT_PATH CONFIG_TARGET_PREINIT_DISABLE_FAILSAFE \
++	CONFIG_NAND_SUPPORT
+ 
+ include $(INCLUDE_DIR)/package.mk
+ 
+@@ -31,7 +33,7 @@ endif
+ define Package/base-files
+   SECTION:=base
+   CATEGORY:=Base system
+-  DEPENDS:=+netifd +libc +procd +jsonfilter +SIGNED_PACKAGES:usign +SIGNED_PACKAGES:lede-keyring +fstools +fwtool
++  DEPENDS:=+netifd +libc +procd +jsonfilter +SIGNED_PACKAGES:usign +SIGNED_PACKAGES:lede-keyring +NAND_SUPPORT:ubi-utils +fstools +fwtool
+   TITLE:=Base filesystem for Lede
+   URL:=http://openwrt.org/
+   VERSION:=$(PKG_RELEASE)-$(REVISION)
+@@ -107,9 +109,16 @@ ifdef CONFIG_SIGNED_PACKAGES
+   endef
+ endif
+ 
++ifeq ($(CONFIG_NAND_SUPPORT),)
++  define Package/base-files/nand-support
++	rm -f $(1)/lib/upgrade/nand.sh
++  endef
++endif
++
+ define Package/base-files/install
+ 	$(CP) ./files/* $(1)/
+ 	$(Package/base-files/install-key)
++	$(Package/base-files/nand-support)
+ 	if [ -d $(GENERIC_PLATFORM_DIR)/base-files/. ]; then \
+ 		$(CP) $(GENERIC_PLATFORM_DIR)/base-files/* $(1)/; \
+ 	fi
+diff --git a/package/system/procd/files/nand.sh b/package/base-files/files/lib/upgrade/nand.sh
+similarity index 100%
+rename from package/system/procd/files/nand.sh
+rename to package/base-files/files/lib/upgrade/nand.sh
+diff --git a/package/system/procd/Makefile b/package/system/procd/Makefile
+index 5b92d79332..879f03f54b 100644
+--- a/package/system/procd/Makefile
++++ b/package/system/procd/Makefile
+@@ -22,11 +22,9 @@ PKG_LICENSE_FILES:=
+ 
+ PKG_MAINTAINER:=John Crispin <john@phrozen.org>
+ 
+-PKG_FLAGS:=nonshared
+-
+ PKG_CONFIG_DEPENDS:= \
+ 	CONFIG_TARGET_INIT_PATH CONFIG_KERNEL_SECCOMP \
+-	CONFIG_NAND_SUPPORT CONFIG_PROCD_SHOW_BOOT CONFIG_PROCD_ZRAM_TMPFS \
++	CONFIG_PROCD_SHOW_BOOT CONFIG_PROCD_ZRAM_TMPFS \
+ 	CONFIG_KERNEL_NAMESPACES CONFIG_PACKAGE_procd-ujail CONFIG_PACKAGE_procd-seccomp
+ 
+ include $(INCLUDE_DIR)/package.mk
+@@ -42,7 +40,7 @@ TARGET_LDFLAGS += $(if $(CONFIG_USE_GLIBC),-lrt)
+ define Package/procd
+   SECTION:=base
+   CATEGORY:=Base system
+-  DEPENDS:=+ubusd +ubus +libjson-script +ubox +USE_GLIBC:librt +libubox +libubus +NAND_SUPPORT:procd-nand
++  DEPENDS:=+ubusd +ubus +libjson-script +ubox +USE_GLIBC:librt +libubox +libubus
+   TITLE:=OpenWrt system process manager
+ endef
+ 
+@@ -60,20 +58,6 @@ define Package/procd-seccomp
+   TITLE:=OpenWrt process seccomp helper + utrace
+ endef
+ 
+-define Package/procd-nand
+-  SECTION:=utils
+-  CATEGORY:=Utilities
+-  DEPENDS:=@NAND_SUPPORT +ubi-utils
+-  TITLE:=OpenWrt sysupgrade nand helper
+-endef
+-
+-define Package/procd-nand-firstboot
+-  SECTION:=utils
+-  CATEGORY:=Utilities
+-  DEPENDS:=procd-nand
+-  TITLE:=OpenWrt firstboot nand helper
+-endef
+-
+ define Package/procd/config
+ menu "Configuration"
+ 	depends on PACKAGE_procd
+@@ -91,10 +75,6 @@ endmenu
+ endef
+ 
+ 
+-ifeq ($(CONFIG_NAND_SUPPORT),y)
+-  CMAKE_OPTIONS += -DBUILD_UPGRADED=1
+-endif
+-
+ ifeq ($(CONFIG_PROCD_SHOW_BOOT),y)
+   CMAKE_OPTIONS += -DSHOW_BOOT_ON_CONSOLE=1
+ endif
+@@ -113,7 +93,7 @@ CMAKE_OPTIONS += -DSECCOMP_SUPPORT=$(SECCOMP) -DUTRACE_SUPPORT=$(SECCOMP)
+ define Package/procd/install
+ 	$(INSTALL_DIR) $(1)/sbin $(1)/etc $(1)/lib/functions
+ 
+-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{init,procd,askfirst,udevtrigger} $(1)/sbin/
++	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{init,procd,askfirst,udevtrigger,upgraded} $(1)/sbin/
+ 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsetlbf.so $(1)/lib
+ 	$(INSTALL_BIN) ./files/reload_config $(1)/sbin/
+ 	$(INSTALL_DATA) ./files/hotplug*.json $(1)/etc/
+@@ -133,21 +113,6 @@ define Package/procd-seccomp/install
+ 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libpreload-trace.so $(1)/lib
+ endef
+ 
+-define Package/procd-nand/install
+-	$(INSTALL_DIR) $(1)/sbin $(1)/lib/upgrade
+-
+-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/upgraded $(1)/sbin/
+-	$(INSTALL_DATA) ./files/nand.sh $(1)/lib/upgrade/
+-endef
+-
+-define Package/procd-nand-firstboot/install
+-	$(INSTALL_DIR) $(1)/lib/preinit
+-
+-	$(INSTALL_DATA) ./files/nand-preinit.sh $(1)/lib/preinit/60-nand-firstboot.sh
+-endef
+-
+ $(eval $(call BuildPackage,procd))
+ $(eval $(call BuildPackage,procd-ujail))
+ $(eval $(call BuildPackage,procd-seccomp))
+-$(eval $(call BuildPackage,procd-nand))
+-$(eval $(call BuildPackage,procd-nand-firstboot))
+diff --git a/package/system/procd/files/nand-preinit.sh b/package/system/procd/files/nand-preinit.sh
+deleted file mode 100644
+index cf596246d1..0000000000
+--- a/package/system/procd/files/nand-preinit.sh
++++ /dev/null
+@@ -1,21 +0,0 @@
+-#!/bin/sh
+-# Copyright (C) 2014 OpenWrt.org
+-
+-nand_takeover() {
+-	. /lib/upgrade/nand.sh
+-	mtd=$(find_mtd_index "$CI_UBIPART")
+-	esize=$(cat /proc/mtd | grep mtd$mtd |cut -d" " -f 3)
+-	[ -z "$esize" ] && return 1
+-	esize=$(printf "%d" 0x$esize)
+-	for a in `seq 0 64`; do
+-		mtd -o $((a * esize)) -l 400 dump /dev/mtd$mtd > /tmp/takeover.hdr
+-		MAGIC=$(dd if=/tmp/takeover.hdr bs=1 skip=261 count=5 2> /dev/null)
+-		SIZE=$(printf "%d" 0x$(dd if=/tmp/takeover.hdr bs=4 count=1 2> /dev/null | hexdump -v -n 4 -e '1/1 "%02x"'))
+-		[ "$MAGIC" = "ustar" ] && {
+-			mtd -o $((a * esize)) -l $((SIZE + 4)) dump /dev/mtd$mtd | dd bs=1 skip=4 of=/tmp/sysupgrade.tar
+-			nand_do_upgrade_stage2 /tmp/sysupgrade.tar
+-		}
+-	done
+-}
+-
+-boot_hook_add initramfs nand_takeover
+-- 
+2.16.2
+

@@ -1,0 +1,40 @@
+From f58644b6b4023248d4c2d1392a8adf79462fd064 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Thu, 19 Jan 2017 00:04:09 +0100
+Subject: [PATCH 10/69] gettext-full: fix to use $STAGING_DIR_HOSTPKG instead
+ of $STAGING_DIR/host
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ package/libs/gettext-full/patches/000-relocatable.patch | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/package/libs/gettext-full/patches/000-relocatable.patch b/package/libs/gettext-full/patches/000-relocatable.patch
+index c14be72836..a95c268f5b 100644
+--- a/package/libs/gettext-full/patches/000-relocatable.patch
++++ b/package/libs/gettext-full/patches/000-relocatable.patch
+@@ -5,8 +5,8 @@
+  # Set variables
+  # - gettext_datadir     directory where the data files are stored.
+ -prefix="@prefix@"
+-+if [ -n "$STAGING_DIR" ]; then
+-+	prefix="$STAGING_DIR/host"
+++if [ -n "$STAGING_DIR_HOSTPKG" ]; then
+++	prefix="$STAGING_DIR_HOSTPKG"
+ +else
+ +	prefix="@prefix@"
+ +fi
+@@ -20,8 +20,8 @@
+  # Set variables
+  # - gettext_datadir     directory where the data files are stored.
+ -prefix="@prefix@"
+-+if [ -n "$STAGING_DIR" ]; then
+-+	prefix="$STAGING_DIR/host"
+++if [ -n "$STAGING_DIR_HOSTPKG" ]; then
+++	prefix="$STAGING_DIR_HOSTPKG"
+ +else
+ +	prefix="@prefix@"
+ +fi
+-- 
+2.16.2
+
