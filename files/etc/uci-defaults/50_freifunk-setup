@@ -505,6 +505,7 @@ update_065_to_100()
 	cp /rom/etc/protocols /etc/protocols
 	cp /rom/etc/inittab /etc/inittab
 	cp /rom/etc/modules.d/73-sched /etc/modules.d/73-sched
+	cp /rom/etc/config/fastd /etc/config/fastd
 
 	# Fix /etc/config/system
 	if [ "$(uci get system.@system[0].hostname)" = "OpenWrt" ]; then
