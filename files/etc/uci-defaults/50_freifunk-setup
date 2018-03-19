@@ -128,7 +128,7 @@ initial_local_node_setup()
 {
 	echo "(I) Setup IPv4 local node access."
 
-	local addr4="10.26.127.0/32"
+	local addr4="10.26.127.0/18"
 	local addr6="$(uci get network.globals.ula_prefix)"
 
 	uci add_list network.freifunk.ipaddr="$addr4"
