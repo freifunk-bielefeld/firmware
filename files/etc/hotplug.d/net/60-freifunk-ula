@@ -3,6 +3,9 @@
 # Make sure that the ULA address is based on the
 # MAC address of the primary batman-adv interface.
 
+# This makes the node reachable by the MAC address
+# used by batman-adv and therefore the map.
+
 if [ "$INTERFACE" = "bat0" ]; then
 	. /lib/ff_shared.sh
 
