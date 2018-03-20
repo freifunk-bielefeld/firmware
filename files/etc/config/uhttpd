@@ -1,25 +1,25 @@
 
 config uhttpd freifunk
 	list listen_http 80
-	option home /www/freifunk
+	option home '/www/freifunk'
 	option rfc1918_filter 1
-	option cgi_prefix /cgi-bin
+	option cgi_prefix '/cgi-bin'
 	option script_timeout 60
 	option network_timeout 30
 	option tcp_keepalive 1
-	option config "_"
+	option config '_'
 
 config uhttpd lan
 	list listen_https 443
-	option home /www/lan
+	option home '/www/lan'
 	option rfc1918_filter 1
-	option cert /etc/uhttpd.crt
-	option key /etc/uhttpd.key
+	option cert '/etc/uhttpd.crt'
+	option key '/etc/uhttpd.key'
 	option cgi_prefix /cgi-bin
 	option script_timeout 60
 	option network_timeout 30
 	option tcp_keepalive 1
-	option config "/etc/httpd.conf"
+	option config '/etc/httpd.conf'
 
 
 # Certificate defaults for px5g key generator
@@ -32,4 +32,4 @@ config cert px5g
 	option bits 2048
 
 	# Common name
-	option commonname LEDE
+	option commonname 'LEDE'
