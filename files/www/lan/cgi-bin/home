@@ -10,7 +10,13 @@ addr() {
 }
 
 default_gw() {
-	ip -$1 route list 0/0 dev $2 2> /dev/null | awk '{print($3); exit(0)}'
+	local prefix
+	if [ $1 -eq 6 ]; then
+		prefix="::/0"
+	else
+		prefix="0/0"
+	fi
+	ip -$1 route list $prefix dev $2 2> /dev/null | awk '{print($3); exit(0)}'
 }
 
 memory_usage_percent() {
