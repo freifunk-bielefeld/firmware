@@ -6,7 +6,7 @@
 }
 
 body {
-	font: 13px verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
+	font: 13px verdana, arial, 'Bitstream Vera Sans', helvetica, sans-serif;
 	line-height: 1.7em;
 }
 
@@ -35,7 +35,7 @@ h3 {
 .header h1 {
 	margin: 0.2em 0;
 	font-size: 3em;
-	font-weight: 300;s
+	font-weight: 300;
 }
 
 .header h2 {
@@ -47,7 +47,7 @@ h3 {
 
 .pure-g {
 	text-align: center;
-	font-family: FreeSans,Arimo,"Droid Sans",Helvetica,Arial,sans-serif;
+	font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
 	display: -webkit-flex;
 	-webkit-flex-flow: row wrap;
 }
@@ -63,7 +63,7 @@ h3 {
 	border: 0;
 	border-bottom: 1px solid #b7b7b7;
 	padding: 0.5em;
-	box-shadow: 0 1px 1px rgba(0,0,0, 0.10);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.10);
 	text-align: left;
 	background: #2d3e50;
 	position: fixed;
@@ -117,7 +117,7 @@ h3 {
 }
 
 a {
-    color: #23527c;
+	color: #23527c;
 	text-decoration: none;
 }
 
@@ -138,10 +138,9 @@ a {
 }
 
 .content {
-	margin: 0 auto;
 	padding: 0 2em;
 	max-width: 800px;
-	margin-bottom: 50px;
+	margin: 0 auto 50px;
 	line-height: 1.6em;
 	color: #444;
 }
