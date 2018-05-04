@@ -73,7 +73,6 @@ function add_list_entry(device, ifname) {
 
 /*
 * Create a selection of wireless devices
-* represented as the first interface found.
 */
 function init() {
 	send('/cgi-bin/misc', {func:'wifi_status'}, function(data) {
@@ -83,9 +82,11 @@ function init() {
 			if (interfaces.length == 0) {
 				continue;
 			}
-			var ifname = interfaces[0].ifname ;
-			if (typeof(ifname) == 'string') {
-				add_list_entry(device, ifname);
+			for (var interface in interfaces) {
+				var ifname = interfaces[interface].ifname;
+				if (typeof(ifname) == 'string') {
+					add_list_entry(device, ifname);
+				}
 			}
 		}
 		tr();
