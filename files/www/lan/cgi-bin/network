@@ -21,7 +21,7 @@ case "$GET_func" in
 		echo "	option model '$model'"
 	;;
 	*)
-		echo "Fehler: Unbekanntes Kommando: '$GET_func'"
+		echo "Error: Unknown command: '$GET_func'"
 	;;
 esac
 %>

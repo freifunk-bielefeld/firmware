@@ -12,10 +12,10 @@ function apply()
 	$('p2').value = "";
 
 	if (p1 != p2) {
-		setText('msg', "Die Passw&ouml;rter sind nicht identisch.");
+		setText('msg', "The passwords are not identical.");
 		return;
 	} else {
-		setText('msg', "Das Passwort wird ge&auml;ndert. Bitte die Seite neu laden.");
+		setText('msg', "The password will be changed. Please reload the page.");
 	}
 
 	send("/cgi-bin/password", { func : "set_password", pass1 : p1, pass2 : p2 }, function(data) {

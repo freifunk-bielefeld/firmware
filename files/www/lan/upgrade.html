@@ -11,38 +11,38 @@
 <body onload="init();">
 
 <fieldset>
-	<legend>Aktuelle Firmware suchen</legend>
+	<legend>Search current firmware</legend>
 	<div>
-		<button type="button" onclick="lookup_upgrade()">Suchen</button>
-		<button type="button" onclick="lookup_and_apply_upgrade()">Suchen und Aktualisieren</button>
+		<button type="button" onclick="lookup_upgrade()">Search</button>
+		<button type="button" onclick="lookup_and_apply_upgrade()">Search and update</button>
 	</div>
-	<div><br />Die Freifunk-Community bietet neue Firmware-Versionen für die Router an.<br />Diese enthalten Fehlerbereinigungen und neue Funktionen.</div>
+	<div><br />The Freifunk community offers new firmware versions for the routers.<br />These contain bug fixes and new features.</div>
 </fieldset>
 <fieldset>
-	<legend>Router Zurücksetzen</legend>
+	<legend>Reset the router</legend>
 	<div>
-		<button type="button" onclick="restore_firmware()">Zurücksetzen</button>
+		<button type="button" onclick="restore_firmware()">Reset to default</button>
 	</div>
-	<div><br />Alle Einstellungen werden zurückgesetzt und der Router startet neu.</div>
+	<div><br />All settings will reset and the router will restart.</div>
 </fieldset>
 <fieldset>
-	<legend>Manuelles Update</legend>
+	<legend>Manual update</legend>
 	<div id="selected_image"></div>
 	<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 	<div class="radio_option">
 		<label>
 			<input type="file" id="import_file" name="firmware" onchange="$('selected_image').innerHTML=this.value.replace(/^.*[\\\/](.*)$/, '$1');" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
 			<input type="hidden" name="func" value="apply_firmware" />
-			<button type="button" onclick="$('import_file').click()">Image Ausw&auml;hlen</button>
-			<button type="submit">Senden</button>
+			<button type="button" onclick="$('import_file').click()">Select image</button>
+			<button type="submit">Send</button>
 		</label>
 		<div style="margin-left: 2em;">
 			<input type="checkbox" name="keep_config" value="yes" checked>
-			<label>Konfiguration beibehalten</label>
+			<label>Maintain configuration</label>
 		</div>
 	</div>
 	</form>
-	<div><br />Hier kann ein Freifunk-Image verwendet werden (*-sysupgrade.bin) oder die Firmware des Routerherstellers.</div>
+	<div><br />Here a free-wireless image can be used (* -sysupgrade.bin) or the firmware of the router manufacturer.</div>
 </fieldset>
 
 

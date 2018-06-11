@@ -26,7 +26,7 @@ function adv_apply()
 function adv_toggle(e)
 {
 	adv_mode = !adv_mode;
-	e.textContent = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
+	e.textContent = adv_mode ? "Extended: An" : "Extended: Aus";
 	adv_apply();
 }
 
@@ -89,7 +89,7 @@ function preselect() {
 }
 
 function reboot() {
-	if (!confirm("Neustart durchf\xFChren?")) return;
+	if(!confirm("Restart the router?")) return;
 	send("/cgi-bin/misc", { func : "reboot" }, function(data) {
 		setText('msg', data);
 	});
@@ -116,20 +116,20 @@ function logout() {
 
 <ul id="globalnav">
 	<li><a href="home.html" id="first">Home</a></li>
-	<li><a href="settings.html">Einstellungen</a></li>
-	<li><a href="network.html">Netzwerk</a></li>
+	<li><a href="settings.html">Settings</a></li>
+	<li><a href="network.html">Network</a></li>
 	<li><a href="wifiscan.html">WLAN-Scan</a></li>
 	<li><a href="upgrade.html">Upgrade</a></li>
-	<li><a href="password.html">Passwort</a></li>
-	<li><a href="#" onclick="reboot()">Neustart</a></li>
+	<li><a href="password.html">Password</a></li>
+	<li><a href="#" onclick="reboot()">Restart</a></li>
 	<li><a href="#" onclick="logout()">Logout</a></li>
-	<li><a href="#" onclick="adv_toggle(this)">Erweitert: Aus</a></li>
+	<li><a href="#" onclick="adv_toggle(this)">Extended: Aus</a></li>
 	<li class="icon">
 		<a href="#" style="font-size:15px;" onclick="$('globalnav').classList.toggle('responsive')">☰</a>
 	</li>
 </ul>
 <br>
-<pre id="msg" tabindex="-1">Um diese Seite anzuzeigen, muss JavaScript aktiviert sein.</pre>
+<pre id="msg" tabindex="-1">To view this page, JavaScript must be enabled.</pre>
 
 <div id="help"></div>
 

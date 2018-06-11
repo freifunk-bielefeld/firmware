@@ -4,7 +4,7 @@ function init() {
 }
 
 function restore_firmware() {
-	if (!confirm("Sollen alle Einstellungen zur\xFCckgesetzt werden?")) {
+	if (!confirm("Should all settings be reset?")) {
 		return;
 	}
 
@@ -14,18 +14,18 @@ function restore_firmware() {
 }
 
 function lookup_upgrade() {
-	setText('msg', 'Versuche Updateserver zu erreichen. Bitte warten ...');
+	setText('msg', 'Attempts to reach update servers. Please wait ...');
 	send("/cgi-bin/upgrade", { func : 'lookup_upgrade' }, function(text) {
 		setText('msg', text);
 	});
 }
 
 function lookup_and_apply_upgrade() {
-	if (!confirm("Soll ein Update durchgef\xFChrt werden?")) {
+	if (!confirm("Should an update be carried out?")) {
 		return;
 	}
 
-	setText('msg', 'Versuche Updateserver zu erreichen. Bitte warten ...');
+	setText('msg', 'Attempts to reach update servers. Please wait ...');
 	send("/cgi-bin/upgrade", { func : 'lookup_and_apply_upgrade' }, function(text) {
 		setText('msg', text);
 	});

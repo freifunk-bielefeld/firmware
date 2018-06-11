@@ -80,38 +80,38 @@ function appendSetting(p, path, value, mode)
 	switch (name)
 	{
 	case "country":
-		b = append_input(p, "Land", id, value);
+		b = append_input(p, "Country", id, value);
 		addClass(b.lastChild, "adv_disable");
 		break;
 	case "channel":
 		var channels = [1,2,3,4,5,6,7,8,9,10,11,12];
 		if (value > 35) channels = [36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140];
-		b = append_selection(p, "Kanal", id, value, channels);
+		b = append_selection(p, "Channel", id, value, channels);
 		addClass(b.lastChild, "adv_disable");
-		addHelpText(b, "Der Kanal auf dem die WLAN-Karte sendet. Bitte denk daran, dass sich Router nicht sehen k\xf6nnen wenn beide Seiten auf unterschiedlichen Kan\xe4len funken. Der erste Kanal ist daher zu empfehlen.");
+		addHelpText(b, "The channel on which the wireless card is sending. Please keep in mind that routers can not see if both sides are transmitting on different channels. The first channel is therefore recommended.");
 		break;
 	case "txpower":
 		value = value ? value : 'undefined';
-		b = append_selection(p, "Sendeleistung", id, value, txpower_choices);
-		addHelpText(b, "Die Sendeleistung in dBm. Strahlungsleistung = Sendeleistung - Kabeld\xe4mpfung + Antennengewinn.\nAndere Werte m\xfcssen manuell eingetragen werden. Achtung! Beim Tausch der Antennen muss die Sendeleistung entsprechend angepasst werden!");
+		b = append_selection(p, "Transmission power", id, value, txpower_choices);
+		addHelpText(b, "The transmission power in dBm. Radiation power = transmission power - cable attenuation + antenna gain. \nOther values must be entered manually. Attention! When replacing the antennas, the transmission power must be adjusted accordingly!");
 		addClass(b, "adv_hide");
 		break;
 	case "mode":
 		if (!inArray(mode, ["wan", "none"]))
 			return;
-		b = append_selection(p, "Modus", id, value, [["Client", "sta"],["AccessPoint", "ap"]]);
-		addHelpText(b, "In einem anderen Netz anmelden (Client) oder das Anmelden anderer Ger\xe4te zulassen (AccessPoint).");
+		b = append_selection(p, "Mode", id, value, [["Client", "sta"],["AccessPoint", "ap"]]);
+		addHelpText(b, "Log into another network (client) or allow other devices to log in (accesspoint).");
 		break;
 	case "encryption":
 		if (!inArray(mode, ["wan", "lan", "none"]))
 			return;
-		b = append_selection(p, "Verschl\xfcsselung", id, value, [["Keine", "none"],["WPA", "psk"], ["WPA2", "psk2"]]);
+		b = append_selection(p, "Encryption\xfcsselung", id, value, [["None", "none"],["WPA", "psk"], ["WPA2", "psk2"]]);
 		break;
 	case "key":
 		if (!inArray(mode, ["wan", "lan", "none"]))
 			return;
-		b = append_input(p, "Passwort", id, value);
-		addInputCheck(b.lastChild, /^[\S]{8,32}$/, "Bitte nur ein Passwort aus mindestens acht sichbaren Zeichen verwenden.");
+		b = append_input(p, "Password", id, value);
+		addInputCheck(b.lastChild, /^[\S]{8,32}$/, "Please use only one password from at least eight visible characters.");
 		break;
 	case "hwmode":
 		if (value == "11g") {
@@ -121,7 +121,7 @@ function appendSetting(p, path, value, mode)
 		} else {
 			value = "802." + value;
 		}
-		b = append_label(p, "Modus", value);
+		b = append_label(p, "Mode", value);
 		break;
 	case "mesh_id":
 		b = append_input(p, "Mesh ID", id, value);
@@ -138,13 +138,13 @@ function appendSetting(p, path, value, mode)
 /*
 	case "macaddr":
 		if (path[1] != "freifunk") return;
-		b = append_input(p, "MAC-Adresse", id, value);
+		b = append_input(p, "MAC-Address", id, value);
 		addInputCheck(b.lastChild,/^((([0-9a-f]{2}:){5}([0-9a-f]{2}))|)$/, "Ung\xfcltige MAC-Adresse.");
-		addHelpText(b, "Die MAC-Adresse identifiziert den Knoten. Bei einem leeren Wert w\xe4hlt der Router selber einen aus.");
+		addHelpText(b, "The MAC-address identifies the node. If the value is empty, the router will select one itself.");
 		break;
 */
 	case "mesh_on_wan":
-		b = append_radio(p, "Mesh-On-WAN", id, value, [["Ja", "1"], ["Nein", "0"]]);
+		b = append_radio(p, "Mesh-On-WAN", id, value, [["Yes", "1"], ["No", "0"]]);
 		onDesc(b, "INPUT", function(e) {
 			e.onclick = function(e) {
 				var src = (e.target || e.srcElement);
@@ -159,10 +159,10 @@ function appendSetting(p, path, value, mode)
 				}
 			}
 		});
-		addHelpText(b, "Diese Funktion schickt die Mesh-Pakete auf das Netz am WAN-Anschluss. Bitte beachten, dass diese Broadcast-Pakete im WAN-Netz befindliche WLAN APs negativ beeinflusst.");
+		addHelpText(b, "This feature sends the mesh packets to the network at the WAN port. Please note that these broadcast packages have a negative impact on WAN network WLAN APs.");
 		break;
 	case "disabled":
-		b = append_radio(p, "Deaktiviert", id, value, [["Ja", "1"], ["Nein", "0"]]);
+		b = append_radio(p, "Disabled", id, value, [["Yes", "1"], ["No", "0"]]);
 		break;
 	default:
 		return;
@@ -236,7 +236,7 @@ function rebuild_assignment()
 	hide(root);
 
 	var fs = append_section(root, "Anschl\xfcsse");
-	addHelpText(fs, "Einzelne Anschl\xfcsse des Router die nicht als Teil des Switches oder WLANS zu identifizieren sind.");
+	addHelpText(fs, "Individual ports of the router that are not identified as part of the switch or WLAN.");
 
 	var ignore = ["local-node", "fastd_mesh", "bat0", "lo"];
 	var ifnames = [];
@@ -412,14 +412,14 @@ function getWifiInterfaceState(dev, wid)  {
 	var obj = wifi_status[dev];
 
 	if (!obj.up) {
-		return "Inaktiv";
+		return "Inactive";
 	}
 
 	var interfaces = obj['interfaces'];
 	for (var i = 0; interfaces && i < interfaces.length; i++) {
 		var e = interfaces[i];
 		if (e.section == wid) {
-			return ('ifname' in e) ? "Aktiv" : "Fehler";
+			return ('ifname' in e) ? "active" : "error";
 		}
 	}
 	return "Unbekannt";
@@ -463,11 +463,11 @@ function rebuild_wifi()
 		for (var sid in obj)
 			appendSetting(fs, ['wireless', dev, sid], obj[sid]);
 
-		var lan_help = "<b>LAN</b>: Aktiviert ein privates, passwortgesch\xfctztes WLAN-Netz mit Zugang zum eigenen Internetanschluss.";
-		var freifunk_help = "<b>Freifunk</b>: Der WLAN-Zugang zum Freifunk-Netz.";
-		var mesh_help = "<b>Mesh</b>: Das WLAN-Netz \xfcber das die Router untereinander kommunizieren.";
-		var wan_help = "<b>WAN</b>: Erm\xf6glicht den Internetzugang eines anderen, herk\xf6mmlichen Routers zu nutzen.";
-		var mode_checks = append_check(fs, "Modus", dev+"_mode", info.modes, [["LAN","lan", lan_help], ["Freifunk","freifunk", freifunk_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
+		var lan_help = "<b>LAN</b>: Enables a private, password-protected Wi-Fi network with access to its own Internet connection.";
+		var freifunk_help = "<b>Freifunk</b>: The WLAN access to the free-wireless network.";
+		var mesh_help = "<b>Mesh</b>: The Wi-Fi network which the routers communicate with each other.";
+		var wan_help = "<b>WAN</b>: Enables Internet access from another, traditional router.";
+		var mode_checks = append_check(fs, "Mode", dev+"_mode", info.modes, [["LAN","lan", lan_help], ["Freifunk","freifunk", freifunk_help], ["Mesh", "mesh", mesh_help], ["WAN", "wan", wan_help]]);
 		var parent = append(fs, "div");
 
 		// Print wireless interfaces.
@@ -483,7 +483,7 @@ function rebuild_wifi()
 
 			var state = getWifiInterfaceState(dev, wid);
 			var b = append_label(entry, "Status", state);
-			addHelpText(b, "Funktioniert das Interface? Manche WLAN-Treiber k\xf6nnen z.B kein AccessPoint und Mesh gleichzeitig.");
+			addHelpText(b, "Does the interface work? For example, some wireless drivers may not be able to access point and mesh at the same time.");
 
 			if (mode == "none") {
 				append_button(entry, "L\xf6schen", function() {
@@ -502,7 +502,7 @@ function rebuild_wifi()
 
 				if (src.checked) {
 					if (obj.type != "mac80211")
-						alert("Diese Betriebsweise wird von diesem Chipsatz nicht unterst\xfctzt!");
+						alert("This mode of operation is not supported by this chipset!");
 					addWifiSection(dev, mode);
 				} else {
 					delWifiSection(dev, mode);
@@ -769,7 +769,7 @@ function rebuild_switches()
 {
 	var root = $("switches");
 	removeChilds(root);
-	addHelpText(root, "Konfiguration der Anschl\xfcsse/Ports am Router. Bitte darauf achten, dass der Zugang auf diese Seite normalerweise nur \xfcber auf 'LAN' gestellte Anschl\xfcsse m\xf6glich ist.");
+	addHelpText(root, "Configuration of the ports / ports on the router. Please make sure that access to this page is normally only possible via 'LAN' port.");
 
 	config_foreach(uci.network, "switch", function(sid, sobj) {
 		var swinfo = collect_switch_info(sobj.name);
@@ -778,7 +778,7 @@ function rebuild_switches()
 		if (!swinfo.map) {
 			var p = append(sfs, 'div');
 			var label = append(p, "label");
-			label.textContent = "Keine Port-Konfiguration m\xf6glich.";
+			label.textContent = "No port configuration possible.";
 		} else for (var i in swinfo.map) {
 			var name = swinfo.map[i][0];
 			var port = swinfo.map[i][1];
@@ -828,7 +828,7 @@ function checkWifiWan() {
 function save_data()
 {
 	if (!checkWifiWan()) {
-		alert("WAN \xfcber WLAN funktioniert nur wenn dieser als einziger Anschluss f\xfcr WAN verwendet wird! Bitte korrigieren.");
+		alert("WAN over WLAN works only if this is used as only connection for WAN! Please correct.");
 		return;
 	}
 

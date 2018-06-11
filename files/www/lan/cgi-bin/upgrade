@@ -8,7 +8,7 @@ case "${GET_func:-$POST_func}" in
 		keep="$POST_keep_config"
 
 		if [ ! -f "$path" ]; then
-			echo "Fehler: Datei nicht gefunden."
+			echo "Error: File not found."
 			exit 1
 		fi
 
@@ -18,7 +18,7 @@ case "${GET_func:-$POST_func}" in
 			args="-n"
 		fi
 
-		echo "Starte Update ..."
+		echo "Start update ...."
 
 		#apply lede or vendor image
 		sysupgrade $args $path
@@ -30,13 +30,13 @@ case "${GET_func:-$POST_func}" in
 		autoupdater -f 2>&1
 	;;
 	restore_firmware)
-		echo "Alle &#196;nderungen werden zurückgesetzt ..."
+		echo "All changes will be reset ..."
 		echo y | firstboot
-		echo "Router wird neugestartet..."
+		echo "Router is restarting ..."
 		reboot
 	;;
 	*)
-		echo "Fehler: Unbekannter Befehl: '$GET_func'"
+		echo "Error: Unknown command: '$GET_func'"
 	;;
 esac
 %>
