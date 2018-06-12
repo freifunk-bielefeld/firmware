@@ -1,7 +1,7 @@
 
 /* common */
 
-* { margin:0; padding:0; }
+* { margin: 0; padding: 0; }
 
 a { text-decoration: none; }
 
@@ -89,14 +89,18 @@ fieldset fieldset {
 	width: auto;
 }
 
-fieldset > * {
-	margin: 0.1em 0;
+fieldset * {
+	padding: 0.1em 0;
 	clear: both;
 }
 
 fieldset div > * {
 	display: inline-block;
 	vertical-align: middle;
+}
+
+fieldset div label {
+	margin-left: 0.1em;
 }
 
 input {
@@ -107,6 +111,10 @@ input {
 	font: bold 0.95em arial, sans-serif;
 	-moz-border-radius: 0.4em;
 	-khtml-border-radius: 0.4em;
+}
+
+input[type='radio'], input[type='checkbox'] {
+	margin-right: 0.3em;
 }
 
 input:hover, input:focus {
@@ -126,7 +134,7 @@ button {
 	border: 1px solid #888;
 	border-radius: 4px;
 
-	font-size: 12px;
+	font-size: 16px;
 	font-weight: bold;
 	text-align: center;
 
@@ -202,6 +210,14 @@ button {
 	text-decoration: none;
 	transition: 0.3s;
 	font-size: 17px;
+}
+
+#globalnav fieldset > div {
+	margin: 0.3em 0;
+}
+
+#globalnav li select {
+	margin: 0.6em;
 }
 
 #globalnav li a:hover {

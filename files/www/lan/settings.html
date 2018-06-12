@@ -11,21 +11,21 @@
 <body onload="init();">
 
 <fieldset>
-	<legend>General Settings</legend>
+	<legend class="tr_general_settings"></legend>
 	<span id="general"></span>
 </fieldset>
 <fieldset>
-	<legend>Announce contents</legend>
+	<legend class="tr_announce"></legend>
 	<span id="resource"></span>
-	<div><br />Each router can display an entry on the status page of all other routers. This should help to find content in the free radio network.</div>
+	<div class="tr_announce_help"></div>
 </fieldset>
 <fieldset>
-	<legend>Bandwidth Control</legend>
+	<legend class="tr_bandwidth_ctl"></legend>
 	<span id="traffic"></span>
-	<div><br />The internet bandwidth on the WAN used for the free-wireless network can be limited here.</div>
+	<div class="tr_bandwidth_help"></div>
 </fieldset>
 
-<button type="button" onclick="save_data()">Save</button>
+<button type="button" onclick="save_data()" class="tr_save"></button>
 
 </body>
 </html>

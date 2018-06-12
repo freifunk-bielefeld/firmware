@@ -11,38 +11,38 @@
 <body onload="init();">
 
 <fieldset>
-	<legend>Search current firmware</legend>
+	<legend class="tr_search_firmware"></legend>
 	<div>
-		<button type="button" onclick="lookup_upgrade()">Search</button>
-		<button type="button" onclick="lookup_and_apply_upgrade()">Search and update</button>
+		<button type="button" onclick="lookup_upgrade()" class="tr_search"></button>
+		<button type="button" onclick="lookup_and_apply_upgrade()" class="tr_search_update"></button>
 	</div>
-	<div><br />The Freifunk community offers new firmware versions for the routers.<br />These contain bug fixes and new features.</div>
+	<div class="tr_updates_help"></div>
 </fieldset>
 <fieldset>
-	<legend>Reset the router</legend>
+	<legend class="tr_reset_router"></legend>
 	<div>
-		<button type="button" onclick="restore_firmware()">Reset to default</button>
+		<button type="button" onclick="restore_firmware()" class="tr_reset"></button>
 	</div>
-	<div><br />All settings will reset and the router will restart.</div>
+	<div class="tr_reset_router_help"></div>
 </fieldset>
 <fieldset>
-	<legend>Manual update</legend>
-	<div id="selected_image"></div>
-	<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
+	<legend class="tr_manual_update"></legend>
+	<div id="selected_image" style="display: none;"></div>
 	<div class="radio_option">
+		<form action="/cgi-bin/upgrade" enctype="multipart/form-data" method="post">
 		<label>
 			<input type="file" id="import_file" name="firmware" onchange="$('selected_image').innerHTML=this.value.replace(/^.*[\\\/](.*)$/, '$1');" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
 			<input type="hidden" name="func" value="apply_firmware" />
-			<button type="button" onclick="$('import_file').click()">Select image</button>
-			<button type="submit">Send</button>
+			<button type="button" onclick="$('import_file').click()" class="tr_select_image"></button>
+			<button type="submit" class="tr_send"></button>
 		</label>
 		<div style="margin-left: 2em;">
 			<input type="checkbox" name="keep_config" value="yes" checked>
-			<label>Maintain configuration</label>
+			<label class="tr_keep_config"></label>
 		</div>
+		</form>
 	</div>
-	</form>
-	<div><br />Here a free-wireless image can be used (* -sysupgrade.bin) or the firmware of the router manufacturer.</div>
+	<div class="tr_use_image_help"></div>
 </fieldset>
 
 

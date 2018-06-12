@@ -11,13 +11,13 @@
 <body onload="init();">
 
 <fieldset id="wifiscan">
-	<legend>WLAN-Scan</legend>
+	<legend class="tr_wifi_scan"></legend>
 	<div>
 		<select id="wifiscan_selection"></select>
-		<button type="button" onclick="wifi_scan()">Start Scan</button>
+		<button type="button" onclick="wifi_scan()" class="tr_start_scan"></button>
 	</div>
 	<table id="wifiscan_table" style="display: none">
-		<tr><th>Name</th><th>BSS-ID</th><th>Channel</th><th>Signal</th><th>Type</th></tr>
+		<tr><th class="tr_name"></th><th class="tr_bssid"></th><th class="tr_channel"></th><th class="tr_signal"></th><th class="tr_type"></th></tr>
 		<tbody id="wifiscan_tbody"></tbody>
 	</table>
 </fieldset>

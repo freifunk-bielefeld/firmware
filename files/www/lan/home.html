@@ -11,54 +11,54 @@
 <body onload="init();">
 
 <fieldset>
-<legend id="system">System</legend>
-<div><label>Name: </label><span id="name">?</span></div>
-<div><label>Model: </label><span id="model">?</span></div>
-<div><label>MAC-Address: </label><span id="mac">?</span></div>
-<div><label>Known nodes: </label><span id="node_count">?</span></div>
-<div><label>Neighboring nodes: </label><span id="neigh_count">?</span></div>
-<div><label>VPN Server: </label><span id="vpn_server">?</span></div>
-<div><label>Running time: </label><span id="uptime">?</span></div>
-<div><label>CPU: </label><span id="load">?</span></div>
-<div><label>RAM: </label><span id="memory_usage">?</span></div>
-<div><label>Flash: </label><span id="rootfs_usage">?</span></div>
-<div><label>System: </label><span id="uname">?</span></div>
-<div><label>Time of day: </label><span id="date">?</span></div>
+<legend id="system" class="tr_system"></legend>
+<div><label class="tr_name"></label><span id="name">?</span></div>
+<div><label class="tr_model"></label><span id="model">?</span></div>
+<div><label class="tr_mac_address"></label><span id="mac">?</span></div>
+<div><label class="tr_all_nodes"></label><span id="node_count">?</span></div>
+<div><label class="tr_neighbor_nodes"></label><span id="neigh_count">?</span></div>
+<div><label class="tr_vpn_server"></label><span id="vpn_server">?</span></div>
+<div><label class="tr_uptime"></label><span id="uptime">?</span></div>
+<div><label class="tr_cpu"></label><span id="load">?</span></div>
+<div><label class="tr_ram"></label><span id="memory_usage">?</span></div>
+<div><label class="tr_flash"></label><span id="rootfs_usage">?</span></div>
+<div><label class="tr_usage"></label><span id="uname">?</span></div>
+<div><label class="tr_time"></label><span id="date">?</span></div>
 </fieldset>
 
 <fieldset>
-<legend id="freifunk">Network: Freifunk</legend>
-<div><label>User: </label><span id="freifunk_user_count">?</span></div>
-<div><label>Speed: </label><span id="freifunk_rx_speed">?</span>↓ <span id="freifunk_tx_speed">?</span>↑</div>
-<div><label>Data Transfered: </label><span id="freifunk_rx_data">?</span>↓ <span id="freifunk_tx_data">?</span>↑</div>
-<div><label>IPv4 Address: </label><span id="freifunk_addr4">?</span></div>
-<div><label>IPv6 Addresses: </label><span id="freifunk_addr6">?</span></div>
+<legend id="freifunk" class="tr_net_freifunk"></legend>
+<div><label class="tr_users"></label><span id="freifunk_user_count">?</span></div>
+<div><label class="tr_speed"></label><span id="freifunk_rx_speed">?</span>↓ <span id="freifunk_tx_speed">?</span>↑</div>
+<div><label class="tr_transferred"></label><span id="freifunk_rx_data">?</span>↓ <span id="freifunk_tx_data">?</span>↑</div>
+<div><label class="tr_ipv4_addr"></label><span id="freifunk_addr4">?</span></div>
+<div><label class="tr_ipv6_addr"></label><span id="freifunk_addr6">?</span></div>
 </fieldset>
 
 <fieldset>
-<legend id="lan">Network: LAN</legend>
-<div><label>User: </label><span id="lan_user_count">?</span></div>
-<div><label>Speed: </label><span id="lan_rx_speed">?</span>↓ <span id="lan_tx_speed">?</span>↑</div>
-<div><label>Data Transfered: </label><span id="lan_rx_data">?</span>↓ <span id="lan_tx_data">?</span>↑</div>
-<div><label>IPv4 Address: </label><span id="lan_addr4">?</span></div>
-<div><label>IPv6 Addresses: </label><span id="lan_addr6">?</span></div>
+<legend id="lan" class="tr_net_lan"></legend>
+<div><label class="tr_users"></label><span id="lan_user_count">?</span></div>
+<div><label class="tr_speed"></label><span id="lan_rx_speed">?</span>↓ <span id="lan_tx_speed">?</span>↑</div>
+<div><label class="tr_transferred"></label><span id="lan_rx_data">?</span>↓ <span id="lan_tx_data">?</span>↑</div>
+<div><label class="tr_ipv4_addr"></label><span id="lan_addr4">?</span></div>
+<div><label class="tr_ipv6_addr"></label><span id="lan_addr6">?</span></div>
 </fieldset>
 
 <fieldset>
-<legend id="wan">Network: WAN</legend>
-<div><label>Internet available: </label><span id="has_internet">?</span></div>
-<div><label>Speed: </label><span id="wan_rx_speed">?</span>↓ <span id="wan_tx_speed">?</span>↑</div>
-<div><label>Data Transfered: </label><span id="wan_rx_data">?</span>↓ <span id="wan_tx_data">?</span>↑</div>
-<div><label>IPv4 Address </label><span id="wan_addr4">?</span></div>
-<div><label>IPv6 Addressen: </label><span id="wan_addr6">?</span></div>
+<legend id="wan" class="tr_net_wan"></legend>
+<div><label class="tr_has_internet"></label><span id="has_internet">?</span></div>
+<div><label class="tr_speed"></label><span id="wan_rx_speed">?</span>↓ <span id="wan_tx_speed">?</span>↑</div>
+<div><label class="tr_transferred"></label><span id="wan_rx_data">?</span>↓ <span id="wan_tx_data">?</span>↑</div>
+<div><label class="tr_ipv4_addr"></label><span id="wan_addr4">?</span></div>
+<div><label class="tr_ipv6_addr"></label><span id="wan_addr6">?</span></div>
 </fieldset>
 
 <fieldset>
 <legend id="software">Software</legend>
-<div><label>Firmware Version: </label><span id="firmware_version">?</span></div>
-<div><label>LEDE Version: </label><span id="lede_version">?</span></div>
-<div><label>Batman-Adv Version: </label><span id="batman_version">?</span></div>
-<div><label>Fastd Version: </label><span id="fastd_version">?</span></div>
+<div><label class="tr_firmware_version"></label><span id="firmware_version">?</span></div>
+<div><label class="tr_os_version"></label><span id="lede_version">?</span></div>
+<div><label class="tr_mesh_version"></label><span id="batman_version">?</span></div>
+<div><label class="tr_vpn_version"></label><span id="fastd_version">?</span></div>
 </fieldset>
 
 </body>
