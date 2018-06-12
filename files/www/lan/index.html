@@ -26,7 +26,7 @@ function adv_apply()
 function adv_toggle(e)
 {
 	adv_mode = !adv_mode;
-	e.innerHTML = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
+	e.textContent = adv_mode ? "Erweitert: An" : "Erweitert: Aus";
 	adv_apply();
 }
 

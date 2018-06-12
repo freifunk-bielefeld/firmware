@@ -778,7 +778,7 @@ function rebuild_switches()
 		if (!swinfo.map) {
 			var p = append(sfs, 'div');
 			var label = append(p, "label");
-			label.innerHTML = "Keine Port-Konfiguration m\xf6glich.";
+			label.textContent = "Keine Port-Konfiguration m\xf6glich.";
 		} else for (var i in swinfo.map) {
 			var name = swinfo.map[i][0];
 			var port = swinfo.map[i][1];
@@ -792,7 +792,7 @@ function rebuild_switches()
 
 			var p = append(sfs, 'div');
 			var label = append(p, "label");
-			label.innerHTML = name + ":";
+			label.textContent = name + ":";
 
 			var select = append_options(p, "port_"+port, mode, net_options);
 			select.onchange = getChangeHandler(port, mode, swinfo);
@@ -840,7 +840,7 @@ function save_data()
 		var data = toUCI(obj);
 		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data },
 			function(data) {
-				$('msg').innerHTML = data;
+				$('msg').textContent = data;
 				$('msg').focus();
 				init();
 			}

@@ -6,7 +6,7 @@ function fetch(regex, data)
 }
 
 function append_td(tr, value) {
-	append(tr, 'td').innerHTML = value ? value : "?";
+	append(tr, 'td').textContent = value ? value : "?";
 }
 
 function signalToQuality(signal) {
@@ -67,7 +67,7 @@ function add_list_entry(device, ifname) {
 	var list = $('wifiscan_selection');
 	var o = append(list, 'option');
 	o.style.paddingRight = "1em";
-	o.innerHTML = device;
+	o.textContent = device;
 	o.value = ifname;
 }
 

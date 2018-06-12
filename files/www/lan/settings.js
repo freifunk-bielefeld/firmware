@@ -212,7 +212,7 @@ function save_data()
 		var data = toUCI(obj);
 		send("/cgi-bin/misc", { func : "set_config_file", name : name, data : data },
 			function(data) {
-				$('msg').innerHTML = data;
+				$('msg').textContent = data;
 				$('msg').focus();
 				init();
 			}

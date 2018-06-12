@@ -65,12 +65,12 @@ function addHelpText(elem, text) {
 		elem.onmouseover = function(e) {
 			help.style.top = (e.clientY-20)+"px";
 			help.style.left = (e.clientX+80)+"px";
-			help.innerHTML = text;
+			help.textContent = text;
 			show(help);
 		};
 
 		elem.onmouseout = function() {
-			help.innerHTML = "";
+			help.textContent = "";
 			hide(help);
 		};
 	}
@@ -296,7 +296,7 @@ function append_section(parent, title, id)
 {
 	var fs = append(parent, "fieldset");
 	var lg = append(fs, "legend");
-	lg.innerHTML = title;
+	lg.textContent = title;
 	if (id) fs.id = id;
 	return fs;
 }
@@ -305,7 +305,7 @@ function append_button(parent, text, onclick)
 {
 	var button = append(parent, 'button');
 	button.type = 'button';
-	button.innerHTML = text;
+	button.textContent = text;
 	button.onclick = onclick;
 	return button;
 }
@@ -313,8 +313,8 @@ function append_button(parent, text, onclick)
 function append_label(parent, title, value)
 {
 	var div = append(parent, 'div');
-	append(div, 'label').innerHTML = title + ":";
-	append(div, 'span').innerHTML = value;
+	append(div, 'label').textContent = title + ":";
+	append(div, 'span').textContent = value;
 	return div;
 }
 
@@ -335,7 +335,7 @@ function append_options(parent, name, selected, choices)
 		var option = append(select, 'option');
 		option.value = choice_value;
 		option.selected = (choice_value == selected) ? "selected" : "";
-		option.innerHTML= choice_text;
+		option.textContent= choice_text;
 	}
 	return select;
 }
@@ -346,7 +346,7 @@ function append_selection(parent, title, name, selected, choices)
 	var label = append(p, 'label');
 
 	p.className = "select_option";
-	label.innerHTML = title + ":";
+	label.textContent = title + ":";
 
 	append_options(p, name, selected, choices);
 	return p;
@@ -360,7 +360,7 @@ function append_input(parent, title, name, value)
 	var label = append(div, 'label');
 	var input = append(div, 'input');
 
-	label.innerHTML = title + ":";
+	label.textContent = title + ":";
 	input.value = (typeof value == "undefined") ? "" : value;
 	input.name = name;
 	input.type = "text";
@@ -387,7 +387,7 @@ function _selection(type, parent, title, name, selected, choices)
 	var span = append(p, 'span');
 
 	p.className = "radio_option";
-	label.innerHTML = title + ":";
+	label.textContent = title + ":";
 
 	for (var i in choices) {
 		var s = (typeof choices[i] == 'string');
@@ -408,7 +408,7 @@ function _selection(type, parent, title, name, selected, choices)
 			input.checked = "checked"
 		}
 
-		label.innerHTML = " " + choice_text;
+		label.textContent = " " + choice_text;
 
 		if (choice_text == "_") {
 			hide(div);
