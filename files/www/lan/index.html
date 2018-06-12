@@ -89,7 +89,7 @@ function preselect() {
 }
 
 function reboot() {
-	if(!confirm("Restart the router?")) return;
+	if (!confirm("Restart the router?")) return;
 	send("/cgi-bin/misc", { func : "reboot" }, function(data) {
 		setText('msg', data);
 	});
