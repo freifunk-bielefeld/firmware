@@ -128,24 +128,23 @@ Array.prototype.forEach.call(neighbors, function(el) {
 		var neigh_data = JSON.parse(xhr.responseText);
 
 		// set node name
-		if('name' in neigh_data) {
+		if ('name' in neigh_data) {
 			el.textContent = neigh_data.name;
 		}
 
 		// add connection quality
 		var qual = -1;
-		if('links' in neigh_data && 'links' in own_data) {
+		if ('links' in neigh_data && 'links' in own_data) {
 			Array.prototype.forEach.call(neigh_data.links, function(neigh_link) {
 				Array.prototype.forEach.call(own_data.links, function(own_link) {
-					if(own_link.dmac == neigh_link.smac) {
+					if (own_link.dmac == neigh_link.smac) {
 						qual = Math.max(qual, own_link.qual, neigh_link.qual);
 					}
 				});
 			});
 		}
 
-		if(qual >= 0)
-		{
+		if (qual >= 0) {
 			var e = document.createTextNode(" (" + (100. * qual / 255.).toFixed(0) + "%)");
 			el.parentNode.appendChild(e);
 		}
