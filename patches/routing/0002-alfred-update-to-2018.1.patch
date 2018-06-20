@@ -1,0 +1,48 @@
+From deebc6b087a2ecac98a266a45d230fe477fa4ad2 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sat, 16 Jun 2018 20:15:05 +0200
+Subject: [PATCH 2/3] alfred: update to 2018.1
+
+---
+ alfred/Makefile          | 5 ++---
+ alfred/files/alfred.init | 4 ++--
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/alfred/Makefile b/alfred/Makefile
+index 7ff77ef..a0d25a5 100644
+--- a/alfred/Makefile
++++ b/alfred/Makefile
+@@ -8,10 +8,9 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=alfred
+-PKG_VERSION:=2018.0
++PKG_VERSION:=2018.1
+ PKG_RELEASE:=0
+-PKG_MD5SUM:=a0610a85cd55b9b1ff30b726dc5c455f
+-PKG_HASH:=c7cfeb6defc46fe0da9d620afcf89ee36ddc034e31dee58cc239b757a77cf257
++PKG_HASH:=808fa6acf65c7a8e26405115176a5587157f746108cbe5dd974788eb05416d76
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+diff --git a/alfred/files/alfred.init b/alfred/files/alfred.init
+index 4c9a9e1..8293436 100755
+--- a/alfred/files/alfred.init
++++ b/alfred/files/alfred.init
+@@ -46,11 +46,11 @@ wait_for_ll_address()
+ 	for i in $(seq $timeout); do
+ 		# We look for
+ 		# - the link-local address (starts with fe80)
+-		# - without tentative flag (bit 0x40 in the flags field; the first char of the flags field begins 38 columns after the fe80 prefix
++		# - without tentative flag (bit 0x40 in the flags field; the first char of the fifth field is evaluated)
+ 		# - on interface $iface
+ 		if awk '
+ 			BEGIN { RET=1 }
+-			/^fe80.{37} [012389ab]/ { if ($6 == "'"$iface"'") RET=0 }
++			$1 ~ /^fe80/ && $5 ~ /^[012389ab]/ && $6 == "'"$iface"'" { RET=0 }
+ 			END { exit RET }
+ 		' /proc/net/if_inet6; then
+ 			return
+-- 
+2.17.1
+

@@ -1,0 +1,31 @@
+From e04243078f9018d9b1536fad38a724f1e1e9a4da Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <mschiffer@universe-factory.net>
+Date: Mon, 9 Apr 2018 18:51:57 +0200
+Subject: [PATCH 76/84] kernel: change dependency of kmod-ebtables-* on
+ kmod-ebtables to selecting
+
+Non-selecting dependencies easily lead to Kconfig failures due to recursive
+dependencies. We hit such an issue in Gluon; the easiest fix is to make
+the dependency selecting.
+
+Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+---
+ package/kernel/linux/modules/netfilter.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/package/kernel/linux/modules/netfilter.mk b/package/kernel/linux/modules/netfilter.mk
+index bb882363f3..c1d08a5403 100644
+--- a/package/kernel/linux/modules/netfilter.mk
++++ b/package/kernel/linux/modules/netfilter.mk
+@@ -707,7 +707,7 @@ $(eval $(call KernelPackage,ebtables))
+ 
+ define AddDepends/ebtables
+   SUBMENU:=$(NF_MENU)
+-  DEPENDS+=kmod-ebtables $(1)
++  DEPENDS+= +kmod-ebtables $(1)
+ endef
+ 
+ 
+-- 
+2.17.1
+

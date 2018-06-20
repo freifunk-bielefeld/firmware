@@ -1,0 +1,927 @@
+From f5c311b9889a19da7679a7cf90e1839cbe60e003 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Sat, 16 Jun 2018 20:13:44 +0200
+Subject: [PATCH 1/3] batman-adv: update to 2018.1
+
+---
+ batman-adv/Makefile                           |   7 +-
+ batman-adv/files/compat-hacks.h               |  20 ++
+ ...oid-race-in-TT-TVLV-allocator-helper.patch |  75 ++++++++
+ ...T-sync-flags-for-intermediate-TT-res.patch | 180 ++++++++++++++++++
+ ...nt-TT-request-storms-by-not-sending-.patch |  76 ++++++++
+ ...-implement-skb_postpush_rcsum-for-li.patch |  29 +++
+ ...at_ogm_iv-best-gw-refcnt-after-netli.patch |  47 +++++
+ ...at_v-best-gw-refcnt-after-netlink-du.patch |  45 +++++
+ ...-Fix-debugfs-path-for-renamed-hardif.patch | 111 +++++++++++
+ ...-Fix-debugfs-path-for-renamed-softif.patch | 139 ++++++++++++++
+ ...-storing-non-TT-sync-flags-on-singul.patch |  37 ++++
+ ...ulticast-TT-issues-with-bogus-ROAM-f.patch |  46 +++++
+ 12 files changed, 808 insertions(+), 4 deletions(-)
+ create mode 100644 batman-adv/patches/0002-batman-adv-Avoid-race-in-TT-TVLV-allocator-helper.patch
+ create mode 100644 batman-adv/patches/0003-batman-adv-Fix-TT-sync-flags-for-intermediate-TT-res.patch
+ create mode 100644 batman-adv/patches/0004-batman-adv-prevent-TT-request-storms-by-not-sending-.patch
+ create mode 100644 batman-adv/patches/0005-batman-adv-don-t-implement-skb_postpush_rcsum-for-li.patch
+ create mode 100644 batman-adv/patches/0006-batman-adv-Fix-bat_ogm_iv-best-gw-refcnt-after-netli.patch
+ create mode 100644 batman-adv/patches/0007-batman-adv-Fix-bat_v-best-gw-refcnt-after-netlink-du.patch
+ create mode 100644 batman-adv/patches/0008-batman-adv-Fix-debugfs-path-for-renamed-hardif.patch
+ create mode 100644 batman-adv/patches/0009-batman-adv-Fix-debugfs-path-for-renamed-softif.patch
+ create mode 100644 batman-adv/patches/0010-batman-adv-Avoid-storing-non-TT-sync-flags-on-singul.patch
+ create mode 100644 batman-adv/patches/0011-batman-adv-Fix-multicast-TT-issues-with-bogus-ROAM-f.patch
+
+diff --git a/batman-adv/Makefile b/batman-adv/Makefile
+index 3fd463b..bf8b946 100644
+--- a/batman-adv/Makefile
++++ b/batman-adv/Makefile
+@@ -9,10 +9,9 @@ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=batman-adv
+ 
+-PKG_VERSION:=2018.0
+-PKG_RELEASE:=0
+-PKG_MD5SUM:=c39d67cdb5509bf638efc9083e0dd41e
+-PKG_HASH:=4826f838e8a2914a9470da25ea2f17f6325c464a130093b20dc7fb4e93f7576c
++PKG_VERSION:=2018.1
++PKG_RELEASE:=2
++PKG_HASH:=b866b28dbbe5c9238abbdf5abbc30fc526dea56898ce4c1bd76d5c017843048b
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=https://downloads.open-mesh.org/batman/releases/batman-adv-$(PKG_VERSION)
+diff --git a/batman-adv/files/compat-hacks.h b/batman-adv/files/compat-hacks.h
+index d7f30ad..d35cece 100644
+--- a/batman-adv/files/compat-hacks.h
++++ b/batman-adv/files/compat-hacks.h
+@@ -336,6 +336,26 @@ static inline void timer_setup(struct timer_list *timer,
+ 	
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 16, 0)
+ 
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
++
++#include <net/cfg80211.h>
++
++/* cfg80211 fix: https://patchwork.kernel.org/patch/10449857/ */
++static inline int batadv_cfg80211_get_station(struct net_device *dev,
++					      const u8 *mac_addr,
++					      struct station_info *sinfo)
++{
++	memset(sinfo, 0, sizeof(*sinfo));
++	return cfg80211_get_station(dev, mac_addr, sinfo);
++}
++
++#define cfg80211_get_station(dev, mac_addr, sinfo) \
++	batadv_cfg80211_get_station(dev, mac_addr, sinfo)
++
++#endif /* < KERNEL_VERSION(4, 18, 0) */
++
++
+ #ifdef __CHECK_POLL
+ typedef unsigned __bitwise __poll_t;
+ #else
+diff --git a/batman-adv/patches/0002-batman-adv-Avoid-race-in-TT-TVLV-allocator-helper.patch b/batman-adv/patches/0002-batman-adv-Avoid-race-in-TT-TVLV-allocator-helper.patch
+new file mode 100644
+index 0000000..46a40b3
+--- /dev/null
++++ b/batman-adv/patches/0002-batman-adv-Avoid-race-in-TT-TVLV-allocator-helper.patch
+@@ -0,0 +1,75 @@
++From: Sven Eckelmann <sven@narfation.org>
++Date: Wed, 9 May 2018 21:07:40 +0200
++Subject: [PATCH] batman-adv: Avoid race in TT TVLV allocator helper
++
++The functions batadv_tt_prepare_tvlv_local_data and
++batadv_tt_prepare_tvlv_global_data are responsible for preparing a buffer
++which can be used to store the TVLV container for TT and add the VLAN
++information to it.
++
++This will be done in three phases:
++
++1. count the number of VLANs and their entries
++2. allocate the buffer using the counters from the previous step and limits
++   from the caller (parameter tt_len)
++3. insert the VLAN information to the buffer
++
++The step 1 and 3 operate on a list which contains the VLANs. The access to
++these lists must be protected with an appropriate lock or otherwise they
++might operate on on different entries. This could for example happen when
++another context is adding VLAN entries to this list.
++
++This could lead to a buffer overflow in these functions when enough entries
++were added between step 1 and 3 to the VLAN lists that the buffer room for
++the entries (*tt_change) is smaller then the now required extra buffer for
++new VLAN entries.
++
++Fixes: 21a57f6e7a3b ("batman-adv: make the TT CRC logic VLAN specific")
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++Acked-by: Antonio Quartulli <a@unstable.cc>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/286be89a33497ba9000aa5c2960f1f4114953522
++---
++ net/batman-adv/translation-table.c | 8 ++++----
++ 1 file changed, 4 insertions(+), 4 deletions(-)
++
++diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
++index 0225616d5771d0986127322142fc591780fc25b0..7fa3a0a0524a1da63e92d081b443c302900bf0c3 100644
++--- a/net/batman-adv/translation-table.c
+++++ b/net/batman-adv/translation-table.c
++@@ -862,7 +862,7 @@ batadv_tt_prepare_tvlv_global_data(struct batadv_orig_node *orig_node,
++ 	struct batadv_orig_node_vlan *vlan;
++ 	u8 *tt_change_ptr;
++ 
++-	rcu_read_lock();
+++	spin_lock_bh(&orig_node->vlan_list_lock);
++ 	hlist_for_each_entry_rcu(vlan, &orig_node->vlan_list, list) {
++ 		num_vlan++;
++ 		num_entries += atomic_read(&vlan->tt.num_entries);
++@@ -900,7 +900,7 @@ batadv_tt_prepare_tvlv_global_data(struct batadv_orig_node *orig_node,
++ 	*tt_change = (struct batadv_tvlv_tt_change *)tt_change_ptr;
++ 
++ out:
++-	rcu_read_unlock();
+++	spin_unlock_bh(&orig_node->vlan_list_lock);
++ 	return tvlv_len;
++ }
++ 
++@@ -936,7 +936,7 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
++ 	u8 *tt_change_ptr;
++ 	int change_offset;
++ 
++-	rcu_read_lock();
+++	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
++ 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
++ 		num_vlan++;
++ 		num_entries += atomic_read(&vlan->tt.num_entries);
++@@ -974,7 +974,7 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
++ 	*tt_change = (struct batadv_tvlv_tt_change *)tt_change_ptr;
++ 
++ out:
++-	rcu_read_unlock();
+++	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
++ 	return tvlv_len;
++ }
++ 
+diff --git a/batman-adv/patches/0003-batman-adv-Fix-TT-sync-flags-for-intermediate-TT-res.patch b/batman-adv/patches/0003-batman-adv-Fix-TT-sync-flags-for-intermediate-TT-res.patch
+new file mode 100644
+index 0000000..f396cbc
+--- /dev/null
++++ b/batman-adv/patches/0003-batman-adv-Fix-TT-sync-flags-for-intermediate-TT-res.patch
+@@ -0,0 +1,180 @@
++From: Linus Lüssing <linus.luessing@c0d3.blue>
++Date: Thu, 10 May 2018 19:44:28 +0200
++Subject: [PATCH] batman-adv: Fix TT sync flags for intermediate TT responses
++
++The previous TT sync fix so far only fixed TT responses issued by the
++target node directly. So far, TT responses issued by intermediate nodes
++still lead to the wrong flags being added, leading to CRC mismatches.
++
++This behaviour was observed at Freifunk Hannover in a 800 nodes setup
++where a considerable amount of nodes were still infected with 'WI'
++TT flags even with (most) nodes having the previous TT sync fix applied.
++
++I was able to reproduce the issue with intermediate TT responses in a
++four node test setup and this patch fixes this issue by ensuring to
++use the per originator instead of the summarized, OR'd ones.
++
++Fixes: fa614fd04692 ("batman-adv: fix tt_global_entries flags update")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/d65daee8617b29c1ddcc949ce3a5ec24f7a1e1af
++---
++ net/batman-adv/translation-table.c | 61 +++++++++++++++++++++++++-----
++ 1 file changed, 51 insertions(+), 10 deletions(-)
++
++diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
++index 7fa3a0a0524a1da63e92d081b443c302900bf0c3..23f9c212ab1e27be429645a85f7b5d6a02585de9 100644
++--- a/net/batman-adv/translation-table.c
+++++ b/net/batman-adv/translation-table.c
++@@ -1538,6 +1538,8 @@ batadv_tt_global_orig_entry_find(const struct batadv_tt_global_entry *entry,
++  *  handled by a given originator
++  * @entry: the TT global entry to check
++  * @orig_node: the originator to search in the list
+++ * @flags: a pointer to store TT flags for the given @entry received
+++ *  from @orig_node
++  *
++  * find out if an orig_node is already in the list of a tt_global_entry.
++  *
++@@ -1545,7 +1547,8 @@ batadv_tt_global_orig_entry_find(const struct batadv_tt_global_entry *entry,
++  */
++ static bool
++ batadv_tt_global_entry_has_orig(const struct batadv_tt_global_entry *entry,
++-				const struct batadv_orig_node *orig_node)
+++				const struct batadv_orig_node *orig_node,
+++				u8 *flags)
++ {
++ 	struct batadv_tt_orig_list_entry *orig_entry;
++ 	bool found = false;
++@@ -1553,6 +1556,10 @@ batadv_tt_global_entry_has_orig(const struct batadv_tt_global_entry *entry,
++ 	orig_entry = batadv_tt_global_orig_entry_find(entry, orig_node);
++ 	if (orig_entry) {
++ 		found = true;
+++
+++		if (flags)
+++			*flags = orig_entry->flags;
+++
++ 		batadv_tt_orig_list_entry_put(orig_entry);
++ 	}
++ 
++@@ -1731,7 +1738,7 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
++ 			if (!(common->flags & BATADV_TT_CLIENT_TEMP))
++ 				goto out;
++ 			if (batadv_tt_global_entry_has_orig(tt_global_entry,
++-							    orig_node))
+++							    orig_node, NULL))
++ 				goto out_remove;
++ 			batadv_tt_global_del_orig_list(tt_global_entry);
++ 			goto add_orig_entry;
++@@ -2880,23 +2887,46 @@ batadv_tt_req_node_new(struct batadv_priv *bat_priv,
++ }
++ 
++ /**
++- * batadv_tt_local_valid() - verify that given tt entry is a valid one
+++ * batadv_tt_local_valid() - verify local tt entry and get flags
++  * @entry_ptr: to be checked local tt entry
++  * @data_ptr: not used but definition required to satisfy the callback prototype
+++ * @flags: a pointer to store TT flags for this client to
+++ *
+++ * Checks the validity of the given local TT entry. If it is, then the provided
+++ * flags pointer is updated.
++  *
++  * Return: true if the entry is a valid, false otherwise.
++  */
++-static bool batadv_tt_local_valid(const void *entry_ptr, const void *data_ptr)
+++static bool batadv_tt_local_valid(const void *entry_ptr,
+++				  const void *data_ptr,
+++				  u8 *flags)
++ {
++ 	const struct batadv_tt_common_entry *tt_common_entry = entry_ptr;
++ 
++ 	if (tt_common_entry->flags & BATADV_TT_CLIENT_NEW)
++ 		return false;
+++
+++	if (flags)
+++		*flags = tt_common_entry->flags;
+++
++ 	return true;
++ }
++ 
+++/**
+++ * batadv_tt_global_valid() - verify global tt entry and get flags
+++ * @entry_ptr: to be checked global tt entry
+++ * @data_ptr: an orig_node object (may be NULL)
+++ * @flags: a pointer to store TT flags for this client to
+++ *
+++ * Checks the validity of the given global TT entry. If it is, then the provided
+++ * flags pointer is updated either with the common (summed) TT flags if data_ptr
+++ * is NULL or the specific, per originator TT flags otherwise.
+++ *
+++ * Return: true if the entry is a valid, false otherwise.
+++ */
++ static bool batadv_tt_global_valid(const void *entry_ptr,
++-				   const void *data_ptr)
+++				   const void *data_ptr,
+++				   u8 *flags)
++ {
++ 	const struct batadv_tt_common_entry *tt_common_entry = entry_ptr;
++ 	const struct batadv_tt_global_entry *tt_global_entry;
++@@ -2910,7 +2940,8 @@ static bool batadv_tt_global_valid(const void *entry_ptr,
++ 				       struct batadv_tt_global_entry,
++ 				       common);
++ 
++-	return batadv_tt_global_entry_has_orig(tt_global_entry, orig_node);
+++	return batadv_tt_global_entry_has_orig(tt_global_entry, orig_node,
+++					       flags);
++ }
++ 
++ /**
++@@ -2920,25 +2951,34 @@ static bool batadv_tt_global_valid(const void *entry_ptr,
++  * @hash: hash table containing the tt entries
++  * @tt_len: expected tvlv tt data buffer length in number of bytes
++  * @tvlv_buff: pointer to the buffer to fill with the TT data
++- * @valid_cb: function to filter tt change entries
+++ * @valid_cb: function to filter tt change entries and to return TT flags
++  * @cb_data: data passed to the filter function as argument
+++ *
+++ * Fills the tvlv buff with the tt entries from the specified hash. If valid_cb
+++ * is not provided then this becomes a no-op.
++  */
++ static void batadv_tt_tvlv_generate(struct batadv_priv *bat_priv,
++ 				    struct batadv_hashtable *hash,
++ 				    void *tvlv_buff, u16 tt_len,
++ 				    bool (*valid_cb)(const void *,
++-						     const void *),
+++						     const void *,
+++						     u8 *flags),
++ 				    void *cb_data)
++ {
++ 	struct batadv_tt_common_entry *tt_common_entry;
++ 	struct batadv_tvlv_tt_change *tt_change;
++ 	struct hlist_head *head;
++ 	u16 tt_tot, tt_num_entries = 0;
+++	u8 flags;
+++	bool ret;
++ 	u32 i;
++ 
++ 	tt_tot = batadv_tt_entries(tt_len);
++ 	tt_change = (struct batadv_tvlv_tt_change *)tvlv_buff;
++ 
+++	if (!valid_cb)
+++		return;
+++
++ 	rcu_read_lock();
++ 	for (i = 0; i < hash->size; i++) {
++ 		head = &hash->table[i];
++@@ -2948,11 +2988,12 @@ static void batadv_tt_tvlv_generate(struct batadv_priv *bat_priv,
++ 			if (tt_tot == tt_num_entries)
++ 				break;
++ 
++-			if ((valid_cb) && (!valid_cb(tt_common_entry, cb_data)))
+++			ret = valid_cb(tt_common_entry, cb_data, &flags);
+++			if (!ret)
++ 				continue;
++ 
++ 			ether_addr_copy(tt_change->addr, tt_common_entry->addr);
++-			tt_change->flags = tt_common_entry->flags;
+++			tt_change->flags = flags;
++ 			tt_change->vid = htons(tt_common_entry->vid);
++ 			memset(tt_change->reserved, 0,
++ 			       sizeof(tt_change->reserved));
+diff --git a/batman-adv/patches/0004-batman-adv-prevent-TT-request-storms-by-not-sending-.patch b/batman-adv/patches/0004-batman-adv-prevent-TT-request-storms-by-not-sending-.patch
+new file mode 100644
+index 0000000..d1f1188
+--- /dev/null
++++ b/batman-adv/patches/0004-batman-adv-prevent-TT-request-storms-by-not-sending-.patch
+@@ -0,0 +1,76 @@
++From: Marek Lindner <mareklindner@neomailbox.ch>
++Date: Sat, 12 May 2018 00:23:07 +0800
++Subject: [PATCH] batman-adv: prevent TT request storms by not sending inconsistent TT TLVLs
++
++A translation table TVLV changset sent with an OGM consists
++of a number of headers (one per VLAN) plus the changeset
++itself (addition and/or deletion of entries).
++
++The per-VLAN headers are used by OGM recipients for consistency
++checks. Said consistency check might determine that a full
++translation table request is needed to restore consistency. If
++the TT sender adds per-VLAN headers of empty VLANs into the OGM,
++recipients are led to believe to have reached an inconsistent
++state and thus request a full table update. The full table does
++not contain empty VLANs (due to missing entries) the cycle
++restarts when the next OGM is issued.
++
++Consequently, when the translation table TVLV headers are
++composed, empty VLANs are to be excluded.
++
++Fixes: 21a57f6e7a3b ("batman-adv: make the TT CRC logic VLAN specific")
++Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/e4687b4be274da6180fc15b327419851fb681ec9
++---
++ net/batman-adv/translation-table.c | 15 ++++++++++++---
++ 1 file changed, 12 insertions(+), 3 deletions(-)
++
++diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
++index 23f9c212ab1e27be429645a85f7b5d6a02585de9..3986551397caa5ffb6ba7338eeb4769c8b8f99fb 100644
++--- a/net/batman-adv/translation-table.c
+++++ b/net/batman-adv/translation-table.c
++@@ -931,15 +931,20 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
++ 	struct batadv_tvlv_tt_vlan_data *tt_vlan;
++ 	struct batadv_softif_vlan *vlan;
++ 	u16 num_vlan = 0;
++-	u16 num_entries = 0;
+++	u16 vlan_entries = 0;
+++	u16 total_entries = 0;
++ 	u16 tvlv_len;
++ 	u8 *tt_change_ptr;
++ 	int change_offset;
++ 
++ 	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
++ 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
+++		vlan_entries = atomic_read(&vlan->tt.num_entries);
+++		if (vlan_entries < 1)
+++			continue;
+++
++ 		num_vlan++;
++-		num_entries += atomic_read(&vlan->tt.num_entries);
+++		total_entries += vlan_entries;
++ 	}
++ 
++ 	change_offset = sizeof(**tt_data);
++@@ -947,7 +952,7 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
++ 
++ 	/* if tt_len is negative, allocate the space needed by the full table */
++ 	if (*tt_len < 0)
++-		*tt_len = batadv_tt_len(num_entries);
+++		*tt_len = batadv_tt_len(total_entries);
++ 
++ 	tvlv_len = *tt_len;
++ 	tvlv_len += change_offset;
++@@ -964,6 +969,10 @@ batadv_tt_prepare_tvlv_local_data(struct batadv_priv *bat_priv,
++ 
++ 	tt_vlan = (struct batadv_tvlv_tt_vlan_data *)(*tt_data + 1);
++ 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
+++		vlan_entries = atomic_read(&vlan->tt.num_entries);
+++		if (vlan_entries < 1)
+++			continue;
+++
++ 		tt_vlan->vid = htons(vlan->vid);
++ 		tt_vlan->crc = htonl(vlan->tt.crc);
++ 
+diff --git a/batman-adv/patches/0005-batman-adv-don-t-implement-skb_postpush_rcsum-for-li.patch b/batman-adv/patches/0005-batman-adv-don-t-implement-skb_postpush_rcsum-for-li.patch
+new file mode 100644
+index 0000000..7826959
+--- /dev/null
++++ b/batman-adv/patches/0005-batman-adv-don-t-implement-skb_postpush_rcsum-for-li.patch
+@@ -0,0 +1,29 @@
++From: Antonio Quartulli <a@unstable.cc>
++Date: Sat, 12 May 2018 03:02:44 +0800
++Subject: [PATCH] batman-adv: don't implement skb_postpush_rcsum() for linux >=4.4.47
++
++skb_postpush_rcsum() has been implemented in 4.4.47 therefore
++our compat code has to be changed to prevent this function to
++be implemented when using those kernels.
++
++Signed-off-by: Antonio Quartulli <a@unstable.cc>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/b4693d107e0869bf11956fd2d3be4fd0a8671b46
++---
++ compat-include/linux/skbuff.h | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/compat-include/linux/skbuff.h b/compat-include/linux/skbuff.h
++index 6f73946496ac15f2fdb856357f16e4e2d8a6e6cd..371bb561eecaf605a5c96f9417546f6bb817724d 100644
++--- a/compat-include/linux/skbuff.h
+++++ b/compat-include/linux/skbuff.h
++@@ -77,7 +77,7 @@ struct sk_buff *skb_checksum_trimmed(struct sk_buff *skb,
++ 
++ #endif /* < KERNEL_VERSION(4, 2, 0) */
++ 
++-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0)
+++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 47)
++ 
++ static inline void skb_postpush_rcsum(struct sk_buff *skb,
++ 				      const void *start, unsigned int len)
+diff --git a/batman-adv/patches/0006-batman-adv-Fix-bat_ogm_iv-best-gw-refcnt-after-netli.patch b/batman-adv/patches/0006-batman-adv-Fix-bat_ogm_iv-best-gw-refcnt-after-netli.patch
+new file mode 100644
+index 0000000..b0f866f
+--- /dev/null
++++ b/batman-adv/patches/0006-batman-adv-Fix-bat_ogm_iv-best-gw-refcnt-after-netli.patch
+@@ -0,0 +1,47 @@
++From: Sven Eckelmann <sven@narfation.org>
++Date: Sat, 2 Jun 2018 17:26:34 +0200
++Subject: [PATCH] batman-adv: Fix bat_ogm_iv best gw refcnt after netlink dump
++
++A reference for the best gateway is taken when the list of gateways in the
++mesh is sent via netlink. This is necessary to check whether the currently
++dumped entry is the currently selected gateway or not. This information is
++then transferred as flag BATADV_ATTR_FLAG_BEST.
++
++After the comparison of the current entry is done,
++batadv_iv_gw_dump_entry() has to decrease the reference counter again.
++Otherwise the reference will be held and thus prevents a proper shutdown of
++the batman-adv interfaces (and some of the interfaces enslaved in it).
++
++Fixes: fa3228924152 ("batman-adv: add B.A.T.M.A.N. IV bat_gw_dump implementations")
++Reported-by: Andreas Ziegler <dev@andreas-ziegler.de>
++Tested-by: Andreas Ziegler <dev@andreas-ziegler.de>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++Acked-by: Marek Lindner <mareklindner@neomailbox.ch>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/46360d203c627e71a27d1f8f551c819c7f2353fd
++---
++ net/batman-adv/bat_iv_ogm.c | 4 +++-
++ 1 file changed, 3 insertions(+), 1 deletion(-)
++
++diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
++index be09a98838252f4f0c23cec0625930cf896cd0ff..73bf6a93a3cf1141a34657bf1284893199e04db9 100644
++--- a/net/batman-adv/bat_iv_ogm.c
+++++ b/net/batman-adv/bat_iv_ogm.c
++@@ -2732,7 +2732,7 @@ static int batadv_iv_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
++ {
++ 	struct batadv_neigh_ifinfo *router_ifinfo = NULL;
++ 	struct batadv_neigh_node *router;
++-	struct batadv_gw_node *curr_gw;
+++	struct batadv_gw_node *curr_gw = NULL;
++ 	int ret = 0;
++ 	void *hdr;
++ 
++@@ -2780,6 +2780,8 @@ static int batadv_iv_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
++ 	ret = 0;
++ 
++ out:
+++	if (curr_gw)
+++		batadv_gw_node_put(curr_gw);
++ 	if (router_ifinfo)
++ 		batadv_neigh_ifinfo_put(router_ifinfo);
++ 	if (router)
+diff --git a/batman-adv/patches/0007-batman-adv-Fix-bat_v-best-gw-refcnt-after-netlink-du.patch b/batman-adv/patches/0007-batman-adv-Fix-bat_v-best-gw-refcnt-after-netlink-du.patch
+new file mode 100644
+index 0000000..37a672f
+--- /dev/null
++++ b/batman-adv/patches/0007-batman-adv-Fix-bat_v-best-gw-refcnt-after-netlink-du.patch
+@@ -0,0 +1,45 @@
++From: Sven Eckelmann <sven@narfation.org>
++Date: Sat, 2 Jun 2018 17:26:35 +0200
++Subject: [PATCH] batman-adv: Fix bat_v best gw refcnt after netlink dump
++
++A reference for the best gateway is taken when the list of gateways in the
++mesh is sent via netlink. This is necessary to check whether the currently
++dumped entry is the currently selected gateway or not. This information is
++then transferred as flag BATADV_ATTR_FLAG_BEST.
++
++After the comparison of the current entry is done,
++batadv_v_gw_dump_entry() has to decrease the reference counter again.
++Otherwise the reference will be held and thus prevents a proper shutdown of
++the batman-adv interfaces (and some of the interfaces enslaved in it).
++
++Fixes: 15315a94ad98 ("batman-adv: add B.A.T.M.A.N. V bat_gw_dump implementations")
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++Acked-by: Marek Lindner <mareklindner@neomailbox.ch>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/2b422b5808183d1084b450b89d9a085a13dd6d2c
++---
++ net/batman-adv/bat_v.c | 4 +++-
++ 1 file changed, 3 insertions(+), 1 deletion(-)
++
++diff --git a/net/batman-adv/bat_v.c b/net/batman-adv/bat_v.c
++index ec93337ee2597738e46b87dd72724d5becf3f48e..6baec4e68898c6e992e7522d2ee8c78ce62a1b08 100644
++--- a/net/batman-adv/bat_v.c
+++++ b/net/batman-adv/bat_v.c
++@@ -927,7 +927,7 @@ static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
++ {
++ 	struct batadv_neigh_ifinfo *router_ifinfo = NULL;
++ 	struct batadv_neigh_node *router;
++-	struct batadv_gw_node *curr_gw;
+++	struct batadv_gw_node *curr_gw = NULL;
++ 	int ret = 0;
++ 	void *hdr;
++ 
++@@ -995,6 +995,8 @@ static int batadv_v_gw_dump_entry(struct sk_buff *msg, u32 portid, u32 seq,
++ 	ret = 0;
++ 
++ out:
+++	if (curr_gw)
+++		batadv_gw_node_put(curr_gw);
++ 	if (router_ifinfo)
++ 		batadv_neigh_ifinfo_put(router_ifinfo);
++ 	if (router)
+diff --git a/batman-adv/patches/0008-batman-adv-Fix-debugfs-path-for-renamed-hardif.patch b/batman-adv/patches/0008-batman-adv-Fix-debugfs-path-for-renamed-hardif.patch
+new file mode 100644
+index 0000000..c62751f
+--- /dev/null
++++ b/batman-adv/patches/0008-batman-adv-Fix-debugfs-path-for-renamed-hardif.patch
+@@ -0,0 +1,111 @@
++From: Sven Eckelmann <sven@narfation.org>
++Date: Fri, 1 Jun 2018 19:24:23 +0200
++Subject: [PATCH] batman-adv: Fix debugfs path for renamed hardif
++
++batman-adv is creating special debugfs directories in the init
++net_namespace for each valid hard-interface (net_device). But it is
++possible to rename a net_device to a completely different name then the
++original one.
++
++It can therefore happen that a user registers a new net_device which gets
++the name "wlan0" assigned by default. batman-adv is also adding a new
++directory under $debugfs/batman-adv/ with the name "wlan0".
++
++The user then decides to rename this device to "wl_pri" and registers a
++different device. The kernel may now decide to use the name "wlan0" again
++for this new device. batman-adv will detect it as a valid net_device and
++tries to create a directory with the name "wlan0" under
++$debugfs/batman-adv/. But there already exists one with this name under
++this path and thus this fails. batman-adv will detect a problem and
++rollback the registering of this device.
++
++batman-adv must therefore take care of renaming the debugfs directories
++for hard-interfaces whenever it detects such a net_device rename.
++
++Fixes: 3c926a01c8e8 ("batman-adv: add debugfs structure for information per interface")
++Reported-by: John Soros <sorosj@gmail.com>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/127086f503f6495518b95455efebee33d328f335
++---
++ net/batman-adv/debugfs.c        | 20 ++++++++++++++++++++
++ net/batman-adv/debugfs.h        |  6 ++++++
++ net/batman-adv/hard-interface.c |  3 +++
++ 3 files changed, 29 insertions(+)
++
++diff --git a/net/batman-adv/debugfs.c b/net/batman-adv/debugfs.c
++index 4229b01ac7b54008e023df0ed6546a6d541498ba..7e5de7b9f6d53b846cebfa95bf694a20c640b2d6 100644
++--- a/net/batman-adv/debugfs.c
+++++ b/net/batman-adv/debugfs.c
++@@ -19,6 +19,7 @@
++ #include "debugfs.h"
++ #include "main.h"
++ 
+++#include <linux/dcache.h>
++ #include <linux/debugfs.h>
++ #include <linux/err.h>
++ #include <linux/errno.h>
++@@ -343,6 +344,25 @@ int batadv_debugfs_add_hardif(struct batadv_hard_iface *hard_iface)
++ 	return -ENOMEM;
++ }
++ 
+++/**
+++ * batadv_debugfs_rename_hardif() - Fix debugfs path for renamed hardif
+++ * @hard_iface: hard interface which was renamed
+++ */
+++void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface)
+++{
+++	const char *name = hard_iface->net_dev->name;
+++	struct dentry *dir;
+++	struct dentry *d;
+++
+++	dir = hard_iface->debug_dir;
+++	if (!dir)
+++		return;
+++
+++	d = debugfs_rename(dir->d_parent, dir, dir->d_parent, name);
+++	if (!d)
+++		pr_err("Can't rename debugfs dir to %s\n", name);
+++}
+++
++ /**
++  * batadv_debugfs_del_hardif() - delete the base directory for a hard interface
++  *  in debugfs.
++diff --git a/net/batman-adv/debugfs.h b/net/batman-adv/debugfs.h
++index 37b069698b04b369e68e4e8a31c3ac01575b0178..8538a7a75e937f50f8efdbf2fe879b4ac8dafadb 100644
++--- a/net/batman-adv/debugfs.h
+++++ b/net/batman-adv/debugfs.h
++@@ -32,6 +32,7 @@ void batadv_debugfs_destroy(void);
++ int batadv_debugfs_add_meshif(struct net_device *dev);
++ void batadv_debugfs_del_meshif(struct net_device *dev);
++ int batadv_debugfs_add_hardif(struct batadv_hard_iface *hard_iface);
+++void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface);
++ void batadv_debugfs_del_hardif(struct batadv_hard_iface *hard_iface);
++ 
++ #else
++@@ -59,6 +60,11 @@ int batadv_debugfs_add_hardif(struct batadv_hard_iface *hard_iface)
++ 	return 0;
++ }
++ 
+++static inline
+++void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface)
+++{
+++}
+++
++ static inline
++ void batadv_debugfs_del_hardif(struct batadv_hard_iface *hard_iface)
++ {
++diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
++index c405d15befd60bdabf9f50813c3bee446238d539..dc2763b1110727cc5dee62d555dd7c7b50f3b463 100644
++--- a/net/batman-adv/hard-interface.c
+++++ b/net/batman-adv/hard-interface.c
++@@ -1051,6 +1051,9 @@ static int batadv_hard_if_event(struct notifier_block *this,
++ 		if (batadv_is_wifi_hardif(hard_iface))
++ 			hard_iface->num_bcasts = BATADV_NUM_BCASTS_WIRELESS;
++ 		break;
+++	case NETDEV_CHANGENAME:
+++		batadv_debugfs_rename_hardif(hard_iface);
+++		break;
++ 	default:
++ 		break;
++ 	}
+diff --git a/batman-adv/patches/0009-batman-adv-Fix-debugfs-path-for-renamed-softif.patch b/batman-adv/patches/0009-batman-adv-Fix-debugfs-path-for-renamed-softif.patch
+new file mode 100644
+index 0000000..2559d64
+--- /dev/null
++++ b/batman-adv/patches/0009-batman-adv-Fix-debugfs-path-for-renamed-softif.patch
+@@ -0,0 +1,139 @@
++From: Sven Eckelmann <sven@narfation.org>
++Date: Fri, 1 Jun 2018 19:24:24 +0200
++Subject: [PATCH] batman-adv: Fix debugfs path for renamed softif
++
++batman-adv is creating special debugfs directories in the init
++net_namespace for each created soft-interface (batadv net_device). But it
++is possible to rename a net_device to a completely different name then the
++original one.
++
++It can therefore happen that a user registers a new batadv net_device with
++the name "bat0". batman-adv is then also adding a new directory under
++$debugfs/batman-adv/ with the name "wlan0".
++
++The user then decides to rename this device to "bat1" and registers a
++different batadv device with the name "bat0". batman-adv will then try to
++create a directory with the name "bat0" under $debugfs/batman-adv/ again.
++But there already exists one with this name under this path and thus this
++fails. batman-adv will detect a problem and rollback the registering of
++this device.
++
++batman-adv must therefore take care of renaming the debugfs directories for
++soft-interfaces whenever it detects such a net_device rename.
++
++Fixes: 230202d4b530 ("batman-adv: Move device for icmp injection to debugfs")
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/3f2237bb191cd17654a4d5a5badfd6e7379c4b37
++---
++ net/batman-adv/debugfs.c        | 20 +++++++++++++++++++
++ net/batman-adv/debugfs.h        |  5 +++++
++ net/batman-adv/hard-interface.c | 34 +++++++++++++++++++++++++++------
++ 3 files changed, 53 insertions(+), 6 deletions(-)
++
++diff --git a/net/batman-adv/debugfs.c b/net/batman-adv/debugfs.c
++index 7e5de7b9f6d53b846cebfa95bf694a20c640b2d6..87479c60670ebfbe2ad3df17130f1289d657df7b 100644
++--- a/net/batman-adv/debugfs.c
+++++ b/net/batman-adv/debugfs.c
++@@ -433,6 +433,26 @@ int batadv_debugfs_add_meshif(struct net_device *dev)
++ 	return -ENOMEM;
++ }
++ 
+++/**
+++ * batadv_debugfs_rename_meshif() - Fix debugfs path for renamed softif
+++ * @dev: net_device which was renamed
+++ */
+++void batadv_debugfs_rename_meshif(struct net_device *dev)
+++{
+++	struct batadv_priv *bat_priv = netdev_priv(dev);
+++	const char *name = dev->name;
+++	struct dentry *dir;
+++	struct dentry *d;
+++
+++	dir = bat_priv->debug_dir;
+++	if (!dir)
+++		return;
+++
+++	d = debugfs_rename(dir->d_parent, dir, dir->d_parent, name);
+++	if (!d)
+++		pr_err("Can't rename debugfs dir to %s\n", name);
+++}
+++
++ /**
++  * batadv_debugfs_del_meshif() - Remove interface dependent debugfs entries
++  * @dev: netdev struct of the soft interface
++diff --git a/net/batman-adv/debugfs.h b/net/batman-adv/debugfs.h
++index 8538a7a75e937f50f8efdbf2fe879b4ac8dafadb..08a592ffbee5203ac4994fc49bf9c187c2e66f8e 100644
++--- a/net/batman-adv/debugfs.h
+++++ b/net/batman-adv/debugfs.h
++@@ -30,6 +30,7 @@ struct net_device;
++ void batadv_debugfs_init(void);
++ void batadv_debugfs_destroy(void);
++ int batadv_debugfs_add_meshif(struct net_device *dev);
+++void batadv_debugfs_rename_meshif(struct net_device *dev);
++ void batadv_debugfs_del_meshif(struct net_device *dev);
++ int batadv_debugfs_add_hardif(struct batadv_hard_iface *hard_iface);
++ void batadv_debugfs_rename_hardif(struct batadv_hard_iface *hard_iface);
++@@ -50,6 +51,10 @@ static inline int batadv_debugfs_add_meshif(struct net_device *dev)
++ 	return 0;
++ }
++ 
+++static inline void batadv_debugfs_rename_meshif(struct net_device *dev)
+++{
+++}
+++
++ static inline void batadv_debugfs_del_meshif(struct net_device *dev)
++ {
++ }
++diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
++index dc2763b1110727cc5dee62d555dd7c7b50f3b463..2f0d42f2f913e74cf10c0c6ce89320434994cac5 100644
++--- a/net/batman-adv/hard-interface.c
+++++ b/net/batman-adv/hard-interface.c
++@@ -989,6 +989,32 @@ void batadv_hardif_remove_interfaces(void)
++ 	rtnl_unlock();
++ }
++ 
+++/**
+++ * batadv_hard_if_event_softif() - Handle events for soft interfaces
+++ * @event: NETDEV_* event to handle
+++ * @net_dev: net_device which generated an event
+++ *
+++ * Return: NOTIFY_* result
+++ */
+++static int batadv_hard_if_event_softif(unsigned long event,
+++				       struct net_device *net_dev)
+++{
+++	struct batadv_priv *bat_priv;
+++
+++	switch (event) {
+++	case NETDEV_REGISTER:
+++		batadv_sysfs_add_meshif(net_dev);
+++		bat_priv = netdev_priv(net_dev);
+++		batadv_softif_create_vlan(bat_priv, BATADV_NO_FLAGS);
+++		break;
+++	case NETDEV_CHANGENAME:
+++		batadv_debugfs_rename_meshif(net_dev);
+++		break;
+++	}
+++
+++	return NOTIFY_DONE;
+++}
+++
++ static int batadv_hard_if_event(struct notifier_block *this,
++ 				unsigned long event, void *ptr)
++ {
++@@ -997,12 +1023,8 @@ static int batadv_hard_if_event(struct notifier_block *this,
++ 	struct batadv_hard_iface *primary_if = NULL;
++ 	struct batadv_priv *bat_priv;
++ 
++-	if (batadv_softif_is_valid(net_dev) && event == NETDEV_REGISTER) {
++-		batadv_sysfs_add_meshif(net_dev);
++-		bat_priv = netdev_priv(net_dev);
++-		batadv_softif_create_vlan(bat_priv, BATADV_NO_FLAGS);
++-		return NOTIFY_DONE;
++-	}
+++	if (batadv_softif_is_valid(net_dev))
+++		return batadv_hard_if_event_softif(event, net_dev);
++ 
++ 	hard_iface = batadv_hardif_get_by_netdev(net_dev);
++ 	if (!hard_iface && (event == NETDEV_REGISTER ||
+diff --git a/batman-adv/patches/0010-batman-adv-Avoid-storing-non-TT-sync-flags-on-singul.patch b/batman-adv/patches/0010-batman-adv-Avoid-storing-non-TT-sync-flags-on-singul.patch
+new file mode 100644
+index 0000000..081bb21
+--- /dev/null
++++ b/batman-adv/patches/0010-batman-adv-Avoid-storing-non-TT-sync-flags-on-singul.patch
+@@ -0,0 +1,37 @@
++From: Linus Lüssing <linus.luessing@c0d3.blue>
++Date: Thu, 7 Jun 2018 00:46:23 +0200
++Subject: [PATCH] batman-adv: Avoid storing non-TT-sync flags on singular entries too
++
++Since commit 382d020fe3fa ("batman-adv: fix TT sync flag inconsistencies")
++TT sync flags and TT non-sync'd flags are supposed to be stored
++separately.
++
++The previous patch missed to apply this separation on a TT entry with
++only a single TT orig entry.
++
++This is a minor fix because with only a single TT orig entry the DDoS
++issue the former patch solves does not apply.
++
++Fixes: 382d020fe3fa ("batman-adv: fix TT sync flag inconsistencies")
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/beb6246b2339852b6a429ae9259a8eb30a685041
++---
++ net/batman-adv/translation-table.c | 3 ++-
++ 1 file changed, 2 insertions(+), 1 deletion(-)
++
++diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
++index 3986551397caa5ffb6ba7338eeb4769c8b8f99fb..61ce300091f328fd78dafa5c4fd09f6cf924b025 100644
++--- a/net/batman-adv/translation-table.c
+++++ b/net/batman-adv/translation-table.c
++@@ -1705,7 +1705,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
++ 		ether_addr_copy(common->addr, tt_addr);
++ 		common->vid = vid;
++ 
++-		common->flags = flags;
+++		common->flags = flags & (~BATADV_TT_SYNC_MASK);
+++
++ 		tt_global_entry->roam_at = 0;
++ 		/* node must store current time in case of roaming. This is
++ 		 * needed to purge this entry out on timeout (if nobody claims
+diff --git a/batman-adv/patches/0011-batman-adv-Fix-multicast-TT-issues-with-bogus-ROAM-f.patch b/batman-adv/patches/0011-batman-adv-Fix-multicast-TT-issues-with-bogus-ROAM-f.patch
+new file mode 100644
+index 0000000..59fd2ac
+--- /dev/null
++++ b/batman-adv/patches/0011-batman-adv-Fix-multicast-TT-issues-with-bogus-ROAM-f.patch
+@@ -0,0 +1,46 @@
++From: Linus Lüssing <linus.luessing@c0d3.blue>
++Date: Thu, 7 Jun 2018 00:46:24 +0200
++Subject: [PATCH] batman-adv: Fix multicast TT issues with bogus ROAM flags
++
++When a (broken) node wrongly sends multicast TT entries with a ROAM
++flag then this causes any receiving node to drop all entries for the
++same multicast MAC address announced by other nodes, leading to
++packet loss.
++
++Fix this DoS vector by only storing TT sync flags. For multicast TT
++non-sync'ing flag bits like ROAM are unused so far anyway.
++
++Fixes: 405cc1e5a81e ("batman-adv: Modified forwarding behaviour for multicast packets")
++Reported-by: Leonardo Mörlein <me@irrelefant.net>
++Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
++Signed-off-by: Sven Eckelmann <sven@narfation.org>
++
++Origin: upstream, https://git.open-mesh.org/batman-adv.git/commit/c7054ffae0c3b08bb4bef3cffee1e0a543e14096
++---
++ net/batman-adv/translation-table.c | 6 ++++--
++ 1 file changed, 4 insertions(+), 2 deletions(-)
++
++diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
++index 61ce300091f328fd78dafa5c4fd09f6cf924b025..12a2b7d21376721d15c6a31f3e794e4270d74b5c 100644
++--- a/net/batman-adv/translation-table.c
+++++ b/net/batman-adv/translation-table.c
++@@ -1705,7 +1705,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
++ 		ether_addr_copy(common->addr, tt_addr);
++ 		common->vid = vid;
++ 
++-		common->flags = flags & (~BATADV_TT_SYNC_MASK);
+++		if (!is_multicast_ether_addr(common->addr))
+++			common->flags = flags & (~BATADV_TT_SYNC_MASK);
++ 
++ 		tt_global_entry->roam_at = 0;
++ 		/* node must store current time in case of roaming. This is
++@@ -1769,7 +1770,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
++ 		 * TT_CLIENT_TEMP, therefore they have to be copied in the
++ 		 * client entry
++ 		 */
++-		common->flags |= flags & (~BATADV_TT_SYNC_MASK);
+++		if (!is_multicast_ether_addr(common->addr))
+++			common->flags |= flags & (~BATADV_TT_SYNC_MASK);
++ 
++ 		/* If there is the BATADV_TT_CLIENT_ROAM flag set, there is only
++ 		 * one originator left in the list and we previously received a
+-- 
+2.17.1
+
