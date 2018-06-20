@@ -1,12 +1,15 @@
 Firmware for Freifunk Bielefeld
-=========================
+===============================
 
 The firmware turns a common wireless router into a mesh networking device.
 It connects to similar routers in the area and builds a Wifi-mesh network
 but also opens an access point for computers to connect over Wifi.
 Included is Internet connectivity and a web interface.
 
-To build the firmware you need a Unix console to enter commands into.
+[Precompiled firmware images](http://firmware.freifunk-bielefeld.de/freifunk/firmware/firmware-wizard/ "Precompiled firmware images") are available on our server.
+All other released versions here on github are out-of-date.
+
+To build the firmware yourself you need a Unix console to enter commands into.
 Install dependencies for the build environment (Debian/Ubuntu):
 
 ```bash
@@ -16,19 +19,22 @@ Install dependencies for the build environment (Debian/Ubuntu):
 Build commands for the console:
 
 ```bash
-    git clone git://git.lede-project.org/source.git
-    cd source
-    git reset --hard 01d7a5d7dee247c40a7ecfbd7ba221640752e76f
+    git clone https://git.openwrt.org/openwrt/openwrt.git
+    cd openwrt
+    git reset --hard eed9d40133fe6468cc253d0345c7d7332d2aaa7c
+    
+    git clone https://github.com/freifunk-bielefeld/firmware.git
+    cp -rf firmware/files firmware/package firmware/feeds.conf .
     
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     
-    git clone https://github.com/ffulm/firmware.git
-    cp -rf firmware/files firmware/package .
     git am --whitespace=nowarn firmware/patches/lede/*.patch
+    
     cd feeds/routing
     git am --whitespace=nowarn ../../firmware/patches/routing/*.patch
     cd -
+    
     rm -rf firmware tmp
     
     make menuconfig
@@ -52,8 +58,8 @@ Now start the build process. This takes some time:
 ```bash
     make
 ```
-*You have the opportunity to compile the firmware at more CPU Threats. 
-E.g. for 4-Threats type* `make -j4` .
+*You have the opportunity to compile the firmware on more CPU Threads. 
+E.g. for 4 threads type* `make -j4` .
 
 The **firmware image** files can now be found under the `bin/targets` folder. Use the firmware update functionality of your router and upload the factory image file to flash it with the Freifunk firmware. The sysupgrade images are for updates.
 
