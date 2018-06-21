@@ -29,7 +29,7 @@ Build commands for the console:
     ./scripts/feeds update -a
     ./scripts/feeds install -a
     
-    git am --whitespace=nowarn firmware/patches/lede/*.patch
+    git am --whitespace=nowarn firmware/patches/openwrt/*.patch
     
     cd feeds/routing
     git am --whitespace=nowarn ../../firmware/patches/routing/*.patch
