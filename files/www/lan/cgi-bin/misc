@@ -8,7 +8,7 @@ case $GET_func in
 		echo "Please wait. Restart is done ..."
 	;;
 	wifi_status)
-		wifi status
+		ubus call network.wireless status
 	;;
 	wifiscan)
 		iw dev "$GET_device" scan 2> /dev/null | grep '^BSS \|SSID\|primary channel:\|signal\|capability\|MESH ID'
