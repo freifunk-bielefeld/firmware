@@ -49,7 +49,7 @@ define Package/freifunk-usb-storage
 	TITLE:=With USB storage packages
 	DEPENDS:=+freifunk-basic \
 		+kmod-usb-storage +block-mount \
-		+block-hotplug +kmod-fs-ext4 +kmod-fs-vfat \
+		+kmod-fs-ext4 +kmod-fs-vfat \
 		+kmod-nls-cp437 +kmod-nls-iso8859-1
 endef
 
@@ -60,8 +60,7 @@ define Package/freifunk-usb-3g
 	TITLE:=With 3G USB dongle packages
 	DEPENDS:=+freifunk-basic \
 	+comgt +kmod-usb-serial +kmod-usb-serial-option \
-	+kmod-usb-serial-wwan +usb-modeswitch \
-	+usb-modeswitch-data
+	+kmod-usb-serial-wwan +usb-modeswitch
 endef
 
 $(eval $(call BuildPackage,freifunk-basic))
