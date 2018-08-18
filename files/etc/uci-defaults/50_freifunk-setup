@@ -112,7 +112,7 @@ initial_freifunk_setup()
 	uci -q delete network.freifunk.ip6addr
 	uci -q delete network.freifunk.ipaddr
 	uci set network.freifunk.proto=static
-	uci set network.freifunk.netmask="255.255.192.0"
+	uci set network.freifunk.netmask="255.255.0.0"
 	uci set network.freifunk.igmp_snooping="0"
 	uci set network.freifunk.force_link="1"
 	uci set network.freifunk.bridge_empty="1"
@@ -128,7 +128,7 @@ initial_local_node_setup()
 {
 	echo "(I) Setup IPv4 local node access."
 
-	local addr4="10.26.127.0/18"
+	local addr4="10.26.127.0"
 	local addr6="$(uci get network.globals.ula_prefix)"
 
 	uci add_list network.freifunk.ipaddr="$addr4"
