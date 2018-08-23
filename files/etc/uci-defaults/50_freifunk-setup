@@ -102,7 +102,7 @@ initial_freifunk_setup()
 	echo "(I) Setup freifunk network."
 
 	local freifunk_interfaces="$1"
-	local freifunk_mac="$2"	
+	local freifunk_mac="$2"
 
 	uci -q delete network.freifunk
 	uci set network.freifunk="interface"
@@ -140,7 +140,7 @@ initial_local_node_setup()
 	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p arp --arp-ip-dst $addr4 -j DROP
 	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4 -j DROP
 	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv4 --ip-source $addr4 -j DROP
-	
+
 	# Isolate local-node IPv6 address
 	ebtables -A FORWARD --logical-out br-freifunk -o bat0 -p IPv6 --ip6-dst $addr6 -j DROP
 	ebtables -A OUTPUT --logical-out br-freifunk -o bat0 -p IPv6 --ip6-dst $addr6 -j DROP
@@ -470,23 +470,26 @@ update_065_to_100()
 	# Create fresh /etc/sysctl.conf
 	cp /rom/etc/sysctl.conf /etc/sysctl.conf
 	cat >> /etc/sysctl.conf <<-  EOF
-	
+
 	# increase neighbor table timings by a factor of 10
 	net.ipv6.neigh.default.gc_interval=300
 	net.ipv6.neigh.default.gc_stale_time=600
 	net.ipv6.neigh.default.base_reachable_time_ms=300
-	
+
 	# by default, either accept_ra or forwarding is enabled
 	# disable both here, since LEDE handles both apart from the Linux kernel
 	net.ipv6.conf.all.accept_ra=0
 	net.ipv6.conf.default.accept_ra=0
 	net.ipv6.conf.br-freifunk.forwarding=0
 	net.ipv6.conf.br-lan.forwarding=0
-	
+
 	#reboot on out of memory
 	vm.panic_on_oom=1
-	
+
 	EOF
+
+	# Use correct ipv4 netmask for freifunk network
+	uci set network.freifunk.netmask="255.255.0.0"
 
 	# Create fresh /etc/firewall.user and local node section
 	uci -q delete network.freifunk.ip6addr
@@ -500,31 +503,21 @@ update_065_to_100()
 	cp /rom/etc/hosts /etc/hosts
 	echo "10.26.127.0 node" >> /etc/hosts
 
-	cp /rom/etc/profile /etc/profile
 	cp /rom/etc/config/batman-adv /etc/config/batman-adv
+	cp /rom/etc/config/uhttpd /etc/config/uhttpd
+	cp /rom/etc/config/fastd /etc/config/fastd
+	cp /rom/etc/crontabs/root /etc/crontabs/root
+	cp /rom/etc/profile /etc/profile
 	cp /rom/etc/protocols /etc/protocols
 	cp /rom/etc/inittab /etc/inittab
-	cp /rom/etc/modules.d/73-sched /etc/modules.d/73-sched
-	cp /rom/etc/config/fastd /etc/config/fastd
+	cp /rom/etc/modules.d/73-sched /etc/modules.d/73-sched 2> /dev/null
 
-	# Fix /etc/config/system
-	if [ "$(uci get system.@system[0].hostname)" = "OpenWrt" ]; then
-		uci set system.@system[0].hostname='LEDE'
-	fi
-
-	uci set system.@system[0].ttylogin='0'
-	uci set system.@system[0].log_size='64'
-	uci set system.@system[0].urandom_seed='0'
-	uci delete system.ntp.server
-	uci add_list system.ntp.server='0.lede.pool.ntp.org'
-	uci add_list system.ntp.server='1.lede.pool.ntp.org'
-	uci add_list system.ntp.server='2.lede.pool.ntp.org'
-	uci add_list system.ntp.server='3.lede.pool.ntp.org'
+	# Rebuild /etc/config/system, many things has changed, keep hostname
+	local hostname="$(uci get system.@system[0].hostname)"
+	rm /etc/config/system
+	/bin/config_generate
+	uci set system.@system[0].hostname="$hostname"
 	uci commit system
-
-	# Fix /etc/config/uhttpd
-	uci set uhttpd.px5g.commonname='LEDE'
-	uci commit uhttpd
 }
 
 start()
