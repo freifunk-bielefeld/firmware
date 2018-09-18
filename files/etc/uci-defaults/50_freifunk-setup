@@ -504,6 +504,7 @@ update_065_to_100()
 	echo "10.26.127.0 node" >> /etc/hosts
 
 	cp /rom/etc/config/batman-adv /etc/config/batman-adv
+	cp /rom/etc/config/autoupdater /etc/config/autoupdater
 	cp /rom/etc/config/uhttpd /etc/config/uhttpd
 	cp /rom/etc/config/fastd /etc/config/fastd
 	cp /rom/etc/crontabs/root /etc/crontabs/root
