@@ -28,8 +28,17 @@ GOOD_SIGNATURES=$(uci get autoupdater.${BRANCH}.good_signatures)
 
 # returns 0 when $1 is a higher version number than $2
 newer_than() {
-	# negate the return value as opkg returns 1 when the proposition is true
-	! opkg compare-versions "$1" '>>' "$2"
+  vnum() {
+    local major="${1:-0}" minor="${2:-0}" patch="${3:-0}"
+    echo $((major * 10000 + minor * 100 + patch))
+  }
+  OLD_IFS="$IFS"
+  IFS="."
+  local v1=$(vnum $1)
+  local v2=$(vnum $2)
+  IFS="$OLD_IFS"
+
+  [ $v1 -gt $v2 ]
 }
 
 fetch_manifest() {
