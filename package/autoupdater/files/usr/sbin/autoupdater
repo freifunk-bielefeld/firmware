@@ -32,7 +32,7 @@ newer_than() {
     local major="${1:-0}" minor="${2:-0}" patch="${3:-0}"
     echo $((major * 10000 + minor * 100 + patch))
   }
-  OLD_IFS="$IFS"
+  local OLD_IFS="$IFS"
   IFS="."
   local v1=$(vnum $1)
   local v2=$(vnum $2)
