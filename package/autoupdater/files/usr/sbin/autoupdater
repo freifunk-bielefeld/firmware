@@ -102,7 +102,7 @@ analyse_manifest() {
   fi
 
   local my_firmware
-  my_firmware=$(grep "^${my_model} " $manifest_upper)
+  my_firmware=$(grep -m1 "^${my_model} " $manifest_upper)
 
   if test $? -ne 0; then
     echo "No matching firmware found (model ${my_model})" >&2
