@@ -74,7 +74,7 @@ if [ -n "$macs" ]; then
 	prefix="$(uci get network.globals.ula_prefix)"
 	i=1
 	for mac in $macs; do
-		echo "		<li><h3><a href=\"http://[$(ula_addr $prefix $mac)]\" class=\"neighbor\">Neighboring nodes $i</a></h3></li>"
+		echo "		<li><h3><a href=\"http://[$(ula_addr $prefix $mac)]\" class=\"neighbor\">Neighboring node $i</a></h3></li>"
 		i=$((i+1))
 	done
 else
