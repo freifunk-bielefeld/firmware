@@ -56,7 +56,7 @@ print_basic() {
 
 print_more() {
 	echo -n "\"loadavg\" : $(uptime | awk '{print($NF)}'), "
-	echo -n "\"uptime\" : $(cat /proc/uptime | awk '{print($1)}'), "
+	echo -n "\"uptime\" : $(awk '{print(int($1))}' /proc/uptime), "
 
 	print_basic
 }
