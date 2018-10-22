@@ -14,7 +14,7 @@ memory_usage()
 
 rootfs_usage()
 {
-	df / | awk '/^overlayfs/{print($5/100); exit;}'
+	df / | awk 'NR>1 {print($5/100); exit;}'
 }
 
 print_basic() {
