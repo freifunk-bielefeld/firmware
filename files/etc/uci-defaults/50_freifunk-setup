@@ -521,6 +521,13 @@ update_065_to_100()
 	uci commit system
 }
 
+update_100_to_200()
+{
+	# Preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
@@ -607,6 +614,11 @@ start()
 		0.6.5*)
 			echo "(I) Apply update."
 			update_065_to_100
+			update_version
+			;;
+		1.0.0*)
+			echo "(I) Apply update."
+			update_100_to_200
 			update_version
 			;;
 		"")
