@@ -526,6 +526,9 @@ update_100_to_200()
 	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+
+	uci set batman-adv.bat0.routing_algo='BATMAN_V'
+	uci commit batman-adv
 }
 
 start()

@@ -6,4 +6,4 @@ config mesh 'bat0'
 	option bridge_loop_avoidance 1
 	option aggregated_ogms 1
 	option gw_mode 'client'
-	option routing_algo 'BATMAN_IV'
+	option routing_algo 'BATMAN_V'
