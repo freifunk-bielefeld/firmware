@@ -528,6 +528,8 @@ update_100_to_200()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
+	cp /rom/etc/config/fastd /etc/config/fastd
+
 	uci set batman-adv.bat0.routing_algo='BATMAN_V'
 	uci commit batman-adv
 }
