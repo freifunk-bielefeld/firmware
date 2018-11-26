@@ -530,6 +530,11 @@ update_100_to_200()
 
 	cp /rom/etc/config/fastd /etc/config/fastd
 
+	cp /rom/etc/firewall.user /etc/firewall.user
+	initial_local_node_setup
+	# no commit, keep firewall.user changes only
+	#uci commit network
+
 	uci set batman-adv.bat0.routing_algo='BATMAN_V'
 	uci commit batman-adv
 }
