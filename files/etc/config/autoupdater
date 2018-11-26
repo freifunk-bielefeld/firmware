@@ -17,7 +17,7 @@ config branch stable
 	# Delay sysupgrade for apply_delay seconds.
 	# This gives other nodes behind this one time to fetch the update
 	# themselves before the update is performed.
-	option apply_delay 4000
+	option apply_delay 0
 
 	# Minimum valid signatures required to perform the update
 	option good_signatures 2
