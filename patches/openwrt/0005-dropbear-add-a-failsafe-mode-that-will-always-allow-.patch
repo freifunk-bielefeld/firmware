@@ -1,12 +1,12 @@
-From ffc0e083ffa0ab027782e2faf8f9b27ef7f0955a Mon Sep 17 00:00:00 2001
+From 5380ce37edb118513c210c98e415c95974a6ebce Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 27 Sep 2016 03:55:55 +0200
-Subject: [PATCH 5/9] dropbear: add a failsafe mode that will always allow
+Subject: [PATCH 05/13] dropbear: add a failsafe mode that will always allow
  password-less root login
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 ---
- .../dropbear/patches/700-failsafe-mode.patch  | 57 +++++++++++++++++++
+ .../dropbear/patches/700-failsafe-mode.patch       | 57 ++++++++++++++++++++++
  1 file changed, 57 insertions(+)
  create mode 100644 package/network/services/dropbear/patches/700-failsafe-mode.patch
 
@@ -74,5 +74,5 @@ index 0000000000..d379da0d0a
 + 				case 'h':
 + 					printhelp(argv[0]);
 -- 
-2.18.0
+2.11.0
 

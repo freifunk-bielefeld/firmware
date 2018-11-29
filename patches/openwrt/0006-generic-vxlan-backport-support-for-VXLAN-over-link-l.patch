@@ -1,15 +1,15 @@
-From da873180617ba91b56ddf827f8a8583ce05b316f Mon Sep 17 00:00:00 2001
+From a12fddcbf066e3f360b50ff78f64a75cc26ef093 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 9 Jan 2018 22:38:19 +0100
-Subject: [PATCH 6/9] generic: vxlan: backport support for VXLAN over
+Subject: [PATCH 06/13] generic: vxlan: backport support for VXLAN over
  link-local IPv6 to 4.9
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 ---
- ...lidation-of-address-family-configura.patch |  73 +++++++
- ...valid-combinations-of-address-scopes.patch |  91 +++++++++
- ...ooping-for-link-local-IPv6-addresses.patch |  93 +++++++++
- ...iple-VXLANs-with-same-VNI-for-IPv6-l.patch | 182 ++++++++++++++++++
+ ...ve-validation-of-address-family-configura.patch |  73 +++++++++
+ ...heck-valid-combinations-of-address-scopes.patch |  91 +++++++++++
+ ...ix-snooping-for-link-local-IPv6-addresses.patch |  93 +++++++++++
+ ...-multiple-VXLANs-with-same-VNI-for-IPv6-l.patch | 182 +++++++++++++++++++++
  4 files changed, 439 insertions(+)
  create mode 100644 target/linux/generic/backport-4.9/095-0001-vxlan-improve-validation-of-address-family-configura.patch
  create mode 100644 target/linux/generic/backport-4.9/095-0002-vxlan-check-valid-combinations-of-address-scopes.patch
@@ -480,5 +480,5 @@ index 0000000000..18ae230a3b
 +2.15.1
 +
 -- 
-2.18.0
+2.11.0
 

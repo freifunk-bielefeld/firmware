@@ -1,14 +1,15 @@
-From 7f235f596cad57f9bfa3931ad4032f7bf19e7416 Mon Sep 17 00:00:00 2001
+From b59297adcc14cb7aa2af060b3ca831d2492189e8 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 12 Apr 2018 07:50:02 +0200
-Subject: [PATCH 7/9] kernel: ebtables: add support for ICMP/IGMP type matches
+Subject: [PATCH 07/13] kernel: ebtables: add support for ICMP/IGMP type
+ matches
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 ---
- ...port-for-matching-ICMP-type-and-code.patch | 141 ++++++++++++++++++
- ...s-add-support-for-matching-IGMP-type.patch |  95 ++++++++++++
- ...port-for-matching-ICMP-type-and-code.patch | 141 ++++++++++++++++++
- ...s-add-support-for-matching-IGMP-type.patch |  95 ++++++++++++
+ ...d-support-for-matching-ICMP-type-and-code.patch | 141 +++++++++++++++++++++
+ ...tables-add-support-for-matching-IGMP-type.patch |  95 ++++++++++++++
+ ...d-support-for-matching-ICMP-type-and-code.patch | 141 +++++++++++++++++++++
+ ...tables-add-support-for-matching-IGMP-type.patch |  95 ++++++++++++++
  4 files changed, 472 insertions(+)
  create mode 100644 target/linux/generic/backport-4.14/096-0001-ebtables-add-support-for-matching-ICMP-type-and-code.patch
  create mode 100644 target/linux/generic/backport-4.14/096-0002-ebtables-add-support-for-matching-IGMP-type.patch
@@ -512,5 +513,5 @@ index 0000000000..5750b612fc
 +2.16.2
 +
 -- 
-2.18.0
+2.11.0
 

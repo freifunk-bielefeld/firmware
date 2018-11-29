@@ -1,11 +1,11 @@
-From df953c8a4518e3651d2d50b9ab182da88b577359 Mon Sep 17 00:00:00 2001
+From 8ae502a7d85d3ea82a7f7a128a2a519764220467 Mon Sep 17 00:00:00 2001
 From: Jan-Philipp Litza <janphilipp@litza.de>
 Date: Fri, 6 May 2016 16:44:29 +0200
-Subject: [PATCH 4/9] libjson-c: Add support for custom format strings for
+Subject: [PATCH 04/13] libjson-c: Add support for custom format strings for
  doubles
 
 ---
- .../patches/002-custom-format-string.patch    | 98 +++++++++++++++++++
+ .../patches/002-custom-format-string.patch         | 98 ++++++++++++++++++++++
  1 file changed, 98 insertions(+)
  create mode 100644 package/libs/libjson-c/patches/002-custom-format-string.patch
 
@@ -114,5 +114,5 @@ index 0000000000..2f454c560f
 +2.7.4
 +
 -- 
-2.18.0
+2.11.0
 
