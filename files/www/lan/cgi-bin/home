@@ -83,7 +83,7 @@ else
 fi
 
 print 'node_count' "$((`cat /sys/kernel/debug/batman_adv/bat0/transtable_global | grep '^ [^ ]' | cut -b 39-55 | sort | uniq | wc -l 2> /dev/null`+1))"
-print 'neigh_count' "$(cat /sys/kernel/debug/batman_adv/bat0/originators | grep '^[0-9a-f]' | cut -b 37-53 | sort | uniq | wc -l 2> /dev/null)"
+print 'neigh_count' "$(tail -n +3 /sys/kernel/debug/batman_adv/bat0/neighbors 2> /dev/null | grep  -v '^No' | cut -c -17 | sort | uniq | wc -l)"
 print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"
 print 'fastd_version' "$(fastd --version 2> /dev/null | cut -d' ' -f 2)"
 print 'batman_version' "$(cat /sys/module/batman_adv/version 2> /dev/null)"
