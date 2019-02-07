@@ -38,7 +38,9 @@ print_basic() {
 	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
 	echo -n "\"links\" : ["
 
-	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
+	# Calculate bandwidth as percent value
+	calcQual() { echo "$1" "40" | awk '{ printf("%.1f", ($1 > $2) ? 100 : (100 * $1 / $2)) }'; }
+	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $(calcQual $2) }"; }
 	IFS="
 "
 	nd=0
