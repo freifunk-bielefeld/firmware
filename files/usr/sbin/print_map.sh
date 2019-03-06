@@ -24,11 +24,17 @@ print_basic() {
 	local longitude="$(uci -q get freifunk.@settings[0].longitude 2> /dev/null)"
 	local latitude="$(uci -q get freifunk.@settings[0].latitude 2> /dev/null)"
 	local contact="$(uci -q get freifunk.@settings[0].contact 2> /dev/null)"
+	local autoupdater_enabled="$(uci -q get autoupdater.settings.enabled 2> /dev/null)"
+	local autoupdater_branch="$(uci -q get autoupdater.settings.branch 2> /dev/null)"
 
 	[ -n "$contact" ] && echo -n "\"contact\" : \"$contact\", "
 	[ -n "$name" ] && echo -n "\"name\" : \"$name\", "
 	[ -n "$version" ] && echo -n "\"firmware\" : \"ffbi-$version\", "
 	[ -n "$community" ] && echo -n "\"community\" : \"$community\", "
+
+	if [ "$autoupdater_enabled" = "1" ]; then
+		echo -n "\"autoupdater\" : \"$autoupdater_branch\", "
+	fi
 
 	if [ -n "$longitude" -a -n "$latitude" ]; then
 		echo -n "\"longitude\" : $longitude, "
