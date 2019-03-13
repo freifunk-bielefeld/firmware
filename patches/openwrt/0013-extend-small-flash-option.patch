@@ -1,7 +1,7 @@
-From 99e3a769c7e94712c3f22172a83271d56ce32910 Mon Sep 17 00:00:00 2001
+From 09329105c731fa10d2aebab57458c6741a981c4a Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Sun, 29 Jan 2017 22:10:01 +0100
-Subject: [PATCH 12/13] extend small flash option
+Subject: [PATCH 13/14] extend small flash option
 
 ---
  config/Config-build.in  | 2 ++
@@ -42,5 +42,5 @@ index 0cbe5e8351..ef20cfbfd0 100644
  	help
  	  This will compile your kernel and modules with debug information.
 -- 
-2.11.0
+2.20.1
 

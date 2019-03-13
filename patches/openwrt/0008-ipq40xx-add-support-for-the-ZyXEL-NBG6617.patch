@@ -1,7 +1,7 @@
-From 16dd5856f24fe4d45b15d95fef68f7ea29a0d389 Mon Sep 17 00:00:00 2001
+From 7eaab56c71f78ee71b43c7e7673ec5bbf2e43f22 Mon Sep 17 00:00:00 2001
 From: Christian Lamparter <chunkeey@googlemail.com>
 Date: Thu, 21 Jun 2018 14:24:59 +0200
-Subject: [PATCH 08/13] ipq40xx: add support for the ZyXEL NBG6617
+Subject: [PATCH 08/14] ipq40xx: add support for the ZyXEL NBG6617
 
 This patch adds support for ZyXEL NBG6617
 
@@ -113,21 +113,21 @@ Co-authored-by: David Bauer <mail@david-bauer.net>
 Signed-off-by: Christian Lamparter <chunkeey@googlemail.com>
 Signed-off-by: David Bauer <mail@david-bauer.net>
 ---
- include/image-commands.mk                          |  13 +
- package/boot/uboot-envtools/files/ipq40xx          |   3 +
- package/firmware/ipq-wifi/Makefile                 |   3 +-
- package/firmware/ipq-wifi/board-zyxel_nbg6617.bin  | Bin 0 -> 24276 bytes
- scripts/make-ras.sh                                | 196 +++++++++++++
- .../linux/ipq40xx/base-files/etc/board.d/01_leds   |   5 +
- .../ipq40xx/base-files/etc/board.d/02_network      |   5 +
- .../etc/hotplug.d/firmware/11-ath10k-caldata       |   2 +
- .../lib/preinit/05_set_iface_mac_ipq40xx.sh        |   4 +
- .../lib/preinit/06_set_preinit_iface_ipq40xx.sh    |  19 ++
- .../ipq40xx/base-files/lib/upgrade/platform.sh     |  18 ++
- .../arch/arm/boot/dts/qcom-ipq4018-nbg6617.dts     | 321 +++++++++++++++++++++
- target/linux/ipq40xx/image/Makefile                |  22 ++
- .../patches-4.14/069-arm-boot-add-dts-files.patch  |   3 +-
- ...spi-nor-enable-4B-opcodes-for-mx25l25635f.patch |  64 ++++
+ include/image-commands.mk                     |  13 +
+ package/boot/uboot-envtools/files/ipq40xx     |   3 +
+ package/firmware/ipq-wifi/Makefile            |   3 +-
+ .../firmware/ipq-wifi/board-zyxel_nbg6617.bin | Bin 0 -> 24276 bytes
+ scripts/make-ras.sh                           | 196 +++++++++++
+ .../ipq40xx/base-files/etc/board.d/01_leds    |   5 +
+ .../ipq40xx/base-files/etc/board.d/02_network |   5 +
+ .../etc/hotplug.d/firmware/11-ath10k-caldata  |   2 +
+ .../lib/preinit/05_set_iface_mac_ipq40xx.sh   |   4 +
+ .../preinit/06_set_preinit_iface_ipq40xx.sh   |  19 ++
+ .../base-files/lib/upgrade/platform.sh        |  18 +
+ .../arm/boot/dts/qcom-ipq4018-nbg6617.dts     | 321 ++++++++++++++++++
+ target/linux/ipq40xx/image/Makefile           |  22 ++
+ .../069-arm-boot-add-dts-files.patch          |   3 +-
+ ...or-enable-4B-opcodes-for-mx25l25635f.patch |  64 ++++
  15 files changed, 676 insertions(+), 2 deletions(-)
  create mode 100644 package/firmware/ipq-wifi/board-zyxel_nbg6617.bin
  create mode 100755 scripts/make-ras.sh
@@ -1045,5 +1045,5 @@ index 0000000000..7c513a6ad8
 + 			return PTR_ERR(jinfo);
 + 		} else if (jinfo != info) {
 -- 
-2.11.0
+2.20.1
 

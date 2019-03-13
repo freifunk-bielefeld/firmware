@@ -1,7 +1,7 @@
-From 9d9f2b542fdac9e4d599c84ba4286656be79ec81 Mon Sep 17 00:00:00 2001
+From fd8e23c39fc62bcbaca7ad0bc0ad058c9664310c Mon Sep 17 00:00:00 2001
 From: David Bauer <mail@david-bauer.net>
 Date: Wed, 22 Aug 2018 17:30:44 +0200
-Subject: [PATCH 09/13] build: add mkrasimage
+Subject: [PATCH 09/14] build: add mkrasimage
 
 The current make-ras.sh image generation script for the ZyXEL NBG6617
 has portability issues with bash. Because of this, factory images are
@@ -17,12 +17,12 @@ header for ZyXEL factory image.
 Signed-off-by: David Bauer <mail@david-bauer.net>
 ---
  include/image-commands.mk             |  18 +-
- scripts/make-ras.sh                   | 196 ---------------
+ scripts/make-ras.sh                   | 196 -----------
  target/linux/ar71xx/image/generic.mk  |   6 +-
  target/linux/ipq40xx/image/Makefile   |   2 +-
  target/linux/ipq806x/image/Makefile   |   6 +-
  tools/firmware-utils/Makefile         |   1 +
- tools/firmware-utils/src/mkrasimage.c | 459 ++++++++++++++++++++++++++++++++++
+ tools/firmware-utils/src/mkrasimage.c | 459 ++++++++++++++++++++++++++
  7 files changed, 480 insertions(+), 208 deletions(-)
  delete mode 100755 scripts/make-ras.sh
  create mode 100644 tools/firmware-utils/src/mkrasimage.c
@@ -793,5 +793,5 @@ index 0000000000..8eee29cc08
 +    return build_image();
 +}
 -- 
-2.11.0
+2.20.1
 
