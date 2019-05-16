@@ -14,7 +14,7 @@ memory_usage()
 
 rootfs_usage()
 {
-	df / | awk 'NR>1 {print($5/100); exit;}'
+	df / | awk 'BEGIN {val=100} NR==2 {val=$5} END { printf("%.2f", val/100) }'
 }
 
 print_basic() {
