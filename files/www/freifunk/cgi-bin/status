@@ -145,7 +145,7 @@ Array.prototype.forEach.call(neighbors, function(el) {
 		}
 
 		if (qual >= 0) {
-			var e = document.createTextNode(" (" + (100. * qual / 255.).toFixed(0) + "%)");
+			var e = document.createTextNode(" (" + qual.toFixed(0) + "%)");
 			el.parentNode.appendChild(e);
 		}
 	};

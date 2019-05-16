@@ -7,6 +7,8 @@
 
 body {
 	font: 13px verdana, arial, 'Bitstream Vera Sans', helvetica, sans-serif;
+	margin: 0;
+	padding: 0;
 	line-height: 1.7em;
 }
 
@@ -16,32 +18,28 @@ h1, h2, h3, h4, h5, h6, label {
 
 h2 {
 	font-size: 1.5em;
-	margin: 1.5em 0;
 }
 
 h3 {
 	font-size: 1.17em;
-	margin: 1em 0;
 }
 
 .header {
-	margin: 0;
 	color: #333;
 	text-align: center;
-	padding: 2.5em 2em 0;
 	border-bottom: 1px solid #eee;
 }
 
 .header h1 {
-	margin: 0.2em 0;
 	font-size: 3em;
 	font-weight: 300;
+	overflow: auto;
+	padding: 0.5em 0 0.5em;  
 }
 
 .header h2 {
 	font-weight: 300;
 	color: #ccc;
-	padding: 0;
 	margin-top: 1em;
 }
 
@@ -57,16 +55,17 @@ h3 {
 	word-spacing: normal;
 	vertical-align: top;
 	width: 33.3333%;
+	overflow: auto;
 }
 
 .menu {
+	padding: 0.5em 0.5em 0.5em;
+	display: inline-block;
 	border: 0;
 	border-bottom: 1px solid #b7b7b7;
-	padding: 0.5em;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.10);
 	text-align: left;
 	background: #2d3e50;
-	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -138,7 +137,6 @@ a {
 }
 
 .content {
-	padding: 0 2em;
 	max-width: 800px;
 	margin: 0 auto 50px;
 	line-height: 1.6em;

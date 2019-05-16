@@ -38,11 +38,13 @@ print_basic() {
 	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
 	echo -n "\"links\" : ["
 
-	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
+	# Calculate bandwidth as percent value
+	calcQual() { echo "$1" "40" | awk '{ printf("%.1f", ($1 > $2) ? 100 : (100 * $1 / $2)) }'; }
+	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $(calcQual $2) }"; }
 	IFS="
 "
 	nd=0
-	for entry in $(cat /sys/kernel/debug/batman_adv/bat0/originators 2> /dev/null | tr '\t/[]()' ' ' |  awk '{ if($1==$4) print($1, int($3), $5) }'); do
+	for entry in $(awk -F '[][)( \t]+' '/^[a-f0-9]/{ print($1, $3, $4) }' /sys/kernel/debug/batman_adv/bat0/neighbors 2> /dev/null); do
 		[ $nd -eq 0 ] && nd=1 || echo -n ", "
 		IFS=" "
 		printLink $entry
