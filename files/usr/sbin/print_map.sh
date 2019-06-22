@@ -42,6 +42,7 @@ print_basic() {
 	fi
 
 	echo -n "\"model\" : \"$(cat /tmp/sysinfo/model)\", "
+	echo -n "\"using_gateway\" : \"$(sockread /var/run/fastd.status < /dev/null 2> /dev/null | grep established | sed 's/\(.*\)"name": "\([^"]*\)"\(.*\)established\(.*\)/\2/g')\", "
 	echo -n "\"links\" : ["
 
 	# Calculate bandwidth as percent value
