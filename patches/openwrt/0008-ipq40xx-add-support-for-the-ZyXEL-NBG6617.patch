@@ -1,7 +1,7 @@
-From 7eaab56c71f78ee71b43c7e7673ec5bbf2e43f22 Mon Sep 17 00:00:00 2001
+From 83de8bfbeb8b3932e30a6e9b363fedfd80c20dab Mon Sep 17 00:00:00 2001
 From: Christian Lamparter <chunkeey@googlemail.com>
 Date: Thu, 21 Jun 2018 14:24:59 +0200
-Subject: [PATCH 08/14] ipq40xx: add support for the ZyXEL NBG6617
+Subject: [PATCH 08/23] ipq40xx: add support for the ZyXEL NBG6617
 
 This patch adds support for ZyXEL NBG6617
 
@@ -914,7 +914,7 @@ index 0000000000..d7f8c5955c
 +	status = "okay";
 +};
 diff --git a/target/linux/ipq40xx/image/Makefile b/target/linux/ipq40xx/image/Makefile
-index 38600cf979..d1ee1004fd 100644
+index 90d9dfeff0..cb79baccd2 100644
 --- a/target/linux/ipq40xx/image/Makefile
 +++ b/target/linux/ipq40xx/image/Makefile
 @@ -1,6 +1,8 @@
@@ -1045,5 +1045,5 @@ index 0000000000..7c513a6ad8
 + 			return PTR_ERR(jinfo);
 + 		} else if (jinfo != info) {
 -- 
-2.20.1
+2.22.0
 

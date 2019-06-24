@@ -1,7 +1,7 @@
-From fd8e23c39fc62bcbaca7ad0bc0ad058c9664310c Mon Sep 17 00:00:00 2001
+From f13e3ba0b3609f8fec53eb82544625fe702706b7 Mon Sep 17 00:00:00 2001
 From: David Bauer <mail@david-bauer.net>
 Date: Wed, 22 Aug 2018 17:30:44 +0200
-Subject: [PATCH 09/14] build: add mkrasimage
+Subject: [PATCH 09/23] build: add mkrasimage
 
 The current make-ras.sh image generation script for the ZyXEL NBG6617
 has portability issues with bash. Because of this, factory images are
@@ -279,7 +279,7 @@ index 640557532c..4568b65621 100644
    # We cannot currently build a factory image. It is the sysupgrade image
    # prefixed with a header (which is actually written into the MTD device).
 diff --git a/target/linux/ipq40xx/image/Makefile b/target/linux/ipq40xx/image/Makefile
-index d1ee1004fd..5cd11cae23 100644
+index cb79baccd2..a0f81f7d63 100644
 --- a/target/linux/ipq40xx/image/Makefile
 +++ b/target/linux/ipq40xx/image/Makefile
 @@ -221,7 +221,7 @@ define Device/zyxel_nbg6617
@@ -793,5 +793,5 @@ index 0000000000..8eee29cc08
 +    return build_image();
 +}
 -- 
-2.20.1
+2.22.0
 

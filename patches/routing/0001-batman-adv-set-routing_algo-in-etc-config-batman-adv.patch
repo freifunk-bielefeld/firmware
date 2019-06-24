@@ -1,7 +1,7 @@
-From b9eab2329683f2aaf4c0093451af0f0a2ba0e5a8 Mon Sep 17 00:00:00 2001
+From 24e8775e55b504fa78592951f39b740cbc8d2740 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
-Date: Mon, 26 Nov 2018 16:52:18 -0500
-Subject: [PATCH 2/2] batman-adv: set routing_algo in /etc/config/batman-adv
+Date: Mon, 24 Jun 2019 16:37:41 +0000
+Subject: [PATCH 1/2] batman-adv: set routing_algo in /etc/config/batman-adv
 
 ---
  batman-adv/files/lib/netifd/proto/batadv.sh | 3 ++-
@@ -22,5 +22,5 @@ index 1e0c9d0..b404aca 100644
  	[ -n "$routing_algo" ] || routing_algo="BATMAN_IV"
  	echo "$routing_algo" > "/sys/module/batman_adv/parameters/routing_algo"
 -- 
-2.11.0
+2.1.4
 
