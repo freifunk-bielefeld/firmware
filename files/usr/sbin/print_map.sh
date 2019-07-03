@@ -59,8 +59,7 @@ print_basic() {
 
 	echo -n '], '
 
-	mac=$(uci -q get network.freifunk.macaddr)
-	batctl translocal 2> /dev/null | tr '\t/[]()' ' ' | awk -v mac=$mac 'BEGIN{ c=0; } { if($1 == "*" && $2 != mac && $4 ~ /^[.NW]+$/ && $5 < 300) c++;} END{ printf("\"clientcount\" : %d", c);}'
+	batctl translocal 2> /dev/null | awk -v macs="$(cat /sys/class/net/*/address)" 'BEGIN{c=0} NR > 2 {if (index(macs, $1) == 0){ c+=1 }} END {printf("\"clientcount\" : %d", c)}'
 }
 
 print_more() {

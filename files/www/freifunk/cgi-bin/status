@@ -57,7 +57,10 @@ fi
 		</div>
 		<div class="pure-u-md-1-3">
 			<h2>Local clients</h2>
-			<h3><% echo -n $(batctl translocal 2> /dev/null | tail -n +3 | grep -c 'W') %></h3>
+			<h3><%
+				echo -n $(batctl translocal 2> /dev/null | awk -v macs="$(cat /sys/class/net/*/address)" 'BEGIN{c=0} NR > 2 {if (index(macs, $1) == 0){ c+=1; }} END {print(c)}')
+			%>
+			</h3>
 		</div>
 	</div>
 </div>
