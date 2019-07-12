@@ -82,8 +82,8 @@ else
 	print 'has_internet' 'Nein'
 fi
 
-print 'node_count' "$((`batctl transglobal 2> /dev/null | grep '^ [^ ]' | cut -b 39-55 | sort | uniq | wc -l`+1))"
-print 'neigh_count' "$(batctl neighbors 2> /dev/null | tail -n +3 | grep  -v '^No' | cut -c -17 | sort | uniq | wc -l)"
+print 'node_count' "$((`batctl transglobal -H 2> /dev/null | grep '^ [^ ]' | cut -b 39-55 | sort | uniq | wc -l`+1))"
+print 'neigh_count' "$(batctl neighbors -H 2> /dev/null | cut -c -17 | sort | uniq | wc -l)"
 print 'firmware_version' "$(uci -q get freifunk.@settings[0].version)"
 print 'fastd_version' "$(fastd --version 2> /dev/null | cut -d' ' -f 2)"
 print 'batman_version' "$(batctl -v 2> /dev/null | awk -F '[][ \t]+' '{print($4); exit;}')"
@@ -91,7 +91,7 @@ print 'openwrt_version' "$DISTRIB_RELEASE"
 name="$(uci -q get freifunk.@settings[0].name)"
 print 'name' "${name:--}"
 print 'model' "$(cat /tmp/sysinfo/model 2> /dev/null)"
-print 'freifunk_user_count' "$(batctl translocal 2> /dev/null | grep -c 'W')"
+print 'freifunk_user_count' "$(batctl translocal -H 2> /dev/null | grep -c 'W')"
 print 'lan_user_count' "$(cat /tmp/dhcp.lan.leases 2> /dev/null | sed '/^[0-9][0-9]* .* 192/!d' | wc -l)"
 
 print 'lan_rx_speed' "$(calc_speed.sh $lan rx 2> /dev/null)"
