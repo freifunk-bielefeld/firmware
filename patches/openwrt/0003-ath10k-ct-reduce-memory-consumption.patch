@@ -1,7 +1,7 @@
-From 615aaef2c52d828d7a9662df6e2ec731f98614c3 Mon Sep 17 00:00:00 2001
+From ed795c6b868c7a30e0744f93db212fecb6a21874 Mon Sep 17 00:00:00 2001
 From: Sven Eckelmann <sven@narfation.org>
 Date: Mon, 18 Jun 2018 21:03:37 +0200
-Subject: [PATCH 11/23] ath10k-ct: reduce memory consumption
+Subject: [PATCH 03/10] ath10k-ct: reduce memory consumption
 
 ath10k uses a rather high number of buffers to communicate with the QCA
 firmware. Especially the HTC (host-target-communication) and HTT

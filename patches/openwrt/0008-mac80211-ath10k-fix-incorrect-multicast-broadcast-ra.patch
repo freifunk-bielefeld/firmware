@@ -1,7 +1,7 @@
-From ea0ab4212617f746c669fde25c8e596ba5a67367 Mon Sep 17 00:00:00 2001
+From 12465fb31697cb49c6a910c95c549a9bc2493c7a Mon Sep 17 00:00:00 2001
 From: Sven Eckelmann <sven@narfation.org>
 Date: Mon, 25 Feb 2019 20:42:28 +0100
-Subject: [PATCH 20/23] mac80211: ath10k: fix incorrect multicast/broadcast
+Subject: [PATCH 08/10] mac80211: ath10k: fix incorrect multicast/broadcast
  rate setting
 
 If no mcast_rate is set for the wifi-iface then there is no rate_idx (0)
