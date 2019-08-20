@@ -1,0 +1,32 @@
+From 703b5a0168ea529b420633639df153e5884dcc20 Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Tue, 20 Aug 2019 23:16:14 +0200
+Subject: [PATCH 10/11] config/config-build: extend small flash option
+
+---
+ config/Config-build.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/config/Config-build.in b/config/Config-build.in
+index 5132497e1d..4cdfc89db9 100644
+--- a/config/Config-build.in
++++ b/config/Config-build.in
+@@ -163,6 +163,7 @@ menu "Global build settings"
+ 
+ 	config STRIP_KERNEL_EXPORTS
+ 		bool "Strip unnecessary exports from the kernel image"
++		default y if SMALL_FLASH
+ 		help
+ 		  Reduces kernel size by stripping unused kernel exports from the kernel
+ 		  image.  Note that this might make the kernel incompatible with any kernel
+@@ -170,6 +171,7 @@ menu "Global build settings"
+ 
+ 	config USE_MKLIBS
+ 		bool "Strip unnecessary functions from libraries"
++		default y if SMALL_FLASH
+ 		help
+ 		  Reduces libraries to only those functions that are necessary for using all
+ 		  selected packages (including those selected as <M>).  Note that this will
+-- 
+2.22.0
+

@@ -1,0 +1,30 @@
+From 6447f8ba3c7b623b68d1f816d475043b71d991ee Mon Sep 17 00:00:00 2001
+From: Moritz Warning <moritzwarning@web.de>
+Date: Tue, 20 Aug 2019 23:17:52 +0200
+Subject: [PATCH 11/11] include/target: remove ppp and opkg by default
+
+---
+ include/target.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/target.mk b/include/target.mk
+index a813ba2d2d..60554af433 100644
+--- a/include/target.mk
++++ b/include/target.mk
+@@ -13,11 +13,11 @@ __target_inc=1
+ DEVICE_TYPE?=router
+ 
+ # Default packages - the really basic set
+-DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools uclient-fetch logd urandom-seed urngd
++DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci netifd fstools uclient-fetch logd urandom-seed urngd
+ # For nas targets
+ DEFAULT_PACKAGES.nas:=block-mount fdisk lsblk mdadm
+ # For router targets
+-DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe firewall odhcpd-ipv6only odhcp6c kmod-ipt-offload
++DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables firewall odhcpd-ipv6only odhcp6c kmod-ipt-offload
+ DEFAULT_PACKAGES.bootloader:=
+ 
+ ifneq ($(DUMP),)
+-- 
+2.22.0
+
