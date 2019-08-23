@@ -569,7 +569,7 @@ update_100_to_200()
 	uci commit batman-adv
 }
 
-update_200_to_201()
+update_200_to_210()
 {
 	# Preserve self signed certificates
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
@@ -704,7 +704,7 @@ start()
 			;;
 		2.0.0*)
 			echo "(I) Apply update."
-			update_200_to_201
+			update_200_to_210
 			update_version
 			;;
 		"")
