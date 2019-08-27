@@ -45,9 +45,7 @@ print_basic() {
 	echo -n "\"using_gateway\" : \"$(sockread /var/run/fastd.status < /dev/null 2> /dev/null | grep established | sed 's/\(.*\)"name": "\([^"]*\)"\(.*\)established\(.*\)/\2/g')\", "
 	echo -n "\"links\" : ["
 
-	# Calculate bandwidth as percent value
-	calcQual() { echo "$1" "40" | awk '{ printf("%.1f", ($1 > $2) ? 100 : (100 * $1 / $2)) }'; }
-	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $(calcQual $2) }"; }
+	printLink() { echo -n "{ \"smac\" : \"$(cat /sys/class/net/$3/address)\", \"dmac\" : \"$1\", \"qual\" : $2 }"; }
 	IFS="
 "
 	nd=0
