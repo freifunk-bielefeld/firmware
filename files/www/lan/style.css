@@ -24,6 +24,10 @@ body {
 	cursor: help;
 }
 
+.adv_hide {
+	display: none
+}
+
 #nds_files label {
 	width: 18em;
 }
