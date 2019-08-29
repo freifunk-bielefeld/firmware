@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>SSH Keys</title>
+<meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script src="shared.js"></script>
+<script src="ssh_keys.js"></script>
+</head>
+<body onload="init();">
+
+<fieldset>
+	<legend class='tr_ssh_keys'></legend>
+	<div>
+		<textarea id="ssh_keys" rows="12" cols="100" onkeydown="verify_keys()" autocomplete="off"></textarea>
+	</div>
+	<div class="tr_ssh_keys_help"></div>
+</fieldset>
+<button type="button" id='ssh_keys_submit_button' class='tr_save'></button>
+
+</body>
+</html>

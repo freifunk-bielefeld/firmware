@@ -1,0 +1,18 @@
+#!/usr/bin/haserl
+<%
+echo -en "content-type: text/plain\r\n\r\n"
+
+case $GET_func in
+	get_authorized_keys)
+		cat /etc/dropbear/authorized_keys 2> /dev/null
+	;;
+	set_authorized_keys)
+		echo "$GET_data" > /etc/dropbear/authorized_keys 2> /dev/null
+		echo 'Update durchgeführt.'
+	;;
+	*)
+		echo "Fehler: Unbekanntes Kommando: '$GET_func'"
+	;;
+esac
+
+%>
