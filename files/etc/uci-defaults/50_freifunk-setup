@@ -566,8 +566,8 @@ update_200_to_210()
 	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
 	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
 
-	cp /rom/etc/profile /rom/etc/profile
-	cp /rom/etc/group /rom/etc/group
+	cp /rom/etc/profile /etc/profile
+	cp /rom/etc/group /etc/group
 
 	# Rebuild /etc/config/system
 	local hostname="$(uci get system.@system[0].hostname)"
