@@ -26,7 +26,7 @@ function removeItem(str, item)
 {
 	var array = split(str);
 	for (var i in array) {
-		if (array[i] == item) {
+		if (array[i] === item) {
 			array.splice(i, 1);
 		}
 	}
@@ -37,7 +37,7 @@ function addItem(str, item)
 {
 	var array = split(str);
 	for (var i in array) {
-		if (array[i] == item) {
+		if (array[i] === item) {
 			return str;
 		}
 	}

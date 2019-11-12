@@ -695,7 +695,7 @@ function removePort(port, mode, swinfo)
 	var ifname = getInterfaceName(vid, swinfo);
 	var vobj = uci.network[vid];
 
-	vobj.ports = removeItem(vobj.ports, port);
+	vobj.ports = removeItem(vobj.ports, port.toString());
 	// Only the base port or no port at all is left => remove section.
 	if (split(vobj.ports).length < 2) {
 		delNetSection(ifname);
@@ -720,10 +720,11 @@ function addPort(port, mode, swinfo)
 		if (vobj.device == swinfo.device && vobj.ports.indexOf(bport) != -1) {
 			var ifname = getInterfaceName(vid, swinfo);
 			if (getInterfaceMode(ifname) == mode) {
-				vobj.ports = addItem(vobj.ports, port);
+				vobj.ports = addItem(vobj.ports, port.toString());
 				return true;
 			}
 		}
+		return false;
 	});
 
 	if (!added) {
