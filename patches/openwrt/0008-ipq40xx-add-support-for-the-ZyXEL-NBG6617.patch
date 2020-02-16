@@ -1,7 +1,6 @@
-From 16dd5856f24fe4d45b15d95fef68f7ea29a0d389 Mon Sep 17 00:00:00 2001
 From: Christian Lamparter <chunkeey@googlemail.com>
 Date: Thu, 21 Jun 2018 14:24:59 +0200
-Subject: [PATCH 08/13] ipq40xx: add support for the ZyXEL NBG6617
+Subject: ipq40xx: add support for the ZyXEL NBG6617
 
 This patch adds support for ZyXEL NBG6617
 
@@ -112,31 +111,9 @@ use the ATGU command to enter the real u-boot shell.
 Co-authored-by: David Bauer <mail@david-bauer.net>
 Signed-off-by: Christian Lamparter <chunkeey@googlemail.com>
 Signed-off-by: David Bauer <mail@david-bauer.net>
----
- include/image-commands.mk                          |  13 +
- package/boot/uboot-envtools/files/ipq40xx          |   3 +
- package/firmware/ipq-wifi/Makefile                 |   3 +-
- package/firmware/ipq-wifi/board-zyxel_nbg6617.bin  | Bin 0 -> 24276 bytes
- scripts/make-ras.sh                                | 196 +++++++++++++
- .../linux/ipq40xx/base-files/etc/board.d/01_leds   |   5 +
- .../ipq40xx/base-files/etc/board.d/02_network      |   5 +
- .../etc/hotplug.d/firmware/11-ath10k-caldata       |   2 +
- .../lib/preinit/05_set_iface_mac_ipq40xx.sh        |   4 +
- .../lib/preinit/06_set_preinit_iface_ipq40xx.sh    |  19 ++
- .../ipq40xx/base-files/lib/upgrade/platform.sh     |  18 ++
- .../arch/arm/boot/dts/qcom-ipq4018-nbg6617.dts     | 321 +++++++++++++++++++++
- target/linux/ipq40xx/image/Makefile                |  22 ++
- .../patches-4.14/069-arm-boot-add-dts-files.patch  |   3 +-
- ...spi-nor-enable-4B-opcodes-for-mx25l25635f.patch |  64 ++++
- 15 files changed, 676 insertions(+), 2 deletions(-)
- create mode 100644 package/firmware/ipq-wifi/board-zyxel_nbg6617.bin
- create mode 100755 scripts/make-ras.sh
- create mode 100644 target/linux/ipq40xx/base-files/lib/preinit/06_set_preinit_iface_ipq40xx.sh
- create mode 100644 target/linux/ipq40xx/files-4.14/arch/arm/boot/dts/qcom-ipq4018-nbg6617.dts
- create mode 100644 target/linux/ipq40xx/patches-4.14/303-spi-nor-enable-4B-opcodes-for-mx25l25635f.patch
 
 diff --git a/include/image-commands.mk b/include/image-commands.mk
-index 4d3f025b12..28b39c310e 100644
+index 4d3f025b123f44cfd48d5b6cf081ae7633577277..28b39c310e499caea4fe8a6d9ad6dceb5d95363b 100644
 --- a/include/image-commands.mk
 +++ b/include/image-commands.mk
 @@ -49,6 +49,19 @@ define Build/eva-image
@@ -160,7 +137,7 @@ index 4d3f025b12..28b39c310e 100644
  	$(STAGING_DIR_HOST)/bin/mkchkimg \
  		-o $@.new \
 diff --git a/package/boot/uboot-envtools/files/ipq40xx b/package/boot/uboot-envtools/files/ipq40xx
-index d475e56629..8cd4799b29 100644
+index d475e566299416176af3b8646a7510cd3c9787e7..8cd4799b295fd38c9e846af5769c9fa9f5490f8b 100644
 --- a/package/boot/uboot-envtools/files/ipq40xx
 +++ b/package/boot/uboot-envtools/files/ipq40xx
 @@ -35,6 +35,9 @@ openmesh,a42 |\
@@ -174,7 +151,7 @@ index d475e56629..8cd4799b29 100644
  
  config_load ubootenv
 diff --git a/package/firmware/ipq-wifi/Makefile b/package/firmware/ipq-wifi/Makefile
-index 1cfcc33de3..b1428f173d 100644
+index 1cfcc33de3af58e9773d22cdcbe0c95f1633e2d9..b1428f173ddb507f0c92313dcca7aae57284a0b8 100644
 --- a/package/firmware/ipq-wifi/Makefile
 +++ b/package/firmware/ipq-wifi/Makefile
 @@ -14,7 +14,7 @@ define Build/Compile
@@ -258,7 +235,7 @@ HcmV?d00001
 
 diff --git a/scripts/make-ras.sh b/scripts/make-ras.sh
 new file mode 100755
-index 0000000000..ccddaa0016
+index 0000000000000000000000000000000000000000..ccddaa0016b0c926d4737abb5757e7212b0a1157
 --- /dev/null
 +++ b/scripts/make-ras.sh
 @@ -0,0 +1,196 @@
@@ -459,7 +436,7 @@ index 0000000000..ccddaa0016
 +
 +rm -rf "$tmpdir"
 diff --git a/target/linux/ipq40xx/base-files/etc/board.d/01_leds b/target/linux/ipq40xx/base-files/etc/board.d/01_leds
-index fcba2aea54..475a8623f7 100755
+index fcba2aea543cdead03ef372bc6b751481846fbf7..475a8623f705d683a7ee3521ee71f2b57fa2e44d 100755
 --- a/target/linux/ipq40xx/base-files/etc/board.d/01_leds
 +++ b/target/linux/ipq40xx/base-files/etc/board.d/01_leds
 @@ -34,6 +34,11 @@ netgear,ex6150v2)
@@ -475,7 +452,7 @@ index fcba2aea54..475a8623f7 100755
  	ucidef_set_led_wlan "wlan2g" "WLAN2G" "${boardname}:green:wlan2g" "phy0tpt"
  	ucidef_set_led_wlan "wlan5g" "WLAN5G" "${boardname}:green:wlan5g" "phy1tpt"
 diff --git a/target/linux/ipq40xx/base-files/etc/board.d/02_network b/target/linux/ipq40xx/base-files/etc/board.d/02_network
-index 03e0c0e16c..5c90ef136f 100755
+index 03e0c0e16c33f43fafcbba9c5af4baf6dd73e425..5c90ef136fd7cbbe023001030d8c9003347bd249 100755
 --- a/target/linux/ipq40xx/base-files/etc/board.d/02_network
 +++ b/target/linux/ipq40xx/base-files/etc/board.d/02_network
 @@ -48,6 +48,11 @@ netgear,ex6150v2 |\
@@ -491,7 +468,7 @@ index 03e0c0e16c..5c90ef136f 100755
  	echo "Unsupported hardware. Network interfaces not intialized"
  	;;
 diff --git a/target/linux/ipq40xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata b/target/linux/ipq40xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
-index d89ddf6e57..1d4fd9cd8f 100644
+index d89ddf6e57ee9f759f6dcc7c7f8152c11305499b..1d4fd9cd8f9a3983ac3323ce72153c1dcc17a69a 100644
 --- a/target/linux/ipq40xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
 +++ b/target/linux/ipq40xx/base-files/etc/hotplug.d/firmware/11-ath10k-caldata
 @@ -146,6 +146,7 @@ case "$FIRMWARE" in
@@ -511,7 +488,7 @@ index d89ddf6e57..1d4fd9cd8f 100644
  		ath10kcal_extract "ART" 20480 12064
  		ath10kcal_patch_mac_crc $(macaddr_add $(cat /sys/class/net/eth0/address) -1)
 diff --git a/target/linux/ipq40xx/base-files/lib/preinit/05_set_iface_mac_ipq40xx.sh b/target/linux/ipq40xx/base-files/lib/preinit/05_set_iface_mac_ipq40xx.sh
-index 1acd7366c8..44e81ca366 100644
+index 1acd7366c81f7c70ef9018d97a833e4d355e8119..44e81ca366dd57d3d5d7fbb9065254925e94061a 100644
 --- a/target/linux/ipq40xx/base-files/lib/preinit/05_set_iface_mac_ipq40xx.sh
 +++ b/target/linux/ipq40xx/base-files/lib/preinit/05_set_iface_mac_ipq40xx.sh
 @@ -8,6 +8,10 @@ preinit_set_mac_address() {
@@ -527,7 +504,7 @@ index 1acd7366c8..44e81ca366 100644
  
 diff --git a/target/linux/ipq40xx/base-files/lib/preinit/06_set_preinit_iface_ipq40xx.sh b/target/linux/ipq40xx/base-files/lib/preinit/06_set_preinit_iface_ipq40xx.sh
 new file mode 100644
-index 0000000000..578ddbe4c4
+index 0000000000000000000000000000000000000000..578ddbe4c4f6e91d925ea3a0de9e060daac82e72
 --- /dev/null
 +++ b/target/linux/ipq40xx/base-files/lib/preinit/06_set_preinit_iface_ipq40xx.sh
 @@ -0,0 +1,19 @@
@@ -551,7 +528,7 @@ index 0000000000..578ddbe4c4
 +
 +boot_hook_add preinit_main set_preinit_iface
 diff --git a/target/linux/ipq40xx/base-files/lib/upgrade/platform.sh b/target/linux/ipq40xx/base-files/lib/upgrade/platform.sh
-index 4096e127ea..0e29302465 100644
+index 4096e127ea9eaa8106475a3143b0b2ea796b5c7c..0e29302465fb5fca6f2a2194c751728f492053d5 100644
 --- a/target/linux/ipq40xx/base-files/lib/upgrade/platform.sh
 +++ b/target/linux/ipq40xx/base-files/lib/upgrade/platform.sh
 @@ -29,6 +29,21 @@ EOF
@@ -588,7 +565,7 @@ index 4096e127ea..0e29302465 100644
  		;;
 diff --git a/target/linux/ipq40xx/files-4.14/arch/arm/boot/dts/qcom-ipq4018-nbg6617.dts b/target/linux/ipq40xx/files-4.14/arch/arm/boot/dts/qcom-ipq4018-nbg6617.dts
 new file mode 100644
-index 0000000000..d7f8c5955c
+index 0000000000000000000000000000000000000000..d7f8c5955caee15d373a342b75c8c1947f5b8022
 --- /dev/null
 +++ b/target/linux/ipq40xx/files-4.14/arch/arm/boot/dts/qcom-ipq4018-nbg6617.dts
 @@ -0,0 +1,321 @@
@@ -914,7 +891,7 @@ index 0000000000..d7f8c5955c
 +	status = "okay";
 +};
 diff --git a/target/linux/ipq40xx/image/Makefile b/target/linux/ipq40xx/image/Makefile
-index 38600cf979..d1ee1004fd 100644
+index 38600cf979242142aa08c30163e63d911f0ddb63..d1ee1004fddce6cf6007259229d8eee5b5b2ea3b 100644
 --- a/target/linux/ipq40xx/image/Makefile
 +++ b/target/linux/ipq40xx/image/Makefile
 @@ -1,6 +1,8 @@
@@ -954,7 +931,7 @@ index 38600cf979..d1ee1004fd 100644
  	$(call Device/FitImage)
  	DEVICE_TITLE := ZyXEL WRE6606
 diff --git a/target/linux/ipq40xx/patches-4.14/069-arm-boot-add-dts-files.patch b/target/linux/ipq40xx/patches-4.14/069-arm-boot-add-dts-files.patch
-index 3aa368be83..8066f986a4 100644
+index 3aa368be8381d9c48aefccbe6d4cc768b00dc41e..8066f986a4e030c9c8fe0ec4438e92d30daa77f0 100644
 --- a/target/linux/ipq40xx/patches-4.14/069-arm-boot-add-dts-files.patch
 +++ b/target/linux/ipq40xx/patches-4.14/069-arm-boot-add-dts-files.patch
 @@ -10,7 +10,7 @@ Signed-off-by: John Crispin <john@phrozen.org>
@@ -976,7 +953,7 @@ index 3aa368be83..8066f986a4 100644
   	qcom-ipq4019-ap.dk01.1-c1.dtb \
 diff --git a/target/linux/ipq40xx/patches-4.14/303-spi-nor-enable-4B-opcodes-for-mx25l25635f.patch b/target/linux/ipq40xx/patches-4.14/303-spi-nor-enable-4B-opcodes-for-mx25l25635f.patch
 new file mode 100644
-index 0000000000..7c513a6ad8
+index 0000000000000000000000000000000000000000..7c513a6ad8ec817bf388c67e1181f08982888fa5
 --- /dev/null
 +++ b/target/linux/ipq40xx/patches-4.14/303-spi-nor-enable-4B-opcodes-for-mx25l25635f.patch
 @@ -0,0 +1,64 @@
@@ -1044,6 +1021,3 @@ index 0000000000..7c513a6ad8
 + 		if (IS_ERR(jinfo)) {
 + 			return PTR_ERR(jinfo);
 + 		} else if (jinfo != info) {
--- 
-2.11.0
-

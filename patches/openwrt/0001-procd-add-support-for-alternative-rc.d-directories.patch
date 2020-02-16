@@ -1,16 +1,10 @@
-From 33258fe85789864e8c5d0ee1f53fd3a5716b95cc Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Wed, 6 Aug 2014 19:12:00 +0200
-Subject: [PATCH 01/13] procd: add support for alternative rc.d directories
-
----
- ...-support-for-alternative-rc.d-directories.patch | 97 ++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
- create mode 100644 package/system/procd/patches/0001-Add-support-for-alternative-rc.d-directories.patch
+Subject: procd: add support for alternative rc.d directories
 
 diff --git a/package/system/procd/patches/0001-Add-support-for-alternative-rc.d-directories.patch b/package/system/procd/patches/0001-Add-support-for-alternative-rc.d-directories.patch
 new file mode 100644
-index 0000000000..bc24342003
+index 0000000000000000000000000000000000000000..bc2434200364b46f1db4c2eec22c4e8b973844d5
 --- /dev/null
 +++ b/package/system/procd/patches/0001-Add-support-for-alternative-rc.d-directories.patch
 @@ -0,0 +1,97 @@
@@ -111,6 +105,3 @@ index 0000000000..bc24342003
 +-- 
 +2.0.4
 +
--- 
-2.11.0
-

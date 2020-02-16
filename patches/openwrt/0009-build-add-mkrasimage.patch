@@ -1,7 +1,6 @@
-From 9d9f2b542fdac9e4d599c84ba4286656be79ec81 Mon Sep 17 00:00:00 2001
 From: David Bauer <mail@david-bauer.net>
 Date: Wed, 22 Aug 2018 17:30:44 +0200
-Subject: [PATCH 09/13] build: add mkrasimage
+Subject: build: add mkrasimage
 
 The current make-ras.sh image generation script for the ZyXEL NBG6617
 has portability issues with bash. Because of this, factory images are
@@ -15,20 +14,9 @@ This is not tested with the NBG6616 but it correctly builds the
 header for ZyXEL factory image.
 
 Signed-off-by: David Bauer <mail@david-bauer.net>
----
- include/image-commands.mk             |  18 +-
- scripts/make-ras.sh                   | 196 ---------------
- target/linux/ar71xx/image/generic.mk  |   6 +-
- target/linux/ipq40xx/image/Makefile   |   2 +-
- target/linux/ipq806x/image/Makefile   |   6 +-
- tools/firmware-utils/Makefile         |   1 +
- tools/firmware-utils/src/mkrasimage.c | 459 ++++++++++++++++++++++++++++++++++
- 7 files changed, 480 insertions(+), 208 deletions(-)
- delete mode 100755 scripts/make-ras.sh
- create mode 100644 tools/firmware-utils/src/mkrasimage.c
 
 diff --git a/include/image-commands.mk b/include/image-commands.mk
-index 28b39c310e..552d8db1cb 100644
+index 28b39c310e499caea4fe8a6d9ad6dceb5d95363b..552d8db1cbacf533c12d0d8e2e5cffbe5591adb4 100644
 --- a/include/image-commands.mk
 +++ b/include/image-commands.mk
 @@ -49,17 +49,17 @@ define Build/eva-image
@@ -60,7 +48,7 @@ index 28b39c310e..552d8db1cb 100644
  define Build/netgear-chk
 diff --git a/scripts/make-ras.sh b/scripts/make-ras.sh
 deleted file mode 100755
-index ccddaa0016..0000000000
+index ccddaa0016b0c926d4737abb5757e7212b0a1157..0000000000000000000000000000000000000000
 --- a/scripts/make-ras.sh
 +++ /dev/null
 @@ -1,196 +0,0 @@
@@ -261,7 +249,7 @@ index ccddaa0016..0000000000
 -
 -rm -rf "$tmpdir"
 diff --git a/target/linux/ar71xx/image/generic.mk b/target/linux/ar71xx/image/generic.mk
-index 640557532c..4568b65621 100644
+index 640557532c8a02f37bc6f84ade8cb34e7172162d..4568b656219419e9ca1156c6716bd2124074cb32 100644
 --- a/target/linux/ar71xx/image/generic.mk
 +++ b/target/linux/ar71xx/image/generic.mk
 @@ -1086,8 +1086,12 @@ define Device/NBG6616
@@ -279,7 +267,7 @@ index 640557532c..4568b65621 100644
    # We cannot currently build a factory image. It is the sysupgrade image
    # prefixed with a header (which is actually written into the MTD device).
 diff --git a/target/linux/ipq40xx/image/Makefile b/target/linux/ipq40xx/image/Makefile
-index d1ee1004fd..5cd11cae23 100644
+index d1ee1004fddce6cf6007259229d8eee5b5b2ea3b..5cd11cae237b4658906652967d8120bd0dc080a8 100644
 --- a/target/linux/ipq40xx/image/Makefile
 +++ b/target/linux/ipq40xx/image/Makefile
 @@ -221,7 +221,7 @@ define Device/zyxel_nbg6617
@@ -292,7 +280,7 @@ index d1ee1004fd..5cd11cae23 100644
  	DEVICE_PACKAGES := ipq-wifi-zyxel_nbg6617 uboot-envtools
  endef
 diff --git a/target/linux/ipq806x/image/Makefile b/target/linux/ipq806x/image/Makefile
-index 2902af3231..a7f740ff62 100644
+index 2902af3231a87592e9c040e7e7e1e4e1958a01a5..a7f740ff62e05c7f6f24caa6da538302abee8d8f 100644
 --- a/target/linux/ipq806x/image/Makefile
 +++ b/target/linux/ipq806x/image/Makefile
 @@ -67,7 +67,8 @@ define Device/ZyXELImage
@@ -316,7 +304,7 @@ index 2902af3231..a7f740ff62 100644
  	DEVICE_TITLE := ZyXEL NBG6817
  	DEVICE_PACKAGES := ath10k-firmware-qca9984 e2fsprogs kmod-fs-ext4 losetup
 diff --git a/tools/firmware-utils/Makefile b/tools/firmware-utils/Makefile
-index 4b4af99908..a6379e35eb 100644
+index 4b4af999088455e3d9231b227fecfa71c8284b2f..a6379e35eb01f1cbbe2b1ece3fc9eb20bcd68d90 100644
 --- a/tools/firmware-utils/Makefile
 +++ b/tools/firmware-utils/Makefile
 @@ -70,6 +70,7 @@ define Host/Compile
@@ -329,7 +317,7 @@ index 4b4af99908..a6379e35eb 100644
  	$(call cc,mkheader_gemtek,-lz)
 diff --git a/tools/firmware-utils/src/mkrasimage.c b/tools/firmware-utils/src/mkrasimage.c
 new file mode 100644
-index 0000000000..8eee29cc08
+index 0000000000000000000000000000000000000000..8eee29cc086a04104b51e263aeac0e73340056ca
 --- /dev/null
 +++ b/tools/firmware-utils/src/mkrasimage.c
 @@ -0,0 +1,459 @@
@@ -792,6 +780,3 @@ index 0000000000..8eee29cc08
 +    rootfs_out.size = rootfs_size < rootfs.size ? rootfs.size : rootfs_size;
 +    return build_image();
 +}
--- 
-2.11.0
-
