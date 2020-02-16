@@ -21,9 +21,9 @@ Build commands for the console:
 ```bash
     git clone https://git.openwrt.org/openwrt/openwrt.git
     cd openwrt
-    git reset --hard aed6632d31ff5d29045dc904dedc840d902aad97
+    git reset --hard 5d906a656e3f401e24e73938ff0e342d77dcb16a
     
-    git clone https://github.com/freifunk-bielefeld/firmware.git
+    git clone https://github.com/preterive/firmware.git
     cp -rf firmware/files firmware/package firmware/feeds.conf .
     
     ./scripts/feeds update -a
@@ -32,9 +32,8 @@ Build commands for the console:
     git am --whitespace=nowarn firmware/patches/openwrt/*.patch
     
     cd feeds/routing
-    git am --whitespace=nowarn ../../firmware/patches/packages/routing/*.patch
+    git am --whitespace=nowarn ../../firmware/patches/routing/*.patch
     cd ../../
-
     
     rm -rf firmware tmp
     
