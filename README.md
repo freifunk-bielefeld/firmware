@@ -23,7 +23,7 @@ Build commands for the console:
     cd openwrt
     git reset --hard 5d906a656e3f401e24e73938ff0e342d77dcb16a
     
-    git clone https://github.com/preterive/firmware.git
+    git clone https://github.com/freifunk-bielefeld/firmware.git
     cp -rf firmware/files firmware/package firmware/feeds.conf .
     
     ./scripts/feeds update -a
