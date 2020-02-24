@@ -1,7 +1,7 @@
-From 945df5519bafd889e8b0af129a5fc162e86c0e57 Mon Sep 17 00:00:00 2001
+From 9e70050bf126143cc73d13f76ac2c57c4607b66a Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 21 Sep 2019 13:21:36 +0200
-Subject: [PATCH 5/7] build: set TARGET_ROOTFS_PARTSIZE to make combined image
+Subject: [PATCH 5/9] build: set TARGET_ROOTFS_PARTSIZE to make combined image
  fit in 128MB
 
 Change TARGET_ROOTFS_PARTSIZE from 128 to 104 MiB, so the whole image

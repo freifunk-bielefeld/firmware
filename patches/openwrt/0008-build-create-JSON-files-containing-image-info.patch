@@ -1,0 +1,180 @@
+From 04ec94a70d15ff1243c33010d761aab0402a22c1 Mon Sep 17 00:00:00 2001
+From: Paul Spooren <mail@aparcar.org>
+Date: Sun, 18 Aug 2019 09:56:45 -1000
+Subject: [PATCH 8/9] build: create JSON files containing image info
+
+The JSON info files contain details about the created firmware images
+per device and are stored next to the created images.
+
+The JSON files are stored as "$(IMAGE_PREFIX).json" and contain some
+device/image meta data as well as a list of created firmware images.
+
+An example of openwrt-ramips-rt305x-aztech_hw550-3g.json
+
+    {
+      "id": "aztech_hw550-3g",
+      "image_prefix": "openwrt-ramips-rt305x-aztech_hw550-3g",
+      "images": [
+        {
+          "name": "openwrt-ramips-rt305x-aztech_hw550-3g-squashfs-sysupgrade.bin",
+          "sha256": "db2b34b0ec4a83d9bf612cf66fab0dc3722b191cb9bedf111e5627a4298baf20",
+          "type": "sysupgrade"
+        }
+      ],
+      "metadata_version": 1,
+      "supported_devices": [
+        "aztech,hw550-3g",
+        "hw550-3g"
+      ],
+      "target": "ramips/rt305x",
+      "titles": [
+        {
+          "model": "HW550-3G",
+          "vendor": "Aztech"
+        },
+        {
+          "model": "ALL0239-3G",
+          "vendor": "Allnet"
+        }
+      ],
+      "version_commit": "r10920+123-0cc87b3bac",
+      "version_number": "SNAPSHOT"
+    }
+
+Signed-off-by: Paul Spooren <mail@aparcar.org>
+---
+ config/Config-build.in         |  7 +++++
+ include/image.mk               | 29 +++++++++++++++++-
+ scripts/json_add_image_info.py | 55 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 90 insertions(+), 1 deletion(-)
+ create mode 100755 scripts/json_add_image_info.py
+
+diff --git a/config/Config-build.in b/config/Config-build.in
+index babcba8f94..c521006e47 100644
+--- a/config/Config-build.in
++++ b/config/Config-build.in
+@@ -7,6 +7,13 @@
+ 
+ menu "Global build settings"
+ 
++	config JSON_ADD_IMAGE_INFO
++		bool "Create JSON info files per build image"
++		default BUILDBOT
++		help
++		  The JSON info files contain information about the device and
++		  build images, stored next to the firmware images.
++
+ 	config ALL_NONSHARED
+ 		bool "Select all target specific packages by default"
+ 		select ALL_KMODS
+diff --git a/include/image.mk b/include/image.mk
+index 1538d83df3..63e49dc59e 100644
+--- a/include/image.mk
++++ b/include/image.mk
+@@ -524,7 +524,32 @@ define Device/Build/image
+ 
+   $(BIN_DIR)/$(call IMAGE_NAME,$(1),$(2)): $(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2))
+ 	cp $$^ $$@
+-
++	$(if $(CONFIG_JSON_ADD_IMAGE_INFO), \
++		DEVICE_ID="$(DEVICE_NAME)" \
++		BIN_DIR="$(BIN_DIR)" \
++		IMAGE_NAME="$(IMAGE_NAME)" \
++		IMAGE_TYPE=$(word 1,$(subst ., ,$(2))) \
++		IMAGE_PREFIX="$(IMAGE_PREFIX)" \
++		DEVICE_VENDOR="$(DEVICE_VENDOR)" \
++		DEVICE_MODEL="$(DEVICE_MODEL)" \
++		DEVICE_VARIANT="$(DEVICE_VARIANT)" \
++		DEVICE_ALT0_VENDOR="$(DEVICE_ALT0_VENDOR)" \
++		DEVICE_ALT0_MODEL="$(DEVICE_ALT0_MODEL)" \
++		DEVICE_ALT0_VARIANT="$(DEVICE_ALT0_VARIANT)" \
++		DEVICE_ALT1_VENDOR="$(DEVICE_ALT1_VENDOR)" \
++		DEVICE_ALT1_MODEL="$(DEVICE_ALT1_MODEL)" \
++		DEVICE_ALT1_VARIANT="$(DEVICE_ALT1_VARIANT)" \
++		DEVICE_ALT2_VENDOR="$(DEVICE_ALT2_VENDOR)" \
++		DEVICE_ALT2_MODEL="$(DEVICE_ALT2_MODEL)" \
++		DEVICE_ALT2_VARIANT="$(DEVICE_ALT2_VARIANT)" \
++		DEVICE_TITLE="$(DEVICE_TITLE)" \
++		TARGET="$(BOARD)" \
++		SUBTARGET="$(SUBTARGET)" \
++		VERSION_NUMBER="$(VERSION_NUMBER)" \
++		VERSION_CODE="$(VERSION_CODE)" \
++		SUPPORTED_DEVICES="$(SUPPORTED_DEVICES)" \
++		$(TOPDIR)/scripts/json_add_image_info.py \
++	)
+ endef
+ 
+ define Device/Build/artifact
+@@ -542,6 +567,8 @@ define Device/Build/artifact
+ endef
+ 
+ define Device/Build
++  $(shell rm -f $(BIN_DIR)/$(IMG_PREFIX)-$(1).json)
++
+   $(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),$(call Device/Build/initramfs,$(1)))
+   $(call Device/Build/kernel,$(1))
+ 
+diff --git a/scripts/json_add_image_info.py b/scripts/json_add_image_info.py
+new file mode 100755
+index 0000000000..44b4031f85
+--- /dev/null
++++ b/scripts/json_add_image_info.py
+@@ -0,0 +1,55 @@
++#!/usr/bin/env python3
++
++import json
++import os
++import hashlib
++
++
++def e(variable, default=None):
++    return os.environ.get(variable, default)
++
++
++json_path = "{}{}{}.json".format(e("BIN_DIR"), os.sep, e("IMAGE_PREFIX"))
++
++with open(os.path.join(e("BIN_DIR"), e("IMAGE_NAME")), "rb") as image_file:
++    image_hash = hashlib.sha256(image_file.read()).hexdigest()
++
++
++def get_titles():
++    titles = []
++    for prefix in ["", "ALT0_", "ALT1_", "ALT2_"]:
++        title = {}
++        for var in ["vendor", "model", "variant"]:
++            if e("DEVICE_{}{}".format(prefix, var.upper())):
++                title[var] = e("DEVICE_{}{}".format(prefix, var.upper()))
++
++        if title:
++            titles.append(title)
++
++    if not titles:
++        titles.append({"title": e("DEVICE_TITLE")})
++
++    return titles
++
++
++if not os.path.exists(json_path):
++    device_info = {
++        "id": e("DEVICE_ID"),
++        "image_prefix": e("IMAGE_PREFIX"),
++        "images": [],
++        "metadata_version": 1,
++        "supported_devices": e("SUPPORTED_DEVICES").split(),
++        "target": "{}/{}".format(e("TARGET"), e("SUBTARGET", "generic")),
++        "titles": get_titles(),
++        "version_commit": e("VERSION_CODE"),
++        "version_number": e("VERSION_NUMBER"),
++    }
++else:
++    with open(json_path, "r") as json_file:
++        device_info = json.load(json_file)
++
++image_info = {"type": e("IMAGE_TYPE"), "name": e("IMAGE_NAME"), "sha256": image_hash}
++device_info["images"].append(image_info)
++
++with open(json_path, "w") as json_file:
++    json.dump(device_info, json_file, sort_keys=True, indent="  ")
+-- 
+2.25.0
+

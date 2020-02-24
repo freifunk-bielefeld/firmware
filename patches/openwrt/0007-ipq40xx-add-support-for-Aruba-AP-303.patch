@@ -1,7 +1,7 @@
-From bcb37ec99c4c5f33ddf134a6d563f8216252228d Mon Sep 17 00:00:00 2001
+From 90b42b11fd281966693f119369e23bdfc7e5f29a Mon Sep 17 00:00:00 2001
 From: David Bauer <mail@david-bauer.net>
 Date: Wed, 23 Oct 2019 22:25:14 +0200
-Subject: [PATCH 7/7] ipq40xx: add support for Aruba AP-303
+Subject: [PATCH 7/9] ipq40xx: add support for Aruba AP-303
 
 Hardware
 --------

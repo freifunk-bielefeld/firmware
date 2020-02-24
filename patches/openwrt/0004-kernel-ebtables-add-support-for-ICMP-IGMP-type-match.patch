@@ -1,7 +1,7 @@
-From e74429fc28980ebb922f7b77b8a75dac8b1bed9a Mon Sep 17 00:00:00 2001
+From 05773117615a68572b55a92e3bf91f87afa574e0 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Thu, 12 Apr 2018 07:50:02 +0200
-Subject: [PATCH 4/7] kernel: ebtables: add support for ICMP/IGMP type matches
+Subject: [PATCH 4/9] kernel: ebtables: add support for ICMP/IGMP type matches
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
 ---

@@ -1,7 +1,7 @@
-From 05214a99440ef351b06b1f4641467ac9caad1b09 Mon Sep 17 00:00:00 2001
+From a81f7f61b4b21b1c6dd169dfb8e3b21de48d877f Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 20 Aug 2019 23:16:14 +0200
-Subject: [PATCH 1/7] config/config-build: extend small flash option
+Subject: [PATCH 1/9] config/config-build: extend small flash option
 
 ---
  config/Config-build.in | 2 ++

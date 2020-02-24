@@ -1,7 +1,7 @@
-From 7cfa33a382f4c43a0ea82c3b9e2685fd6e9ed4f3 Mon Sep 17 00:00:00 2001
+From 2dc8313dc614f223d62c995fa22f1fc0a219e99d Mon Sep 17 00:00:00 2001
 From: David Bauer <mail@david-bauer.net>
 Date: Sun, 15 Dec 2019 23:02:54 +0100
-Subject: [PATCH 6/7] ipq-wifi: add BDF for Aruba AP-303
+Subject: [PATCH 6/9] ipq-wifi: add BDF for Aruba AP-303
 
 The BDF originates from the vendor-firmware.
 
