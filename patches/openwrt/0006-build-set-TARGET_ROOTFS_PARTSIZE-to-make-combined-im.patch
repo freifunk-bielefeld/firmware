@@ -1,8 +1,8 @@
-From 9e70050bf126143cc73d13f76ac2c57c4607b66a Mon Sep 17 00:00:00 2001
+From 4a5826c6e882fb43c95e84f60f7fb30fa79f3b68 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Sat, 21 Sep 2019 13:21:36 +0200
-Subject: [PATCH 5/9] build: set TARGET_ROOTFS_PARTSIZE to make combined image
- fit in 128MB
+Subject: [PATCH 06/10] build: set TARGET_ROOTFS_PARTSIZE to make combined
+ image fit in 128MB
 
 Change TARGET_ROOTFS_PARTSIZE from 128 to 104 MiB, so the whole image
 (bootloader + boot + root) will fit on a 128MB CF card by default.
@@ -31,5 +31,5 @@ index 8548c7cd24..dc7a9cbd54 100644
  		  Select the root filesystem partition size.
  
 -- 
-2.25.0
+2.26.2
 

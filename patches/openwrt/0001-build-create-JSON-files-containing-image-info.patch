@@ -1,7 +1,7 @@
-From 04ec94a70d15ff1243c33010d761aab0402a22c1 Mon Sep 17 00:00:00 2001
+From 66e406a7e82f0fae77332db160b596d75f093294 Mon Sep 17 00:00:00 2001
 From: Paul Spooren <mail@aparcar.org>
 Date: Sun, 18 Aug 2019 09:56:45 -1000
-Subject: [PATCH 8/9] build: create JSON files containing image info
+Subject: [PATCH 01/10] build: create JSON files containing image info
 
 The JSON info files contain details about the created firmware images
 per device and are stored next to the created images.
@@ -50,7 +50,7 @@ Signed-off-by: Paul Spooren <mail@aparcar.org>
  create mode 100755 scripts/json_add_image_info.py
 
 diff --git a/config/Config-build.in b/config/Config-build.in
-index babcba8f94..c521006e47 100644
+index 35341833e3..9669fc86c7 100644
 --- a/config/Config-build.in
 +++ b/config/Config-build.in
 @@ -7,6 +7,13 @@
@@ -176,5 +176,5 @@ index 0000000000..44b4031f85
 +with open(json_path, "w") as json_file:
 +    json.dump(device_info, json_file, sort_keys=True, indent="  ")
 -- 
-2.25.0
+2.26.2
 

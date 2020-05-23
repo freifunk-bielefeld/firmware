@@ -1,7 +1,7 @@
-From 90b42b11fd281966693f119369e23bdfc7e5f29a Mon Sep 17 00:00:00 2001
+From 4452e92485a6cb1ae1cad2c9aa739a944319c13a Mon Sep 17 00:00:00 2001
 From: David Bauer <mail@david-bauer.net>
 Date: Wed, 23 Oct 2019 22:25:14 +0200
-Subject: [PATCH 7/9] ipq40xx: add support for Aruba AP-303
+Subject: [PATCH 08/10] ipq40xx: add support for Aruba AP-303
 
 Hardware
 --------
@@ -659,5 +659,5 @@ index f7efd415f1..fc8a883364 100644
  +	qcom-ipq4029-mr33.dtb \
   	qcom-ipq8064-ap148.dtb \
 -- 
-2.25.0
+2.26.2
 

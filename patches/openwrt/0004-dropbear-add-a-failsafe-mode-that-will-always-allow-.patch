@@ -1,7 +1,7 @@
-From c687e2996ad97ef63ec1f956dd3fa46a6ea5fb7d Mon Sep 17 00:00:00 2001
+From f9d78b022355f8ce2847c4eb6b1ca92710df5c76 Mon Sep 17 00:00:00 2001
 From: Matthias Schiffer <mschiffer@universe-factory.net>
 Date: Tue, 27 Sep 2016 03:55:55 +0200
-Subject: [PATCH 3/9] dropbear: add a failsafe mode that will always allow
+Subject: [PATCH 04/10] dropbear: add a failsafe mode that will always allow
  password-less root login
 
 Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
@@ -74,5 +74,5 @@ index 0000000000..bd9cf1ce42
 + 	int noremotetcp;
 + #endif
 -- 
-2.25.0
+2.26.2
 

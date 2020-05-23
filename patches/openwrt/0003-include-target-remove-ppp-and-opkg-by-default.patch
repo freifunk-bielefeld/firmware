@@ -1,7 +1,7 @@
-From cacb4bcf8009a3e2d5d739f8fea1393f71d03f1e Mon Sep 17 00:00:00 2001
+From 591523ab0c397f86f3a6fc9abdd16f1c62423003 Mon Sep 17 00:00:00 2001
 From: Moritz Warning <moritzwarning@web.de>
 Date: Tue, 20 Aug 2019 23:17:52 +0200
-Subject: [PATCH 2/9] include/target: remove ppp and opkg by default
+Subject: [PATCH 03/10] include/target: remove ppp and opkg by default
 
 ---
  include/target.mk | 4 ++--
@@ -26,5 +26,5 @@ index a813ba2d2d..60554af433 100644
  
  ifneq ($(DUMP),)
 -- 
-2.25.0
+2.26.2
 
