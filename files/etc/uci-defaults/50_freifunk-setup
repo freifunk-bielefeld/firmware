@@ -618,6 +618,12 @@ update_210_to_220()
 	uci commit network
 }
 
+update_220_to_230() {
+	# Preserve self signed certificates
+	cp /rom/etc/uhttpd.crt /etc/ 2> /dev/null
+	cp /rom/etc/uhttpd.key /etc/ 2> /dev/null
+}
+
 start()
 {
 	echo "(I) Start freifunk_setup"
