@@ -21,7 +21,7 @@ Build commands for the console:
 ```bash
     git clone https://git.openwrt.org/openwrt/openwrt.git
     cd openwrt
-    git reset --hard 5feb0df9bb3bd83ec49af17d2abc261fc58e2551
+    git reset --hard c963e4267b916fa3b074b5ae1f5b5d2b9fc0af68
     
     git clone -b v2.3.0 https://github.com/freifunk-bielefeld/firmware.git
     cp -rf firmware/files firmware/package firmware/feeds.conf .
