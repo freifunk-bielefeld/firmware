@@ -20,11 +20,10 @@ config peer_group 'backbone'
 	option net 'default'
 	option peer_limit '1'
 
-config peer 'vpn1'
+config peer 'vpn3'
 	option enabled 1
 	option net 'default'
 	option group 'backbone'
 	option key '32051184d8796e788be40bb38970dbc015c793b6cdf6e22f26b8fdbe45c186f4'
-	list remote 'ipv4 "137.74.155.10" port 1244'
-	list remote 'ipv6 "2001:41d0:1000:17ae:bc49::" port 1244'
+	list remote '"vpn3.freifunk-bielefeld" port 1244'
 	option float 0
