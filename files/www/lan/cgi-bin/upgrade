@@ -21,6 +21,7 @@ case "${GET_func:-$POST_func}" in
 		echo "Start update ...."
 
 		#apply OpenWrt or vendor image
+		echo 3 > /proc/sys/vm/drop_caches
 		sysupgrade $args $path
 	;;
 	lookup_upgrade)
